@@ -26,9 +26,10 @@
 Как участвовать
 ==================
 
-Инструкция для добавления изменений находится в  [repository][1].
+Инструкция для добавления изменений находится в repository_.
 
-[1]: https://github.com/iduprojects/masterplanning/blob/main/CONTRIBUTING.md
+.. _repository: https://github.com/iduprojects/masterplanning/blob/main/CONTRIBUTING.md
+
 
 Благодарность
 ==============
