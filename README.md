@@ -4,7 +4,7 @@ The master plan is a product of strategic spatial planning and is a strategy con
 Как участвовать
 ==================
 
-Инструкция для добавления изменений находится в `repository <https://github.com/iduprojects/masterplanning/blob/main/CONTRIBUTING.md>`.
+Инструкция для добавления изменений находится в `_repository <https://github.com/iduprojects/masterplanning/blob/main/CONTRIBUTING.md>`__.
 
 Контакты
 ==============
