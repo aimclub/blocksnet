@@ -8,7 +8,7 @@
    :target: /README_ru.rst
 
 .. |license| image:: https://img.shields.io/badge/License-MIT-yellow.svg
-    :target: https://github.com/Text-Analytics/FactFinder/blob/master/LICENSE.md
+    :target: https://github.com/iduprojects/masterplanning/blob/main/LICENSE.md
     :alt: License
 
 
