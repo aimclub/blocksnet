@@ -8,6 +8,10 @@ The master plan is a product of strategic spatial planning and is a strategy con
 
 [1]: https://github.com/iduprojects/masterplanning/blob/main/CONTRIBUTING.md
 
+Благодарность
+==============
+Проект был выполнен в рамках научно-исследовательской работы магистрантов и аспирантов.
+
 Контакты
 ==============
 При возникновении вопросов или предложений вы можете направить их по адресу: mvin@itmo.ru (Maxim Natykin)
