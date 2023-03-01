@@ -1,4 +1,4 @@
-Masterplanning
+Мастер-план
 ==============
 
 .. |eng| image:: https://img.shields.io/badge/lang-en-red.svg
@@ -21,20 +21,20 @@ Masterplanning
    * - languages
      - | |eng| |rus|
 .. end-badges
-**Master Plan** is a product of strategic spatial planning and is a strategy with a pronounced urban planning component. Such a strategy is developed by the public authorities with the participation of various interest groups and can act either as an independent document complementary to the socio-economic development strategy, or as a comprehensive document integrating the spatial development strategy into the socio-economic development strategy. In foreign practice, digital master planning, which implies decision-making in spatial planning based on urban data, is gaining popularity within the concept of a smart city. Often, digital master planning implies the presence or creation of a digital twin of the city.
+**Мастер-план** является продуктом стратегического пространственного планирования и представляет собой стратегию, содержащую выраженную градостроительную компоненту. Такая стратегия разрабатывается публичной властью при участии различных групп интересов и может выступать либо как самостоятельный документ, дополняющий стратегию социально-экономического развития, либо как комплексный документ, интегрирующий стратегию пространственного развития в стратегию социально-экономического развития. В зарубежной практике в рамках концепции умного города набирает популярность цифровое мастер-планирование (digital master planning), подразумевающее принятие решений в пространственном планировании на основе городских данных. Зачастую цифровое мастер-планирование подразумевает наличие или создание цифрового двойника города.
 
-Contribution Guide
+Как участвовать
 ==================
 
-The contribution guide is available in this repository_.
+Инструкция для добавления изменений находится в repository_.
 
 .. _repository: https://github.com/iduprojects/masterplanning/blob/main/CONTRIBUTING.md
 
 
-Acknowledgment
+Благодарность
 ==============
-The project was carried out as part of the research work of masters and postgraduate students.
+Проект был выполнен в рамках научно-исследовательской работы магистрантов и аспирантов.
 
-Contacts
+Контакты
 ==============
-If you have questions or suggestions, you can contact us at the following address: mvin@itmo.ru (Maxim Natykin)
+При возникновении вопросов или предложений вы можете направить их по адресу: mvin@itmo.ru (Maxim Natykin)
