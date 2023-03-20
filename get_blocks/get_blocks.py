@@ -446,5 +446,3 @@ class Blocks_model:
 
 
         return self.blocks
-
-Blocks_model().get_blocks().to_file('NEW_BLOCKS.geojson')
