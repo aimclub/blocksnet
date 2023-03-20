@@ -5,6 +5,7 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 from functools import reduce
 import osmnx as ox
+import pandas as pd
 
 
 class Blocks_model:
@@ -36,17 +37,20 @@ class Blocks_model:
         '''administrative level must be specified for overpass turbo query.'''
         self.global_crs = 4326 
         '''globally used crs.'''
-        self.ROADS_WIDTH = self.RAILWAYS_WIDTH = 3
+        self.ROADS_WIDTH = self.RAILWAYS_WIDTH = self.NATURE_WIDTH = 3
         '''road geometry buffer in meters. So road geometries won't be thin as a line.'''
         self.WATER_WIDTH = 1 
         '''water geometry buffer in meters. So water geometries in some cases won't be thin as a line.'''
-        self.cutoff_ratio = 0.15 
+        self.unnecessary_geometry_cutoff_ratio = 0.15 
         '''polygon's perimeter to area ratio. Objects with bigger ration will be dropped.'''
-        self.cutoff_area = 1400 
+        self.unnecessary_geometry_cutoff_area = 1_400 
+        '''in meters. Objects with smaller area will be dropped.'''
+        self.park_size_cutoff_area = 10_00 
         '''in meters. Objects with smaller area will be dropped.'''
         self.water_geometry = None
         self.roads_geometry = None
         self.railways_geometry = None
+        self.nature_geometry_boundaries = None
         self.city_geometry = None
 
     def _make_overpass_turbo_request(self, overpass_query, buffer_size:int=0):
@@ -241,6 +245,57 @@ class Blocks_model:
             self.roads_geometry["geometry"] = self.roads_geometry["geometry"].buffer(self.ROADS_WIDTH)
 
             logger.info('Got roads geometries')
+
+    def _get_nature_geometry(self) -> None:
+
+        """ 
+        This geometry will be cut later from city's geometry.
+        Big parks, cemetery and nature_reserve will split blocks from each other. Their geometries are taken using overpass turbo.
+
+
+        Returns
+        -------
+        self.nature_geometry : Union[Polygon, Multipolygon]
+            Geometries of nature entities buffered by 5 meters so it could be cut from city's geometry
+            in the next step. Nature geometry is not returned and setted as a class attribute.
+        """
+
+        if self.nature_geometry_boundaries:
+            logger.info('Got uploaded nature geometries')
+
+        else:
+            logger.info('Nature geometries are not provided. Getting nature geometries from OSM via overpass turbo')
+
+            overpass_query_parks = f"""
+                            [out:json];
+                                    area[name="{self.city_name}"]->.searchArea;
+                                    (
+                                    relation["leisure"="park"](area.searchArea);
+                                    );
+                            out geom;
+                            """
+            
+            overpass_query_greeners = f"""
+                            [out:json];
+                                    area[name="{self.city_name}"]->.searchArea;
+                                    (
+                                    relation["landuse"="cemetery"](area.searchArea);
+                                    relation["landuse"="nature_reserve"](area.searchArea);
+                                    );
+                            out geom;
+                            """
+
+            self.nature_geometry_boundaries = self._make_overpass_turbo_request(overpass_query=overpass_query_parks)
+            self.nature_geometry_boundaries = self.nature_geometry_boundaries[self.nature_geometry_boundaries.area > self.park_size_cutoff_area]
+            other_greeners_tmp = self._make_overpass_turbo_request(overpass_query=overpass_query_greeners)
+            self.nature_geometry_boundaries = pd.concat([self.nature_geometry_boundaries , other_greeners_tmp])
+            del other_greeners_tmp
+
+            self.nature_geometry_boundaries["geometry"] = self.nature_geometry_boundaries.boundary.buffer(self.NATURE_WIDTH)
+            # self.nature_geometry_boundaries.rename(columns={0:"geometry"}, inplace=True)
+
+            logger.info('Got nature geometries')
+
     
     def _fill_deadends(self) -> None:
         
@@ -271,6 +326,7 @@ class Blocks_model:
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
 
+
         # Subtract railways from city's polygon
         self._get_railways_geometry()
         logger.info('Cutting railways geometries')
@@ -285,6 +341,14 @@ class Blocks_model:
         del self.roads_geometry
         logger.info('Cut and deleted roads geometries')
 
+
+        # Subtract parks, cemetery and other nature from city's polygon.
+        # This nature entities are substracted only by their boundaries since the could divide polygons into important parts for master-planning
+        self._get_nature_geometry()
+        logger.info('Cutting nature geometries')
+        self.city_geometry = gpd.overlay(self.city_geometry, self.nature_geometry_boundaries, how='difference')
+        del self.nature_geometry_boundaries
+
         # Fill deadends
         self._fill_deadends()
 
@@ -294,9 +358,9 @@ class Blocks_model:
         logger.info('Cutting water geometries')
         self.blocks = gpd.overlay(self.city_geometry, self.water_geometry, how='difference')
         del self.water_geometry, self.city_geometry
-
-        logger.info('Cut and deleted water geometries\nDeleted city geometry\nGot blocks geometries\n')
-        logger.info('Clearing blocks geometries\nFilling spaces (rings) in blocks')
+        logger.info('Cut and deleted water geometries')
+        logger.info('Deleted city geometry; Got blocks geometries')
+        logger.info('Clearing blocks geometries; Filling spaces (rings) in blocks')
 
         self.blocks = self.blocks.explode(ignore_index=True)
         self.blocks['rings'] = self.blocks.interiors
@@ -305,11 +369,12 @@ class Blocks_model:
         logger.info('Clearing overlaying geometries')
         # Drop overlayed geometries
         new_geometries = self.blocks.unary_union
-        new_geometries = gpd.gpd.GeoDataFrame(new_geometries, geometry=0)
+        new_geometries = gpd.GeoDataFrame(new_geometries, geometry=0)
         self.blocks["geometry"] = new_geometries[0]
         del new_geometries
 
         self.blocks = self.blocks.reset_index()[['index', 'geometry']].rename(columns={'index':'id'})
+        self.blocks = self.blocks.explode(ignore_index=True)
 
         return self.blocks
     
@@ -340,14 +405,14 @@ class Blocks_model:
         self.blocks['area'] = self.blocks['geometry'].area  
 
         # First criteria check: total area
-        self.blocks = self.blocks[self.blocks['area'] > self.cutoff_area]       
+        self.blocks = self.blocks[self.blocks['area'] > self.unnecessary_geometry_cutoff_area]       
         
         # Second criteria check: perimetr / total area ratio
         self.blocks['length'] = self.blocks['geometry'].length
         self.blocks['ratio'] = self.blocks['length'] / self.blocks['area']
 
         # Drop polygons with an aspect ratio less than the threshold
-        self.blocks = self.blocks[self.blocks['ratio'] < self.cutoff_ratio] 
+        self.blocks = self.blocks[self.blocks['ratio'] < self.unnecessary_geometry_cutoff_ratio] 
         self.blocks = self.blocks.loc[:, ['id','geometry']]
 
     def get_blocks(self):
@@ -379,5 +444,5 @@ class Blocks_model:
 
         logger.info('Saving output GeoDataFrame with blocks')
 
-        return self.blocks
 
+        return self.blocks
