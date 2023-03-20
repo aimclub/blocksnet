@@ -11,7 +11,7 @@ class Blocks_model:
 
     """
     A class used to generate city blocks.
-    By default it is initialized for  Petergof city in Saint Petersburg area with its local crs 32636
+    By default it is initialized for  Peterhof city in Saint Petersburg area with its local crs 32636
 
     Attributes
     ----------
@@ -273,13 +273,14 @@ class Blocks_model:
 
         # Subtract railways from city's polygon
         self._get_railways_geometry()
+        logger.info('Cutting railways geometries')
         self.city_geometry = gpd.overlay(self.city_geometry, self.railways_geometry, how='difference')
         del self.railways_geometry
         logger.info('Cut and deleted railways geometries')
 
         # Subtract roads from city's polygon
         self._get_roads_geometry()
-        # self.roads_geometry.to_file('roads.geojson')
+        logger.info('Cutting roads geometries')
         self.city_geometry = gpd.overlay(self.city_geometry, self.roads_geometry, how='difference')
         del self.roads_geometry
         logger.info('Cut and deleted roads geometries')
@@ -290,6 +291,7 @@ class Blocks_model:
         # Subtract water from city's polygon.
         # Water must be substracted after filling road deadends so small cutted water polygons would be kept
         self._get_water_geometry()
+        logger.info('Cutting water geometries')
         self.blocks = gpd.overlay(self.city_geometry, self.water_geometry, how='difference')
         del self.water_geometry, self.city_geometry
 
