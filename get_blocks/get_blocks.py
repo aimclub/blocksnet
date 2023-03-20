@@ -464,6 +464,3 @@ class Blocks_model:
         logger.info("Saving output GeoDataFrame with blocks")
 
         return self.blocks
-
-
-Blocks_model().get_blocks().to_file("NEW_BLOCKS.geojson")
