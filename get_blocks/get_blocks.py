@@ -292,7 +292,7 @@ class Blocks_model:
                                     area[name="{self.city_name}"]->.searchArea;
                                     (
                                     relation["landuse"="cemetery"](area.searchArea);
-                                    relation["landuse"="nature_reserve"](area.searchArea);
+                                    relation["leisure"="nature_reserve"](area.searchArea);
                                     );
                             out geom;
                             """
