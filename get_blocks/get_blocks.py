@@ -29,6 +29,12 @@ class Blocks_model:
     """
 
     def __init__(self, city_name: str = "Петергоф", city_crs: int = 32636, city_admin_level: int = 8):
+
+        """
+        TODO: брать геометрию города сразу и избавиться от admin_level
+        чот сразу не сообразил :()
+        """
+
         self.city_name = city_name
         """city name as a key in a query. City name is the same as city's name in OSM."""
         self.city_crs = city_crs
@@ -55,7 +61,7 @@ class Blocks_model:
 
     def _make_overpass_turbo_request(self, overpass_query, buffer_size: int = 0):
 
-        overpass_url = "http://lz4.overpass-api.de/api/interpreter"
+        overpass_url = "http://overpass-api.de/api/interpreter"
 
         result = requests.get(overpass_url, params={"data": overpass_query}).json()
 
