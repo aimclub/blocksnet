@@ -1,0 +1,7 @@
+geopandas
+loguru
+osm2geojson
+osmnx
+pandas
+requests
+shapely
