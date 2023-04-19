@@ -6,12 +6,12 @@ from functools import reduce
 from typing import Optional
 
 import geopandas as gpd
-import osm2geojson
-import osmnx as ox
+import osm2geojson  # pylint: disable=import-error
+import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
 import requests
 from loguru import logger
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon  # pylint: disable=import-error
 
 
 class BlocksModel:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
