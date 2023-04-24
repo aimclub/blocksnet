@@ -153,9 +153,6 @@ class ProvisionModel:
         print(f"количество кварталов c ошибкой: {blocks_bad}")
 
     def get_provision(self):
-        """
-        TODO: add docstring
-        """
         SUB_GROUP = self.SUB_GROUP
         g = self.g
 
@@ -164,21 +161,34 @@ class ProvisionModel:
                 neighbors = list(g.neighbors(node))
                 capacity = g.nodes[node][f"{SUB_GROUP}_capacity"]
                 if g.nodes[node]["is_living"] == True and g.nodes[node]["population"] > 0:
-                    population = g.nodes[node]["population"]
 
-                    if SUB_GROUP == "schools":
-                        load = (population / 1000) * 120
-                    elif SUB_GROUP == "kindergartens":
-                        load = (population / 1000) * 60
-                    elif SUB_GROUP == "recreational_areas":
-                        load = population
+                    if g.nodes[node][f"provision_{self.SUB_GROUP}"] == 0:
+                        if SUB_GROUP == "schools":
+                            load = (g.nodes[node]["population"] / 1000) * 120
+                        elif SUB_GROUP == "kindergartens":
+                            load = (g.nodes[node]["population"] / 1000) * 60
+                        elif SUB_GROUP == "recreational_areas":
+                            load = g.nodes[node]["population"]
+
+                    elif (
+                        g.nodes[node][f"provision_{self.SUB_GROUP}"] > 0
+                        and g.nodes[node][f"provision_{self.SUB_GROUP}"] < 100
+                    ):
+                        if SUB_GROUP == "schools":
+                            load = (g.nodes[node][f"population_unprov_{SUB_GROUP}"] / 1000) * 120
+                        elif SUB_GROUP == "kindergartens":
+                            load = (g.nodes[node][f"population_unprov_{SUB_GROUP}"] / 1000) * 60
+                        elif SUB_GROUP == "recreational_areas":
+                            load = g.nodes[node][f"population_unprov_{SUB_GROUP}"]
 
                     if load <= capacity:
                         capacity -= load
-                        prov_proc = (population * 100) / population
-                        g.nodes[node][f"provision_{SUB_GROUP}"] = prov_proc
+                        g.nodes[node][f"provision_{SUB_GROUP}"] = 100
                         g.nodes[node][f"id_{SUB_GROUP}"] = node
-                        g.nodes[node][f"population_prov_{SUB_GROUP}"] = population
+                        g.nodes[node][f"population_prov_{SUB_GROUP}"] += g.nodes[node][f"population_unprov_{SUB_GROUP}"]
+                        g.nodes[node][f"population_unprov_{SUB_GROUP}"] -= g.nodes[node][
+                            f"population_unprov_{SUB_GROUP}"
+                        ]
 
                     else:
                         if capacity > 0:
@@ -189,39 +199,59 @@ class ProvisionModel:
                             elif self.SUB_GROUP == "recreational_areas":
                                 prov_people = capacity
 
-                            unprov_people = population - prov_people
-                            prov_pop = (prov_people * 100) / population
                             capacity -= capacity
 
                             g.nodes[node][f"id_{self.SUB_GROUP}"] = node
                             g.nodes[node][f"population_prov_{self.SUB_GROUP}"] += prov_people
-                            g.nodes[node][f"population_unprov_{self.SUB_GROUP}"] = unprov_people
+                            g.nodes[node][f"population_unprov_{self.SUB_GROUP}"] = (
+                                g.nodes[node][f"population_unprov_{self.SUB_GROUP}"] - prov_people
+                            )
                             g.nodes[node][f"id_{self.SUB_GROUP}"] = node
-                            g.nodes[node][f"provision_{self.SUB_GROUP}"] += prov_pop
+                            g.nodes[node][f"provision_{self.SUB_GROUP}"] = (prov_people * 100) / g.nodes[node][
+                                "population"
+                            ]
 
                 for neighbor in neighbors:
                     if (
                         g.nodes[neighbor]["is_living"] == True
                         and g.nodes[neighbor]["population"] > 0
                         and g.nodes[neighbor][f"is_{SUB_GROUP}_service"] == 0
+                        and capacity > 0
                     ):
-                        if capacity > 0:
-                            population = g.nodes[neighbor]["population"]
 
-                            if self.SUB_GROUP == "schools":
-                                load = (population / 1000) * 120
-                            elif self.SUB_GROUP == "kindergartens":
-                                load = (population / 1000) * 60
-                            elif self.SUB_GROUP == "recreational_areas":
-                                load = population
-                            if g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] == 0 and load <= capacity:
-                                prov_proc = (population * 100) / population
-                                g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] = prov_proc
+                        if g.nodes[neighbor]["is_living"] == True and g.nodes[neighbor]["population"] > 0:
+
+                            if g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] == 0:
+                                if SUB_GROUP == "schools":
+                                    load = (g.nodes[neighbor]["population"] / 1000) * 120
+                                elif SUB_GROUP == "kindergartens":
+                                    load = (g.nodes[neighbor]["population"] / 1000) * 60
+                                elif SUB_GROUP == "recreational_areas":
+                                    load = g.nodes[neighbor]["population"]
+
+                            elif (
+                                g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] > 0
+                                and g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] < 100
+                            ):
+                                if SUB_GROUP == "schools":
+                                    load = (g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] / 1000) * 120
+                                elif SUB_GROUP == "kindergartens":
+                                    load = (g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] / 1000) * 60
+                                elif SUB_GROUP == "recreational_areas":
+                                    load = g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"]
+
+                            if load <= capacity:
                                 capacity -= load
-                                g.nodes[neighbor][f"id_{self.SUB_GROUP}"] = node
-                                g.nodes[neighbor][f"population_prov_{self.SUB_GROUP}"] = population
-                                # g.nodes[neighbor][f'population_unprov_{self.SUB_GROUP}'] = 0
-                            elif g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] == 0 and load > capacity:
+                                g.nodes[neighbor][f"provision_{SUB_GROUP}"] = 100
+                                g.nodes[neighbor][f"id_{SUB_GROUP}"] = node
+                                g.nodes[neighbor][f"population_prov_{SUB_GROUP}"] += g.nodes[neighbor][
+                                    f"population_unprov_{SUB_GROUP}"
+                                ]
+                                g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] -= g.nodes[neighbor][
+                                    f"population_unprov_{SUB_GROUP}"
+                                ]
+
+                            else:
                                 if capacity > 0:
                                     if self.SUB_GROUP == "schools":
                                         prov_people = (capacity * 1000) / 120
@@ -230,22 +260,21 @@ class ProvisionModel:
                                     elif self.SUB_GROUP == "recreational_areas":
                                         prov_people = capacity
 
-                                    unprov_people = population - prov_people
-                                    prov_pop = (prov_people * 100) / population
                                     capacity -= capacity
 
+                                    g.nodes[neighbor][f"id_{self.SUB_GROUP}"] = neighbor
                                     g.nodes[neighbor][f"population_prov_{self.SUB_GROUP}"] += prov_people
-                                    g.nodes[neighbor][f"population_unprov_{self.SUB_GROUP}"] = unprov_people
+                                    g.nodes[neighbor][f"population_unprov_{self.SUB_GROUP}"] = (
+                                        g.nodes[neighbor][f"population_unprov_{self.SUB_GROUP}"] - prov_people
+                                    )
                                     g.nodes[neighbor][f"id_{self.SUB_GROUP}"] = node
-                                    g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] += prov_pop
-                            else:
-                                g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] += 0
+                                    g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] = (prov_people * 100) / g.nodes[
+                                        neighbor
+                                    ]["population"]
+
         self.g = g
 
     def get_geo(self):
-        """
-        TODO: add docstring
-        """
         g = self.g
         blocks = self.blocks.copy()
         blocks[f"provision_{self.SUB_GROUP}"] = 0
