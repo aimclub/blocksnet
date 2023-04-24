@@ -95,34 +95,36 @@ class ProvisionModel:
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
 
             for key in blocks_list_tmp_dict.keys():
+
                 if key != idx:
                     self.g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
 
                 else:
+                    
                     self.g.add_node(idx)
 
-                self.g.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
-                self.g.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
+                self.g.nodes[key]['population'] = blocks_geom_dict['population_balanced'][int(key)]
+                self.g.nodes[key]['is_living'] = blocks_geom_dict['is_living'][int(key)]
 
-                if key != idx:
+                if  key != idx:
                     try:
-                        if self.g.nodes[key][f"is_{self.SUB_GROUP}_service"] != 1:
-                            self.g.nodes[key][f"is_{self.SUB_GROUP}_service"] = 0
-                            self.g.nodes[key][f"provision_{self.SUB_GROUP}"] = 0
-                            self.g.nodes[key][f"id_{self.SUB_GROUP}"] = 0
+                        if self.g.nodes[key][f'is_{self.SUB_GROUP}_service'] != 1:
+                            self.g.nodes[key][f'is_{self.SUB_GROUP}_service'] = 0
+                            self.g.nodes[key][f'provision_{self.SUB_GROUP}'] = 0
+                            self.g.nodes[key][f'id_{self.SUB_GROUP}'] = 0
                     except KeyError:
-                        self.g.nodes[key][f"is_{self.SUB_GROUP}_service"] = 0
-                        self.g.nodes[key][f"provision_{self.SUB_GROUP}"] = 0
-                        self.g.nodes[key][f"id_{self.SUB_GROUP}"] = 0
+                        self.g.nodes[key][f'is_{self.SUB_GROUP}_service'] = 0
+                        self.g.nodes[key][f'provision_{self.SUB_GROUP}'] = 0
+                        self.g.nodes[key][f'id_{self.SUB_GROUP}'] = 0
                 else:
-                    self.g.nodes[key][f"is_{self.SUB_GROUP}_service"] = 1
-                    self.g.nodes[key][f"{self.SUB_GROUP}_capacity"] = service_blocks_dict[key]
-                    self.g.nodes[key][f"provision_{self.SUB_GROUP}"] = 0
-                    self.g.nodes[key][f"id_{self.SUB_GROUP}"] = 0
+                    self.g.nodes[key][f'is_{self.SUB_GROUP}_service'] = 1
+                    self.g.nodes[key][f'{self.SUB_GROUP}_capacity'] = service_blocks_dict[key]
+                    self.g.nodes[key][f'provision_{self.SUB_GROUP}'] = 0
+                    self.g.nodes[key][f'id_{self.SUB_GROUP}'] = 0
 
-                if self.g.nodes[key]["is_living"] == True:
-                    self.g.nodes[key][f"population_prov_{self.SUB_GROUP}"] = 0
-                    self.g.nodes[key][f"population_unprov_{self.SUB_GROUP}"] = 0
+                if self.g.nodes[key]['is_living'] == True:
+                    self.g.nodes[key][f'population_prov_{self.SUB_GROUP}'] = 0
+                    self.g.nodes[key][f'population_unprov_{self.SUB_GROUP}'] = blocks_geom_dict['population_balanced'][int(key)]
 
     def get_stats(self):
         """
@@ -159,7 +161,7 @@ class ProvisionModel:
             if g.nodes[node][f'is_{SUB_GROUP}_service'] == 1:
                 neighbors = list(g.neighbors(node))
                 capacity = g.nodes[node][f'{SUB_GROUP}_capacity'] 
-                if g.nodes[node]['is_living'] == True and g.nodes[node]['population'] > 0:
+                if g.nodes[node]['is_living'] == True and g.nodes[node]['population'] > 0 and g.nodes[node][f'provision_{self.SUB_GROUP}'] < 100:
 
                     if  g.nodes[node][f'provision_{self.SUB_GROUP}'] == 0:
                       if SUB_GROUP == 'schools':
@@ -169,7 +171,7 @@ class ProvisionModel:
                       elif SUB_GROUP == 'recreational_areas':
                           load = g.nodes[node]['population']
 
-                    elif  g.nodes[node][f'provision_{self.SUB_GROUP}'] > 0 and g.nodes[node][f'provision_{self.SUB_GROUP}'] < 100:
+                    elif  g.nodes[node][f'provision_{self.SUB_GROUP}'] > 0:
                       if SUB_GROUP == 'schools':
                           load = (g.nodes[node][f'population_unprov_{SUB_GROUP}'] / 1000) * 120
                       elif SUB_GROUP == 'kindergartens':
@@ -205,7 +207,7 @@ class ProvisionModel:
                     if g.nodes[neighbor]['is_living'] == True and g.nodes[neighbor]['population'] > 0 \
                         and g.nodes[neighbor][f'is_{SUB_GROUP}_service'] == 0 and capacity > 0:
 
-                        if g.nodes[neighbor]['is_living'] == True and g.nodes[neighbor]['population'] > 0:
+                        if g.nodes[neighbor]['is_living'] == True and g.nodes[neighbor]['population'] > 0 and g.nodes[neighbor][f'provision_{self.SUB_GROUP}'] < 100:
 
                             if  g.nodes[neighbor][f'provision_{self.SUB_GROUP}'] == 0:
                                 if SUB_GROUP == 'schools':
@@ -215,7 +217,7 @@ class ProvisionModel:
                                 elif SUB_GROUP == 'recreational_areas':
                                     load = g.nodes[neighbor]['population']
 
-                            elif  g.nodes[neighbor][f'provision_{self.SUB_GROUP}'] > 0 and g.nodes[neighbor][f'provision_{self.SUB_GROUP}'] < 100:
+                            elif  g.nodes[neighbor][f'provision_{self.SUB_GROUP}'] > 0:
                                 if SUB_GROUP == 'schools':
                                     load = (g.nodes[neighbor][f'population_unprov_{SUB_GROUP}'] / 1000) * 120
                                 elif SUB_GROUP == 'kindergartens':
