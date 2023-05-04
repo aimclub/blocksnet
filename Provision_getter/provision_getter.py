@@ -22,6 +22,7 @@ class ProvisionModel:
         service_gdf: gpd.GeoDataFrame,
         SUB_GROUP: str = "schools",
         ACCS_TIME=30,
+        standard=61,
         city_crs: int = 32636,
         updated_block_info: dict = None,
     ):
@@ -31,6 +32,7 @@ class ProvisionModel:
         self.buildings = buildings
         self.SUB_GROUP = SUB_GROUP
         self.ACCS_TIME = ACCS_TIME
+        self.standard = standard
         self.city_crs = city_crs
         self.service_gdf = service_gdf
 
@@ -159,6 +161,7 @@ class ProvisionModel:
     def get_provision(self):
         SUB_GROUP = self.SUB_GROUP
         g = self.g
+        standard = self.standard
 
         for node in g.nodes:
             if g.nodes[node][f"is_{SUB_GROUP}_service"] == 1:
@@ -171,20 +174,10 @@ class ProvisionModel:
                 ):
 
                     if g.nodes[node][f"provision_{self.SUB_GROUP}"] == 0:
-                        if SUB_GROUP == "schools":
-                            load = (g.nodes[node]["population"] / 1000) * 120
-                        elif SUB_GROUP == "kindergartens":
-                            load = (g.nodes[node]["population"] / 1000) * 60
-                        elif SUB_GROUP == "recreational_areas":
-                            load = g.nodes[node]["population"]
+                        load = (g.nodes[node][f"population_unprov_{SUB_GROUP}"] / 1000) * standard
 
                     elif g.nodes[node][f"provision_{self.SUB_GROUP}"] > 0:
-                        if SUB_GROUP == "schools":
-                            load = (g.nodes[node][f"population_unprov_{SUB_GROUP}"] / 1000) * 120
-                        elif SUB_GROUP == "kindergartens":
-                            load = (g.nodes[node][f"population_unprov_{SUB_GROUP}"] / 1000) * 60
-                        elif SUB_GROUP == "recreational_areas":
-                            load = g.nodes[node][f"population_unprov_{SUB_GROUP}"]
+                        load = (g.nodes[node][f"population_unprov_{SUB_GROUP}"] / 1000) * standard
 
                     if load <= capacity:
                         capacity -= load
@@ -197,13 +190,7 @@ class ProvisionModel:
 
                     else:
                         if capacity > 0:
-                            if self.SUB_GROUP == "schools":
-                                prov_people = (capacity * 1000) / 120
-                            elif self.SUB_GROUP == "kindergartens":
-                                prov_people = (capacity * 1000) / 60
-                            elif self.SUB_GROUP == "recreational_areas":
-                                prov_people = capacity
-
+                            prov_people = (capacity * 1000) / standard
                             capacity -= capacity
 
                             g.nodes[node][f"id_{self.SUB_GROUP}"] = node
@@ -231,20 +218,10 @@ class ProvisionModel:
                         ):
 
                             if g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] == 0:
-                                if SUB_GROUP == "schools":
-                                    load = (g.nodes[neighbor]["population"] / 1000) * 120
-                                elif SUB_GROUP == "kindergartens":
-                                    load = (g.nodes[neighbor]["population"] / 1000) * 60
-                                elif SUB_GROUP == "recreational_areas":
-                                    load = g.nodes[neighbor]["population"]
+                                load = (g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] / 1000) * standard
 
                             elif g.nodes[neighbor][f"provision_{self.SUB_GROUP}"] > 0:
-                                if SUB_GROUP == "schools":
-                                    load = (g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] / 1000) * 120
-                                elif SUB_GROUP == "kindergartens":
-                                    load = (g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] / 1000) * 60
-                                elif SUB_GROUP == "recreational_areas":
-                                    load = g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"]
+                                load = (g.nodes[neighbor][f"population_unprov_{SUB_GROUP}"] / 1000) * standard
 
                             if load <= capacity:
                                 capacity -= load
@@ -259,13 +236,7 @@ class ProvisionModel:
 
                             else:
                                 if capacity > 0:
-                                    if self.SUB_GROUP == "schools":
-                                        prov_people = (capacity * 1000) / 120
-                                    elif self.SUB_GROUP == "kindergartens":
-                                        prov_people = (capacity * 1000) / 60
-                                    elif self.SUB_GROUP == "recreational_areas":
-                                        prov_people = capacity
-
+                                    prov_people = (capacity * 1000) / standard
                                     capacity -= capacity
 
                                     g.nodes[neighbor][f"id_{self.SUB_GROUP}"] = neighbor
