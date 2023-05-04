@@ -49,17 +49,17 @@ Hectare = 10000
 class MasterPlan:
     def __init__(
         self,
-        area,
-        current_living_area=None,
-        current_industrial_area=None,
-        current_population=None,
-        current_green_area=None,
-        current_op_area=None,
-        current_unprov_schoolkids=None,
-        current_unprov_kids=None,
-        current_unprov_green_population=None,
+        area,  # total area in hectares
+        current_living_area=None,  # the current living area in hectares
+        current_industrial_area=None,  # the current industrial area in hectares
+        current_population=None,  # the current number of people
+        current_green_area=None,  # the current green area in hectares
+        current_op_area=None,  # the current public spaces area in hectares
+        current_unprov_schoolkids=None,  # the current number of students who do not have enough places in
+        # schools
+        current_unprov_kids=None,  # the current number of kids who do not have enough places in kindergartens
+        current_unprov_green_population=None,  # the current number of people who do not have enough green areas
     ):
-
         self.current_living_area = current_living_area if current_living_area is not None else 0
         self.current_industrial_area = current_industrial_area if current_industrial_area is not None else 0
         self.current_population = current_population if current_population is not None else 0
@@ -98,11 +98,11 @@ class MasterPlan:
         self.max_building_area = self.area * self.BA_coef - self.current_living_area - self.current_industrial_area
         self.max_free_area = self.area * self.FA_coef - self.current_green_area - self.current_op_area
 
-        self.max_living_area = self.max_building_area * self.LA_coef - self.current_living_area
-        self.max_industrial_area = self.max_building_area * self.IA_coef - self.current_industrial_area
+        self.max_living_area = self.max_building_area * self.LA_coef
+        self.max_industrial_area = self.max_building_area * self.IA_coef
 
         self.max_living_area_full = self.max_living_area * self.F_max
-        self.max_population = ceil(self.max_living_area_full / self.b_max) - self.current_population
+        self.max_population = ceil(self.max_living_area_full / self.b_max)
 
     def sc_area(self, population):
         return school_area(self.SC_coef * population)[0]
@@ -173,7 +173,7 @@ class MasterPlan:
             (self.max_population / 8, self.b_max, self.G_max),
         ]
 
-    def func(self):
+    def find_optimal_solutions(self):
         self.bnds_and_cons()
         self.make_x0s()
 
@@ -183,10 +183,10 @@ class MasterPlan:
 
         del temp_result
 
-    def select_optimal(self):
+    def select_one_optimal(self):
         return self.results["x"][self.results[self.results["fun"] > 0]["fun"].idxmin()]
 
-    def optimal_values(self, population, b, G):
+    def recalculate_indicators(self, population, b, G):
         population = ceil(population)
         green = self.green_area(population + self.current_unprov_green_population, G) + self.current_green_area
         sc = school_area(self.SC_coef * (population + self.current_unprov_schoolkids))
@@ -210,3 +210,7 @@ class MasterPlan:
             "parking1_area": self.parking1_area(population),
             "parking2_area": self.parking2_area(population),
         }
+
+    def optimal_solution_indicators(self):
+        self.find_optimal_solutions()
+        return self.recalculate_indicators(*self.select_one_optimal())
