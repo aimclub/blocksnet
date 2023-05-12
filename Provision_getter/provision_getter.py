@@ -72,7 +72,7 @@ class ProvisionModel:
         if self.updated_block_info:
             print(self.service_gdf.loc[self.updated_block_info["block_id"], "capacity"])
             self.service_gdf.loc[self.updated_block_info["block_id"], "capacity"] += self.updated_block_info[
-                "school_capacity"
+                f'{self.SUB_GROUP}_capacity'
             ]
             print(self.service_gdf.loc[self.updated_block_info["block_id"], "capacity"])
 
@@ -132,7 +132,7 @@ class ProvisionModel:
         """
         TODO: add docstring
         """
-        g = self.g
+        g = self.g.copy()
         if not g:
             return 0
 
