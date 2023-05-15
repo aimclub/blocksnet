@@ -11,7 +11,7 @@ import requests
 from loguru import logger  # pylint: disable=import-error
 from shapely.geometry import Polygon  # pylint: disable=import-error
 import networkx as nx
-from tqdm.auto import tqdm # pylint: disable=import-error
+from tqdm.auto import tqdm  # pylint: disable=import-error
 
 from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
 
@@ -234,7 +234,9 @@ class DataGetter:
         """
 
         if from_device:
-            df_buildings = gpd.read_parquet("/home/gk/jupyter/masterplanning/mp_tools/output_data/buildings.parquet")
+            df_buildings = gpd.read_parquet(
+                "../masterplanning/masterplan_tools/output_data/buildings.parquet"
+            )
 
         else:
             df_buildings = gpd.read_postgis(
@@ -252,7 +254,7 @@ class DataGetter:
 
         if from_device:
             service_blocks_df = gpd.read_parquet(
-                f"/home/gk/jupyter/masterplanning/mp_tools/output_data/{service_type}.parquet"
+                f"../masterplanning/masterplan_tools/output_data/{service_type}.parquet"
             )
 
         else:
@@ -275,7 +277,7 @@ class DataGetter:
         """
         TODO: add docstring
         """
-        
+
         accessibility = Accessibility(city_crs, blocks, G, option)
         return accessibility.get_matrix()
 
@@ -303,7 +305,7 @@ class DataGetter:
             f"select capacity as current_parking_capacity, "
             f"ST_Centroid(ST_Transform(geometry, {city_crs})) as geom "
             f"from all_services "
-            f"where service_type like 'Парковка' "
+            f"where service_name like 'Парковка' "
             f"and city_id={city_id}",
             con=engine,
         )
@@ -341,14 +343,12 @@ class DataGetter:
         else:
             return 0
 
-    def aggregate_blocks_info(self, blocks, engine, city_id, city_crs, from_device=False):
+    def aggregate_blocks_info(
+        self, blocks, buildings, greenings, parkings
+    ):
         """
         TODO: add docstring
         """
-
-        buildings = self.get_buildings(engine=engine, city_id=city_id, city_crs=city_crs, from_device=from_device)
-        greenings = self.get_greenings(engine=engine, city_id=city_id, city_crs=city_crs)
-        parkings = self.get_parkings(engine=engine, city_id=city_id, city_crs=city_crs)
 
         buildings["living_area"].fillna(0, inplace=True)
         buildings["storeys_count"].fillna(0, inplace=True)
@@ -366,18 +366,22 @@ class DataGetter:
                 }
             )
         )
-        blocks_and_greens = blocks_and_greens.reset_index(drop=True).reset_index(drop=False).rename(columns={"index": "block_id"})
+        blocks_and_greens = (
+            blocks_and_greens.reset_index(drop=True).reset_index(drop=False).rename(columns={"index": "block_id"})
+        )
 
         blocks_and_parkings = (
             gpd.sjoin(blocks, parkings, predicate="intersects", how="left")
             .groupby("id")
             .agg({"current_parking_capacity": "sum"})
         )
-        blocks_and_parkings = blocks_and_parkings.reset_index(drop=True).reset_index(drop=False).rename(columns={"index": "block_id"})
+        blocks_and_parkings = (
+            blocks_and_parkings.reset_index(drop=True).reset_index(drop=False).rename(columns={"index": "block_id"})
+        )
 
         blocks_and_buildings = (
             gpd.sjoin(blocks, buildings, predicate="intersects", how="left")
-            .drop(columns=['index_right'])
+            .drop(columns=["index_right"])
             .groupby("id")
             .agg(
                 {
@@ -390,7 +394,9 @@ class DataGetter:
                 }
             )
         )
-        blocks_and_buildings = blocks_and_buildings.reset_index(drop=True).reset_index(drop=False).rename(columns={"index": "block_id"})
+        blocks_and_buildings = (
+            blocks_and_buildings.reset_index(drop=True).reset_index(drop=False).rename(columns={"index": "block_id"})
+        )
 
         blocks.reset_index(drop=False, inplace=True)
 
@@ -423,20 +429,35 @@ class DataGetter:
 
         return blocks_info_aggregated
 
-
-    def prepare_graph(self, blocks, engine, city_id, city_crs, from_device=False, service_type=None, updated_block_info = None, 
-                      accessibility_matrix = None):
+    def prepare_graph(
+        self, blocks, city_crs, service_type=None, service_gdf=None, accessibility_matrix=None, buildings=None, updated_block_info=None
+    ):
         """
         TODO: add docstring
         """
-        services_accessibility = {"kindergartens":4,"schools":7,"universities":60,"hospitals":60,
-        "policlinics":13,"theaters":60,"cinemas":60,"cafes":30,"bakeries":30,"fastfoods":30, "music_school":30, "sportgrounds":7,
-        "swimming_pools":30,"conveniences":8,"recreational_areas":25,"pharmacies":7,"playgrounds":2,"supermarkets":30}
+        services_accessibility = {
+            "kindergartens": 4,
+            "schools": 7,
+            "universities": 60,
+            "hospitals": 60,
+            "policlinics": 13,
+            "theaters": 60,
+            "cinemas": 60,
+            "cafes": 30,
+            "bakeries": 30,
+            "fastfoods": 30,
+            "music_school": 30,
+            "sportgrounds": 7,
+            "swimming_pools": 30,
+            "conveniences": 8,
+            "recreational_areas": 25,
+            "pharmacies": 7,
+            "playgrounds": 2,
+            "supermarkets": 30,
+        }
 
         accs_time = services_accessibility[service_type]
-
-        buildings = self.get_buildings(engine=engine, city_id=city_id, city_crs=city_crs, from_device=from_device)
-        service = self.get_service(self, service_type=service_type, city_crs=city_crs, engine=engine, city_id=city_id, from_device=from_device)
+        service = service_gdf
 
         blocks_with_buildings = (
             gpd.sjoin(blocks, buildings, predicate="intersects", how="left")
@@ -457,7 +478,7 @@ class DataGetter:
         living_blocks = blocks.loc[:, ["id", "geometry"]].sort_values(by="id").reset_index(drop=True)
 
         service_gdf = (
-            gpd.sjoin(blocks,  service, predicate="intersects")
+            gpd.sjoin(blocks, service, predicate="intersects")
             .groupby("id")
             .agg(
                 {
@@ -469,13 +490,11 @@ class DataGetter:
         if updated_block_info:
             print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
             service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
-                f'{service_type}_capacity'
+                f"{service_type}_capacity"
             ]
             print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
 
-            blocks.loc[updated_block_info["block_id"], "population_balanced"] = updated_block_info[
-                "population"
-            ]
+            blocks.loc[updated_block_info["block_id"], "population_balanced"] = updated_block_info["population"]
 
         blocks_geom_dict = blocks[["id", "population_balanced", "is_living"]].set_index("id").to_dict()
         service_blocks_dict = service_gdf.to_dict()["capacity"]
@@ -494,35 +513,35 @@ class DataGetter:
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
 
             for key in blocks_list_tmp_dict.keys():
-
                 if key != idx:
                     g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
 
                 else:
-                    
                     g.add_node(idx)
 
-                g.nodes[key]['population'] = blocks_geom_dict['population_balanced'][int(key)]
-                g.nodes[key]['is_living'] = blocks_geom_dict['is_living'][int(key)]
+                g.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
+                g.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
 
-                if  key != idx:
+                if key != idx:
                     try:
-                        if g.nodes[key][f'is_{service_type}_service'] != 1:
-                            g.nodes[key][f'is_{service_type}_service'] = 0
-                            g.nodes[key][f'provision_{service_type}'] = 0
-                            g.nodes[key][f'id_{service_type}'] = 0
+                        if g.nodes[key][f"is_{service_type}_service"] != 1:
+                            g.nodes[key][f"is_{service_type}_service"] = 0
+                            g.nodes[key][f"provision_{service_type}"] = 0
+                            g.nodes[key][f"id_{service_type}"] = 0
                     except KeyError:
-                        g.nodes[key][f'is_{service_type}_service'] = 0
-                        g.nodes[key][f'provision_{service_type}'] = 0
-                        g.nodes[key][f'id_{service_type}'] = 0
+                        g.nodes[key][f"is_{service_type}_service"] = 0
+                        g.nodes[key][f"provision_{service_type}"] = 0
+                        g.nodes[key][f"id_{service_type}"] = 0
                 else:
-                    g.nodes[key][f'is_{service_type}_service'] = 1
-                    g.nodes[key][f'{service_type}_capacity'] = service_blocks_dict[key]
-                    g.nodes[key][f'provision_{service_type}'] = 0
-                    g.nodes[key][f'id_{service_type}'] = 0
+                    g.nodes[key][f"is_{service_type}_service"] = 1
+                    g.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
+                    g.nodes[key][f"provision_{service_type}"] = 0
+                    g.nodes[key][f"id_{service_type}"] = 0
 
-                if g.nodes[key]['is_living'] == True:
-                    g.nodes[key][f'population_prov_{service_type}'] = 0
-                    g.nodes[key][f'population_unprov_{service_type}'] = blocks_geom_dict['population_balanced'][int(key)]
+                if g.nodes[key]["is_living"] == True:
+                    g.nodes[key][f"population_prov_{service_type}"] = 0
+                    g.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict["population_balanced"][
+                        int(key)
+                    ]
 
         return g
