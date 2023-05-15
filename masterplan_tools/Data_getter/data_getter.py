@@ -10,6 +10,8 @@ import pandas as pd
 import requests
 from loguru import logger  # pylint: disable=import-error
 from shapely.geometry import Polygon  # pylint: disable=import-error
+import networkx as nx
+from tqdm.auto import tqdm # pylint: disable=import-error
 
 from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
 
@@ -243,7 +245,7 @@ class DataGetter:
             df_buildings.rename(columns={"geom": "geometry"}, inplace=True)
         return df_buildings
 
-    def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=True):
+    def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=False):
         """
         TODO: add docstring
         """
@@ -301,7 +303,7 @@ class DataGetter:
             f"select capacity as current_parking_capacity, "
             f"ST_Centroid(ST_Transform(geometry, {city_crs})) as geom "
             f"from all_services "
-            f"where service_name like 'Парковка' "
+            f"where service_type like 'Парковка' "
             f"and city_id={city_id}",
             con=engine,
         )
@@ -339,7 +341,7 @@ class DataGetter:
         else:
             return 0
 
-    def aggregate_blocks_info(self, blocks, engine, city_id, city_crs, from_device=True):
+    def aggregate_blocks_info(self, blocks, engine, city_id, city_crs, from_device=False):
         """
         TODO: add docstring
         """
@@ -420,3 +422,107 @@ class DataGetter:
         blocks_info_aggregated.drop(columns=["building_area_pyatno", "building_area", "living_area"], inplace=True)
 
         return blocks_info_aggregated
+
+
+    def prepare_graph(self, blocks, engine, city_id, city_crs, from_device=False, service_type=None, updated_block_info = None, 
+                      accessibility_matrix = None):
+        """
+        TODO: add docstring
+        """
+        services_accessibility = {"kindergartens":4,"schools":7,"universities":60,"hospitals":60,
+        "policlinics":13,"theaters":60,"cinemas":60,"cafes":30,"bakeries":30,"fastfoods":30, "music_school":30, "sportgrounds":7,
+        "swimming_pools":30,"conveniences":8,"recreational_areas":25,"pharmacies":7,"playgrounds":2,"supermarkets":30}
+
+        accs_time = services_accessibility[service_type]
+
+        buildings = self.get_buildings(engine=engine, city_id=city_id, city_crs=city_crs, from_device=from_device)
+        service = self.get_service(self, service_type=service_type, city_crs=city_crs, engine=engine, city_id=city_id, from_device=from_device)
+
+        blocks_with_buildings = (
+            gpd.sjoin(blocks, buildings, predicate="intersects", how="left")
+            .drop(columns=["index_right"])
+            .groupby("id")
+            .agg({"population_balanced": "sum", "living_area": "sum"})
+        )
+
+        blocks_with_buildings.reset_index(drop=False, inplace=True)
+        blocks_with_buildings["is_living"] = blocks_with_buildings["living_area"].apply(
+            lambda x: True if x > 0 else False
+        )
+        # blocks_with_buildings.rename(columns={"living_area": "is_living"}, inplace=True)
+
+        blocks = blocks_with_buildings.merge(blocks, right_on="id", left_on="id")
+        blocks = gpd.GeoDataFrame(blocks, geometry="geometry", crs=city_crs)
+
+        living_blocks = blocks.loc[:, ["id", "geometry"]].sort_values(by="id").reset_index(drop=True)
+
+        service_gdf = (
+            gpd.sjoin(blocks,  service, predicate="intersects")
+            .groupby("id")
+            .agg(
+                {
+                    "capacity": "sum",
+                }
+            )
+        )
+        # print(service_blocks_df)
+        if updated_block_info:
+            print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
+            service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
+                f'{service_type}_capacity'
+            ]
+            print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
+
+            blocks.loc[updated_block_info["block_id"], "population_balanced"] = updated_block_info[
+                "population"
+            ]
+
+        blocks_geom_dict = blocks[["id", "population_balanced", "is_living"]].set_index("id").to_dict()
+        service_blocks_dict = service_gdf.to_dict()["capacity"]
+
+        blocks_list = accessibility_matrix.loc[
+            accessibility_matrix.index.isin(service_gdf.index.astype("Int64")),
+            accessibility_matrix.columns.isin(living_blocks["id"]),
+        ]
+
+        g = nx.Graph()
+
+        for idx in tqdm(list(blocks_list.index)):
+            blocks_list_tmp = blocks_list[blocks_list.index == idx]
+            blocks_list.columns = blocks_list.columns.astype(int)
+            blocks_list_tmp = blocks_list_tmp[blocks_list_tmp < accs_time].dropna(axis=1)
+            blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
+
+            for key in blocks_list_tmp_dict.keys():
+
+                if key != idx:
+                    g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
+
+                else:
+                    
+                    g.add_node(idx)
+
+                g.nodes[key]['population'] = blocks_geom_dict['population_balanced'][int(key)]
+                g.nodes[key]['is_living'] = blocks_geom_dict['is_living'][int(key)]
+
+                if  key != idx:
+                    try:
+                        if g.nodes[key][f'is_{service_type}_service'] != 1:
+                            g.nodes[key][f'is_{service_type}_service'] = 0
+                            g.nodes[key][f'provision_{service_type}'] = 0
+                            g.nodes[key][f'id_{service_type}'] = 0
+                    except KeyError:
+                        g.nodes[key][f'is_{service_type}_service'] = 0
+                        g.nodes[key][f'provision_{service_type}'] = 0
+                        g.nodes[key][f'id_{service_type}'] = 0
+                else:
+                    g.nodes[key][f'is_{service_type}_service'] = 1
+                    g.nodes[key][f'{service_type}_capacity'] = service_blocks_dict[key]
+                    g.nodes[key][f'provision_{service_type}'] = 0
+                    g.nodes[key][f'id_{service_type}'] = 0
+
+                if g.nodes[key]['is_living'] == True:
+                    g.nodes[key][f'population_prov_{service_type}'] = 0
+                    g.nodes[key][f'population_unprov_{service_type}'] = blocks_geom_dict['population_balanced'][int(key)]
+
+        return g

@@ -57,6 +57,7 @@ class CityModel:
         self.transport_graph_type = transport_graph_type
         self.blocks_aggregated_info = None
         self.city_blocks = None
+        self.services_graphs = {}
 
     def collect_data(self):
         """
@@ -92,3 +93,10 @@ class CityModel:
         self.blocks_aggregated_info = DataGetter().aggregate_blocks_info(
             blocks=self.city_blocks, engine=self.engine, city_crs=self.city_crs, city_id=self.city_id
         )
+
+        for service in self.service_names:
+            self.services_graphs[service] = DataGetter().prepare_graph(self, blocks=self.city_blocks, engine=self.engine, city_id= self.city_id, 
+            city_crs =self.city_crs, from_device=False, service_type=service, updated_block_info = None, 
+            accessibility_matrix = self.accessibility_matrix
+            )
+
