@@ -234,7 +234,7 @@ class DataGetter:
         """
 
         if from_device:
-            df_buildings = gpd.read_parquet("/home/gk/jupyter/masterplanning/mp_tools/output_data/buildings.parquet")
+            df_buildings = gpd.read_parquet("../masterplanning/masterplan_tools/output_data/buildings.parquet")
 
         else:
             df_buildings = gpd.read_postgis(
@@ -252,7 +252,7 @@ class DataGetter:
 
         if from_device:
             service_blocks_df = gpd.read_parquet(
-                f"/home/gk/jupyter/masterplanning/mp_tools/output_data/{service_type}.parquet"
+                f"../masterplanning/masterplan_tools/output_data/{service_type}.parquet"
             )
 
         else:
@@ -303,7 +303,7 @@ class DataGetter:
             f"select capacity as current_parking_capacity, "
             f"ST_Centroid(ST_Transform(geometry, {city_crs})) as geom "
             f"from all_services "
-            f"where service_type like 'Парковка' "
+            f"where service_name like 'Парковка' "
             f"and city_id={city_id}",
             con=engine,
         )
@@ -341,14 +341,10 @@ class DataGetter:
         else:
             return 0
 
-    def aggregate_blocks_info(self, blocks, engine, city_id, city_crs, from_device=False):
+    def aggregate_blocks_info(self, blocks, buildings, greenings, parkings):
         """
         TODO: add docstring
         """
-
-        buildings = self.get_buildings(engine=engine, city_id=city_id, city_crs=city_crs, from_device=from_device)
-        greenings = self.get_greenings(engine=engine, city_id=city_id, city_crs=city_crs)
-        parkings = self.get_parkings(engine=engine, city_id=city_id, city_crs=city_crs)
 
         buildings["living_area"].fillna(0, inplace=True)
         buildings["storeys_count"].fillna(0, inplace=True)
@@ -432,13 +428,12 @@ class DataGetter:
     def prepare_graph(
         self,
         blocks,
-        engine,
-        city_id,
         city_crs,
-        from_device=False,
         service_type=None,
-        updated_block_info=None,
+        service_gdf=None,
         accessibility_matrix=None,
+        buildings=None,
+        updated_block_info=None,
     ):
         """
         TODO: add docstring
@@ -465,11 +460,7 @@ class DataGetter:
         }
 
         accs_time = services_accessibility[service_type]
-
-        buildings = self.get_buildings(engine=engine, city_id=city_id, city_crs=city_crs, from_device=from_device)
-        service = self.get_service(
-            self, service_type=service_type, city_crs=city_crs, engine=engine, city_id=city_id, from_device=from_device
-        )
+        service = service_gdf
 
         blocks_with_buildings = (
             gpd.sjoin(blocks, buildings, predicate="intersects", how="left")
@@ -525,12 +516,10 @@ class DataGetter:
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
 
             for key in blocks_list_tmp_dict.keys():
-
                 if key != idx:
                     g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
 
                 else:
-
                     g.add_node(idx)
 
                 g.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
