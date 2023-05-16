@@ -45,7 +45,7 @@ class ProvisionModel:
         self.blocks = blocks
         self.service_name = service_name
         self.city_crs = city_crs
-        self.standard = (self.standard_dict[self.service_name],)
+        self.standard = self.standard_dict[self.service_name]
         self.g = g
 
     def get_stats(self):
@@ -90,7 +90,7 @@ class ProvisionModel:
                 ):
 
                     if g.nodes[node][f"provision_{self.service_name}"] == 0:
-                        load = g.nodes[node][f"population_unprov_{self.service_name}"] / 1000 * standard
+                        load = (g.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
 
                     elif g.nodes[node][f"provision_{self.service_name}"] > 0:
                         load = (g.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
@@ -110,7 +110,6 @@ class ProvisionModel:
                         if capacity > 0:
                             prov_people = (capacity * 1000) / standard
                             capacity -= capacity
-
                             g.nodes[node][f"id_{self.service_name}"] = node
                             g.nodes[node][f"population_prov_{self.service_name}"] += prov_people
                             g.nodes[node][f"population_unprov_{self.service_name}"] = (
@@ -172,6 +171,7 @@ class ProvisionModel:
     def get_geo(self):
         g = self.g.copy()
         blocks = self.blocks.copy()
+        blocks.index = blocks.index.astype(str)
         blocks[f"provision_{self.service_name}"] = 0
         blocks[f"id_{self.service_name}"] = 0
         blocks[f"population_prov_{self.service_name}"] = 0
