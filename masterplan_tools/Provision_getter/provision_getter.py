@@ -71,7 +71,7 @@ class ProvisionModel:
                 if g.nodes[node]['is_living'] == True and g.nodes[node]['population'] > 0 and g.nodes[node][f'provision_{self.service_name}'] < 100:
 
                     if  g.nodes[node][f'provision_{self.service_name}'] == 0:
-                        load = (g.nodes[node][f'population_unprov_{self.service_name}'] / 1000) * standard
+                        load = g.nodes[node][f'population_unprov_{self.service_name}'] / 1000 * standard
                         
                     elif  g.nodes[node][f'provision_{self.service_name}'] > 0:
                         load = (g.nodes[node][f'population_unprov_{self.service_name}'] / 1000) * standard
