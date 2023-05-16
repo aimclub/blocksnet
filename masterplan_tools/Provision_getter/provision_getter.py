@@ -129,7 +129,7 @@ class ProvisionModel:
     def get_geo(self):
         g = self.g.copy()
         blocks = self.blocks.copy()
-        blocks.index = blocks.index.astype(str)
+        # blocks.index = blocks.index.astype(str)
         blocks[f'provision_{self.service_name}'] = 0
         blocks[f'id_{self.service_name}'] = 0
         blocks[f'population_prov_{self.service_name}'] = 0 

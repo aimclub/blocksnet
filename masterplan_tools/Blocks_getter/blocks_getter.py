@@ -181,9 +181,8 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
 
         logger.info("Starting: dropping overlayed geometries")
         new_geometries = self.city_geometry.unary_union
-        new_geometries = gpd.GeoDataFrame(new_geometries, geometry=0)
-        self.city_geometry["geometry"] = new_geometries[0]
-        del new_geometries
+        new_geometries = gpd.GeoDataFrame([new_geometries], geometry=0)
+
         logger.info("Finished: dropping overlayed geometries")
 
     def fix_blocks_geometries(self):

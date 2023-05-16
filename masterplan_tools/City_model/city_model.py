@@ -62,7 +62,9 @@ class CityModel:
         self.from_device = from_device
         self.greenings = None
         self.parkings = None
-
+        self.updated_block_info = None
+        
+        
     def collect_data(self):
         """
         TODO: add docstring
@@ -70,7 +72,7 @@ class CityModel:
 
         if self.from_device:
             self.city_blocks = gpd.read_parquet(
-                "/home/gk/jupyter/masterplanning/masterplan_tools/output_data/blocks.parquet"
+                "../masterplanning/masterplan_tools/output_data/blocks.parquet"
             )
         else:
             self.city_geometry = DataGetter().get_city_geometry(self.city_name, self.city_admin_level)
