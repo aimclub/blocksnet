@@ -60,8 +60,8 @@ class CityModel:
         self.city_blocks = None
         self.services_graphs = {}
         self.from_device = from_device
-        self.greenings=None
-        self.parkings=None
+        self.greenings = None
+        self.parkings = None
 
     def collect_data(self):
         """
