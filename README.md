@@ -10,6 +10,7 @@
 [![PyPi](https://img.shields.io/pypi/v/scikit-learn)](https://pypi.org/project/scikit-learn)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![DOI](https://zenodo.org/badge/21369/scikit-learn/scikit-learn.svg)](https://zenodo.org/badge/latestdoi/21369/scikit-learn/scikit-learn)
+[![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/iduprojects/masterplanning/blob/develop/LICENSE.md)
 
 ## The purpose of the project
 
@@ -35,16 +36,10 @@
 
 ## Installation
 
-*Masterplanning* can be installed with `pip`:
+*Masterplanning* can be installed with `git clone`:
 
 ```
-pip install masterplanning
-```
-
-Then you can easily import Masterplan
-
-```
-from masterplanning import CityInformationModel
+git clone https://github.com/iduprojects/masterplanning
 ```
 
 ## Examples
@@ -57,7 +52,7 @@ Example notebooks are listed below:
 
 ## Project Structure
 
-Stable version is located ...
+Stable version is located in **main** *//todo*
 
 Repo includes:
 
@@ -67,11 +62,11 @@ Repo includes:
 
 ## Documentation
 
-Link to the documentation
+*//todo*
 
 ## License
 
-Link to the license
+The project has [MIT license]()
 
 ## Acknowledgments
 
