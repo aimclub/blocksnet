@@ -548,3 +548,45 @@ class DataGetter:
                     ]
 
         return g
+
+    def balance_data(self, gdf, polygon, school, kindergarten, greening):
+
+        Hectare = 10000
+        intersecting_blocks = gpd.overlay(gdf, polygon, how="intersection").drop(columns=["id"])
+        intersecting_blocks.rename(columns={"id_1": "id"}, inplace=True)
+        gdf = intersecting_blocks
+
+        gdf["current_building_area"] = gdf["current_living_area"] + gdf["current_industrial_area"]
+        gdf_ = gdf[
+            [
+                "block_id",
+                "area",
+                "current_living_area",
+                "current_industrial_area",
+                "current_population",
+                "current_green_area",
+                "floors",
+            ]
+        ]
+
+        gdf_ = (
+            gdf_.merge(school[["id", "population_unprov_schools"]], left_on="block_id", right_on="id")
+            .merge(kindergarten[["id", "population_unprov_kindergartens"]], left_on="block_id", right_on="id")
+            .merge(greening[["id", "population_unprov_recreational_areas"]], left_on="block_id", right_on="id")
+        )
+        gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
+
+        gdf_["area"] = gdf_["area"] / Hectare
+        gdf_["current_living_area"] = gdf_["current_living_area"] / Hectare
+        gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / Hectare
+        gdf_["current_green_area"] = gdf_["current_green_area"] / Hectare
+
+        df_sum = gdf_.sum()
+        df_sum["floors"] = gdf_["floors"].mean()
+        df_new = pd.DataFrame(df_sum).T
+
+        sample = df_new[df_new["area"] > 7].sample()
+        sample = sample.to_dict("records")
+        block = sample[0].copy()
+
+        return block
