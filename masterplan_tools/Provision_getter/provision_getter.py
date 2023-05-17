@@ -10,8 +10,14 @@ tqdm.pandas()
 
 class ProvisionModel:
     """
-    TODO: add docstring
-    TODO: manage UserWarning: pandas only supports SQLAlchemy connectable
+    This class represents a model for calculating the provision of a specified service in a city.
+
+    Attributes:
+        blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
+        service_name (str): The name of the service for which the provision is being calculated.
+        city_crs (int): The coordinate reference system used by the city.
+        standard (int): The standard value for the specified service, taken from the `standard_dict` attribute.
+        g (int): The value of the `g` attribute.
     """
 
     standard_dict = {
@@ -50,7 +56,12 @@ class ProvisionModel:
 
     def get_stats(self):
         """
-        TODO: add docstring
+        This function prints statistics about the blocks in the `g` attribute of the object. The statistics include the number of
+        blocks with the service specified by the `service_name` attribute, the number of residential blocks, the total number of blocks,
+        and the number of blocks with errors.
+
+        Returns:
+            None
         """
         g = self.g.copy()
         if not g:
@@ -76,6 +87,13 @@ class ProvisionModel:
         print(f"количество кварталов c ошибкой: {blocks_bad}")
 
     def get_provision(self):
+        """
+        This function calculates the provision of a specified service in a city. The provision is calculated based on the data in the `g` attribute of the object.
+
+        Returns:
+            nx.Graph: A networkx graph representing the city's road network with updated data about the provision of the specified service.
+        """
+
         g = self.g
         standard = self.standard
 
@@ -169,6 +187,13 @@ class ProvisionModel:
         self.g = g
 
     def get_geo(self):
+        """
+        This function returns a copy of the `blocks` attribute of the object with updated values for the service specified by
+        the `service_name` attribute. The values are updated based on the data in the `g` attribute of the object.
+
+        Returns:
+            DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
+        """
         g = self.g.copy()
         blocks = self.blocks.copy()
         # blocks.index = blocks.index.astype(str)
@@ -207,6 +232,13 @@ class ProvisionModel:
         return blocks
 
     def run(self):
+        """
+        This function runs the model to calculate the provision of a specified service in a city. The function calls the `get_stats`, `get_provision`, and `get_geo` methods of the object.
+
+        Returns:
+            DataFrame: A DataFrame containing information about the provision of the specified service in the city.
+        """
+
         self.get_stats()
         self.get_provision()
         return self.get_geo()

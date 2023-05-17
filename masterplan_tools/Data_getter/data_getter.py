@@ -28,6 +28,17 @@ class DataGetter:
         self.city_crs = city_crs
 
     def _make_overpass_turbo_request(self, overpass_query, buffer_size: int = 0):
+        """
+        This function makes a request to the Overpass API using the given query and returns a GeoDataFrame containing the resulting data.
+
+        Args:
+            overpass_query (str): The Overpass query to use in the request.
+            buffer_size (int, optional): The size of the buffer to apply to line-like geometries. Defaults to 0.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing the data returned by the Overpass API.
+        """
+
         result = requests.get(
             self.OVERPASS_URL, params={"data": overpass_query}, timeout=600
         ).json()  # pylint: disable=missing-timeout
@@ -230,7 +241,18 @@ class DataGetter:
 
     def get_buildings(self, engine=None, city_crs=None, city_id=None, from_device=True):
         """
-        TODO: add docstring
+        This function returns a GeoDataFrame containing information about buildings in a city. The data can be read
+        from a local file or from a PostGIS database.
+
+        Args:
+            engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
+            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
+            city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
+            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
+            Defaults to True.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about buildings in the city.
         """
 
         if from_device:
@@ -247,9 +269,20 @@ class DataGetter:
 
     def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=False):
         """
-        TODO: add docstring
-        """
+        This function returns a GeoDataFrame containing information about blocks with a specified service in a city.
+        The data can be read from a local file or from a PostGIS database.
 
+        Args:
+            service_type (str, optional): The type of service to retrieve data for. Defaults to None.
+            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
+            engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
+            city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
+            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
+            Defaults to False.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about blocks with the specified service in the city.
+        """
         if from_device:
             service_blocks_df = gpd.read_parquet(
                 f"../masterplanning/masterplan_tools/output_data/{service_type}.parquet"
@@ -273,7 +306,16 @@ class DataGetter:
 
     def get_accessibility_matrix(self, city_crs=None, blocks=None, G=None, option=None):
         """
-        TODO: add docstring
+        This function returns an accessibility matrix for a city. The matrix is calculated using the `Accessibility` class.
+
+        Args:
+            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
+            blocks (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about the blocks in the city. Defaults to None.
+            G (nx.Graph, optional): A networkx graph representing the city's road network. Defaults to None.
+            option (str, optional): An option specifying how the accessibility matrix should be calculated. Defaults to None.
+
+        Returns:
+            np.ndarray: An accessibility matrix for the city.
         """
 
         accessibility = Accessibility(city_crs, blocks, G, option)
@@ -281,7 +323,15 @@ class DataGetter:
 
     def get_greenings(self, engine, city_id, city_crs):
         """
-        TODO: add docstring
+        This function returns a GeoDataFrame containing information about green spaces in a city. The data is read from a PostGIS database.
+
+        Args:
+            engine (sqlalchemy.engine.Engine): A SQLAlchemy engine object used to connect to the PostGIS database.
+            city_id (int): The ID of the city in the PostGIS database.
+            city_crs (int): The coordinate reference system used by the city.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about green spaces in the city.
         """
 
         greenings = gpd.read_postgis(
@@ -296,7 +346,15 @@ class DataGetter:
 
     def get_parkings(self, engine, city_id, city_crs):
         """
-        TODO: add docstring
+        This function returns a GeoDataFrame containing information about parking spaces in a city. The data is read from a PostGIS database.
+
+        Args:
+            engine (sqlalchemy.engine.Engine): A SQLAlchemy engine object used to connect to the PostGIS database.
+            city_id (int): The ID of the city in the PostGIS database.
+            city_crs (int): The coordinate reference system used by the city.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about parking spaces in the city.
         """
 
         parkings = gpd.read_postgis(
@@ -312,7 +370,13 @@ class DataGetter:
 
     def _get_living_area(self, row):
         """
-        TODO: add docstring
+        This function calculates the living area of a building based on the data in the given row.
+
+        Args:
+            row (pd.Series): A row of data containing information about a building.
+
+        Returns:
+            float: The calculated living area of the building.
         """
 
         if row["living_area"]:
@@ -333,7 +397,14 @@ class DataGetter:
 
     def _get_living_area_pyatno(self, row):
         """
-        TODO: add docstring
+        This function calculates the living area of a building based on the data in the given row. If the `living_area` attribute is
+        not available, the function returns 0.
+
+        Args:
+            row (pd.Series): A row of data containing information about a building.
+
+        Returns:
+            float: The calculated living area of the building.
         """
 
         if row["living_area"]:
@@ -343,7 +414,17 @@ class DataGetter:
 
     def aggregate_blocks_info(self, blocks, buildings, greenings, parkings):
         """
-        TODO: add docstring
+        This function aggregates information about blocks in a city. The information includes data about buildings, green spaces,
+        and parking spaces.
+
+        Args:
+            blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
+            buildings (gpd.GeoDataFrame): A GeoDataFrame containing information about buildings in the city.
+            greenings (gpd.GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
+            parkings (gpd.GeoDataFrame): A GeoDataFrame containing information about parking spaces in the city.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing aggregated information about blocks in the city.
         """
 
         buildings["living_area"].fillna(0, inplace=True)
@@ -436,7 +517,22 @@ class DataGetter:
         updated_block_info=None,
     ):
         """
-        TODO: add docstring
+        This function prepares a graph for calculating the provision of a specified service in a city.
+
+        Args:
+            blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
+            city_crs (int): The coordinate reference system used by the city.
+            service_type (str, optional): The type of service to calculate the provision for. Defaults to None.
+            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the specified service in the city.
+            Defaults to None.
+            accessibility_matrix (np.ndarray, optional): An accessibility matrix for the city. Defaults to None.
+            buildings (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about buildings in the city. Defaults to None.
+            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information about blocks in the city.
+            Defaults to None.
+
+        Returns:
+            nx.Graph: A networkx graph representing the city's road network with additional data for calculating the provision of the
+            specified service.
         """
         services_accessibility = {
             "kindergartens": 4,
@@ -550,6 +646,19 @@ class DataGetter:
         return g
 
     def balance_data(self, gdf, polygon, school, kindergarten, greening):
+        """
+        This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon and calculating various statistics.
+
+        Args:
+            gdf (gpd.GeoDataFrame): A GeoDataFrame containing information about blocks in the city.
+            polygon (gpd.GeoSeries): A polygon representing the area to intersect with the blocks.
+            school (gpd.GeoDataFrame): A GeoDataFrame containing information about schools in the city.
+            kindergarten (gpd.GeoDataFrame): A GeoDataFrame containing information about kindergartens in the city.
+            greening (gpd.GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
+
+        Returns:
+            dict: A dictionary containing balanced data about blocks in the city.
+        """
 
         Hectare = 10000
         intersecting_blocks = gpd.overlay(gdf, polygon, how="intersection").drop(columns=["id"])
