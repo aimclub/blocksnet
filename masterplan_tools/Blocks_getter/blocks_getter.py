@@ -100,6 +100,16 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         """
         This function makes one multipolygon from many polygons in the gdf.
         This step allows to fasten overlay operation between two multipolygons since overlay operates ineratively by passed geometry objects.
+
+        Attributes
+        ----------
+        gdf: gpd.GeoDataFrame
+            A gdf with many geometries-polygons
+
+        Returns
+        -------
+        gdf: Multipolygon
+            A gdf with one geometry-MultiPolygon
         """
 
         gdf = gdf.unary_union
@@ -112,6 +122,10 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
     def _cut_railways(self) -> None:
         """
         Subtract railways from city's polygon
+
+        Returns
+        -------
+        None
         """
 
         logger.info("Starting: cutting railways geometries")
@@ -126,6 +140,10 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
     def _cut_roads(self) -> None:
         """
         Subtract roads from city's polygon
+
+        Returns
+        -------
+        None
         """
 
         logger.info("Starting: cutting roads geometries")
@@ -142,6 +160,10 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         Subtract parks, cemetery and other nature from city's polygon.
         This nature entities are substracted only by their boundaries since the could divide polygons into important
         parts for master-planning
+
+        Returns
+        -------
+            None
         """
 
         logger.info("Starting: cutting nature geometries")
@@ -159,6 +181,10 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         """
         Subtract water from city's polygon.
         Water must be substracted after filling road deadends so small cutted water polygons would be kept
+
+        Returns
+        -------
+        None
         """
 
         logger.info("Starting: cutting water geometries")
@@ -175,18 +201,28 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
     def _drop_overlayed_geometries(self) -> None:
         """
         Drop overlayed geometries
+
+        Returns
+        -------
+        None
         """
 
         logger.info("Starting: dropping overlayed geometries")
         new_geometries = self.city_geometry.unary_union
         new_geometries = gpd.GeoDataFrame([new_geometries], geometry=0)
+        self.city_geometry["geometry"] = new_geometries[0]
+        del new_geometries
 
         logger.info("Finished: dropping overlayed geometries")
 
-    def _fix_blocks_geometries(self):
+    def _fix_blocks_geometries(self) -> None:
         """
         After cutting several entities from city's geometry, blocks might have unnecessary spaces inside them.
         In order to avoid this, this functions prepares data to fill empty spaces inside each city block
+
+        Returns
+        -------
+        None
         """
 
         logger.info("Starting: fixing blocks' geometries")
@@ -256,7 +292,7 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         self.city_geometry = self.city_geometry[self.city_geometry["ratio"] < self.geometry_cutoff_ration]
         self.city_geometry = self.city_geometry.loc[:, ["id", "geometry"]]
 
-    def get_blocks(self):
+    def get_blocks(self) -> gpd.GeoDataFrame:
         """
         Main method.
 
