@@ -1,5 +1,6 @@
 """
-TODO: add docstring
+The aim of this module is to create one window to get any required data for other methods.
+All data is gathered once and then reused during calculations.
 """
 
 import geopandas as gpd  # pylint: disable=import-error
@@ -49,24 +50,44 @@ class CityModel:
         self.roads_geometry: Optional[gpd.GeoDataFrame] = None
         self.railways_geometry: Optional[gpd.GeoDataFrame] = None
         self.nature_geometry_boundaries: Optional[gpd.GeoDataFrame] = None
+        """GeoDataFrame of the nature in the city"""
         self.city_geometry: Optional[gpd.GeoDataFrame] = None
+        """geometry of the city on specified admin level"""
         self.city_id: int = city_id
+        """city id is specified to be used id db queries"""
         self.service_types = service_types
+        """service type must be the same as on the OSM"""
         self.accessibility_matrix = accessibility_matrix
+        """
+        if the user have pre-caluclated accessibility_matrix, else the matrix will be calculated
+        (!) Imortant note: it takes about 40GB RAM to calculate the matris on the intermodal or walk graph
+        for the big city like Saint Petersburg
+        """
         self.engine = engine
+        """engine is used to connect to local db. Else the data will be gathered from OSM"""
         self.graph = graph
+        """
+        if there's no specified accessibility matrix, the graph is needed to calculate one.
+        For example, the graph could be the drive, bike or walk graph from the OSM
+        or the intermodal graph from CityGeoTools
+        """
         self.transport_graph_type = transport_graph_type
+        """transport graph type is the description of the data in the graph"""
         self.blocks_aggregated_info = None
+        """aggregated info by blocks is needed for further balancing"""
         self.city_blocks = None
         self.services_graphs = {}
         self.from_device = from_device
+        """this argument specifies if the data uploaded from file (output data) or from other source e.g. OSM or db"""
         self.greenings = None
         self.parkings = None
         self.updated_block_info = None
+        """updated block is the id of the modified block"""
 
     def collect_data(self):
         """
-        TODO: add docstring
+        This method calls DataGetter and BlocksCutter to collect all required data
+        to get city blocks and service graphs.
         """
 
         if self.from_device:

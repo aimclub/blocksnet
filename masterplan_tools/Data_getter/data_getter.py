@@ -1,5 +1,6 @@
 """
-Module Desc
+This module gets data from the OSM. The module also implements several methods of data processing.
+These methods allow you to connect parts of the data processing pipeline.
 """
 
 
@@ -9,7 +10,6 @@ import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
 import requests
 from loguru import logger  # pylint: disable=import-error
-from shapely.geometry import Polygon  # pylint: disable=import-error
 import networkx as nx
 from tqdm.auto import tqdm  # pylint: disable=import-error
 
@@ -18,14 +18,19 @@ from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
 
 class DataGetter:
     """
-    TODO: add docstring
+    This class is used to get and pre-process data to be used in calculations in other modules.
     """
 
     GLOBAL_CRS = 4326
+    """this crs is used in osm by default"""
     OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+    """stable working api link for overpass turbo"""
+    HECTARE = 10000
+    """hectares in meters"""
 
     def __init__(self, city_crs: int = 32636) -> None:
         self.city_crs = city_crs
+        """city's crs system; must be specified; by default crs is set for Saint Petersburg, Russia"""
 
     def _make_overpass_turbo_request(self, overpass_query, buffer_size: int = 0):
         """
@@ -184,7 +189,6 @@ class DataGetter:
 
         roads_geometry = roads_geometry.reset_index(level=[0, 1]).reset_index(drop=True).to_crs(self.city_crs)
 
-        # Buffer roads ways to get their close to actual size.
         roads_geometry["geometry"] = roads_geometry["geometry"].buffer(roads_buffer)
 
         logger.info("Got roads geometries")
@@ -233,7 +237,6 @@ class DataGetter:
         del other_greeners_tmp
 
         nature_geometry_boundaries["geometry"] = nature_geometry_boundaries.boundary.buffer(nature_buffer)
-        # self.nature_geometry_boundaries.rename(columns={0:"geometry"}, inplace=True)
 
         logger.info("Got nature geometries")
 
@@ -603,7 +606,7 @@ class DataGetter:
             accessibility_matrix.columns.isin(living_blocks["id"]),
         ]
 
-        g = nx.Graph()
+        service_graph = nx.Graph()
 
         for idx in tqdm(list(blocks_list.index)):
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
@@ -613,37 +616,37 @@ class DataGetter:
 
             for key in blocks_list_tmp_dict.keys():
                 if key != idx:
-                    g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
+                    service_graph.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
 
                 else:
-                    g.add_node(idx)
+                    service_graph.add_node(idx)
 
-                g.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
-                g.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
+                service_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
+                service_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
 
                 if key != idx:
                     try:
-                        if g.nodes[key][f"is_{service_type}_service"] != 1:
-                            g.nodes[key][f"is_{service_type}_service"] = 0
-                            g.nodes[key][f"provision_{service_type}"] = 0
-                            g.nodes[key][f"id_{service_type}"] = 0
+                        if service_graph.nodes[key][f"is_{service_type}_service"] != 1:
+                            service_graph.nodes[key][f"is_{service_type}_service"] = 0
+                            service_graph.nodes[key][f"provision_{service_type}"] = 0
+                            service_graph.nodes[key][f"id_{service_type}"] = 0
                     except KeyError:
-                        g.nodes[key][f"is_{service_type}_service"] = 0
-                        g.nodes[key][f"provision_{service_type}"] = 0
-                        g.nodes[key][f"id_{service_type}"] = 0
+                        service_graph.nodes[key][f"is_{service_type}_service"] = 0
+                        service_graph.nodes[key][f"provision_{service_type}"] = 0
+                        service_graph.nodes[key][f"id_{service_type}"] = 0
                 else:
-                    g.nodes[key][f"is_{service_type}_service"] = 1
-                    g.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
-                    g.nodes[key][f"provision_{service_type}"] = 0
-                    g.nodes[key][f"id_{service_type}"] = 0
+                    service_graph.nodes[key][f"is_{service_type}_service"] = 1
+                    service_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
+                    service_graph.nodes[key][f"provision_{service_type}"] = 0
+                    service_graph.nodes[key][f"id_{service_type}"] = 0
 
-                if g.nodes[key]["is_living"] == True:
-                    g.nodes[key][f"population_prov_{service_type}"] = 0
-                    g.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict["population_balanced"][
-                        int(key)
-                    ]
+                if service_graph.nodes[key]["is_living"]:
+                    service_graph.nodes[key][f"population_prov_{service_type}"] = 0
+                    service_graph.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict[
+                        "population_balanced"
+                    ][int(key)]
 
-        return g
+        return service_graph
 
     def balance_data(self, gdf, polygon, school, kindergarten, greening):
         """
@@ -660,7 +663,6 @@ class DataGetter:
             dict: A dictionary containing balanced data about blocks in the city.
         """
 
-        Hectare = 10000
         intersecting_blocks = gpd.overlay(gdf, polygon, how="intersection").drop(columns=["id"])
         intersecting_blocks.rename(columns={"id_1": "id"}, inplace=True)
         gdf = intersecting_blocks
@@ -685,10 +687,10 @@ class DataGetter:
         )
         gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
 
-        gdf_["area"] = gdf_["area"] / Hectare
-        gdf_["current_living_area"] = gdf_["current_living_area"] / Hectare
-        gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / Hectare
-        gdf_["current_green_area"] = gdf_["current_green_area"] / Hectare
+        gdf_["area"] = gdf_["area"] / self.HECTARE
+        gdf_["current_living_area"] = gdf_["current_living_area"] / self.HECTARE
+        gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / self.HECTARE
+        gdf_["current_green_area"] = gdf_["current_green_area"] / self.HECTARE
 
         df_sum = gdf_.sum()
         df_sum["floors"] = gdf_["floors"].mean()

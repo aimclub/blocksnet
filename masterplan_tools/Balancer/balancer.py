@@ -1,19 +1,32 @@
+"""
+This module contains methods
+for calculating a new feasibility profile for the selected area.
+The maximisation parameter is the number of inhabitants.
+"""
+
+
 import pandas as pd
+import numpy as np
 from math import ceil
 from scipy.optimize import minimize
 
 
 def kindergarten_area_ranges(kids):
-    kids = ceil(kids)
-    if kids in range(140, 180):
-        return (0.72, 180)
-    elif kids in range(180, 281):
-        return (1.1, 280)
-    else:
-        return (0, 0)
+    """
+    This method select weight coefficient according to the kindergarten area
+    """
+
+    conditions = [140 < kids < 180, 250 < kids < 28]
+
+    choices = [(0.72, 180), (1.1, 280)]
+    return np.select(conditions, choices, default=(0, 0))
 
 
 def kindergarten_area(kids):
+    """
+    This method select weight coefficient according to the number of children in kindergarten
+    """
+
     if kids >= 280:
         return tuple(map(sum, zip(kindergarten_area_ranges(280), kindergarten_area(kids - 280))))
     else:
@@ -21,29 +34,33 @@ def kindergarten_area(kids):
 
 
 def school_area_ranges(schoolkids):
+    """
+    This method select weight coefficient according to the number of schoolchildren
+    """
+
     schoolkids = ceil(schoolkids)
-    if schoolkids in range(100, 250):
-        return (1.2, 250)
-    elif schoolkids in range(250, 300):
-        return (1.1, 300)
-    elif schoolkids in range(300, 600):
-        return (1.3, 600)
-    elif schoolkids in range(600, 800):
-        return (1.5, 800)
-    elif schoolkids in range(800, 1101):
-        return (1.8, 1100)
-    else:
-        return (0, 0)
+
+    conditions = [
+        100 < schoolkids < 250,
+        250 < schoolkids < 300,
+        300 < schoolkids < 600,
+        600 < schoolkids < 800,
+        800 < schoolkids < 1101,
+    ]
+
+    choices = [(1.2, 250), (1.1, 300), (1.3, 600), (1.5, 800), (1.8, 1100)]
+    return np.select(conditions, choices, default=(0, 0))
 
 
 def school_area(schoolkids):
+    """
+    This method select weight coefficient according to the school area
+    """
+
     if schoolkids >= 1100:
         return tuple(map(sum, zip(school_area_ranges(1100), school_area(schoolkids - 1100))))
     else:
         return school_area_ranges(schoolkids)
-
-
-Hectare = 10000
 
 
 class MasterPlan:
@@ -76,6 +93,7 @@ class MasterPlan:
         self.bnds = None
         self.x0s = None
         self.results = pd.DataFrame()
+        self.Hectare = 10000
 
         self.area = area
 
@@ -85,12 +103,12 @@ class MasterPlan:
         self.IA_coef = 0.3
 
         self.F_max = 9
-        self.b_min, self.b_max = 18 / Hectare, 30 / Hectare
-        self.G_min, self.G_max = 6 / Hectare, 12 / Hectare
+        self.b_min, self.b_max = 18 / self.Hectare, 30 / self.Hectare
+        self.G_min, self.G_max = 6 / self.Hectare, 12 / self.Hectare
 
         self.SC_coef = 0.12
         self.KG_coef = 0.061
-        self.OP_coef = 0.03 / Hectare
+        self.OP_coef = 0.03 / self.Hectare
 
         self.P1_coef = 0.42 * 0.15 * 0.012
         self.P2_coef = 0.42 * 0.35 * 0.005
@@ -195,8 +213,8 @@ class MasterPlan:
         return {
             "area": self.area,
             "population": population + self.current_population,
-            "b": b * Hectare,
-            "green_coef_G": G * Hectare,
+            "b": b * self.Hectare,
+            "green_coef_G": G * self.Hectare,
             "living_area": self.living_area(population, b) + self.current_living_area,
             "schools_area": sc[0],
             "schools_capacity": sc[1],
