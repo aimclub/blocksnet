@@ -27,7 +27,6 @@
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
   - [Examples](#examples)
-  - [Project Structure](#project-structure)
   - [Documentation](#documentation)
   - [License](#license)
   - [Acknowledgments](#acknowledgments)
@@ -50,19 +49,9 @@ Example notebooks are listed below:
 2. [Evaluating service type provision]() - example of service type provision assessment on city information model.
 3. [Balancing urban territory parameters]() - example of balancing urban territory parameters for requirements generation. 
 
-## Project Structure
-
-Stable version is located in **main** *//todo*
-
-Repo includes:
-
-- package 1 - explanation
-- package 2 - explanation
-- etc.
-
 ## Documentation
 
-*//todo*
+We have a [GitBook page](https://iduprojects.gitbook.io/masterplanning/)
 
 ## License
 
