@@ -10,6 +10,8 @@ import pandas as pd
 import requests
 from loguru import logger  # pylint: disable=import-error
 from shapely.geometry import Polygon  # pylint: disable=import-error
+import networkx as nx
+from tqdm.auto import tqdm  # pylint: disable=import-error
 
 from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
 
@@ -26,6 +28,17 @@ class DataGetter:
         self.city_crs = city_crs
 
     def _make_overpass_turbo_request(self, overpass_query, buffer_size: int = 0):
+        """
+        This function makes a request to the Overpass API using the given query and returns a GeoDataFrame containing the resulting data.
+
+        Args:
+            overpass_query (str): The Overpass query to use in the request.
+            buffer_size (int, optional): The size of the buffer to apply to line-like geometries. Defaults to 0.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing the data returned by the Overpass API.
+        """
+
         result = requests.get(
             self.OVERPASS_URL, params={"data": overpass_query}, timeout=600
         ).json()  # pylint: disable=missing-timeout
@@ -228,11 +241,22 @@ class DataGetter:
 
     def get_buildings(self, engine=None, city_crs=None, city_id=None, from_device=True):
         """
-        TODO: add docstring
+        This function returns a GeoDataFrame containing information about buildings in a city. The data can be read
+        from a local file or from a PostGIS database.
+
+        Args:
+            engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
+            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
+            city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
+            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
+            Defaults to True.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about buildings in the city.
         """
 
         if from_device:
-            df_buildings = gpd.read_parquet("/home/gk/jupyter/masterplanning/mp_tools/output_data/buildings.parquet")
+            df_buildings = gpd.read_parquet("../masterplanning/masterplan_tools/output_data/buildings.parquet")
 
         else:
             df_buildings = gpd.read_postgis(
@@ -243,14 +267,25 @@ class DataGetter:
             df_buildings.rename(columns={"geom": "geometry"}, inplace=True)
         return df_buildings
 
-    def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=True):
+    def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=False):
         """
-        TODO: add docstring
-        """
+        This function returns a GeoDataFrame containing information about blocks with a specified service in a city.
+        The data can be read from a local file or from a PostGIS database.
 
+        Args:
+            service_type (str, optional): The type of service to retrieve data for. Defaults to None.
+            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
+            engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
+            city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
+            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
+            Defaults to False.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about blocks with the specified service in the city.
+        """
         if from_device:
             service_blocks_df = gpd.read_parquet(
-                f"/home/gk/jupyter/masterplanning/mp_tools/output_data/{service_type}.parquet"
+                f"../masterplanning/masterplan_tools/output_data/{service_type}.parquet"
             )
 
         else:
@@ -271,7 +306,16 @@ class DataGetter:
 
     def get_accessibility_matrix(self, city_crs=None, blocks=None, G=None, option=None):
         """
-        TODO: add docstring
+        This function returns an accessibility matrix for a city. The matrix is calculated using the `Accessibility` class.
+
+        Args:
+            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
+            blocks (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about the blocks in the city. Defaults to None.
+            G (nx.Graph, optional): A networkx graph representing the city's road network. Defaults to None.
+            option (str, optional): An option specifying how the accessibility matrix should be calculated. Defaults to None.
+
+        Returns:
+            np.ndarray: An accessibility matrix for the city.
         """
 
         accessibility = Accessibility(city_crs, blocks, G, option)
@@ -279,7 +323,15 @@ class DataGetter:
 
     def get_greenings(self, engine, city_id, city_crs):
         """
-        TODO: add docstring
+        This function returns a GeoDataFrame containing information about green spaces in a city. The data is read from a PostGIS database.
+
+        Args:
+            engine (sqlalchemy.engine.Engine): A SQLAlchemy engine object used to connect to the PostGIS database.
+            city_id (int): The ID of the city in the PostGIS database.
+            city_crs (int): The coordinate reference system used by the city.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about green spaces in the city.
         """
 
         greenings = gpd.read_postgis(
@@ -294,7 +346,15 @@ class DataGetter:
 
     def get_parkings(self, engine, city_id, city_crs):
         """
-        TODO: add docstring
+        This function returns a GeoDataFrame containing information about parking spaces in a city. The data is read from a PostGIS database.
+
+        Args:
+            engine (sqlalchemy.engine.Engine): A SQLAlchemy engine object used to connect to the PostGIS database.
+            city_id (int): The ID of the city in the PostGIS database.
+            city_crs (int): The coordinate reference system used by the city.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing information about parking spaces in the city.
         """
 
         parkings = gpd.read_postgis(
@@ -310,7 +370,13 @@ class DataGetter:
 
     def _get_living_area(self, row):
         """
-        TODO: add docstring
+        This function calculates the living area of a building based on the data in the given row.
+
+        Args:
+            row (pd.Series): A row of data containing information about a building.
+
+        Returns:
+            float: The calculated living area of the building.
         """
 
         if row["living_area"]:
@@ -331,7 +397,14 @@ class DataGetter:
 
     def _get_living_area_pyatno(self, row):
         """
-        TODO: add docstring
+        This function calculates the living area of a building based on the data in the given row. If the `living_area` attribute is
+        not available, the function returns 0.
+
+        Args:
+            row (pd.Series): A row of data containing information about a building.
+
+        Returns:
+            float: The calculated living area of the building.
         """
 
         if row["living_area"]:
@@ -339,14 +412,20 @@ class DataGetter:
         else:
             return 0
 
-    def aggregate_blocks_info(self, blocks, engine, city_id, city_crs, from_device=True):
+    def aggregate_blocks_info(self, blocks, buildings, greenings, parkings):
         """
-        TODO: add docstring
-        """
+        This function aggregates information about blocks in a city. The information includes data about buildings, green spaces,
+        and parking spaces.
 
-        buildings = self.get_buildings(engine=engine, city_id=city_id, city_crs=city_crs, from_device=from_device)
-        greenings = self.get_greenings(engine=engine, city_id=city_id, city_crs=city_crs)
-        parkings = self.get_parkings(engine=engine, city_id=city_id, city_crs=city_crs)
+        Args:
+            blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
+            buildings (gpd.GeoDataFrame): A GeoDataFrame containing information about buildings in the city.
+            greenings (gpd.GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
+            parkings (gpd.GeoDataFrame): A GeoDataFrame containing information about parking spaces in the city.
+
+        Returns:
+            gpd.GeoDataFrame: A GeoDataFrame containing aggregated information about blocks in the city.
+        """
 
         buildings["living_area"].fillna(0, inplace=True)
         buildings["storeys_count"].fillna(0, inplace=True)
@@ -426,3 +505,197 @@ class DataGetter:
         blocks_info_aggregated.drop(columns=["building_area_pyatno", "building_area", "living_area"], inplace=True)
 
         return blocks_info_aggregated
+
+    def prepare_graph(
+        self,
+        blocks,
+        city_crs,
+        service_type=None,
+        service_gdf=None,
+        accessibility_matrix=None,
+        buildings=None,
+        updated_block_info=None,
+    ):
+        """
+        This function prepares a graph for calculating the provision of a specified service in a city.
+
+        Args:
+            blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
+            city_crs (int): The coordinate reference system used by the city.
+            service_type (str, optional): The type of service to calculate the provision for. Defaults to None.
+            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the specified service in the city.
+            Defaults to None.
+            accessibility_matrix (np.ndarray, optional): An accessibility matrix for the city. Defaults to None.
+            buildings (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about buildings in the city. Defaults to None.
+            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information about blocks in the city.
+            Defaults to None.
+
+        Returns:
+            nx.Graph: A networkx graph representing the city's road network with additional data for calculating the provision of the
+            specified service.
+        """
+        services_accessibility = {
+            "kindergartens": 4,
+            "schools": 7,
+            "universities": 60,
+            "hospitals": 60,
+            "policlinics": 13,
+            "theaters": 60,
+            "cinemas": 60,
+            "cafes": 30,
+            "bakeries": 30,
+            "fastfoods": 30,
+            "music_school": 30,
+            "sportgrounds": 7,
+            "swimming_pools": 30,
+            "conveniences": 8,
+            "recreational_areas": 25,
+            "pharmacies": 7,
+            "playgrounds": 2,
+            "supermarkets": 30,
+        }
+
+        accs_time = services_accessibility[service_type]
+        service = service_gdf
+
+        blocks_with_buildings = (
+            gpd.sjoin(blocks, buildings, predicate="intersects", how="left")
+            .drop(columns=["index_right"])
+            .groupby("id")
+            .agg({"population_balanced": "sum", "living_area": "sum"})
+        )
+
+        blocks_with_buildings.reset_index(drop=False, inplace=True)
+        blocks_with_buildings["is_living"] = blocks_with_buildings["living_area"].apply(
+            lambda x: True if x > 0 else False
+        )
+        # blocks_with_buildings.rename(columns={"living_area": "is_living"}, inplace=True)
+
+        blocks = blocks_with_buildings.merge(blocks, right_on="id", left_on="id")
+        blocks = gpd.GeoDataFrame(blocks, geometry="geometry", crs=city_crs)
+
+        living_blocks = blocks.loc[:, ["id", "geometry"]].sort_values(by="id").reset_index(drop=True)
+
+        service_gdf = (
+            gpd.sjoin(blocks, service, predicate="intersects")
+            .groupby("id")
+            .agg(
+                {
+                    "capacity": "sum",
+                }
+            )
+        )
+        # print(service_blocks_df)
+        if updated_block_info:
+            print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
+            service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
+                f"{service_type}_capacity"
+            ]
+            print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
+
+            blocks.loc[updated_block_info["block_id"], "population_balanced"] = updated_block_info["population"]
+
+        blocks_geom_dict = blocks[["id", "population_balanced", "is_living"]].set_index("id").to_dict()
+        service_blocks_dict = service_gdf.to_dict()["capacity"]
+
+        blocks_list = accessibility_matrix.loc[
+            accessibility_matrix.index.isin(service_gdf.index.astype("Int64")),
+            accessibility_matrix.columns.isin(living_blocks["id"]),
+        ]
+
+        g = nx.Graph()
+
+        for idx in tqdm(list(blocks_list.index)):
+            blocks_list_tmp = blocks_list[blocks_list.index == idx]
+            blocks_list.columns = blocks_list.columns.astype(int)
+            blocks_list_tmp = blocks_list_tmp[blocks_list_tmp < accs_time].dropna(axis=1)
+            blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
+
+            for key in blocks_list_tmp_dict.keys():
+                if key != idx:
+                    g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
+
+                else:
+                    g.add_node(idx)
+
+                g.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
+                g.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
+
+                if key != idx:
+                    try:
+                        if g.nodes[key][f"is_{service_type}_service"] != 1:
+                            g.nodes[key][f"is_{service_type}_service"] = 0
+                            g.nodes[key][f"provision_{service_type}"] = 0
+                            g.nodes[key][f"id_{service_type}"] = 0
+                    except KeyError:
+                        g.nodes[key][f"is_{service_type}_service"] = 0
+                        g.nodes[key][f"provision_{service_type}"] = 0
+                        g.nodes[key][f"id_{service_type}"] = 0
+                else:
+                    g.nodes[key][f"is_{service_type}_service"] = 1
+                    g.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
+                    g.nodes[key][f"provision_{service_type}"] = 0
+                    g.nodes[key][f"id_{service_type}"] = 0
+
+                if g.nodes[key]["is_living"] == True:
+                    g.nodes[key][f"population_prov_{service_type}"] = 0
+                    g.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict["population_balanced"][
+                        int(key)
+                    ]
+
+        return g
+
+    def balance_data(self, gdf, polygon, school, kindergarten, greening):
+        """
+        This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon and calculating various statistics.
+
+        Args:
+            gdf (gpd.GeoDataFrame): A GeoDataFrame containing information about blocks in the city.
+            polygon (gpd.GeoSeries): A polygon representing the area to intersect with the blocks.
+            school (gpd.GeoDataFrame): A GeoDataFrame containing information about schools in the city.
+            kindergarten (gpd.GeoDataFrame): A GeoDataFrame containing information about kindergartens in the city.
+            greening (gpd.GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
+
+        Returns:
+            dict: A dictionary containing balanced data about blocks in the city.
+        """
+
+        Hectare = 10000
+        intersecting_blocks = gpd.overlay(gdf, polygon, how="intersection").drop(columns=["id"])
+        intersecting_blocks.rename(columns={"id_1": "id"}, inplace=True)
+        gdf = intersecting_blocks
+
+        gdf["current_building_area"] = gdf["current_living_area"] + gdf["current_industrial_area"]
+        gdf_ = gdf[
+            [
+                "block_id",
+                "area",
+                "current_living_area",
+                "current_industrial_area",
+                "current_population",
+                "current_green_area",
+                "floors",
+            ]
+        ]
+
+        gdf_ = (
+            gdf_.merge(school[["id", "population_unprov_schools"]], left_on="block_id", right_on="id")
+            .merge(kindergarten[["id", "population_unprov_kindergartens"]], left_on="block_id", right_on="id")
+            .merge(greening[["id", "population_unprov_recreational_areas"]], left_on="block_id", right_on="id")
+        )
+        gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
+
+        gdf_["area"] = gdf_["area"] / Hectare
+        gdf_["current_living_area"] = gdf_["current_living_area"] / Hectare
+        gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / Hectare
+        gdf_["current_green_area"] = gdf_["current_green_area"] / Hectare
+
+        df_sum = gdf_.sum()
+        df_sum["floors"] = gdf_["floors"].mean()
+        df_new = pd.DataFrame(df_sum).T
+
+        sample = df_new[df_new["area"] > 7].sample()
+        sample = sample.to_dict("records")
+        block = sample[0].copy()
+
+        return block
