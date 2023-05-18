@@ -1,5 +1,6 @@
 """
-Module Desc
+This module gets data from the OSM. The module also implements several methods of data processing.
+These methods allow you to connect parts of the data processing pipeline.
 """
 
 
@@ -9,7 +10,6 @@ import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
 import requests
 from loguru import logger  # pylint: disable=import-error
-from shapely.geometry import Polygon  # pylint: disable=import-error
 import networkx as nx
 from tqdm.auto import tqdm  # pylint: disable=import-error
 
@@ -18,14 +18,19 @@ from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
 
 class DataGetter:
     """
-    TODO: add docstring
+    This class is used to get and pre-process data to be used in calculations in other modules.
     """
 
     GLOBAL_CRS = 4326
+    """this crs is used in osm by default"""
     OVERPASS_URL = "https://overpass-api.de/api/interpreter"
+    """stable working api link for overpass turbo"""
+    HECTARE = 10000
+    """hectares in meters"""
 
     def __init__(self, city_crs: int = 32636) -> None:
         self.city_crs = city_crs
+        """city's crs system; must be specified; by default crs is set for Saint Petersburg, Russia"""
 
     def _make_overpass_turbo_request(self, overpass_query, buffer_size: int = 0):
         """
@@ -184,7 +189,6 @@ class DataGetter:
 
         roads_geometry = roads_geometry.reset_index(level=[0, 1]).reset_index(drop=True).to_crs(self.city_crs)
 
-        # Buffer roads ways to get their close to actual size.
         roads_geometry["geometry"] = roads_geometry["geometry"].buffer(roads_buffer)
 
         logger.info("Got roads geometries")
@@ -233,7 +237,6 @@ class DataGetter:
         del other_greeners_tmp
 
         nature_geometry_boundaries["geometry"] = nature_geometry_boundaries.boundary.buffer(nature_buffer)
-        # self.nature_geometry_boundaries.rename(columns={0:"geometry"}, inplace=True)
 
         logger.info("Got nature geometries")
 
@@ -241,14 +244,14 @@ class DataGetter:
 
     def get_buildings(self, engine=None, city_crs=None, city_id=None, from_device=True):
         """
-        This function returns a GeoDataFrame containing information about buildings in a city. The data can be read 
+        This function returns a GeoDataFrame containing information about buildings in a city. The data can be read
         from a local file or from a PostGIS database.
 
         Args:
             engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
             city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
             city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
-            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database. 
+            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
             Defaults to True.
 
         Returns:
@@ -256,9 +259,7 @@ class DataGetter:
         """
 
         if from_device:
-            df_buildings = gpd.read_parquet(
-                "../masterplanning/masterplan_tools/output_data/buildings.parquet"
-            )
+            df_buildings = gpd.read_parquet("../masterplanning/masterplan_tools/output_data/buildings.parquet")
 
         else:
             df_buildings = gpd.read_postgis(
@@ -271,7 +272,7 @@ class DataGetter:
 
     def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=False):
         """
-        This function returns a GeoDataFrame containing information about blocks with a specified service in a city. 
+        This function returns a GeoDataFrame containing information about blocks with a specified service in a city.
         The data can be read from a local file or from a PostGIS database.
 
         Args:
@@ -279,7 +280,7 @@ class DataGetter:
             city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
             engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
             city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
-            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database. 
+            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
             Defaults to False.
 
         Returns:
@@ -399,7 +400,7 @@ class DataGetter:
 
     def _get_living_area_pyatno(self, row):
         """
-        This function calculates the living area of a building based on the data in the given row. If the `living_area` attribute is 
+        This function calculates the living area of a building based on the data in the given row. If the `living_area` attribute is
         not available, the function returns 0.
 
         Args:
@@ -414,11 +415,9 @@ class DataGetter:
         else:
             return 0
 
-    def aggregate_blocks_info(
-        self, blocks, buildings, greenings, parkings
-    ):
+    def aggregate_blocks_info(self, blocks, buildings, greenings, parkings):
         """
-        This function aggregates information about blocks in a city. The information includes data about buildings, green spaces, 
+        This function aggregates information about blocks in a city. The information includes data about buildings, green spaces,
         and parking spaces.
 
         Args:
@@ -511,7 +510,14 @@ class DataGetter:
         return blocks_info_aggregated
 
     def prepare_graph(
-        self, blocks, city_crs, service_type=None, service_gdf=None, accessibility_matrix=None, buildings=None, updated_block_info=None
+        self,
+        blocks,
+        city_crs,
+        service_type=None,
+        service_gdf=None,
+        accessibility_matrix=None,
+        buildings=None,
+        updated_block_info=None,
     ):
         """
         This function prepares a graph for calculating the provision of a specified service in a city.
@@ -520,15 +526,15 @@ class DataGetter:
             blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
             city_crs (int): The coordinate reference system used by the city.
             service_type (str, optional): The type of service to calculate the provision for. Defaults to None.
-            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the specified service in the city. 
+            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the specified service in the city.
             Defaults to None.
             accessibility_matrix (np.ndarray, optional): An accessibility matrix for the city. Defaults to None.
             buildings (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about buildings in the city. Defaults to None.
-            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information about blocks in the city. 
+            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information about blocks in the city.
             Defaults to None.
 
         Returns:
-            nx.Graph: A networkx graph representing the city's road network with additional data for calculating the provision of the 
+            nx.Graph: A networkx graph representing the city's road network with additional data for calculating the provision of the
             specified service.
         """
         services_accessibility = {
@@ -600,7 +606,7 @@ class DataGetter:
             accessibility_matrix.columns.isin(living_blocks["id"]),
         ]
 
-        g = nx.Graph()
+        service_graph = nx.Graph()
 
         for idx in tqdm(list(blocks_list.index)):
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
@@ -610,37 +616,37 @@ class DataGetter:
 
             for key in blocks_list_tmp_dict.keys():
                 if key != idx:
-                    g.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
+                    service_graph.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
 
                 else:
-                    g.add_node(idx)
+                    service_graph.add_node(idx)
 
-                g.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
-                g.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
+                service_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
+                service_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
 
                 if key != idx:
                     try:
-                        if g.nodes[key][f"is_{service_type}_service"] != 1:
-                            g.nodes[key][f"is_{service_type}_service"] = 0
-                            g.nodes[key][f"provision_{service_type}"] = 0
-                            g.nodes[key][f"id_{service_type}"] = 0
+                        if service_graph.nodes[key][f"is_{service_type}_service"] != 1:
+                            service_graph.nodes[key][f"is_{service_type}_service"] = 0
+                            service_graph.nodes[key][f"provision_{service_type}"] = 0
+                            service_graph.nodes[key][f"id_{service_type}"] = 0
                     except KeyError:
-                        g.nodes[key][f"is_{service_type}_service"] = 0
-                        g.nodes[key][f"provision_{service_type}"] = 0
-                        g.nodes[key][f"id_{service_type}"] = 0
+                        service_graph.nodes[key][f"is_{service_type}_service"] = 0
+                        service_graph.nodes[key][f"provision_{service_type}"] = 0
+                        service_graph.nodes[key][f"id_{service_type}"] = 0
                 else:
-                    g.nodes[key][f"is_{service_type}_service"] = 1
-                    g.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
-                    g.nodes[key][f"provision_{service_type}"] = 0
-                    g.nodes[key][f"id_{service_type}"] = 0
+                    service_graph.nodes[key][f"is_{service_type}_service"] = 1
+                    service_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
+                    service_graph.nodes[key][f"provision_{service_type}"] = 0
+                    service_graph.nodes[key][f"id_{service_type}"] = 0
 
-                if g.nodes[key]["is_living"] == True:
-                    g.nodes[key][f"population_prov_{service_type}"] = 0
-                    g.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict["population_balanced"][
+                if service_graph.nodes[key]["is_living"]:
+                    service_graph.nodes[key][f"population_prov_{service_type}"] = 0
+                    service_graph.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict["population_balanced"][
                         int(key)
                     ]
 
-        return g
+        return service_graph
 
     def balance_data(self, gdf, polygon, school, kindergarten, greening):
         """
@@ -657,31 +663,42 @@ class DataGetter:
             dict: A dictionary containing balanced data about blocks in the city.
         """
 
-        Hectare = 10000
-        intersecting_blocks = gpd.overlay(gdf, polygon, how='intersection').drop(columns=["id"])
-        intersecting_blocks.rename(columns = {'id_1':'id'}, inplace = True)
+        
+        intersecting_blocks = gpd.overlay(gdf, polygon, how="intersection").drop(columns=["id"])
+        intersecting_blocks.rename(columns={"id_1": "id"}, inplace=True)
         gdf = intersecting_blocks
 
-        gdf['current_building_area'] = gdf['current_living_area'] + gdf['current_industrial_area']
-        gdf_ = gdf[['block_id', 'area', 'current_living_area', 'current_industrial_area',
-            'current_population', 'current_green_area', 'floors']]
+        gdf["current_building_area"] = gdf["current_living_area"] + gdf["current_industrial_area"]
+        gdf_ = gdf[
+            [
+                "block_id",
+                "area",
+                "current_living_area",
+                "current_industrial_area",
+                "current_population",
+                "current_green_area",
+                "floors",
+            ]
+        ]
 
-        gdf_ = gdf_.merge(school[['id', 'population_unprov_schools']], left_on='block_id', right_on='id').merge(kindergarten[['id', 'population_unprov_kindergartens']], 
-        left_on='block_id', right_on='id').merge(greening[['id', 'population_unprov_recreational_areas']], left_on='block_id', right_on='id')
-        gdf_.drop(['id_x', 'id_y', 'id'], axis=1, inplace=True)
+        gdf_ = (
+            gdf_.merge(school[["id", "population_unprov_schools"]], left_on="block_id", right_on="id")
+            .merge(kindergarten[["id", "population_unprov_kindergartens"]], left_on="block_id", right_on="id")
+            .merge(greening[["id", "population_unprov_recreational_areas"]], left_on="block_id", right_on="id")
+        )
+        gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
 
-        gdf_['area'] = gdf_['area']/Hectare
-        gdf_['current_living_area'] = gdf_['current_living_area']/Hectare
-        gdf_['current_industrial_area'] = gdf_['current_industrial_area']/Hectare
-        gdf_['current_green_area'] = gdf_['current_green_area']/Hectare
+        gdf_["area"] = gdf_["area"] / self.HECTARE
+        gdf_["current_living_area"] = gdf_["current_living_area"] / self.HECTARE
+        gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / self.HECTARE
+        gdf_["current_green_area"] = gdf_["current_green_area"] / self.HECTARE
 
         df_sum = gdf_.sum()
-        df_sum['floors'] = gdf_['floors'].mean()
+        df_sum["floors"] = gdf_["floors"].mean()
         df_new = pd.DataFrame(df_sum).T
 
-        sample = df_new[df_new['area']>7].sample()
-        sample = sample.to_dict('records')
+        sample = df_new[df_new["area"] > 7].sample()
+        sample = sample.to_dict("records")
         block = sample[0].copy()
-        
-        return block
 
+        return block
