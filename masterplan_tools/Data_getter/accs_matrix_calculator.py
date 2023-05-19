@@ -22,11 +22,15 @@ class Accessibility:
     get_matrix
     """
 
-    def __init__(self, city_crs, blocks, G=None, option="intermodal"):
+    def __init__(self, city_crs: int, blocks, G: nx.Graph = None, option: str = "intermodal"):
         self.city_crs = city_crs
+        """city crs"""
         self.blocks = blocks
+        """a dataframe with city blocks"""
         self.G = G
+        """transport graph (in networkx format). Walk, drive, bike or transport graph"""
         self.option = option
+        """type of transport"""
 
     def _get_nx2_nk_idmap(self, G_nx: nx.Graph) -> dict:
         """
