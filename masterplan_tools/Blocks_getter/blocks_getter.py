@@ -78,7 +78,7 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
 
     def _fill_deadends(self) -> None:
         """
-        Some roads make a deadend in the block. To get rid of such deadends the blocks' polygons
+        Some roads make a deadend in the blocks. To get rid of such deadends the blocks' polygons
         are buffered and then unbuffered back. This procedure makes possible to fill deadends.
 
 

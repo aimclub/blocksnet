@@ -166,12 +166,12 @@ class MasterPlan:
 
     def sc_area(self, population) -> float:
         """
-        Method calculates coefficients for school area based on the number of inhabitats
+        Method calculates coefficients for school area based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -182,12 +182,12 @@ class MasterPlan:
 
     def kg_area(self, population) -> float:
         """
-        Method calculates coefficients for kindergarten area based on the number of inhabitats
+        Method calculates coefficients for kindergarten area based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -198,12 +198,12 @@ class MasterPlan:
 
     def op_area(self, population) -> float:
         """
-        Method calculates coefficients for public spaces based on the number of inhabitats
+        Method calculates coefficients for public spaces based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -214,12 +214,12 @@ class MasterPlan:
 
     def parking1_area(self, population) -> float:
         """
-        Method calculates coefficients №1 for parking area based on the number of inhabitats
+        Method calculates coefficients №1 for parking area based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -230,12 +230,12 @@ class MasterPlan:
 
     def parking2_area(self, population):
         """
-        Method calculates coefficients №2 for parking area based on the number of inhabitats
+        Method calculates coefficients №2 for parking area based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -247,12 +247,12 @@ class MasterPlan:
     @staticmethod
     def living_area(population, b):
         """
-        Method calculates coefficients №1 for parking area based on the number of inhabitats
+        Method calculates coefficients №1 for parking area based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -264,12 +264,12 @@ class MasterPlan:
     @staticmethod
     def green_area(population, G):
         """
-        Method calculates coefficients for green area based on the number of inhabitats
+        Method calculates coefficients for green area based on the number of inhabitants
 
         Attributes
         ----------
         population: int
-            maximized number of inhabitats
+            maximized number of inhabitants
         
         Returns
         -------
@@ -280,7 +280,7 @@ class MasterPlan:
 
     def fun(self, x):
         """
-        Method calculates coefficients №1 for parking area based on the number of inhabitats
+        Method calculates coefficients №1 for parking area based on the number of inhabitants
 
         Attributes
         ----------
@@ -304,7 +304,7 @@ class MasterPlan:
         )
 
     def bnds_and_cons(self):
-        """Information adout this nethod will be provided later"""
+        """Information adout this method will be provided later"""
         
         self.cons = (
             {"type": "ineq", "fun": lambda x: self.max_population - x[0]},
@@ -331,7 +331,7 @@ class MasterPlan:
         self.bnds = ((0, self.max_population), (self.b_min, self.b_max), (self.G_min, self.G_max))
 
     def make_x0s(self):
-        """Information adout this nethod will be provided later"""
+        """Information adout this method will be provided later"""
 
         self.x0s = [
             (0, 0, 0),
@@ -342,7 +342,7 @@ class MasterPlan:
         ]
 
     def find_optimal_solutions(self):
-        """Information adout this nethod will be provided later"""
+        """Information adout this method will be provided later"""
 
         self.bnds_and_cons()
         self.make_x0s()
@@ -354,13 +354,13 @@ class MasterPlan:
         del temp_result
 
     def select_one_optimal(self):
-        """Information adout this nethod will be provided later"""
+        """Information adout this method will be provided later"""
         
         return self.results["x"][self.results[self.results["fun"] > 0]["fun"].idxmin()]
 
     def recalculate_indicators(self, population, b, G) -> dict:
         """
-        This method calculates desired indicatoor based on the number of inhabitats
+        This method calculates desired indicator based on the number of inhabitants
 
         Attributes
         ----------
@@ -398,7 +398,7 @@ class MasterPlan:
 
     def optimal_solution_indicators(self) -> dict:
         """
-        This methods select optimal parameters for the selected area
+        This method selects optimal parameters for the specified area
 
         Returns
         -------
