@@ -590,11 +590,10 @@ class DataGetter:
         )
         # print(service_blocks_df)
         if updated_block_info:
-            print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
+
             service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
                 f"{service_type}_capacity"
             ]
-            print(service_gdf.loc[updated_block_info["block_id"], "capacity"])
 
             blocks.loc[updated_block_info["block_id"], "population_balanced"] = updated_block_info["population"]
 
