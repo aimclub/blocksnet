@@ -3,11 +3,11 @@ This module provides all necessary tools to get accesibility matrix from transpo
 """
 
 import pandas as pd
-import numpy as np # pylint: disable=import-error
-import geopandas as gpd # pylint: disable=import-error
+import numpy as np  # pylint: disable=import-error
+import geopandas as gpd  # pylint: disable=import-error
 import networkit as nk  # pylint: disable=import-error
 import networkx as nx
-from tqdm.auto import tqdm # pylint: disable=import-error
+from tqdm.auto import tqdm  # pylint: disable=import-error
 
 tqdm.pandas()
 
@@ -16,19 +16,23 @@ class Accessibility:
     """
     Class Accessibility calculates accessibility matrix between city blocks.
     It takes a lot of RAM to calculate one since we have thousands of city blocks.
-    
+
     Methods
     -------
     get_matrix
     """
 
-    def __init__(self, city_crs, blocks, G=None, option="intermodal"):
+    def __init__(self, city_crs: int, blocks, G: nx.Graph = None, option: str = "intermodal"):
         self.city_crs = city_crs
+        """city crs"""
         self.blocks = blocks
+        """a dataframe with city blocks"""
         self.G = G
+        """transport graph (in networkx format). Walk, drive, bike or transport graph"""
         self.option = option
+        """type of transport"""
 
-    def _get_nx2_nk_idmap(self, G_nx:nx.Graph) -> dict:
+    def _get_nx2_nk_idmap(self, G_nx: nx.Graph) -> dict:
         """
         This method gets ids from nx graph to place as attribute in nk graph
 
@@ -45,7 +49,7 @@ class Accessibility:
         idmap = dict((id, u) for (id, u) in zip(G_nx.nodes(), range(G_nx.number_of_nodes())))
         return idmap
 
-    def _get_nk_attrs(self, G_nx:nx.Graph) -> dict:
+    def _get_nk_attrs(self, G_nx: nx.Graph) -> dict:
         """
         This method gets attributes from nx graph to set as attributes in nk graph
 
@@ -65,7 +69,7 @@ class Accessibility:
         )
         return attrs
 
-    def _convert_nx2nk(self, G_nx:nx.Graph, idmap:dict= dict, weight:str ='') -> nk.Graph:
+    def _convert_nx2nk(self, G_nx: nx.Graph, idmap: dict = dict, weight: str = "") -> nk.Graph:
         """
         This method converts nx graph to nk graph to fasten calculations.
 
@@ -76,7 +80,7 @@ class Accessibility:
             map of ids in old nx and new nk graphs
         weight: str
             value to be used as a edge's weight
-        
+
         Returns
         -------
         G_nk: nk.Graph
@@ -114,7 +118,7 @@ class Accessibility:
 
         return G_nk
 
-    def _get_nk_distances(self, nk_dists:nk.base.Algorithm, loc:pd.Series) -> pd.Series:
+    def _get_nk_distances(self, nk_dists: nk.base.Algorithm, loc: pd.Series) -> pd.Series:
         """
         This method calculates distances between blocks using nk SPSP algorithm.
         The function is called inside apply function.
@@ -125,7 +129,7 @@ class Accessibility:
             Compressed nk graph to compute distances between nodes using SPSP algorithm
         loc: pd.Series
             Row in the df
-        
+
         Returns
         -------
         pd.Series with computed distances
