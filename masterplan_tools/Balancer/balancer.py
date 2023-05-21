@@ -25,7 +25,7 @@ def kindergarten_area_ranges(kids) -> tuple:
     Weight coefficient
     """
 
-    conditions = [140 < kids < 180, 250 < kids < 28]
+    conditions = [140 < kids < 180, 250 < kids < 280]
 
     choices = [(0.72, 180), (1.1, 280)]
     return np.select(conditions, choices, default=(0, 0))

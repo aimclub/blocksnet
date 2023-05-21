@@ -5,11 +5,8 @@ These methods allow you to connect parts of the data processing pipeline.
 
 
 import geopandas as gpd  # pylint: disable=import-error
-import osm2geojson  # pylint: disable=import-error
 import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
-import requests
-from loguru import logger  # pylint: disable=import-error
 import networkx as nx
 from tqdm.auto import tqdm  # pylint: disable=import-error
 
@@ -21,355 +18,26 @@ class DataGetter:
     This class is used to get and pre-process data to be used in calculations in other modules.
     """
 
-    GLOBAL_CRS = 4326
-    """this crs is used in osm by default"""
-    OVERPASS_URL = "https://overpass-api.de/api/interpreter"
-    """stable working api link for overpass turbo"""
     HECTARE = 10000
     """hectares in meters"""
 
-    def __init__(self, city_crs: int = 32636) -> None:
-        self.city_crs = city_crs
-        """city's crs system; must be specified; by default crs is set for Saint Petersburg, Russia"""
+    def __init__(self) -> None:
+        pass
 
-    def _make_overpass_turbo_request(self, overpass_query, buffer_size: int = 0):
-        """
-        This function makes a request to the Overpass API using the given query and returns a GeoDataFrame containing the resulting data.
-
-        Args:
-            overpass_query (str): The Overpass query to use in the request.
-            buffer_size (int, optional): The size of the buffer to apply to line-like geometries. Defaults to 0.
-
-        Returns:
-            gpd.GeoDataFrame: A GeoDataFrame containing the data returned by the Overpass API.
-        """
-
-        result = requests.get(
-            self.OVERPASS_URL, params={"data": overpass_query}, timeout=600
-        ).json()  # pylint: disable=missing-timeout
-
-        # Parse osm response
-        resp = osm2geojson.json2geojson(result)
-        entity_geometry = (
-            gpd.GeoDataFrame.from_features(resp["features"]).set_crs(self.GLOBAL_CRS).to_crs(self.city_crs)
-        )
-        entity_geometry = entity_geometry[["id", "geometry"]]
-
-        # Output geometry in any case must be some king of Polygon, so it could be extracted from city's geometry
-        entity_geometry = entity_geometry.loc[
-            entity_geometry["geometry"].geom_type.isin(["Polygon", "MultiPolygon", "LineString", "MultiLineString"])
-        ]
-
-        # Buffer geometry in case of line-kind objects like waterways, roads or railways
-        if buffer_size:
-            entity_geometry["geometry"] = entity_geometry["geometry"].buffer(buffer_size)
-
-        return entity_geometry
-
-    def get_city_geometry(self, city_name, city_admin_level) -> None:
-        """
-        This function downloads the geometry bounds of the chosen city
-        and concats it into one solid polygon (or multipolygon)
-
-
-        Returns
-        -------
-        city_geometry : GeoDataFrame
-            Geometry of city. City geometry is not returned and setted as a class attribute.
-        """
-
-        logger.info("City geometry is not provided. Getting water geometry from OSM via overpass turbo")
-
-        overpass_query = f"""
-                        [out:json];
-                                area['name'='{city_name}']->.searchArea;
-                                (
-                                relation["admin_level"="{city_admin_level}"](area.searchArea);
-                                );
-                        out geom;
-                        """
-
-        city_geometry = self._make_overpass_turbo_request(overpass_query=overpass_query)
-        city_geometry = city_geometry.dissolve()
-
-        logger.info("Got city geometry")
-
-        return city_geometry
-
-    def get_water_geometry(self, city_name, water_buffer) -> None:
-        """
-        This geometry will be cut later from city's geometry.
-        The water entities will split blocks from each other. The water geometries are taken using overpass turbo.
-        The tags used in the query are: "natural"="water", "waterway"~"river|stream|tidal_channel|canal".
-
-
-        Returns
-        -------
-        water_geometry : Union[Polygon, Multipolygon]
-            Geometries of water. The water geometries are also buffered a little so the division of city's geometry
-            could be more noticable. Water geometry is not returned and setted as a class attribute.
-        """
-
-        logger.info("Water geometries are not provided. Getting water geometry from OSM via overpass turbo")
-
-        # Get water polygons in the city
-        overpass_query = f"""
-                        [out:json];
-                                area['name'='{city_name}']->.searchArea;
-                                (
-                                relation["natural"="water"](area.searchArea);
-                                way["natural"="water"](area.searchArea);
-                                relation["waterway"~"river|stream|tidal_channel|canal"](area.searchArea);
-                                way["waterway"~"river|stream|tidal_channel|canal"](area.searchArea);
-                                );
-                        out geom;
-                        """
-
-        water_geometry = self._make_overpass_turbo_request(overpass_query=overpass_query, buffer_size=water_buffer)
-
-        logger.info("Got water geometries")
-
-        return water_geometry
-
-    def get_railways_geometry(self, city_name, railways_buffer) -> None:
-        """
-        This geometry will be cut later from city's geometry.
-        The railways will split blocks from each other. The railways geometries are taken using overpass turbo.
-        The tags used in the query are: "railway"~"rail|light_rail"
-
-
-        Returns
-        -------
-        railways_geometry : Union[Polygon, Multipolygon]
-            Geometries of railways. Railways geometry is not returned and setted as a class attribute.
-        """
-
-        logger.info("Railways geometries are not provided. Getting railways geometries from OSM via overpass turbo")
-
-        overpass_query = f"""
-                        [out:json];
-                                area['name'='{city_name}']->.searchArea;
-                                (
-                                relation["railway"~"rail|light_rail"](area.searchArea);
-                                way["railway"~"rail|light_rail"](area.searchArea);
-                                );
-                        out geom;
-                        """
-
-        railways_geometry = self._make_overpass_turbo_request(
-            overpass_query=overpass_query, buffer_size=railways_buffer
-        )
-
-        logger.info("Got railways geometries")
-
-        return railways_geometry
-
-    def get_roads_geometry(self, city_geometry, roads_buffer) -> None:
-        """
-        This geometry will be cut later from city's geometry.
-        The roads will split blocks from each other. The road geometries are taken using osmnx.
-
-
-        Returns
-        -------
-        self.roads_geometry : Union[Polygon, Multipolygon]
-            Geometries of roads buffered by 5 meters so it could be cut from city's geometry
-            in the next step. Roads geometry is not returned and setted as a class attribute.
-        """
-
-        logger.info("Roads geometries are not provided. Getting roads geometries from OSM via OSMNX")
-
-        # Get drive roads from osmnx lib in city bounds
-        roads_geometry = ox.graph_from_polygon(
-            city_geometry.to_crs(self.GLOBAL_CRS).geometry.item(), network_type="drive"
-        )
-        roads_geometry = ox.utils_graph.graph_to_gdfs(roads_geometry, nodes=False)
-
-        roads_geometry = roads_geometry[["geometry"]]
-
-        roads_geometry = roads_geometry.reset_index(level=[0, 1]).reset_index(drop=True).to_crs(self.city_crs)
-
-        roads_geometry["geometry"] = roads_geometry["geometry"].buffer(roads_buffer)
-
-        logger.info("Got roads geometries")
-
-        return roads_geometry
-
-    def get_nature_geometry(self, city_name, nature_buffer, park_cutoff_area) -> None:
-        """
-        This geometry will be cut later from city's geometry.
-        Big parks, cemetery and nature_reserve will split blocks from each other. Their geometries are taken using
-        overpass turbo.
-
-
-        Returns
-        -------
-        self.nature_geometry : Union[Polygon, Multipolygon]
-            Geometries of nature entities buffered by 5 meters so it could be cut from city's geometry
-            in the next step. Nature geometry is not returned and setted as a class attribute.
-        """
-
-        logger.info("Nature geometries are not provided. Getting nature geometries from OSM via overpass turbo")
-
-        overpass_query_parks = f"""
-                        [out:json];
-                                area['name'='{city_name}']->.searchArea;
-                                (
-                                relation["leisure"="park"](area.searchArea);
-                                );
-                        out geom;
-                        """
-
-        overpass_query_greeners = f"""
-                        [out:json];
-                                area['name'='{city_name}']->.searchArea;
-                                (
-                                relation["landuse"="cemetery"](area.searchArea);
-                                relation["leisure"="nature_reserve"](area.searchArea);
-                                );
-                        out geom;
-                        """
-
-        nature_geometry_boundaries = self._make_overpass_turbo_request(overpass_query=overpass_query_parks)
-        nature_geometry_boundaries = nature_geometry_boundaries[nature_geometry_boundaries.area > park_cutoff_area]
-        other_greeners_tmp = self._make_overpass_turbo_request(overpass_query=overpass_query_greeners)
-        nature_geometry_boundaries = pd.concat([nature_geometry_boundaries, other_greeners_tmp])
-        del other_greeners_tmp
-
-        nature_geometry_boundaries["geometry"] = nature_geometry_boundaries.boundary.buffer(nature_buffer)
-
-        logger.info("Got nature geometries")
-
-        return nature_geometry_boundaries
-
-    def get_buildings(self, engine=None, city_crs=None, city_id=None, from_device=True):
-        """
-        This function returns a GeoDataFrame containing information about buildings in a city. The data can be read
-        from a local file or from a PostGIS database.
-
-        Args:
-            engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
-            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
-            city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
-            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
-            Defaults to True.
-
-        Returns:
-            gpd.GeoDataFrame: A GeoDataFrame containing information about buildings in the city.
-        """
-
-        if from_device:
-            df_buildings = gpd.read_parquet("../masterplanning/masterplan_tools/output_data/buildings.parquet")
-
-        else:
-            df_buildings = gpd.read_postgis(
-                f"select population_balanced, building_area, living_area, storeys_count, is_living, "
-                f"ST_Centroid(ST_Transform(geometry, {city_crs})) as geom from all_buildings where city_id={city_id}",
-                con=engine,
-            )
-            df_buildings.rename(columns={"geom": "geometry"}, inplace=True)
-        return df_buildings
-
-    def get_service(self, service_type=None, city_crs=None, engine=None, city_id=None, from_device=False):
-        """
-        This function returns a GeoDataFrame containing information about blocks with a specified service in a city.
-        The data can be read from a local file or from a PostGIS database.
-
-        Args:
-            service_type (str, optional): The type of service to retrieve data for. Defaults to None.
-            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
-            engine (sqlalchemy.engine.Engine, optional): A SQLAlchemy engine object used to connect to the PostGIS database. Defaults to None.
-            city_id (int, optional): The ID of the city in the PostGIS database. Defaults to None.
-            from_device (bool, optional): If True, the data is read from a local file. If False, the data is read from the PostGIS database.
-            Defaults to False.
-
-        Returns:
-            gpd.GeoDataFrame: A GeoDataFrame containing information about blocks with the specified service in the city.
-        """
-        if from_device:
-            service_blocks_df = gpd.read_parquet(
-                f"../masterplanning/masterplan_tools/output_data/{service_type}.parquet"
-            )
-
-        else:
-            service_blocks_df = gpd.read_postgis(
-                f"select capacity, geometry as geom from all_services where city_service_type_code in ('{service_type}') "
-                f"and city_id={city_id}",
-                con=engine,
-            )
-
-            service_blocks_df.rename(columns={"geom": "geometry"}, inplace=True)
-            service_blocks_df["geometry"] = service_blocks_df["geometry"].convex_hull
-            service_blocks_df["geometry"] = service_blocks_df["geometry"].to_crs(city_crs)
-            service_blocks_df["geometry"] = service_blocks_df["geometry"].centroid
-            service_blocks_df["geometry"] = service_blocks_df["geometry"].set_crs(city_crs)
-            service_blocks_df = service_blocks_df.set_geometry("geometry")
-
-        return service_blocks_df
-
-    def get_accessibility_matrix(self, city_crs=None, blocks=None, G=None, option=None):
+    def get_accessibility_matrix(self, blocks=None, G=None):
         """
         This function returns an accessibility matrix for a city. The matrix is calculated using the `Accessibility` class.
 
         Args:
-            city_crs (int, optional): The coordinate reference system used by the city. Defaults to None.
             blocks (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about the blocks in the city. Defaults to None.
             G (nx.Graph, optional): A networkx graph representing the city's road network. Defaults to None.
-            option (str, optional): An option specifying how the accessibility matrix should be calculated. Defaults to None.
 
         Returns:
             np.ndarray: An accessibility matrix for the city.
         """
 
-        accessibility = Accessibility(city_crs, blocks, G, option)
+        accessibility = Accessibility(blocks, G)
         return accessibility.get_matrix()
-
-    def get_greenings(self, engine, city_id, city_crs):
-        """
-        This function returns a GeoDataFrame containing information about green spaces in a city. The data is read from a PostGIS database.
-
-        Args:
-            engine (sqlalchemy.engine.Engine): A SQLAlchemy engine object used to connect to the PostGIS database.
-            city_id (int): The ID of the city in the PostGIS database.
-            city_crs (int): The coordinate reference system used by the city.
-
-        Returns:
-            gpd.GeoDataFrame: A GeoDataFrame containing information about green spaces in the city.
-        """
-
-        greenings = gpd.read_postgis(
-            f"select ROUND(ST_Area(geometry::geography))::int as current_green_area, "
-            f"capacity as current_green_capacity, ST_Centroid(ST_Transform(geometry, {city_crs})) as geom "
-            f"from all_services "
-            f"where city_service_type_code like 'recr%' and city_id={city_id}",
-            con=engine,
-        )
-
-        return greenings
-
-    def get_parkings(self, engine, city_id, city_crs):
-        """
-        This function returns a GeoDataFrame containing information about parking spaces in a city. The data is read from a PostGIS database.
-
-        Args:
-            engine (sqlalchemy.engine.Engine): A SQLAlchemy engine object used to connect to the PostGIS database.
-            city_id (int): The ID of the city in the PostGIS database.
-            city_crs (int): The coordinate reference system used by the city.
-
-        Returns:
-            gpd.GeoDataFrame: A GeoDataFrame containing information about parking spaces in the city.
-        """
-
-        parkings = gpd.read_postgis(
-            f"select capacity as current_parking_capacity, "
-            f"ST_Centroid(ST_Transform(geometry, {city_crs})) as geom "
-            f"from all_services "
-            f"where service_name like 'Парковка' "
-            f"and city_id={city_id}",
-            con=engine,
-        )
-
-        return parkings
 
     def _get_living_area(self, row):
         """
@@ -512,7 +180,6 @@ class DataGetter:
     def prepare_graph(
         self,
         blocks,
-        city_crs,
         service_type=None,
         service_gdf=None,
         accessibility_matrix=None,
@@ -524,7 +191,6 @@ class DataGetter:
 
         Args:
             blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
-            city_crs (int): The coordinate reference system used by the city.
             service_type (str, optional): The type of service to calculate the provision for. Defaults to None.
             service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the specified service in the city.
             Defaults to None.
@@ -574,8 +240,10 @@ class DataGetter:
         )
         # blocks_with_buildings.rename(columns={"living_area": "is_living"}, inplace=True)
 
+        blocks_crs = blocks.crs.to_epsg()
+
         blocks = blocks_with_buildings.merge(blocks, right_on="id", left_on="id")
-        blocks = gpd.GeoDataFrame(blocks, geometry="geometry", crs=city_crs)
+        blocks = gpd.GeoDataFrame(blocks, geometry="geometry", crs=blocks_crs)
 
         living_blocks = blocks.loc[:, ["id", "geometry"]].sort_values(by="id").reset_index(drop=True)
 
@@ -590,7 +258,6 @@ class DataGetter:
         )
         # print(service_blocks_df)
         if updated_block_info:
-
             service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
                 f"{service_type}_capacity"
             ]

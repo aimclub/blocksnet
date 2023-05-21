@@ -3,20 +3,19 @@ The aim of this module is to create one window to get any required data for othe
 All data is gathered once and then reused during calculations.
 """
 
-import geopandas as gpd  # pylint: disable=import-error
+from typing import Dict
+import networkx as nx
 import pandas as pd
-from typing import Optional
+import geopandas as gpd
 from masterplan_tools.Blocks_getter.blocks_getter import BlocksCutter
 from masterplan_tools.Data_getter.data_getter import DataGetter
 
 
 class CityModel:
     """
-    TODO: add docstring
+    City model gathers all data in one class so it could be accessed directly in one place
     """
 
-    GLOBAL_CRS = 4326
-    """globally used crs."""
     ROADS_WIDTH = RAILWAYS_WIDTH = NATURE_WIDTH = 3
     """road geometry buffer in meters. So road geometries won't be thin as a line."""
     WATER_WIDTH = 1
@@ -28,61 +27,38 @@ class CityModel:
     PARK_CUTOFF_AREA = 10_000
     """in meters. Objects with smaller area will be dropped."""
 
-    def __init__(
-        self,
-        city_name: str,
-        city_crs: int,
-        city_admin_level: int,
-        from_device: bool,
-        service_types: list = None,
-        city_id: int = None,
-        accessibility_matrix=pd.DataFrame(),
-        engine=None,
-        graph=None,
-        transport_graph_type="intermodal",
-    ) -> None:
-        self.city_name: str = city_name
-        self.city_crs: int = city_crs
-        self.city_admin_level: int = city_admin_level
-        self.buildings = None
-        self.services_gdfs = {}
-        self.water_geometry: Optional[gpd.GeoDataFrame] = None
-        self.roads_geometry: Optional[gpd.GeoDataFrame] = None
-        self.railways_geometry: Optional[gpd.GeoDataFrame] = None
-        self.nature_geometry_boundaries: Optional[gpd.GeoDataFrame] = None
+    def __init__(self, **kwargs) -> None:
+        self.buildings: gpd.GeoDataFrame = kwargs.get("buildings", None)
+        self.services_gdfs: Dict[gpd.GeoDataFrame] = kwargs.get("services", {})
+        self.water_geometry: gpd.GeoDataFrame = kwargs.get("water_geometry", None)
+        self.roads_geometry: gpd.GeoDataFrame = kwargs.get("roads_geometry", None)
+        self.railways_geometry: gpd.GeoDataFrame = kwargs.get("railways_geometry", None)
+        self.nature_geometry_boundaries: gpd.GeoDataFrame = kwargs.get("nature_geometry_boundaries", None)
         """GeoDataFrame of the nature in the city"""
-        self.city_geometry: Optional[gpd.GeoDataFrame] = None
+        self.city_geometry: gpd.GeoDataFrame = kwargs.get("city_geometry", None)
         """geometry of the city on specified admin level"""
-        self.city_id: int = city_id
-        """city id is specified to be used id db queries"""
-        self.service_types = service_types
-        """service type must be the same as on the OSM"""
-        self.accessibility_matrix = accessibility_matrix
+        self.accessibility_matrix = kwargs.get("accessibility_matrix", pd.DataFrame())
         """
-        if the user have pre-caluclated accessibility_matrix, else the matrix will be calculated
-        (!) Imortant note: it takes about 40GB RAM to calculate the matris on the intermodal or walk graph
-        for the big city like Saint Petersburg
+            if the user have pre-caluclated accessibility_matrix, else the matrix will be calculated
+            (!) Imortant note: it takes about 40GB RAM to calculate the matris on the intermodal or walk graph
+            for the big city like Saint Petersburg
+            """
+        self.transport_graph: nx.Graph = kwargs.get("transport_graph", None)
         """
-        self.engine = engine
-        """engine is used to connect to local db. Else the data will be gathered from OSM"""
-        self.graph = graph
-        """
-        if there's no specified accessibility matrix, the graph is needed to calculate one.
-        For example, the graph could be the drive, bike or walk graph from the OSM
-        or the intermodal graph from CityGeoTools
-        """
-        self.transport_graph_type = transport_graph_type
-        """transport graph type is the description of the data in the graph"""
-        self.blocks_aggregated_info = None
+            if there's no specified accessibility matrix, the graph is needed to calculate one.
+            For example, the graph could be the drive, bike or walk graph from the OSM
+            or the intermodal graph from CityGeoTools
+            """
+        self.greenings: gpd.GeoDataFrame = kwargs.get("greenings", None)
+        self.parkings: gpd.GeoDataFrame = kwargs.get("parkings", None)
+        self.city_blocks: gpd.GeoDataFrame = kwargs.get("city_blocks", pd.DataFrame())
+        self.blocks_aggregated_info: pd.DataFrame = None
         """aggregated info by blocks is needed for further balancing"""
-        self.city_blocks = None
-        self.services_graphs = {}
-        self.from_device = from_device
-        """this argument specifies if the data uploaded from file (output data) or from other source e.g. OSM or db"""
-        self.greenings = None
-        self.parkings = None
-        self.updated_block_info = None
+        self.services_graphs: Dict[gpd.GeoDataFrame] = {}
+        self.updated_block_info: dict = None
         """updated block is the id of the modified block"""
+
+        self.collect_data()
 
     def collect_data(self):
         """
@@ -90,51 +66,29 @@ class CityModel:
         to get city blocks and service graphs.
         """
 
-        if self.from_device:
-            self.city_blocks = gpd.read_parquet("../masterplanning/masterplan_tools/output_data/blocks.parquet")
-        else:
-            self.city_geometry = DataGetter().get_city_geometry(self.city_name, self.city_admin_level)
-            self.roads_geometry = DataGetter().get_roads_geometry(self.city_geometry, roads_buffer=self.ROADS_WIDTH)
-            self.railways_geometry = DataGetter().get_railways_geometry(self.city_name, self.RAILWAYS_WIDTH)
-            self.nature_geometry_boundaries = DataGetter().get_nature_geometry(
-                self.city_name, nature_buffer=self.NATURE_WIDTH, park_cutoff_area=self.PARK_CUTOFF_AREA
-            )
-            self.water_geometry = DataGetter().get_water_geometry(
-                city_name=self.city_name, water_buffer=self.WATER_WIDTH
-            )
-
+        # Run modelling blocks if they are not provided
+        if self.city_blocks.shape[0] == 0:
             self.city_blocks = BlocksCutter(self).get_blocks()
 
-            if self.accessibility_matrix.shape[0] == 0:
-                self.accessibility_matrix = DataGetter().get_accessibility_matrix(
-                    city_crs=self.city_crs, blocks=self.city_geometry, G=self.graph, option=self.transport_graph_type
-                )
-
-            self.water_geometry = None
-            self.roads_geometry = None
-            self.railways_geometry = None
-            self.nature_geometry_boundaries = None
-            self.city_geometry = None
-
-        self.buildings = DataGetter().get_buildings(
-            engine=self.engine, city_id=self.city_id, city_crs=self.city_crs, from_device=self.from_device
-        )
-        self.greenings = DataGetter().get_greenings(engine=self.engine, city_id=self.city_id, city_crs=self.city_crs)
-        self.parkings = DataGetter().get_parkings(engine=self.engine, city_id=self.city_id, city_crs=self.city_crs)
-
-        self.blocks_aggregated_info = DataGetter().aggregate_blocks_info(
-            blocks=self.city_blocks, buildings=self.buildings, parkings=self.parkings, greenings=self.greenings
-        )
-
-        for service_type in self.service_types:
-            self.services_gdfs[service_type] = DataGetter().get_service(
-                engine=self.engine, city_crs=self.city_crs, city_id=self.city_id, service_type=service_type
+        # Run modelling accessibility matrix between blocks if it is not provided
+        if self.accessibility_matrix.shape[0] == 0:
+            self.accessibility_matrix = DataGetter().get_accessibility_matrix(
+                blocks=self.city_blocks, G=self.transport_graph
             )
 
-        for service_type in self.service_types:
+        # Get aggregated information about blocks
+        # This information will be used during modelling new parameters for blocks
+        self.blocks_aggregated_info = DataGetter().aggregate_blocks_info(
+            blocks=self.city_blocks,
+            buildings=self.buildings,
+            parkings=self.parkings,
+            greenings=self.greenings,
+        )
+
+        # Create graphs between living blocks and specified services
+        for service_type in self.services_gdfs.keys():
             self.services_graphs[service_type] = DataGetter().prepare_graph(
                 blocks=self.city_blocks,
-                city_crs=self.city_crs,
                 service_type=service_type,
                 buildings=self.buildings,
                 service_gdf=self.services_gdfs[service_type],

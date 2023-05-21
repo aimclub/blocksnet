@@ -20,7 +20,6 @@ class ProvisionModel:
     Attributes:
         blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
         service_name (str): The name of the service for which the provision is being calculated.
-        city_crs (int): The coordinate reference system used by the city.
         standard (int): The standard value for the specified service, taken from the `standard_dict` attribute.
         g (int): The value of the `g` attribute.
     """
@@ -51,11 +50,10 @@ class ProvisionModel:
         city_model,
         service_name: str = "schools",
     ):
-        self.blocks = city_model.city_blocks
+        self.blocks = city_model.city_blocks.copy()
         self.service_name = service_name
-        self.city_crs = city_model.city_crs
         self.standard = self.standard_dict[self.service_name]
-        self.graph = city_model.services_graphs[self.service_name]
+        self.graph = city_model.services_graphs[self.service_name].copy()
 
     def get_stats(self):
         """
@@ -66,6 +64,7 @@ class ProvisionModel:
         Returns:
             None
         """
+
         graph = self.graph.copy()
         if not graph:
             return 0

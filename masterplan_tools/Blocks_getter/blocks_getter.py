@@ -25,7 +25,6 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
     """
 
     def __init__(self, city_model):
-        self.city_crs = city_model.city_crs
         self.roads_buffer = city_model.ROADS_WIDTH
         """roads geometry buffer in meters"""
         self.geometry_cutoff_ration = city_model.GEOMETRY_CUTOFF_RATIO
@@ -41,7 +40,8 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         self.nature_geometry_boundaries: Optional[gpd.GeoDataFrame] = city_model.nature_geometry_boundaries
         self.city_geometry: Optional[gpd.GeoDataFrame] = city_model.city_geometry
 
-    def _fill_spaces_in_blocks(self, row: gpd.GeoSeries) -> Polygon:
+    @staticmethod
+    def _fill_spaces_in_blocks(row: gpd.GeoSeries) -> Polygon:
         """
         This geometry will be cut later from city's geometry.
         The water entities will split blocks from each other. The water geometries are taken using overpass turbo.
@@ -96,7 +96,8 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         )
         logger.info("Finished: filling deadends")
 
-    def _polygon_to_multipolygon(self, gdf):
+    @staticmethod
+    def _polygon_to_multipolygon(gdf):
         """
         This function makes one multipolygon from many polygons in the gdf.
         This step allows to fasten overlay operation between two multipolygons since overlay operates ineratively by passed geometry objects.
@@ -112,11 +113,12 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
             A gdf with one geometry-MultiPolygon
         """
 
+        crs = gdf.crs
         gdf = gdf.unary_union
         if isinstance(gdf, Polygon):
-            gdf = gpd.GeoDataFrame(geometry=[gdf], crs=self.city_crs)
+            gdf = gpd.GeoDataFrame(geometry=[gdf], crs=crs)
         else:
-            gdf = gpd.GeoDataFrame(geometry=[MultiPolygon(gdf)], crs=self.city_crs)
+            gdf = gpd.GeoDataFrame(geometry=[MultiPolygon(gdf)], crs=crs)
         return gdf
 
     def _cut_railways(self) -> None:
@@ -171,8 +173,6 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         self.nature_geometry_boundaries = self._polygon_to_multipolygon(self.nature_geometry_boundaries)
         self.city_geometry = self._polygon_to_multipolygon(self.city_geometry)
 
-        # self.nature_geometry_boundaries = self.nature_geometry_boundaries.unary_union
-        # self.nature_geometry_boundaries = gpd.GeoDataFrame(data=[self.nature_geometry_boundaries], crs=32636, geometry=0)
         self.city_geometry = gpd.overlay(self.city_geometry, self.nature_geometry_boundaries, how="difference")
         self.nature_geometry_boundaries = None
         logger.info("Finished: cutting nature geometries")
@@ -192,8 +192,6 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         self.water_geometry = self._polygon_to_multipolygon(self.water_geometry)
         self.city_geometry = self._polygon_to_multipolygon(self.city_geometry)
 
-        # self.water_geometry = self.water_geometry.unary_union
-        # self.water_geometry = gpd.GeoDataFrame(data=[self.water_geometry], crs=32636, geometry=0)
         self.city_geometry = gpd.overlay(self.city_geometry, self.water_geometry, how="difference")
         self.water_geometry = None
         logger.info("Starting: cutting water geometries")
@@ -209,8 +207,8 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
 
         logger.info("Starting: dropping overlayed geometries")
         new_geometries = self.city_geometry.unary_union
-        new_geometries = gpd.GeoDataFrame([new_geometries], geometry=0)
-        self.city_geometry["geometry"] = new_geometries[0]
+        new_geometries = gpd.GeoDataFrame(geometry=[new_geometries])
+        self.city_geometry["geometry"] = new_geometries.loc[:, "geometry"]
         del new_geometries
 
         logger.info("Finished: dropping overlayed geometries")
@@ -311,7 +309,7 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         Returns
         -------
         blocks
-            a GeoDataFrame of city blocks in setted local crs (32636 by default)
+            a GeoDataFrame of city blocks
         """
 
         self._split_city_geometry()
