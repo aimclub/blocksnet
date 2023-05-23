@@ -185,6 +185,7 @@ class DataGetter:
         accessibility_matrix=None,
         buildings=None,
         updated_block_info=None,
+        services_graph=None,
     ):
         """
         This function prepares a graph for calculating the provision of a specified service in a city.
@@ -203,42 +204,19 @@ class DataGetter:
             nx.Graph: A networkx graph representing the city's road network with additional data for calculating the provision of the
             specified service.
         """
-        services_accessibility = {
-            "kindergartens": 4,
-            "schools": 7,
-            "universities": 60,
-            "hospitals": 60,
-            "policlinics": 13,
-            "theaters": 60,
-            "cinemas": 60,
-            "cafes": 30,
-            "bakeries": 30,
-            "fastfoods": 30,
-            "music_school": 30,
-            "sportgrounds": 7,
-            "swimming_pools": 30,
-            "conveniences": 8,
-            "recreational_areas": 25,
-            "pharmacies": 7,
-            "playgrounds": 2,
-            "supermarkets": 30,
-        }
-
-        accs_time = services_accessibility[service_type]
         service = service_gdf
 
         blocks_with_buildings = (
             gpd.sjoin(blocks, buildings, predicate="intersects", how="left")
             .drop(columns=["index_right"])
             .groupby("id")
-            .agg({"population_balanced": "sum", "living_area": "sum"})
+            .agg({"population_balanced": "sum"})
         )
 
         blocks_with_buildings.reset_index(drop=False, inplace=True)
-        blocks_with_buildings["is_living"] = blocks_with_buildings["living_area"].apply(
+        blocks_with_buildings["is_living"] = blocks_with_buildings["population_balanced"].apply(
             lambda x: True if x > 0 else False
         )
-        # blocks_with_buildings.rename(columns={"living_area": "is_living"}, inplace=True)
 
         blocks_crs = blocks.crs.to_epsg()
 
@@ -256,12 +234,11 @@ class DataGetter:
                 }
             )
         )
-        # print(service_blocks_df)
+
         if updated_block_info:
             service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
                 f"{service_type}_capacity"
             ]
-
             blocks.loc[updated_block_info["block_id"], "population_balanced"] = updated_block_info["population"]
 
         blocks_geom_dict = blocks[["id", "population_balanced", "is_living"]].set_index("id").to_dict()
@@ -272,47 +249,45 @@ class DataGetter:
             accessibility_matrix.columns.isin(living_blocks["id"]),
         ]
 
-        service_graph = nx.Graph()
-
         for idx in tqdm(list(blocks_list.index)):
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
             blocks_list.columns = blocks_list.columns.astype(int)
-            blocks_list_tmp = blocks_list_tmp[blocks_list_tmp < accs_time].dropna(axis=1)
+            # blocks_list_tmp = blocks_list_tmp[blocks_list_tmp < accs_time].dropna(axis=1)
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
 
             for key in blocks_list_tmp_dict.keys():
                 if key != idx:
-                    service_graph.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
+                    services_graph.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
 
                 else:
-                    service_graph.add_node(idx)
+                    services_graph.add_node(idx)
 
-                service_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
-                service_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
+                services_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
+                services_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
 
                 if key != idx:
                     try:
-                        if service_graph.nodes[key][f"is_{service_type}_service"] != 1:
-                            service_graph.nodes[key][f"is_{service_type}_service"] = 0
-                            service_graph.nodes[key][f"provision_{service_type}"] = 0
-                            service_graph.nodes[key][f"id_{service_type}"] = 0
+                        if services_graph.nodes[key][f"is_{service_type}_service"] != 1:
+                            services_graph.nodes[key][f"is_{service_type}_service"] = 0
+                            services_graph.nodes[key][f"provision_{service_type}"] = 0
+                            services_graph.nodes[key][f"id_{service_type}"] = 0
                     except KeyError:
-                        service_graph.nodes[key][f"is_{service_type}_service"] = 0
-                        service_graph.nodes[key][f"provision_{service_type}"] = 0
-                        service_graph.nodes[key][f"id_{service_type}"] = 0
+                        services_graph.nodes[key][f"is_{service_type}_service"] = 0
+                        services_graph.nodes[key][f"provision_{service_type}"] = 0
+                        services_graph.nodes[key][f"id_{service_type}"] = 0
                 else:
-                    service_graph.nodes[key][f"is_{service_type}_service"] = 1
-                    service_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
-                    service_graph.nodes[key][f"provision_{service_type}"] = 0
-                    service_graph.nodes[key][f"id_{service_type}"] = 0
+                    services_graph.nodes[key][f"is_{service_type}_service"] = 1
+                    services_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
+                    services_graph.nodes[key][f"provision_{service_type}"] = 0
+                    services_graph.nodes[key][f"id_{service_type}"] = 0
 
-                if service_graph.nodes[key]["is_living"]:
-                    service_graph.nodes[key][f"population_prov_{service_type}"] = 0
-                    service_graph.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict[
+                if services_graph.nodes[key]["is_living"]:
+                    services_graph.nodes[key][f"population_prov_{service_type}"] = 0
+                    services_graph.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict[
                         "population_balanced"
                     ][int(key)]
 
-        return service_graph
+        return services_graph
 
     def balance_data(self, gdf, polygon, school, kindergarten, greening):
         """

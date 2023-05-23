@@ -45,6 +45,27 @@ class ProvisionModel:
         "supermarkets": 992,
     }
 
+    services_accessibility = {
+        "kindergartens": 4,
+        "schools": 7,
+        "universities": 60,
+        "hospitals": 60,
+        "policlinics": 13,
+        "theaters": 60,
+        "cinemas": 60,
+        "cafes": 30,
+        "bakeries": 30,
+        "fastfoods": 30,
+        "music_school": 30,
+        "sportgrounds": 7,
+        "swimming_pools": 30,
+        "conveniences": 8,
+        "recreational_areas": 25,
+        "pharmacies": 7,
+        "playgrounds": 2,
+        "supermarkets": 30,
+    }
+
     def __init__(
         self,
         city_model,
@@ -53,6 +74,8 @@ class ProvisionModel:
         self.blocks = city_model.city_blocks.copy()
         self.service_name = service_name
         self.standard = self.standard_dict[self.service_name]
+        self.accessibility = self.services_accessibility[self.service_name]
+        self.services_graph = city_model.services_graph
         self.graph = city_model.services_graphs[self.service_name].copy()
 
     def get_stats(self):
@@ -78,7 +101,7 @@ class ProvisionModel:
             try:
                 if graph.nodes[key]["is_living"]:
                     blocks_living += 1
-                elif graph.nodes[key][f"is_{self.service_name}_service"] == 1:
+                if graph.nodes[key][f"is_{self.service_name}_service"] == 1:
                     blocks_service += 1
             except KeyError:
                 invalid_blocks += 1

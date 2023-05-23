@@ -1,4 +1,4 @@
-FILES = get_blocks/*
+FILES = masterplan_tools/*
 
 lint:
 	python -m pylint ${FILES}
