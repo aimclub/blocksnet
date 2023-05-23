@@ -1,7 +1,9 @@
 geopandas
 osm2geojson
 osmnx
-pandas
+pandas == 1.5.3
 requests
 loguru
 shapely
+networkit==10.1
+networkx==3.1

@@ -54,11 +54,11 @@ class CityModel:
         self.city_blocks: gpd.GeoDataFrame = kwargs.get("city_blocks", pd.DataFrame())
         self.blocks_aggregated_info: pd.DataFrame = None
         """aggregated info by blocks is needed for further balancing"""
-        self.services_graphs: Dict[gpd.GeoDataFrame] = {}
         self.updated_block_info: dict = None
         self.services_graph: nx.Graph() = None
         """updated block is the id of the modified block"""
 
+        self.collect_data()
         self.collect_data()
 
     def collect_data(self):
@@ -86,7 +86,6 @@ class CityModel:
             greenings=self.greenings,
         )
 
-
         # Create graphs between living blocks and specified services
         self.services_graph = nx.Graph()
         for service_type in self.services_gdfs.keys():
@@ -99,3 +98,5 @@ class CityModel:
                 accessibility_matrix=self.accessibility_matrix,
                 services_graph = self.services_graph
             )
+
+
