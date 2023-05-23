@@ -59,7 +59,6 @@ class CityModel:
         """updated block is the id of the modified block"""
 
         self.collect_data()
-        self.collect_data()
 
     def collect_data(self):
         """
