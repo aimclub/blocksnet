@@ -269,6 +269,7 @@ class ProvisionModel:
             if blocks.loc[i, "population"] ==0:
                 blocks.loc[i, "population"] = blocks_aggregated.loc[i, "current_population"]
                 blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks_aggregated.loc[i, "current_population"]
+
         blocks = blocks.drop(columns=['index'])
         blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
