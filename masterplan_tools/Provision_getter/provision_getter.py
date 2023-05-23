@@ -12,6 +12,8 @@ from tqdm.auto import tqdm  # pylint: disable=import-error
 
 tqdm.pandas()
 
+from masterplan_tools.Data_getter.data_getter import DataGetter
+
 
 class ProvisionModel:
     """
@@ -45,7 +47,7 @@ class ProvisionModel:
         "supermarkets": 992,
     }
 
-    services_accessibility = {
+    services_accessibility_dict = {
         "kindergartens": 4,
         "schools": 7,
         "universities": 60,
@@ -74,9 +76,9 @@ class ProvisionModel:
         self.blocks = city_model.city_blocks.copy()
         self.service_name = service_name
         self.standard = self.standard_dict[self.service_name]
-        self.accessibility = self.services_accessibility[self.service_name]
-        self.services_graph = city_model.services_graph
-        self.graph = city_model.services_graphs[self.service_name].copy()
+        self.accessibility = self.services_accessibility_dict[self.service_name]
+        self.graph = city_model.services_graph.copy()
+        self.blocks_aggregated = city_model.blocks_aggregated_info.copy()
 
     def get_stats(self):
         """
@@ -85,7 +87,7 @@ class ProvisionModel:
         and the number of blocks with errors.
 
         Returns:
-            None
+            stats
         """
 
         graph = self.graph.copy()
@@ -106,10 +108,10 @@ class ProvisionModel:
             except KeyError:
                 invalid_blocks += 1
 
-        print(f"количество кварталов c сервисом {self.service_name}: {blocks_service}")
-        print(f"количество жилых кварталов: {blocks_living}")
-        print(f"количество кварталов всего: {total}")
-        print(f"количество кварталов c ошибкой: {invalid_blocks}")
+        print(f"Number of blocks with service: {self.service_name}: {blocks_service}")
+        print(f"Number of residential blocks: {blocks_living}")
+        print(f"Number of blocks total: {total}")
+        print(f"Number of blocks with an error: {invalid_blocks}")
 
     def get_provision(self):
         """
@@ -119,12 +121,20 @@ class ProvisionModel:
             nx.Graph: A networkx graph representing the city's road network with updated data about the provision of the specified service.
         """
 
-        graph = self.graph
+        graph = self.graph.copy()
         standard = self.standard
+        accessibility = self.accessibility
+
+        for u, v, data in list(graph.edges(data=True)):
+            if data["weight"] > accessibility:
+                graph.remove_edge(u, v)
+
+        for node in list(graph.nodes):
+            if graph.degree(node) == 0 and graph.nodes[node][f"is_{self.service_name}_service"] != 1:
+                graph.remove_node(node)
 
         for node in graph.nodes:
             if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
-                neighbors = list(graph.neighbors(node))
                 capacity = graph.nodes[node][f"{self.service_name}_capacity"]
                 if (
                     graph.nodes[node]["is_living"]
@@ -138,7 +148,7 @@ class ProvisionModel:
                         load = (graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
 
                     if load <= capacity:
-                        capacity -= load
+                        graph.nodes[node][f"{self.service_name}_capacity"] -= load
                         graph.nodes[node][f"provision_{self.service_name}"] = 100
                         graph.nodes[node][f"id_{self.service_name}"] = node
                         graph.nodes[node][f"population_prov_{self.service_name}"] += graph.nodes[node][
@@ -151,7 +161,7 @@ class ProvisionModel:
                     else:
                         if capacity > 0:
                             prov_people = (capacity * 1000) / standard
-                            capacity -= capacity
+                            graph.nodes[node][f"{self.service_name}_capacity"] -= capacity
                             graph.nodes[node][f"id_{self.service_name}"] = node
                             graph.nodes[node][f"population_prov_{self.service_name}"] += prov_people
                             graph.nodes[node][f"population_unprov_{self.service_name}"] = (
@@ -162,13 +172,12 @@ class ProvisionModel:
                                 node
                             ]["population"]
 
+        for node in graph.nodes:
+            if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
+                capacity = graph.nodes[node][f"{self.service_name}_capacity"]
+                neighbors = list(graph.neighbors(node))
                 for neighbor in neighbors:
-                    if (
-                        graph.nodes[neighbor]["is_living"]
-                        and graph.nodes[neighbor]["population"] > 0
-                        and graph.nodes[neighbor][f"is_{self.service_name}_service"] == 0
-                        and capacity > 0
-                    ):
+                    if graph.nodes[neighbor]["is_living"] and graph.nodes[neighbor]["population"] > 0 and capacity > 0:
                         if (
                             graph.nodes[neighbor]["is_living"]
                             and graph.nodes[neighbor]["population"] > 0
@@ -185,7 +194,7 @@ class ProvisionModel:
                                 ) * standard
 
                             if load <= capacity:
-                                capacity -= load
+                                graph.nodes[node][f"{self.service_name}_capacity"] -= load
                                 graph.nodes[neighbor][f"provision_{self.service_name}"] = 100
                                 graph.nodes[neighbor][f"id_{self.service_name}"] = node
                                 graph.nodes[neighbor][f"population_prov_{self.service_name}"] += graph.nodes[neighbor][
@@ -198,7 +207,7 @@ class ProvisionModel:
                             else:
                                 if capacity > 0:
                                     prov_people = (capacity * 1000) / standard
-                                    capacity -= capacity
+                                    graph.nodes[node][f"{self.service_name}_capacity"] -= capacity
 
                                     graph.nodes[neighbor][f"id_{self.service_name}"] = neighbor
                                     graph.nodes[neighbor][f"population_prov_{self.service_name}"] += prov_people
@@ -222,7 +231,7 @@ class ProvisionModel:
         """
         graph = self.graph.copy()
         blocks = self.blocks.copy()
-        # blocks.index = blocks.index.astype(str)
+        blocks_aggregated = self.blocks_aggregated
         blocks[f"provision_{self.service_name}"] = 0
         blocks[f"id_{self.service_name}"] = 0
         blocks[f"population_prov_{self.service_name}"] = 0
@@ -256,6 +265,13 @@ class ProvisionModel:
         blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"].astype(int)
         blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].astype(int)
         blocks["population"] = blocks["population"].astype(int)
+
+        for i in range(len(blocks)):
+            if blocks.loc[i, "population"] == 0:
+                blocks.loc[i, "population"] = blocks_aggregated.loc[i, "current_population"]
+                blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks_aggregated.loc[i, "current_population"]
+        blocks = blocks.drop(columns=["index"])
+        blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
         return blocks
 

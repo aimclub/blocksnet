@@ -54,11 +54,11 @@ class CityModel:
         self.city_blocks: gpd.GeoDataFrame = kwargs.get("city_blocks", pd.DataFrame())
         self.blocks_aggregated_info: pd.DataFrame = None
         """aggregated info by blocks is needed for further balancing"""
-        self.services_graphs: Dict[gpd.GeoDataFrame] = {}
         self.updated_block_info: dict = None
         self.services_graph: nx.Graph() = None
         """updated block is the id of the modified block"""
 
+        self.collect_data()
         self.collect_data()
 
     def collect_data(self):
