@@ -1,18 +1,12 @@
 """
-This module is aimed to provide all necessary tools to get an estimation of provision of the selected service
+This module is aimed to provide all necessary tools to get an estimation of provision
+of the selected service
 """
 
 
-import pandas as pd
-import numpy as np
-import psycopg2 as pg
-import geopandas as gpd
-import networkx as nx
 from tqdm.auto import tqdm  # pylint: disable=import-error
 
 tqdm.pandas()
-
-from masterplan_tools.Data_getter.data_getter import DataGetter
 
 
 class ProvisionModel:
@@ -111,7 +105,7 @@ class ProvisionModel:
         print(f"Number of blocks with service: {self.service_name}: {blocks_service}")
         print(f"Number of residential blocks: {blocks_living}")
         print(f"Number of blocks total: {total}")
-        print(f"Number of blocks with an error: {invalid_blocks}")
+        print(f"Number of blocks with an error: {invalid_blocks}\n")
 
     def get_provision(self):
         """

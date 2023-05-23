@@ -5,9 +5,7 @@ These methods allow you to connect parts of the data processing pipeline.
 
 
 import geopandas as gpd  # pylint: disable=import-error
-import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
-import networkx as nx
 from tqdm.auto import tqdm  # pylint: disable=import-error
 
 from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
