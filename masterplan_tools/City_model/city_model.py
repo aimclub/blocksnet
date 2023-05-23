@@ -10,7 +10,7 @@ import geopandas as gpd
 from masterplan_tools.Blocks_getter.blocks_getter import BlocksCutter
 from masterplan_tools.Data_getter.data_getter import DataGetter
 
- 
+
 class CityModel:
     """
     City model gathers all data in one class so it could be accessed directly in one place
