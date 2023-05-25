@@ -35,7 +35,7 @@ class ProvisionModel:
         "sportgrounds": 15,
         "swimming_pools": 50,
         "conveniences": 90,
-        "recreational_areas": 5000,
+        "recreational_areas": 6000,
         "pharmacies": 50,
         "playgrounds": 550,
         "supermarkets": 992,
