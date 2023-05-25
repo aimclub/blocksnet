@@ -9,6 +9,7 @@ from math import ceil
 import pandas as pd
 import numpy as np
 from scipy.optimize import minimize
+import geopandas as gpd
 
 
 def kindergarten_area_ranges(kids) -> tuple:
@@ -99,6 +100,61 @@ def school_area(schoolkids) -> tuple:
         return tuple(map(sum, zip(school_area_ranges(1100), school_area(schoolkids - 1100))))
     else:
         return school_area_ranges(schoolkids)
+
+
+def balance_data(gdf, polygon, school, kindergarten, greening, Hectare=10000):
+    """
+    This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon and calculating various statistics.
+
+    Args:
+        gdf (gpd.GeoDataFrame): A GeoDataFrame containing information about blocks in the city.
+        polygon (gpd.GeoSeries): A polygon representing the area to intersect with the blocks.
+        school (gpd.GeoDataFrame): A GeoDataFrame containing information about schools in the city.
+        kindergarten (gpd.GeoDataFrame): A GeoDataFrame containing information about kindergartens in the city.
+        greening (gpd.GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
+
+    Returns:
+        dict: A dictionary containing balanced data about blocks in the city.
+    """
+
+    intersecting_blocks = gpd.overlay(gdf, polygon, how="intersection").drop(columns=["id"])
+    intersecting_blocks.rename(columns={"id_1": "id"}, inplace=True)
+    gdf = intersecting_blocks
+
+    gdf["current_building_area"] = gdf["current_living_area"] + gdf["current_industrial_area"]
+    gdf_ = gdf[
+        [
+            "block_id",
+            "area",
+            "current_living_area",
+            "current_industrial_area",
+            "current_population",
+            "current_green_area",
+            "floors",
+        ]
+    ]
+
+    gdf_ = (
+        gdf_.merge(school[["id", "population_unprov_schools"]], left_on="block_id", right_on="id")
+        .merge(kindergarten[["id", "population_unprov_kindergartens"]], left_on="block_id", right_on="id")
+        .merge(greening[["id", "population_unprov_recreational_areas"]], left_on="block_id", right_on="id")
+    )
+    gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
+
+    gdf_["area"] = gdf_["area"] / Hectare
+    gdf_["current_living_area"] = gdf_["current_living_area"] / Hectare
+    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / Hectare
+    gdf_["current_green_area"] = gdf_["current_green_area"] / Hectare
+
+    df_sum = gdf_.sum()
+    df_sum["floors"] = gdf_["floors"].mean()
+    df_new = pd.DataFrame(df_sum).T
+
+    sample = df_new[df_new["area"] > 7].sample()
+    sample = sample.to_dict("records")
+    block = sample[0].copy()
+
+    return block
 
 
 class MasterPlan:

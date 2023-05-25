@@ -131,6 +131,7 @@ dmypy.json
 
 /.vscode
 /cache
+/mp_data
 
 # data
 *.geojson
