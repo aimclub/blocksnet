@@ -131,8 +131,11 @@ dmypy.json
 
 /.vscode
 /cache
+/mp_data
 
 # data
 *.geojson
 *.pkl
 *.parquet
+*.graphml
+*.csv
