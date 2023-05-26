@@ -10,7 +10,6 @@
 [![PyPi](https://img.shields.io/pypi/v/scikit-learn)](https://pypi.org/project/scikit-learn)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![DOI](https://zenodo.org/badge/21369/scikit-learn/scikit-learn.svg)](https://zenodo.org/badge/latestdoi/21369/scikit-learn/scikit-learn)
-[![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/iduprojects/masterplanning/blob/develop/LICENSE.md)
 
 ## The purpose of the project
 
@@ -26,7 +25,7 @@
   - [The purpose of the project](#the-purpose-of-the-project)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
-  - [Examples](#examples)
+  - [Example](#example)
   - [Documentation](#documentation)
   - [License](#license)
   - [Acknowledgments](#acknowledgments)
@@ -41,13 +40,21 @@
 git clone https://github.com/iduprojects/masterplanning
 ```
 
-## Examples
+Then use the library by importing classes from `masterplan_tools`. For example:
 
-Example notebooks are listed below:
+```
+from masterplan_tools.City_model.city_model import CityModel
+```
 
-1. [Creating city information model]() - example of how to create city information graph model, containing blocks as nodes and distances between blocks as edges. 
-2. [Evaluating service type provision]() - example of service type provision assessment on city information model.
-3. [Balancing urban territory parameters]() - example of balancing urban territory parameters for requirements generation. 
+For more detailed use case see our [example notebook](./examples.ipynb).
+
+## Example
+
+[Example notebook]() includes next cases of using the library:
+
+1. **City information model creation** - how to create city information graph model, containing blocks as nodes and distances between blocks as edges. 
+2. **Service type provision evaluation** - service type provision assessment on city information model.
+3. **Balancing urban territory parameters** - balancing urban territory parameters for requirements generation. 
 
 ## Documentation
 
@@ -55,7 +62,7 @@ We have a [GitBook page](https://iduprojects.gitbook.io/masterplanning/)
 
 ## License
 
-The project has [MIT license]()
+The project has [BSD-3-Clause license](./LICENSE.md)
 
 ## Acknowledgments
 
@@ -65,9 +72,7 @@ The library was developed as the main part of the ITMO University project #62228
 
 You can contact us through telegram or email:
 
-- [IDU]() - Institute of Design and Urban Studies
-- [Telegram]() | [Email]() - Tatyana Churyakova
-- [Telegram]() | [Email]() - George Kontsevik
+- [IDU](https://idu.itmo.ru/en/) - Institute of Design and Urban Studies
 
 ## Citation
 
