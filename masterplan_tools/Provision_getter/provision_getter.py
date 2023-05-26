@@ -232,6 +232,7 @@ class ProvisionModel:
         blocks[f"population_unprov_{self.service_name}"] = 0
         blocks[f"provision_{self.service_name}"] = 0
         blocks["population"] = 0
+        standard = self.standard
 
         for node in graph:
             indx = blocks[blocks.index == node].index[0]
@@ -255,6 +256,18 @@ class ProvisionModel:
                     ]
 
         blocks[f"id_{self.service_name}"] = blocks[f"id_{self.service_name}"].astype(int)
+
+        if self.service_name == "recreational_areas":
+            blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
+            blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"]
+        else:
+            blocks[f"population_unprov_{self.service_name}"] = (
+                blocks[f"population_unprov_{self.service_name}"] / 1000 * standard
+            )
+            blocks[f"population_prov_{self.service_name}"] = (
+                blocks[f"population_prov_{self.service_name}"] / 1000 * standard
+            )
+
         blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"].astype(int)
         blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"].astype(int)
         blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].astype(int)
