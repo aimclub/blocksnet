@@ -2,17 +2,16 @@
 This module provides all necessary tools to get accesibility matrix from transport graph
 """
 
-import pandas as pd
-import numpy as np  # pylint: disable=import-error
-import geopandas as gpd  # pylint: disable=import-error
-import networkit as nk  # pylint: disable=import-error
+import geopandas as gpd
+import networkit as nk
 import networkx as nx
-from tqdm import tqdm  # pylint: disable=import-error
+import pandas as pd
+from tqdm import tqdm
 
 tqdm.pandas()
 
 
-class Accessibility:
+class Accessibility:  # pylint: disable=too-few-public-methods
     """
     Class Accessibility calculates accessibility matrix between city blocks.
     It takes a lot of RAM to calculate one since we have thousands of city blocks.
@@ -22,19 +21,19 @@ class Accessibility:
     get_matrix
     """
 
-    def __init__(self, blocks, G: nx.Graph = None):
+    def __init__(self, blocks, graph: nx.Graph = None):
         self.blocks = blocks
         """a dataframe with city blocks"""
-        self.G = G
+        self.G = graph  # pylint: disable=invalid-name
         """transport graph (in networkx format). Walk, drive, bike or transport graph"""
 
-    def _get_nx2nk_idmap(self, G_nx: nx.Graph) -> dict:
+    def _get_nx2nk_idmap(self, graph: nx.Graph) -> dict:  # TODO: add typing for the dict
         """
         This method gets ids from nx graph to place as attribute in nk graph
 
         Attributes
         ----------
-        G_nx: networkx graph
+        graph: networkx graph
 
         Returns
         -------
@@ -42,16 +41,16 @@ class Accessibility:
             map of old and new ids
         """
 
-        idmap = dict((id, u) for (id, u) in zip(G_nx.nodes(), range(G_nx.number_of_nodes())))
+        idmap = dict((id, u) for (id, u) in zip(graph.nodes(), range(graph.number_of_nodes())))
         return idmap
 
-    def _get_nk_attrs(self, G_nx: nx.Graph) -> dict:
+    def _get_nk_attrs(self, graph: nx.Graph) -> dict:  # TODO: add typing for the dict
         """
         This method gets attributes from nx graph to set as attributes in nk graph
 
         Attributes
         ----------
-        G_nx: networkx graph
+        graph: networkx graph
 
         Returns
         -------
@@ -61,17 +60,19 @@ class Accessibility:
 
         attrs = dict(
             (u, {"x": d[-1]["x"], "y": d[-1]["y"]})
-            for (d, u) in zip(G_nx.nodes(data=True), range(G_nx.number_of_nodes()))
+            for (d, u) in zip(graph.nodes(data=True), range(graph.number_of_nodes()))
         )
         return attrs
 
-    def _convert_nx2nk(self, G_nx: nx.Graph, idmap=None, weight: str = "time_min") -> nk.Graph:
+    def _convert_nx2nk(  # pylint: disable=too-many-locals,invalid-name
+        self, graph_nx: nx.Graph, idmap: dict | None = None, weight: str = "time_min"
+    ) -> nk.Graph:
         """
-        This method converts nx graph to nk graph to fasten calculations.
+        This method converts `networkx` graph to `networkit` graph to fasten calculations.
 
         Attributes
         ----------
-        G_nx: networkx graph
+        graph_nx: networkx graph
         idmap: dict
             map of ids in old nx and new nk graphs
         weight: str
@@ -79,42 +80,44 @@ class Accessibility:
 
         Returns
         -------
-        G_nk: nk.Graph
-            the same graph but now it is nk graph not nx one
+        graph_nk: nk.Graph
+            the same graph but now presented in is `networkit` package Graph class.
 
         """
 
         if not idmap:
-            idmap = self._get_nx2nk_idmap(G_nx)
+            idmap = self._get_nx2nk_idmap(graph_nx)
         n = max(idmap.values()) + 1
-        edges = list(G_nx.edges())
+        edges = list(graph_nx.edges())
 
         if weight:
-            G_nk = nk.Graph(n, directed=G_nx.is_directed(), weighted=True)
+            graph_nk = nk.Graph(n, directed=graph_nx.is_directed(), weighted=True)
             for u_, v_ in edges:
-                    u, v = idmap[u_], idmap[v_]
-                    d = dict(G_nx[u_][v_])
-                    if len(d) > 1:
-                        for d_ in d.values():
-                                v__ = G_nk.addNodes(2)
-                                u__ = v__ - 1
-                                w = round(d[weight], 1) if weight in d else 1
-                                G_nk.addEdge(u, v, w)
-                                G_nk.addEdge(u_, u__, 0)
-                                G_nk.addEdge(v_, v__, 0)
-                    else:
-                        d_ = list(d.values())[0]
-                        w = round(d_[weight], 1) if weight in d_ else 1
-                        G_nk.addEdge(u, v, w)
+                u, v = idmap[u_], idmap[v_]
+                d = dict(graph_nx[u_][v_])
+                if len(d) > 1:
+                    for d_ in d.values():
+                        v__ = graph_nk.addNodes(2)
+                        u__ = v__ - 1
+                        w = round(d[weight], 1) if weight in d else 1
+                        graph_nk.addEdge(u, v, w)
+                        graph_nk.addEdge(u_, u__, 0)
+                        graph_nk.addEdge(v_, v__, 0)
+                else:
+                    d_ = list(d.values())[0]
+                    w = round(d_[weight], 1) if weight in d_ else 1
+                    graph_nk.addEdge(u, v, w)
         else:
-            G_nk = nk.Graph(n, directed=G_nx.is_directed())
+            graph_nk = nk.Graph(n, directed=graph_nx.is_directed())
             for u_, v_ in edges:
-                    u, v = idmap[u_], idmap[v_]
-                    G_nk.addEdge(u, v)
+                u, v = idmap[u_], idmap[v_]
+                graph_nk.addEdge(u, v)
 
-        return G_nk
+        return graph_nk
 
-    def _get_nk_distances(self, nk_dists: nk.base.Algorithm, loc: pd.Series) -> pd.Series:
+    def _get_nk_distances(
+        self, nk_dists: nk.base.Algorithm, loc: pd.Series  # pylint: disable=c-extension-no-member
+    ) -> pd.Series:
         """
         This method calculates distances between blocks using nk SPSP algorithm.
         The function is called inside apply function.
@@ -147,10 +150,10 @@ class Accessibility:
             An accessibility matrix that contains time between all blocks in the city
         """
 
-        G_nx = nx.convert_node_labels_to_integers(self.G)
-        G_nk = self._convert_nx2nk(G_nx, weight="time_min")
+        graph_nx = nx.convert_node_labels_to_integers(self.G)
+        graph_nk = self._convert_nx2nk(graph_nx, weight="time_min")
 
-        graph_df = pd.DataFrame.from_dict(dict(G_nx.nodes(data=True)), orient="index")
+        graph_df = pd.DataFrame.from_dict(dict(graph_nx.nodes(data=True)), orient="index")
         graph_gdf = gpd.GeoDataFrame(
             graph_df, geometry=gpd.points_from_xy(graph_df["x"], graph_df["y"]), crs=self.blocks.crs.to_epsg()
         )
@@ -167,12 +170,14 @@ class Accessibility:
         )
 
         accs_matrix = pd.DataFrame(0, index=from_blocks[1], columns=from_blocks[1])
-        nk_dists = nk.distance.SPSP(G_nk, sources=accs_matrix.index.values).run()
+        nk_dists = nk.distance.SPSP(  # pylint: disable=c-extension-no-member
+            graph_nk, sources=accs_matrix.index.values
+        ).run()
 
         accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x), axis=1)
         accs_matrix.index = self.blocks["id"]
         accs_matrix.columns = self.blocks["id"]
-        
+
         # bug fix in city block's closest node is no connecte to actual transport infrastructure
         accs_matrix[accs_matrix > 500] = accs_matrix[accs_matrix < 500].max().max()
 

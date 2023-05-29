@@ -139,3 +139,6 @@ dmypy.json
 *.parquet
 *.graphml
 *.csv
+
+cache/
+/examples/data

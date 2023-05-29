@@ -46,15 +46,15 @@ Then use the library by importing classes from `masterplan_tools`. For example:
 from masterplan_tools.City_model.city_model import CityModel
 ```
 
-For more detailed use case see our [example notebook](./examples.ipynb).
+For more detailed use case see our [example notebook](examples/workflow.ipynb).
 
 ## Example
 
-[Example notebook]() includes next cases of using the library:
+[Example notebook](examples/workflow.ipynb) includes following steps of using the library:
 
-1. **City information model creation** - how to create city information graph model, containing blocks as nodes and distances between blocks as edges. 
+1. **City information model creation** - how to create city information graph model, containing blocks as nodes and distances between blocks as edges.
 2. **Service type provision evaluation** - service type provision assessment on city information model.
-3. **Balancing urban territory parameters** - balancing urban territory parameters for requirements generation. 
+3. **Balancing urban territory parameters** - balancing urban territory parameters for requirements generation.
 
 ## Documentation
 

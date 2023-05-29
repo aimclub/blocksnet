@@ -1,10 +1,11 @@
 """
-This module is aimed to provide all necessary tools to get an estimation of provision 
+This module is aimed to provide all necessary tools to get an estimation of provision
 of the selected service
 """
+import pandas as pd
+from tqdm.auto import tqdm
 
-
-from tqdm.auto import tqdm  # pylint: disable=import-error
+from masterplan_tools.City_model import CityModel
 
 tqdm.pandas()
 
@@ -64,7 +65,7 @@ class ProvisionModel:
 
     def __init__(
         self,
-        city_model,
+        city_model: CityModel,
         service_name: str = "schools",
     ):
         self.blocks = city_model.city_blocks.copy()
@@ -74,11 +75,13 @@ class ProvisionModel:
         self.graph = city_model.services_graph.copy()
         self.blocks_aggregated = city_model.blocks_aggregated_info.copy()
 
-    def get_stats(self):
+    # printing functions are generally bad
+    def get_stats(self) -> int | None:  # FIXME: this method does not return anything. Rename and fix logic
         """
-        This function prints statistics about the blocks in the `g` attribute of the object. The statistics include the number of
-        blocks with the service specified by the `service_name` attribute, the number of residential blocks, the total number of blocks,
-        and the number of blocks with errors.
+        This function prints statistics about the blocks in the `graph` attribute of the object.
+        The statistics include the number of blocks with the service specified by the `service_name`
+        attribute, the number of residential blocks, the total number of blocks, and the number
+        of blocks with errors.
 
         Returns:
             stats
@@ -107,19 +110,23 @@ class ProvisionModel:
         print(f"Number of blocks total: {total}")
         print(f"Number of blocks with an error: {invalid_blocks}\n")
 
-    def get_provision(self):
+        return None
+
+    def get_provision(self):  # pylint: disable=too-many-branches,too-many-statements
         """
-        This function calculates the provision of a specified service in a city. The provision is calculated based on the data in the `g` attribute of the object.
+        This function calculates the provision of a specified service in a city.
+        The provision is calculated based on the data in the `g` attribute of the object.
 
         Returns:
-            nx.Graph: A networkx graph representing the city's road network with updated data about the provision of the specified service.
+            nx.Graph: A networkx graph representing the city's road network with updated data
+            about the provision of the specified service.
         """
 
         graph = self.graph.copy()
         standard = self.standard
         accessibility = self.accessibility
 
-        for u, v, data in list(graph.edges(data=True)):
+        for u, v, data in list(graph.edges(data=True)):  # pylint: disable=invalid-name
             if data["weight"] > accessibility:
                 graph.remove_edge(u, v)
 
@@ -166,7 +173,7 @@ class ProvisionModel:
                                 node
                             ]["population"]
 
-        for node in graph.nodes:
+        for node in graph.nodes:  # pylint: disable=too-many-nested-blocks
             if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
                 capacity = graph.nodes[node][f"{self.service_name}_capacity"]
                 neighbors = list(graph.neighbors(node))
@@ -215,10 +222,11 @@ class ProvisionModel:
 
         self.graph = graph
 
-    def set_blocks_attributes(self):
+    def set_blocks_attributes(self) -> pd.DataFrame:
         """
-        This function returns a copy of the `blocks` attribute of the object with updated values for the service specified by
-        the `service_name` attribute. The values are updated based on the data in the `g` attribute of the object.
+        This function returns a copy of the `blocks` attribute of the object with updated values for the service
+        specified by the `service_name` attribute. The values are updated based on the data in the `graph` attribute
+        of the object.
 
         Returns:
             DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
@@ -243,7 +251,7 @@ class ProvisionModel:
                         f"population_prov_{self.service_name}"
                     ]
                     blocks.loc[indx, f"population_unprov_{self.service_name}"] = graph.nodes[node][
-                        f"population_unprov_{self.service_name}" 
+                        f"population_unprov_{self.service_name}"
                     ]
                     blocks.loc[indx, f"provision_{self.service_name}"] = graph.nodes[node][
                         f"provision_{self.service_name}"
@@ -257,12 +265,16 @@ class ProvisionModel:
 
         blocks[f"id_{self.service_name}"] = blocks[f"id_{self.service_name}"].astype(int)
 
-        if self.service_name == 'recreational_areas':
-            blocks[f"population_unprov_{self.service_name}"]= blocks[f"population_unprov_{self.service_name}"] 
-            blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"]  
+        if self.service_name == "recreational_areas":
+            blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
+            blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"]
         else:
-            blocks[f"population_unprov_{self.service_name}"]= blocks[f"population_unprov_{self.service_name}"] /1000*standard
-            blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"]  /1000*standard
+            blocks[f"population_unprov_{self.service_name}"] = (
+                blocks[f"population_unprov_{self.service_name}"] / 1000 * standard
+            )
+            blocks[f"population_prov_{self.service_name}"] = (
+                blocks[f"population_prov_{self.service_name}"] / 1000 * standard
+            )
 
         blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"].astype(int)
         blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"].astype(int)
@@ -281,7 +293,8 @@ class ProvisionModel:
 
     def run(self):
         """
-        This function runs the model to calculate the provision of a specified service in a city. The function calls the `get_stats`, `get_provision`, and `get_geo` methods of the object.
+        This function runs the model to calculate the provision of a specified service in a city.
+        The function calls the `get_stats`, `get_provision`, and `get_geo` methods of the object.
 
         Returns:
             DataFrame: A DataFrame containing information about the provision of the specified service in the city.
