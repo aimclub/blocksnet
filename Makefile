@@ -16,10 +16,10 @@ build:
 	python -m build .
 
 clean:
-	rm -rf ./build ./dist ./pg_save.egg-info
+	rm -rf ./build ./dist ./masterplan_tools.egg-info
 
 udpate-pypi: clean build
 	python -m twine upload  dist/*
 
 install-from-build:
-	python -m wheel install dist/pg_save-*.whl
+	python -m wheel install dist/masterplan_tools-*.whl

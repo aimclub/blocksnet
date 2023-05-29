@@ -8,9 +8,9 @@ version = "0.0.1"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
-description = ""
+description = "Package provide methods of master plan requirements automated generation for urban areas"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 license = { file = "LICENCE.md" }
 
 dependencies = [
