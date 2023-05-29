@@ -3,12 +3,14 @@ This module gets data from the OSM. The module also implements several methods o
 These methods allow you to connect parts of the data processing pipeline.
 """
 
-
-import geopandas as gpd  # pylint: disable=import-error
+import geopandas as gpd
+import networkx as nx
 import pandas as pd
-from tqdm.auto import tqdm  # pylint: disable=import-error
+from tqdm.auto import tqdm
 
 from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
+
+tqdm.pandas()
 
 
 class DataGetter:
@@ -22,22 +24,24 @@ class DataGetter:
     def __init__(self) -> None:
         pass
 
-    def get_accessibility_matrix(self, blocks=None, G=None):
+    def get_accessibility_matrix(self, blocks: gpd.GeoDataFrame = None, graph: nx.Graph | None = None) -> pd.DataFrame:
         """
-        This function returns an accessibility matrix for a city. The matrix is calculated using the `Accessibility` class.
+        This function returns an accessibility matrix for a city. The matrix is calculated using
+        the `Accessibility` class.
 
         Args:
-            blocks (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about the blocks in the city. Defaults to None.
-            G (nx.Graph, optional): A networkx graph representing the city's road network. Defaults to None.
+            blocks (GeoDataFrame, optional): A GeoDataFrame containing information about the blocks in the city.
+            Defaults to None.
+            graph (Graph, optional): A networkx graph representing the city's road network. Defaults to None.
 
         Returns:
             np.ndarray: An accessibility matrix for the city.
         """
 
-        accessibility = Accessibility(blocks, G)
+        accessibility = Accessibility(blocks, graph)
         return accessibility.get_matrix()
 
-    def _get_living_area(self, row):
+    def _get_living_area(self, row) -> float:
         """
         This function calculates the living area of a building based on the data in the given row.
 
@@ -49,25 +53,21 @@ class DataGetter:
         """
 
         if row["living_area"]:
-            return row["living_area"]
-        else:
-            if row["is_living"]:
-                if row["storeys_count"]:
-                    if row["building_area"]:
-                        living_area = row["building_area"] * row["storeys_count"] * 0.7
+            return float(row["living_area"])
+        if row["is_living"]:
+            if row["storeys_count"]:
+                if row["building_area"]:
+                    living_area = row["building_area"] * row["storeys_count"] * 0.7
 
-                        return living_area
-                    else:
-                        return 0
-                else:
-                    return 0
-            else:
-                return 0
+                    return living_area
+                return 0.0
+            return 0.0
+        return 0.0
 
-    def _get_living_area_pyatno(self, row):
+    def _get_living_area_pyatno(self, row) -> float:
         """
-        This function calculates the living area of a building based on the data in the given row. If the `living_area` attribute is
-        not available, the function returns 0.
+        This function calculates the living area of a building based on the data in the given row.
+        If the `living_area` attribute is not available, the function returns 0.
 
         Args:
             row (pd.Series): A row of data containing information about a building.
@@ -77,14 +77,19 @@ class DataGetter:
         """
 
         if row["living_area"]:
-            return row["building_area"]
-        else:
-            return 0
+            return float(row["building_area"])
+        return 0.0
 
-    def aggregate_blocks_info(self, blocks, buildings, greenings, parkings):
+    def aggregate_blocks_info(
+        self,
+        blocks: gpd.GeoDataFrame,
+        buildings: gpd.GeoDataFrame,
+        greenings: gpd.GeoDataFrame,
+        parkings: gpd.GeoDataFrame,
+    ):
         """
-        This function aggregates information about blocks in a city. The information includes data about buildings, green spaces,
-        and parking spaces.
+        This function aggregates information about blocks in a city. The information includes data about buildings,
+        green spaces, and parking spaces.
 
         Args:
             blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
@@ -98,7 +103,11 @@ class DataGetter:
 
         buildings["living_area"].fillna(0, inplace=True)
         buildings["storeys_count"].fillna(0, inplace=True)
+        tqdm.pandas(desc="Restoring living area")
+        # TODO: is tqdm really necessary?
         buildings["living_area"] = buildings.progress_apply(self._get_living_area, axis=1)
+        tqdm.pandas(desc="Restoring living area squash")
+        # TODO: is tqdm really necessary?
         buildings["living_area_pyatno"] = buildings.progress_apply(self._get_living_area_pyatno, axis=1)
         buildings["total_area"] = buildings["building_area"] * buildings["storeys_count"]
 
@@ -175,7 +184,7 @@ class DataGetter:
 
         return blocks_info_aggregated
 
-    def prepare_graph(
+    def prepare_graph(  # pylint: disable=too-many-arguments,too-many-locals
         self,
         blocks,
         service_type=None,
@@ -191,16 +200,17 @@ class DataGetter:
         Args:
             blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.
             service_type (str, optional): The type of service to calculate the provision for. Defaults to None.
-            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the specified service in the city.
-            Defaults to None.
+            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the
+            specified service in the city. Defaults to None.
             accessibility_matrix (np.ndarray, optional): An accessibility matrix for the city. Defaults to None.
-            buildings (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about buildings in the city. Defaults to None.
-            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information about blocks in the city.
+            buildings (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about buildings in the city.
             Defaults to None.
+            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information
+            about blocks in the city. Defaults to None.
 
         Returns:
-            nx.Graph: A networkx graph representing the city's road network with additional data for calculating the provision of the
-            specified service.
+            nx.Graph: A networkx graph representing the city's road network with additional data for calculating
+            the provision of the specified service.
         """
         service = service_gdf
 
@@ -212,9 +222,7 @@ class DataGetter:
         )
 
         blocks_with_buildings.reset_index(drop=False, inplace=True)
-        blocks_with_buildings["is_living"] = blocks_with_buildings["population_balanced"].apply(
-            lambda x: True if x > 0 else False
-        )
+        blocks_with_buildings["is_living"] = blocks_with_buildings["population_balanced"].apply(lambda x: x > 0)
 
         blocks_crs = blocks.crs.to_epsg()
 
@@ -235,7 +243,7 @@ class DataGetter:
 
         if updated_block_info:
             if service_type == "recreational_areas":
-                service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[f"G_max_capacity"]
+                service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info["G_max_capacity"]
             else:
                 service_gdf.loc[updated_block_info["block_id"], "capacity"] += updated_block_info[
                     f"{service_type}_capacity"
@@ -250,10 +258,10 @@ class DataGetter:
             accessibility_matrix.columns.isin(living_blocks["id"]),
         ]
 
-        for idx in tqdm(list(blocks_list.index)):
+        # TODO: is tqdm really necessary?
+        for idx in tqdm(list(blocks_list.index), desc="Iterating blocks to prepare graph"):
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
             blocks_list.columns = blocks_list.columns.astype(int)
-            # blocks_list_tmp = blocks_list_tmp[blocks_list_tmp < accs_time].dropna(axis=1)
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
 
             for key in blocks_list_tmp_dict.keys():

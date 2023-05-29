@@ -1,70 +1,72 @@
 """
-This module contains methods
-for calculating a new feasibility profile for the selected area.
+This module contains methods for calculating a new feasibility profile for the selected area.
+
 The maximisation parameter is the number of inhabitants.
 """
-
-
+import itertools
 from math import ceil
-import pandas as pd
-import numpy as np
-from scipy.optimize import minimize
+
 import geopandas as gpd
+import numpy as np
+import pandas as pd
+from scipy.optimize import minimize
+
+from masterplan_tools.utils.measurement_units import HECTARE_IN_SQUARE_METERS
 
 
-def kindergarten_area_ranges(kids) -> tuple:
+def kindergarten_area_ranges(children_number: int) -> tuple[float, int]:
     """
     This method select weight coefficient according to the kindergarten area
 
     Attributes
     ----------
-    kids: int
-        The number of kids in the school
+    children_number: int
+        The number of children in the school
 
     Returns
     -------
-    Weight coefficient
+    Weight coefficient: tuple[float, int]
     """
 
-    conditions = [140 < kids < 180, 250 < kids < 280]
+    if 140 < children_number < 180:
+        return (0.72, 180)
+    if 250 < children_number < 280:
+        return (1.1, 280)
+    return (0, 0)
 
-    choices = [(0.72, 180), (1.1, 280)]
-    return np.select(conditions, choices, default=(0, 0))
 
-
-def kindergarten_area(kids) -> tuple:
+def kindergarten_area(children_number) -> tuple[float, int]:
     """
     This method select weight coefficient according to the number of children in kindergarten
 
     Attributes
     ----------
-    kids: int
-        The number of kids in the school
+    children_number: int
+        The number of children in the school
 
     Returns
     -------
-    weights: tuple
+    weights: tuple[float, int]
         The weight coefficient for the specified number of kids
     """
 
-    if kids >= 280:
-        return tuple(map(sum, zip(kindergarten_area_ranges(280), kindergarten_area(kids - 280))))
-    else:
-        return kindergarten_area_ranges(kids)
+    if children_number >= 280:
+        return tuple(map(sum, zip(kindergarten_area_ranges(280), kindergarten_area(children_number - 280))))
+    return kindergarten_area_ranges(children_number)
 
 
-def school_area_ranges(schoolkids) -> tuple:
+def school_area_ranges(schoolkids: int) -> tuple[float, int]:
     """
     This method select weight coefficient according to the number of schoolchildren
 
     Attributes
     ----------
     schoolkids: int
-        The number of schoolkids in the school
+        The number of children in the school
 
     Returns
     -------
-    Weight coefficient
+    Weight coefficient: tuple[float, int]
     """
 
     schoolkids = ceil(schoolkids)
@@ -78,12 +80,12 @@ def school_area_ranges(schoolkids) -> tuple:
     ]
 
     choices = [(1.2, 250), (1.1, 300), (1.3, 600), (1.5, 800), (1.8, 1100)]
-    return np.select(conditions, choices, default=(0, 0))
+    return tuple(np.select(conditions, choices, default=(0, 0)))
 
 
-def school_area(schoolkids) -> tuple:
+def school_area(schoolkids) -> tuple[float, int]:
     """
-    This method select weight coefficient according to the number of schoolkids in school
+    This method select weight coefficient according to the number of children in school
 
     Attributes
     ----------
@@ -98,20 +100,20 @@ def school_area(schoolkids) -> tuple:
 
     if schoolkids >= 1100:
         return tuple(map(sum, zip(school_area_ranges(1100), school_area(schoolkids - 1100))))
-    else:
-        return school_area_ranges(schoolkids)
+    return school_area_ranges(schoolkids)
 
 
-def balance_data(gdf, polygon, school, kindergarten, greening, Hectare=10000):
+def balance_data(gdf, polygon, school, kindergarten, greening):  # pylint: disable=too-many-arguments
     """
-    This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon and calculating various statistics.
+    This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon
+    and calculating various statistics.
 
     Args:
-        gdf (gpd.GeoDataFrame): A GeoDataFrame containing information about blocks in the city.
+        gdf (GeoDataFrame): A GeoDataFrame containing information about blocks in the city.
         polygon (gpd.GeoSeries): A polygon representing the area to intersect with the blocks.
-        school (gpd.GeoDataFrame): A GeoDataFrame containing information about schools in the city.
-        kindergarten (gpd.GeoDataFrame): A GeoDataFrame containing information about kindergartens in the city.
-        greening (gpd.GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
+        school (GeoDataFrame): A GeoDataFrame containing information about schools in the city.
+        kindergarten (GeoDataFrame): A GeoDataFrame containing information about kindergartens in the city.
+        greening (GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.
 
     Returns:
         dict: A dictionary containing balanced data about blocks in the city.
@@ -141,10 +143,10 @@ def balance_data(gdf, polygon, school, kindergarten, greening, Hectare=10000):
     )
     gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
 
-    gdf_["area"] = gdf_["area"] / Hectare
-    gdf_["current_living_area"] = gdf_["current_living_area"] / Hectare
-    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / Hectare
-    gdf_["current_green_area"] = gdf_["current_green_area"] / Hectare
+    gdf_["area"] = gdf_["area"] / HECTARE_IN_SQUARE_METERS
+    gdf_["current_living_area"] = gdf_["current_living_area"] / HECTARE_IN_SQUARE_METERS
+    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / HECTARE_IN_SQUARE_METERS
+    gdf_["current_green_area"] = gdf_["current_green_area"] / HECTARE_IN_SQUARE_METERS
 
     df_sum = gdf_.sum()
     df_sum["floors"] = gdf_["floors"].mean()
@@ -157,12 +159,12 @@ def balance_data(gdf, polygon, school, kindergarten, greening, Hectare=10000):
     return block
 
 
-class MasterPlan:
+class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
     """
-    class MasterPlan is aimed to calculate balanced parameters for masterplanning for the specified area
+    This class is aimed to calculate balanced parameters for masterplanning for the specified area
     """
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         area,  # total area in hectares
         current_living_area=None,  # the current living area in hectares
@@ -191,7 +193,6 @@ class MasterPlan:
         self.bnds = None
         self.x0s = None
         self.results = pd.DataFrame()
-        self.Hectare = 10000
 
         self.area = area
 
@@ -201,12 +202,12 @@ class MasterPlan:
         self.IA_coef = 0.3
 
         self.F_max = 9
-        self.b_min, self.b_max = 18 / self.Hectare, 30 / self.Hectare
-        self.G_min, self.G_max = 6 / self.Hectare, 12 / self.Hectare
+        self.b_min, self.b_max = 18 / HECTARE_IN_SQUARE_METERS, 30 / HECTARE_IN_SQUARE_METERS
+        self.G_min, self.G_max = 6 / HECTARE_IN_SQUARE_METERS, 12 / HECTARE_IN_SQUARE_METERS
 
         self.SC_coef = 0.12
         self.KG_coef = 0.061
-        self.OP_coef = 0.03 / self.Hectare
+        self.OP_coef = 0.03 / HECTARE_IN_SQUARE_METERS
 
         self.P1_coef = 0.42 * 0.15 * 0.012
         self.P2_coef = 0.42 * 0.35 * 0.005
@@ -220,7 +221,7 @@ class MasterPlan:
         self.max_living_area_full = self.max_living_area * self.F_max
         self.max_population = ceil(self.max_living_area_full / self.b_max)
 
-    def sc_area(self, population) -> float:
+    def sc_area(self, population: int) -> float:
         """
         Method calculates coefficients for school area based on the number of inhabitants
 
@@ -236,7 +237,7 @@ class MasterPlan:
 
         return school_area(self.SC_coef * population)[0]
 
-    def kg_area(self, population) -> float:
+    def kg_area(self, population: int) -> float:
         """
         Method calculates coefficients for kindergarten area based on the number of inhabitants
 
@@ -252,7 +253,7 @@ class MasterPlan:
 
         return kindergarten_area(self.KG_coef * population)[0]
 
-    def op_area(self, population) -> float:
+    def op_area(self, population: int) -> float:
         """
         Method calculates coefficients for public spaces based on the number of inhabitants
 
@@ -268,7 +269,7 @@ class MasterPlan:
 
         return self.OP_coef * population
 
-    def parking1_area(self, population) -> float:
+    def parking1_area(self, population: int) -> float:
         """
         Method calculates coefficients №1 for parking area based on the number of inhabitants
 
@@ -284,7 +285,7 @@ class MasterPlan:
 
         return self.P1_coef * population
 
-    def parking2_area(self, population):
+    def parking2_area(self, population: int) -> float:
         """
         Method calculates coefficients №2 for parking area based on the number of inhabitants
 
@@ -301,7 +302,7 @@ class MasterPlan:
         return self.P2_coef * population
 
     @staticmethod
-    def living_area(population, b):
+    def living_area(population: int, b):  # FIXME: what is "b"?
         """
         Method calculates coefficients №1 for parking area based on the number of inhabitants
 
@@ -318,7 +319,7 @@ class MasterPlan:
         return population * b
 
     @staticmethod
-    def green_area(population, G):
+    def green_area(population, G):  # FIXME: what is "G"?
         """
         Method calculates coefficients for green area based on the number of inhabitants
 
@@ -334,7 +335,7 @@ class MasterPlan:
 
         return population * G
 
-    def fun(self, x):
+    def fun(self, x):  # FIXME: "fun"? "x"? Returns float?
         """
         Method calculates coefficients №1 for parking area based on the number of inhabitants
 
@@ -359,7 +360,7 @@ class MasterPlan:
             - self.parking2_area(x[0])
         )
 
-    def bnds_and_cons(self):
+    def bnds_and_cons(self):  # FIXME: docstring, typing?
         """Information adout this method will be provided later"""
 
         self.cons = (
@@ -381,12 +382,12 @@ class MasterPlan:
                 - self.kg_area(x[0] + self.current_unprov_kids)
                 - self.parking2_area(x[0]),
             },
-            {"type": "ineq", "fun": lambda x: self.fun(x)},
+            {"type": "ineq", "fun": self.fun},
         )
 
         self.bnds = ((0, self.max_population), (self.b_min, self.b_max), (self.G_min, self.G_max))
 
-    def make_x0s(self):
+    def make_x0s(self):  # FIXME: docstring, typing?
         """Information adout this method will be provided later"""
 
         self.x0s = [
@@ -397,24 +398,27 @@ class MasterPlan:
             (self.max_population / 8, self.b_max, self.G_max),
         ]
 
-    def find_optimal_solutions(self):
+    def find_optimal_solutions(self):  # FIXME: docstring, typing?
         """Information adout this method will be provided later"""
 
         self.bnds_and_cons()
         self.make_x0s()
 
+        results: list[pd.DataFrame] = []
         for x0 in self.x0s:
-            temp_result = minimize(self.fun, x0, method="SLSQP", bounds=self.bnds, constraints=self.cons)
-            self.results = self.results.append(temp_result, ignore_index=True)
+            results.append(
+                pd.DataFrame([minimize(self.fun, x0, method="SLSQP", bounds=self.bnds, constraints=self.cons)])
+            )
+        self.results = pd.concat(itertools.chain([self.results], results)).reset_index(drop=True)
 
-        del temp_result
-
-    def select_one_optimal(self):
+    def select_one_optimal(self):  # FIXME: docstring, typing?
         """Information adout this method will be provided later"""
 
         return self.results["x"][self.results[self.results["fun"] > 0]["fun"].idxmin()]
 
-    def recalculate_indicators(self, population, b, G) -> dict:
+    def recalculate_indicators(
+        self, population, b, G
+    ) -> dict:  # TODO: add typing to the dict (dict[str, float | int]?)
         """
         This method calculates desired indicator based on the number of inhabitants
 
@@ -436,8 +440,8 @@ class MasterPlan:
         return {
             "area": self.area,
             "population": population + self.current_population,
-            "b": b * self.Hectare,
-            "green_coef_G": G * self.Hectare,
+            "b": b * HECTARE_IN_SQUARE_METERS,
+            "green_coef_G": G * HECTARE_IN_SQUARE_METERS,
             "living_area": self.living_area(population, b) + self.current_living_area,
             "schools_area": sc[0],
             "schools_capacity": sc[1],
@@ -452,7 +456,7 @@ class MasterPlan:
             "parking2_area": self.parking2_area(population),
         }
 
-    def optimal_solution_indicators(self) -> dict:
+    def optimal_solution_indicators(self) -> dict:  # TODO: add tpting to the dict
         """
         This method selects optimal parameters for the specified area
 

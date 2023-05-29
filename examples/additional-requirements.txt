@@ -1,0 +1,6 @@
+folium
+ipywidgets
+jupyter
+mapclassify
+matplotlib
+rich
