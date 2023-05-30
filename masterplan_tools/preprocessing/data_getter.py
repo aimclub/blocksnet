@@ -8,7 +8,7 @@ import networkx as nx
 import pandas as pd
 from tqdm.auto import tqdm
 
-from masterplan_tools.Data_getter.accs_matrix_calculator import Accessibility
+from masterplan_tools.preprocessing.accs_matrix_calculator import Accessibility
 
 tqdm.pandas()
 

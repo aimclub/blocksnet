@@ -1,5 +1,5 @@
 """
-Measurements units static values are defined here.
+Measurements units static values are located here.
 """
 
 HECTARE_IN_SQUARE_METERS = 10_000

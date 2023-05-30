@@ -1,4 +1,4 @@
 """
-City Model class is defined here.
+Models classes are located here.
 """
 from .city_model import CityModel
