@@ -159,6 +159,7 @@ def balance_data(gdf, polygon, school, kindergarten, greening):  # pylint: disab
     return block
 
 
+# TODO? Maybe MasterPlan should be moved to a separate file
 class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
     """
     This class is aimed to calculate balanced parameters for masterplanning for the specified area

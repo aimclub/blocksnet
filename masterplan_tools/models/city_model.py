@@ -7,8 +7,8 @@ import geopandas as gpd
 import networkx as nx
 import pandas as pd
 
-from masterplan_tools.Blocks_getter.blocks_getter import BlocksCutter
-from masterplan_tools.Data_getter.data_getter import DataGetter
+from masterplan_tools.method.blocks.blocks_cutter import BlocksCutter
+from masterplan_tools.preprocessing.data_getter import DataGetter
 
 
 class CityModel:  # pylint: disable=too-many-instance-attributes,too-few-public-methods

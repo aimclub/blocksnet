@@ -9,6 +9,6 @@ __credits__ = []
 __license__ = "BSD-3"
 
 
-from masterplan_tools.City_model.city_model import CityModel
-from masterplan_tools.Balancer.balancer import MasterPlan
-from masterplan_tools.Provision_getter.provision_getter import ProvisionModel
+from masterplan_tools.models import CityModel
+from masterplan_tools.method.balancing import MasterPlan
+from masterplan_tools.method.provision import ProvisionModel

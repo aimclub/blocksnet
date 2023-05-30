@@ -5,7 +5,7 @@ of the selected service
 import pandas as pd
 from tqdm.auto import tqdm
 
-from masterplan_tools.City_model import CityModel
+from masterplan_tools.models import CityModel
 
 tqdm.pandas()
 
