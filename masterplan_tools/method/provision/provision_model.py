@@ -75,8 +75,9 @@ class ProvisionModel:
         self.graph = city_model.services_graph.copy()
         self.blocks_aggregated = city_model.blocks_aggregated_info.copy()
 
-    # printing functions are generally bad
-    def get_stats(self) -> int | None:  # FIXME: this method does not return anything. Rename and fix logic
+    # FIXME: this method does not return anything (0 if graph is missing, None otherwise). Rename and fix logic
+    # And printing functions are generally bad
+    def get_stats(self) -> int | None:
         """
         This function prints statistics about the blocks in the `graph` attribute of the object.
         The statistics include the number of blocks with the service specified by the `service_name`
