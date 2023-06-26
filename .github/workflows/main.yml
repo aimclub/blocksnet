@@ -30,7 +30,7 @@ jobs:
       - name: Build documentation
         run: |
           cd ./docs
-          sphinx-apidoc -o -f source/ ../masterplan_tools/
+          sphinx-apidoc -f -o source/ ../masterplan_tools/
           make html
           cd ..
 
