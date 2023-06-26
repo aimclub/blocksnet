@@ -142,3 +142,6 @@ dmypy.json
 
 cache/
 /examples/data
+
+# PyCharm env
+.idea
