@@ -7,6 +7,8 @@ on:
 
 jobs:
   build:
+    env:
+      commitmsg: ${{ github.event.head_commit.message }}
     runs-on: ubuntu-latest
 
     steps:
@@ -33,7 +35,7 @@ jobs:
           rm -r docs/_sources
 
       - name: Commit and push changes
-        if: $(git log -1 --pretty=%B) != "Update documentation"
+        if: ${{ env.commitmsg != "Update documentation" }}
         run: |
           git config user.name "$(git log -n 1 --pretty=format:%an)"
           git config user.email "$(git log -n 1 --pretty=format:%ae)"
