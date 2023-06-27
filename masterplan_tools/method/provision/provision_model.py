@@ -43,23 +43,23 @@ class ProvisionModel:
     }
 
     services_accessibility_dict = {
-        "kindergartens": 4,
-        "schools": 7,
+        "kindergartens": 15,
+        "schools": 20,
         "universities": 60,
         "hospitals": 60,
-        "policlinics": 13,
+        "policlinics": 15,
         "theaters": 60,
         "cinemas": 60,
         "cafes": 30,
         "bakeries": 30,
         "fastfoods": 30,
         "music_school": 30,
-        "sportgrounds": 7,
+        "sportgrounds": 10,
         "swimming_pools": 30,
         "conveniences": 8,
         "recreational_areas": 25,
-        "pharmacies": 7,
-        "playgrounds": 2,
+        "pharmacies":10,
+        "playgrounds": 5,
         "supermarkets": 30,
     }
 
@@ -170,10 +170,10 @@ class ProvisionModel:
                                 graph.nodes[node][f"population_unprov_{self.service_name}"] - prov_people
                             )
                             graph.nodes[node][f"id_{self.service_name}"] = node
-                            graph.nodes[node][f"provision_{self.service_name}"] = (prov_people * 100) / graph.nodes[
-                                node
-                            ]["population"]
-
+                            graph.nodes[node][f"provision_{self.service_name}"] = graph.nodes[node][
+                                f"population_prov_{self.service_name}"] * 100 / graph.nodes[
+                                    node]["population"]
+                            
         for node in graph.nodes:  # pylint: disable=too-many-nested-blocks
             if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
                 capacity = graph.nodes[node][f"{self.service_name}_capacity"]
@@ -217,9 +217,9 @@ class ProvisionModel:
                                         graph.nodes[neighbor][f"population_unprov_{self.service_name}"] - prov_people
                                     )
                                     graph.nodes[neighbor][f"id_{self.service_name}"] = node
-                                    graph.nodes[neighbor][f"provision_{self.service_name}"] = (
-                                        prov_people * 100
-                                    ) / graph.nodes[neighbor]["population"]
+                                    graph.nodes[neighbor][f"provision_{self.service_name}"] = graph.nodes[neighbor][
+                                        f"population_prov_{self.service_name}"] * 100 / graph.nodes[
+                                            neighbor]["population"]
 
         self.graph = graph
 
