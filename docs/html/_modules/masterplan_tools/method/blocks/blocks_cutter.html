@@ -1,0 +1,553 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>masterplan_tools.method.blocks.blocks_cutter &#8212; Masterplanning  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/masterplan_tools/method/blocks/blocks_cutter';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">Masterplanning  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for masterplan_tools.method.blocks.blocks_cutter</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module is aimed to cut the geometry of the specified city into city blocks.</span>
+<span class="sd">Blocks are close to cadastral unit, however in the way they are calculated in this method</span>
+<span class="sd">they become suitable to be used in masterplanning process.</span>
+
+<span class="sd">TODO: add landuse devision to avoid weird cutoffs</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
+
+
+<div class="viewcode-block" id="BlocksCutter"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter">[docs]</a><span class="k">class</span> <span class="nc">BlocksCutter</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods,too-many-instance-attributes</span>
+
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class used to generate city blocks.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    get_blocks(self)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">city_model</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">ROADS_WIDTH</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;roads geometry buffer in meters&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_ration</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">GEOMETRY_CUTOFF_RATIO</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;polygon&#39;s perimeter to area ratio. Objects with bigger ration will be dropped.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_area</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">GEOMETRY_CUTOFF_AREA</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;in meters. Objects with smaller area will be dropped.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">park_cutoff_area</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">PARK_CUTOFF_AREA</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;in meters. Objects with smaller area will be dropped.&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">water_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">water_geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">roads_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">roads_geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">railways_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">railways_geometry</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">city_geometry</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_fill_spaces_in_blocks</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polygon</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This geometry will be cut later from city&#39;s geometry.</span>
+
+<span class="sd">        The water entities will split blocks from each other. The water geometries are taken using overpass turbo.</span>
+
+<span class="sd">        The tags used in the query are: &quot;natural&quot;=&quot;water&quot;, &quot;waterway&quot;~&quot;river|stream|tidal_channel|canal&quot;.</span>
+
+<span class="sd">        This function is designed to be used with &#39;apply&#39; function, applied to the pd.DataFrame.</span>
+
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        row : GeoSeries</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        water_geometry : Union[Polygon, Multipolygon]</span>
+<span class="sd">            Geometry of water. The water geometries are also buffered a little so the division of city&#39;s geometry</span>
+<span class="sd">            could be more noticable.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">new_block_geometry</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">empty_part_to_fill</span> <span class="o">=</span> <span class="p">[</span><span class="n">Polygon</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]]</span>
+
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">empty_part_to_fill</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_block_geometry</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span>
+                    <span class="k">lambda</span> <span class="n">geom1</span><span class="p">,</span> <span class="n">geom2</span><span class="p">:</span> <span class="n">geom1</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">geom2</span><span class="p">),</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">empty_part_to_fill</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">new_block_geometry</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">new_block_geometry</span>
+
+        <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span> <span class="nf">_fill_deadends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Some roads make a deadend in the blocks. To get rid of such deadends the blocks&#39; polygons</span>
+<span class="sd">        are buffered and then unbuffered back. This procedure makes possible to fill deadends.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self.city_geometry : GeoDataFrame</span>
+<span class="sd">            Geometry of the city without road deadends. City geometry is not returned and setted as a class attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># To make multi-part geometries into several single-part so they coud be processed separatedly</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">block</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_polygon_to_multipolygon</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function makes one multipolygon from many polygons in the gdf.</span>
+
+<span class="sd">        This step allows to fasten overlay operation between two multipolygons since overlay operates</span>
+<span class="sd">        ineratively by passed geometry objects.</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gdf: gpd.GeoDataFrame</span>
+<span class="sd">            A gdf with many geometries-polygons</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gdf: Multipolygon</span>
+<span class="sd">            A gdf with one geometry-MultiPolygon</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">crs</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">unary_union</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">gdf</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">MultiPolygon</span><span class="p">(</span><span class="n">gdf</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf</span>
+
+    <span class="k">def</span> <span class="nf">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf_cutter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Cut any geometries from city&#39;s geometry</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">gdf_cutter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_to_multipolygon</span><span class="p">(</span><span class="n">gdf_cutter</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_to_multipolygon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">,</span> <span class="n">gdf_cutter</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;difference&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_drop_overlayed_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Drop overlayed geometries</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">new_geometries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">unary_union</span>
+        <span class="n">new_geometries</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">new_geometries</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_geometries</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="k">del</span> <span class="n">new_geometries</span>
+
+    <span class="k">def</span> <span class="nf">_fix_blocks_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        After cutting several entities from city&#39;s geometry, blocks might have unnecessary spaces inside them.</span>
+
+<span class="sd">        In order to avoid this, this functions prepares data to fill empty spaces inside each city block</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        None</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">interiors</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;rings&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_fill_spaces_in_blocks</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_split_city_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Gets city geometry to split it by dividers like different kind of roads. The splitted parts are city blocks.</span>
+
+<span class="sd">        However, not each resulted geometry is a valid city block. So inaccuracies of this division would be removed</span>
+<span class="sd">        in the next step.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        blocks : Union[Polygon, Multipolygon]</span>
+<span class="sd">            city bounds splitted by railways, roads and water. Resulted polygons are city blocks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">railways_geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_deadends</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">water_geometry</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_blocks_geometries</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drop_overlayed_geometries</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_drop_unnecessary_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get and clear blocks&#39;s geometries, dropping unnecessary geometries.</span>
+
+<span class="sd">        There two criterieas to dicide whether drop the geometry or not.</span>
+
+<span class="sd">        First -- if the total area of the polygon is not too small (not less than self.cutoff_area)</span>
+
+<span class="sd">        Second -- if the ratio of perimeter to total polygon area not more than self.cutoff_ratio.</span>
+
+<span class="sd">        The second criteria means that polygon is not too narrow and could be a valid block.</span>
+
+<span class="sd">        A GeoDataFrame with blocks and unnecessary geometries such as roundabouts,</span>
+<span class="sd">        other small polygons or very narrow geometries which happened to exist after</span>
+<span class="sd">        cutting roads and water from the city&#39;s polygon, but have no value for master-planning</span>
+<span class="sd">        purposes</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        blocks : GeoDataFrame</span>
+<span class="sd">            a GeoDataFrame with substracted blocks without unnecessary geometries.</span>
+<span class="sd">            Blocks geometry is not returned and setted as a class attribute.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">area</span>
+
+        <span class="c1"># First criteria check: total area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_area</span><span class="p">]</span>
+
+        <span class="c1"># Second criteria check: perimetr / total area ratio</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">length</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Drop polygons with an aspect ratio less than the threshold</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_ration</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+
+<div class="viewcode-block" id="BlocksCutter.get_blocks"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter.get_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Main method.</span>
+
+<span class="sd">        This method gets city&#39;s boundaries from OSM. Then iteratively water, roads and railways are cutted</span>
+<span class="sd">        from city&#39;s geometry. After splitting city into blocks invalid blocks with bad geometries are removed.</span>
+
+<span class="sd">        For big city it takes about ~ 1-2 hours to split big city&#39;s geometry into thousands of blocks.</span>
+<span class="sd">        It takes so long because splitting one big geometry (like city) by another big geometry (like roads</span>
+<span class="sd">        or waterways) is computationally expensive. Splitting city by roads and water entities are two the most</span>
+<span class="sd">        time consuming processes in this method.</span>
+
+<span class="sd">        For cities over the Russia it could be better to upload water geometries from elsewhere, than taking</span>
+<span class="sd">        them from OSM. Somehow they are poorly documented on OSM.</span>
+
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        blocks</span>
+<span class="sd">            a GeoDataFrame of city blocks</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_split_city_geometry</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_drop_unnecessary_geometries</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By open-source
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, open-source.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
