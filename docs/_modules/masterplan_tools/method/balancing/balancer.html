@@ -1,0 +1,762 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>masterplan_tools.method.balancing.balancer &#8212; Masterplanning  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/masterplan_tools/method/balancing/balancer';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">Masterplanning  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for masterplan_tools.method.balancing.balancer</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">This module contains methods for calculating a new feasibility profile for the selected area.</span>
+
+<span class="sd">The maximisation parameter is the number of inhabitants.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">math</span> <span class="kn">import</span> <span class="n">ceil</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">scipy.optimize</span> <span class="kn">import</span> <span class="n">minimize</span>
+
+<span class="kn">from</span> <span class="nn">masterplan_tools.utils.measurement_units</span> <span class="kn">import</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+
+
+<div class="viewcode-block" id="kindergarten_area_ranges"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.kindergarten_area_ranges">[docs]</a><span class="k">def</span> <span class="nf">kindergarten_area_ranges</span><span class="p">(</span><span class="n">children_number</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method select weight coefficient according to the kindergarten area</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    children_number: int</span>
+<span class="sd">        The number of children in the school</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Weight coefficient: tuple[float, int]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="mi">140</span> <span class="o">&lt;</span> <span class="n">children_number</span> <span class="o">&lt;</span> <span class="mi">180</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">0.72</span><span class="p">,</span> <span class="mi">180</span><span class="p">)</span>
+    <span class="k">if</span> <span class="mi">250</span> <span class="o">&lt;</span> <span class="n">children_number</span> <span class="o">&lt;</span> <span class="mi">280</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mf">1.1</span><span class="p">,</span> <span class="mi">280</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="kindergarten_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.kindergarten_area">[docs]</a><span class="k">def</span> <span class="nf">kindergarten_area</span><span class="p">(</span><span class="n">children_number</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method select weight coefficient according to the number of children in kindergarten</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    children_number: int</span>
+<span class="sd">        The number of children in the school</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    weights: tuple[float, int]</span>
+<span class="sd">        The weight coefficient for the specified number of kids</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">children_number</span> <span class="o">&gt;=</span> <span class="mi">280</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">sum</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">kindergarten_area_ranges</span><span class="p">(</span><span class="mi">280</span><span class="p">),</span> <span class="n">kindergarten_area</span><span class="p">(</span><span class="n">children_number</span> <span class="o">-</span> <span class="mi">280</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="n">kindergarten_area_ranges</span><span class="p">(</span><span class="n">children_number</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="school_area_ranges"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.school_area_ranges">[docs]</a><span class="k">def</span> <span class="nf">school_area_ranges</span><span class="p">(</span><span class="n">schoolkids</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method select weight coefficient according to the number of schoolchildren</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schoolkids: int</span>
+<span class="sd">        The number of children in the school</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Weight coefficient: tuple[float, int]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">schoolkids</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">schoolkids</span><span class="p">)</span>
+
+    <span class="n">conditions</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="mi">100</span> <span class="o">&lt;</span> <span class="n">schoolkids</span> <span class="o">&lt;</span> <span class="mi">250</span><span class="p">,</span>
+        <span class="mi">250</span> <span class="o">&lt;</span> <span class="n">schoolkids</span> <span class="o">&lt;</span> <span class="mi">300</span><span class="p">,</span>
+        <span class="mi">300</span> <span class="o">&lt;</span> <span class="n">schoolkids</span> <span class="o">&lt;</span> <span class="mi">600</span><span class="p">,</span>
+        <span class="mi">600</span> <span class="o">&lt;</span> <span class="n">schoolkids</span> <span class="o">&lt;</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="mi">800</span> <span class="o">&lt;</span> <span class="n">schoolkids</span> <span class="o">&lt;</span> <span class="mi">1101</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="n">choices</span> <span class="o">=</span> <span class="p">[(</span><span class="mf">1.2</span><span class="p">,</span> <span class="mi">250</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.1</span><span class="p">,</span> <span class="mi">300</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.3</span><span class="p">,</span> <span class="mi">600</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.5</span><span class="p">,</span> <span class="mi">800</span><span class="p">),</span> <span class="p">(</span><span class="mf">1.8</span><span class="p">,</span> <span class="mi">1100</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="n">conditions</span><span class="p">,</span> <span class="n">choices</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span></div>
+
+
+<div class="viewcode-block" id="school_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.school_area">[docs]</a><span class="k">def</span> <span class="nf">school_area</span><span class="p">(</span><span class="n">schoolkids</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This method select weight coefficient according to the number of children in school</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    schoolkids: int</span>
+<span class="sd">        The number of kids in the school</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    weights: tuple</span>
+<span class="sd">        The weight coefficient for the specified number of kids</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="n">schoolkids</span> <span class="o">&gt;=</span> <span class="mi">1100</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">sum</span><span class="p">,</span> <span class="nb">zip</span><span class="p">(</span><span class="n">school_area_ranges</span><span class="p">(</span><span class="mi">1100</span><span class="p">),</span> <span class="n">school_area</span><span class="p">(</span><span class="n">schoolkids</span> <span class="o">-</span> <span class="mi">1100</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="n">school_area_ranges</span><span class="p">(</span><span class="n">schoolkids</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="balance_data"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.balance_data">[docs]</a><span class="k">def</span> <span class="nf">balance_data</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">polygon</span><span class="p">,</span> <span class="n">school</span><span class="p">,</span> <span class="n">kindergarten</span><span class="p">,</span> <span class="n">greening</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon</span>
+<span class="sd">    and calculating various statistics.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        gdf (GeoDataFrame): A GeoDataFrame containing information about blocks in the city.</span>
+<span class="sd">        polygon (gpd.GeoSeries): A polygon representing the area to intersect with the blocks.</span>
+<span class="sd">        school (GeoDataFrame): A GeoDataFrame containing information about schools in the city.</span>
+<span class="sd">        kindergarten (GeoDataFrame): A GeoDataFrame containing information about kindergartens in the city.</span>
+<span class="sd">        greening (GeoDataFrame): A GeoDataFrame containing information about green spaces in the city.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict: A dictionary containing balanced data about blocks in the city.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">intersecting_blocks</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">polygon</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;intersection&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+    <span class="n">intersecting_blocks</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;id_1&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">intersecting_blocks</span>
+
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;current_building_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;current_living_area&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;current_industrial_area&quot;</span><span class="p">]</span>
+    <span class="n">gdf_</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;block_id&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;current_living_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;current_industrial_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;current_population&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;current_green_area&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;floors&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+    <span class="p">]</span>
+
+    <span class="n">gdf_</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gdf_</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">school</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;population_unprov_schools&quot;</span><span class="p">]],</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;block_id&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">kindergarten</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;population_unprov_kindergartens&quot;</span><span class="p">]],</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;block_id&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">greening</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;population_unprov_recreational_areas&quot;</span><span class="p">]],</span> <span class="n">left_on</span><span class="o">=</span><span class="s2">&quot;block_id&quot;</span><span class="p">,</span> <span class="n">right_on</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">gdf_</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;id_x&quot;</span><span class="p">,</span> <span class="s2">&quot;id_y&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+    <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;current_living_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;current_living_area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+    <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;current_industrial_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;current_industrial_area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+    <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;current_green_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;current_green_area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+
+    <span class="n">df_sum</span> <span class="o">=</span> <span class="n">gdf_</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+    <span class="n">df_sum</span><span class="p">[</span><span class="s2">&quot;floors&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf_</span><span class="p">[</span><span class="s2">&quot;floors&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+    <span class="n">df_new</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">df_sum</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">df_new</span><span class="p">[</span><span class="n">df_new</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">7</span><span class="p">]</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">sample</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="s2">&quot;records&quot;</span><span class="p">)</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">sample</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="n">block</span></div>
+
+
+<span class="c1"># TODO? Maybe MasterPlan should be moved to a separate file</span>
+<div class="viewcode-block" id="MasterPlan"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan">[docs]</a><span class="k">class</span> <span class="nc">MasterPlan</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes,invalid-name</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This class is aimed to calculate balanced parameters for masterplanning for the specified area</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">area</span><span class="p">,</span>  <span class="c1"># total area in hectares</span>
+        <span class="n">current_living_area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current living area in hectares</span>
+        <span class="n">current_industrial_area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current industrial area in hectares</span>
+        <span class="n">current_population</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current number of people</span>
+        <span class="n">current_green_area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current green area in hectares</span>
+        <span class="n">current_op_area</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current public spaces area in hectares</span>
+        <span class="n">current_unprov_schoolkids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current number of students who do not have enough places in</span>
+        <span class="c1"># schools</span>
+        <span class="n">current_unprov_kids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current number of kids who do not have enough places in kindergartens</span>
+        <span class="n">current_unprov_green_population</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># the current number of people who do not have enough green areas</span>
+    <span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_living_area</span> <span class="o">=</span> <span class="n">current_living_area</span> <span class="k">if</span> <span class="n">current_living_area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_industrial_area</span> <span class="o">=</span> <span class="n">current_industrial_area</span> <span class="k">if</span> <span class="n">current_industrial_area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_population</span> <span class="o">=</span> <span class="n">current_population</span> <span class="k">if</span> <span class="n">current_population</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_green_area</span> <span class="o">=</span> <span class="n">current_green_area</span> <span class="k">if</span> <span class="n">current_green_area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_op_area</span> <span class="o">=</span> <span class="n">current_op_area</span> <span class="k">if</span> <span class="n">current_op_area</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_schoolkids</span> <span class="o">=</span> <span class="n">current_unprov_schoolkids</span> <span class="k">if</span> <span class="n">current_unprov_schoolkids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_kids</span> <span class="o">=</span> <span class="n">current_unprov_kids</span> <span class="k">if</span> <span class="n">current_unprov_kids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_green_population</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">current_unprov_green_population</span> <span class="k">if</span> <span class="n">current_unprov_green_population</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cons</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">bnds</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0s</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">=</span> <span class="n">area</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">BA_coef</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">FA_coef</span> <span class="o">=</span> <span class="mf">0.2</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">LA_coef</span> <span class="o">=</span> <span class="mf">0.7</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">IA_coef</span> <span class="o">=</span> <span class="mf">0.3</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">F_max</span> <span class="o">=</span> <span class="mi">9</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">b_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_max</span> <span class="o">=</span> <span class="mi">18</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span><span class="p">,</span> <span class="mi">30</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">G_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_max</span> <span class="o">=</span> <span class="mi">6</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span><span class="p">,</span> <span class="mi">12</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">SC_coef</span> <span class="o">=</span> <span class="mf">0.12</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">KG_coef</span> <span class="o">=</span> <span class="mf">0.061</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OP_coef</span> <span class="o">=</span> <span class="mf">0.03</span> <span class="o">/</span> <span class="n">HECTARE_IN_SQUARE_METERS</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">P1_coef</span> <span class="o">=</span> <span class="mf">0.42</span> <span class="o">*</span> <span class="mf">0.15</span> <span class="o">*</span> <span class="mf">0.012</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">P2_coef</span> <span class="o">=</span> <span class="mf">0.42</span> <span class="o">*</span> <span class="mf">0.35</span> <span class="o">*</span> <span class="mf">0.005</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_building_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">BA_coef</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_living_area</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_industrial_area</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_free_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">FA_coef</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_green_area</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_op_area</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_living_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_building_area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">LA_coef</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_industrial_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_building_area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">IA_coef</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_living_area_full</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_living_area</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">F_max</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_population</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_living_area_full</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_max</span><span class="p">)</span>
+
+<div class="viewcode-block" id="MasterPlan.sc_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.sc_area">[docs]</a>    <span class="k">def</span> <span class="nf">sc_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients for school area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">school_area</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SC_coef</span> <span class="o">*</span> <span class="n">population</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MasterPlan.kg_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.kg_area">[docs]</a>    <span class="k">def</span> <span class="nf">kg_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients for kindergarten area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">kindergarten_area</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">KG_coef</span> <span class="o">*</span> <span class="n">population</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="MasterPlan.op_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.op_area">[docs]</a>    <span class="k">def</span> <span class="nf">op_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients for public spaces based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">OP_coef</span> <span class="o">*</span> <span class="n">population</span></div>
+
+<div class="viewcode-block" id="MasterPlan.parking1_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.parking1_area">[docs]</a>    <span class="k">def</span> <span class="nf">parking1_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients №1 for parking area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">P1_coef</span> <span class="o">*</span> <span class="n">population</span></div>
+
+<div class="viewcode-block" id="MasterPlan.parking2_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.parking2_area">[docs]</a>    <span class="k">def</span> <span class="nf">parking2_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients №2 for parking area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">P2_coef</span> <span class="o">*</span> <span class="n">population</span></div>
+
+<div class="viewcode-block" id="MasterPlan.living_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.living_area">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">living_area</span><span class="p">(</span><span class="n">population</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>  <span class="c1"># FIXME: what is &quot;b&quot;?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients №1 for parking area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">population</span> <span class="o">*</span> <span class="n">b</span></div>
+
+<div class="viewcode-block" id="MasterPlan.green_area"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.green_area">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">green_area</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">G</span><span class="p">):</span>  <span class="c1"># FIXME: what is &quot;G&quot;?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients for green area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+<span class="sd">            maximized number of inhabitants</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">population</span> <span class="o">*</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="MasterPlan.fun"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.fun">[docs]</a>    <span class="k">def</span> <span class="nf">fun</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">):</span>  <span class="c1"># FIXME: &quot;fun&quot;? &quot;x&quot;? Returns float?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Method calculates coefficients №1 for parking area based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Parameters for the selected variable: tuple</span>
+<span class="sd">            population and</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Integral weight coefficient</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">area</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_schoolkids</span><span class="p">)</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">kg_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_kids</span><span class="p">)</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">green_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_green_population</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking1_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+            <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking2_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="MasterPlan.bnds_and_cons"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.bnds_and_cons">[docs]</a>    <span class="k">def</span> <span class="nf">bnds_and_cons</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># FIXME: docstring, typing?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Information adout this method will be provided later&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cons</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ineq&quot;</span><span class="p">,</span> <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_population</span> <span class="o">-</span> <span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ineq&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_living_area</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking1_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ineq&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_free_area</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">green_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_green_population</span><span class="p">,</span> <span class="n">x</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">},</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ineq&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_industrial_area</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">sc_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_schoolkids</span><span class="p">)</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">kg_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_kids</span><span class="p">)</span>
+                <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking2_area</span><span class="p">(</span><span class="n">x</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="p">},</span>
+            <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ineq&quot;</span><span class="p">,</span> <span class="s2">&quot;fun&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fun</span><span class="p">},</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bnds</span> <span class="o">=</span> <span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_population</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_max</span><span class="p">),</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_max</span><span class="p">))</span></div>
+
+<div class="viewcode-block" id="MasterPlan.make_x0s"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.make_x0s">[docs]</a>    <span class="k">def</span> <span class="nf">make_x0s</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># FIXME: docstring, typing?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Information adout this method will be provided later&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">x0s</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+            <span class="p">(</span><span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_population</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_min</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_min</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_population</span> <span class="o">/</span> <span class="mi">32</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_min</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_min</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_population</span> <span class="o">/</span> <span class="mi">16</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">b_min</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">G_min</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span><span class="p">),</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">max_population</span> <span class="o">/</span> <span class="mi">8</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">b_max</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_max</span><span class="p">),</span>
+        <span class="p">]</span></div>
+
+<div class="viewcode-block" id="MasterPlan.find_optimal_solutions"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.find_optimal_solutions">[docs]</a>    <span class="k">def</span> <span class="nf">find_optimal_solutions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># FIXME: docstring, typing?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Information adout this method will be provided later&quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">bnds_and_cons</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">make_x0s</span><span class="p">()</span>
+
+        <span class="n">results</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">x0</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">x0s</span><span class="p">:</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([</span><span class="n">minimize</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">fun</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;SLSQP&quot;</span><span class="p">,</span> <span class="n">bounds</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">bnds</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">cons</span><span class="p">)])</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">results</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">chain</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">],</span> <span class="n">results</span><span class="p">))</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="MasterPlan.select_one_optimal"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.select_one_optimal">[docs]</a>    <span class="k">def</span> <span class="nf">select_one_optimal</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>  <span class="c1"># FIXME: docstring, typing?</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Information adout this method will be provided later&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">results</span><span class="p">[</span><span class="s2">&quot;fun&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">][</span><span class="s2">&quot;fun&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">idxmin</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="MasterPlan.recalculate_indicators"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.recalculate_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">recalculate_indicators</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">population</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">G</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># TODO: add typing to the dict (dict[str, float | int]?)</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method calculates desired indicator based on the number of inhabitants</span>
+
+<span class="sd">        Attributes</span>
+<span class="sd">        ----------</span>
+<span class="sd">        population: int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Block&#39;s new parameters</span>
+<span class="sd">            new parameters for the feasibility report</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">population</span> <span class="o">=</span> <span class="n">ceil</span><span class="p">(</span><span class="n">population</span><span class="p">)</span>
+        <span class="n">green</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">green_area</span><span class="p">(</span><span class="n">population</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_green_population</span><span class="p">,</span> <span class="n">G</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_green_area</span>
+        <span class="n">sc</span> <span class="o">=</span> <span class="n">school_area</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SC_coef</span> <span class="o">*</span> <span class="p">(</span><span class="n">population</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_schoolkids</span><span class="p">))</span>
+        <span class="n">kg</span> <span class="o">=</span> <span class="n">kindergarten_area</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">KG_coef</span> <span class="o">*</span> <span class="p">(</span><span class="n">population</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_unprov_kids</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">,</span>
+            <span class="s2">&quot;population&quot;</span><span class="p">:</span> <span class="n">population</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_population</span><span class="p">,</span>
+            <span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="n">b</span> <span class="o">*</span> <span class="n">HECTARE_IN_SQUARE_METERS</span><span class="p">,</span>
+            <span class="s2">&quot;green_coef_G&quot;</span><span class="p">:</span> <span class="n">G</span> <span class="o">*</span> <span class="n">HECTARE_IN_SQUARE_METERS</span><span class="p">,</span>
+            <span class="s2">&quot;living_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span><span class="p">(</span><span class="n">population</span><span class="p">,</span> <span class="n">b</span><span class="p">)</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_living_area</span><span class="p">,</span>
+            <span class="s2">&quot;schools_area&quot;</span><span class="p">:</span> <span class="n">sc</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;schools_capacity&quot;</span><span class="p">:</span> <span class="n">sc</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;kindergartens_area&quot;</span><span class="p">:</span> <span class="n">kg</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="s2">&quot;kindergartens_capacity&quot;</span><span class="p">:</span> <span class="n">kg</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
+            <span class="s2">&quot;green_area&quot;</span><span class="p">:</span> <span class="n">green</span><span class="p">,</span>
+            <span class="s2">&quot;G_min_capacity&quot;</span><span class="p">:</span> <span class="n">green</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_min</span><span class="p">,</span>
+            <span class="s2">&quot;G_max_capacity&quot;</span><span class="p">:</span> <span class="n">green</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">G_max</span><span class="p">,</span>
+            <span class="s2">&quot;green_coef_G_capacity&quot;</span><span class="p">:</span> <span class="n">green</span> <span class="o">/</span> <span class="n">G</span><span class="p">,</span>
+            <span class="s2">&quot;op_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_area</span><span class="p">(</span><span class="n">population</span><span class="p">),</span>
+            <span class="s2">&quot;parking1_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking1_area</span><span class="p">(</span><span class="n">population</span><span class="p">),</span>
+            <span class="s2">&quot;parking2_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parking2_area</span><span class="p">(</span><span class="n">population</span><span class="p">),</span>
+        <span class="p">}</span></div>
+
+<div class="viewcode-block" id="MasterPlan.optimal_solution_indicators"><a class="viewcode-back" href="../../../../masterplan_tools.method.balancing.html#masterplan_tools.method.balancing.balancer.MasterPlan.optimal_solution_indicators">[docs]</a>    <span class="k">def</span> <span class="nf">optimal_solution_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>  <span class="c1"># TODO: add tpting to the dict</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This method selects optimal parameters for the specified area</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Parameters: dict</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">find_optimal_solutions</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">recalculate_indicators</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">select_one_optimal</span><span class="p">())</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By open-source
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, open-source.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
