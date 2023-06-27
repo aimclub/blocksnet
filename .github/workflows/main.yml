@@ -31,6 +31,7 @@ jobs:
           cd ./build_docs
           sphinx-apidoc -f -o source/ ../masterplan_tools/
           make html
+          rm -rf ../docs
           mv ./build/html ../docs
           cd ..
           rm -rf docs/_sources
