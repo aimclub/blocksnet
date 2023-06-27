@@ -41,5 +41,5 @@ jobs:
           git config user.name "$(git log -n 1 --pretty=format:%an)"
           git config user.email "$(git log -n 1 --pretty=format:%ae)"
           git add docs/*
-          git commit -m "Update documentation"
+          git commit --allow-empty -m "Update documentation"
           git push origin ${{ github.event.pull_request.base.ref }}
