@@ -28,13 +28,15 @@ jobs:
           cd ./docs
           sphinx-apidoc -f -o source/ ../masterplan_tools/
           make html
+          mv ./build/html ../docs
           cd ..
+          rm -r docs/_sources
 
       - name: Commit and push changes
         if: $(git log -1 --pretty=%B) != "Update documentation"
         run: |
           git config user.name "$(git log -n 1 --pretty=format:%an)"
           git config user.email "$(git log -n 1 --pretty=format:%ae)"
-          git add .
+          git add docs/*
           git commit -m "Update documentation"
           git push origin ${{ github.event.pull_request.base.ref }}
