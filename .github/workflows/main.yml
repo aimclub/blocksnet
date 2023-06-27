@@ -33,7 +33,7 @@ jobs:
           make html
           mv ./build/html ../docs
           cd ..
-          rm -r docs/_sources
+          rm -rf docs/_sources
 
       - name: Commit and push changes
         run: |
