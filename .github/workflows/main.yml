@@ -28,7 +28,7 @@ jobs:
       - name: Build documentation
         if: ${{ env.commitmsg != 'Update documentation' }}
         run: |
-          cd ./docs
+          cd ./build_docs
           sphinx-apidoc -f -o source/ ../masterplan_tools/
           make html
           mv ./build/html ../docs
