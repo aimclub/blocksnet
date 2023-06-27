@@ -263,23 +263,23 @@ document.write(`
     <span class="p">}</span>
 
     <span class="n">services_accessibility_dict</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;kindergartens&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-        <span class="s2">&quot;schools&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;kindergartens&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
+        <span class="s2">&quot;schools&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span>
         <span class="s2">&quot;universities&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
         <span class="s2">&quot;hospitals&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
-        <span class="s2">&quot;policlinics&quot;</span><span class="p">:</span> <span class="mi">13</span><span class="p">,</span>
+        <span class="s2">&quot;policlinics&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span>
         <span class="s2">&quot;theaters&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
         <span class="s2">&quot;cinemas&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>
         <span class="s2">&quot;cafes&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
         <span class="s2">&quot;bakeries&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
         <span class="s2">&quot;fastfoods&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
         <span class="s2">&quot;music_school&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
-        <span class="s2">&quot;sportgrounds&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;sportgrounds&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
         <span class="s2">&quot;swimming_pools&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
         <span class="s2">&quot;conveniences&quot;</span><span class="p">:</span> <span class="mi">8</span><span class="p">,</span>
         <span class="s2">&quot;recreational_areas&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
-        <span class="s2">&quot;pharmacies&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
-        <span class="s2">&quot;playgrounds&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span>
+        <span class="s2">&quot;pharmacies&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">,</span>
+        <span class="s2">&quot;playgrounds&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
         <span class="s2">&quot;supermarkets&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span>
     <span class="p">}</span>
 
@@ -390,10 +390,10 @@ document.write(`
                                 <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;population_unprov_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">prov_people</span>
                             <span class="p">)</span>
                             <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
-                            <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">prov_people</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">/</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span>
-                                <span class="n">node</span>
-                            <span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">]</span>
-
+                            <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span>
+                                <span class="sa">f</span><span class="s2">&quot;population_prov_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span>
+                                    <span class="n">node</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">]</span>
+                            
         <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-nested-blocks</span>
             <span class="k">if</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">_service&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="n">capacity</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">_capacity&quot;</span><span class="p">]</span>
@@ -437,9 +437,9 @@ document.write(`
                                         <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;population_unprov_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">prov_people</span>
                                     <span class="p">)</span>
                                     <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span>
-                                    <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
-                                        <span class="n">prov_people</span> <span class="o">*</span> <span class="mi">100</span>
-                                    <span class="p">)</span> <span class="o">/</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">]</span>
+                                    <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neighbor</span><span class="p">][</span>
+                                        <span class="sa">f</span><span class="s2">&quot;population_prov_</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">service_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">100</span> <span class="o">/</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span>
+                                            <span class="n">neighbor</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">]</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span></div>
 
