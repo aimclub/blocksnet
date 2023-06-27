@@ -32,12 +32,11 @@ jobs:
           sphinx-apidoc -f -o source/ ../masterplan_tools/
           make html
           rm -rf ../docs
-          ls -l ../docs/
-          ls -l ./build/html/
+          ls -l ./build/html
           mv ./build/html ../docs
           cd ..
           rm -rf docs/_sources
-          ls -l docs/
+          ls -l ./docs
 
       - name: Commit and push changes
         run: |
