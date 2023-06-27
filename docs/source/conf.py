@@ -12,10 +12,11 @@ Steps to generate documentation:
 
 
 import os
+import pathlib
 import sys
 
-sys.path.insert(0, os.path.abspath("../../"))
-sys.path.append(os.path.abspath(os.path.join(__file__, "../../masterplan_tools")))
+sys.path.insert(0, os.path.abspath(str(pathlib.Path(__file__).resolve().parent.parent)))
+sys.path.append(os.path.abspath(str(pathlib.Path(__file__).resolve().parent.parent / "masterplan_tools")))
 
 
 # TODO: change properties to correct values
