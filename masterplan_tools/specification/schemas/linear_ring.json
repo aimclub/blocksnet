@@ -1,0 +1,9 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "$id": "linear_ring",
+    "type": "array",
+    "title": "linear ring",
+    "description": "geojson array of positions",
+    "items": {"$ref": "positions"},
+    "minItems": 2
+}
