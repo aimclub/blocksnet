@@ -248,9 +248,7 @@ class DataGetter:
                 if service_type == "recreational_areas":
                     service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block["G_max_capacity"]
                 else:
-                    service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block[
-                        f"{service_type}_capacity"
-                    ]
+                    service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block[f"{service_type}_capacity"]
             blocks.loc[updated_block["block_id"], "population_balanced"] = updated_block["population"]
 
         blocks_geom_dict = blocks[["id", "population_balanced", "is_living"]].set_index("id").to_dict()
