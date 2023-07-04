@@ -1,25 +1,25 @@
 SOURCE_DIR = masterplan_tools
 
 lint:
-	python -m pylint ${SOURCE_DIR}
+	python3 -m pylint ${SOURCE_DIR}
 
 format:
-	python -m black ${SOURCE_DIR}
+	python3 -m black ${SOURCE_DIR}
 
 install:
-	python -m pip install .
+	python3 -m pip install .
 
 install-dev:
-	python -m pip install -e . --config-settings editable_mode=strict
+	python3 -m pip install -e . --config-settings editable_mode=strict
 
 build:
-	python -m build .
+	python3 -m build .
 
 clean:
 	rm -rf ./build ./dist ./masterplan_tools.egg-info
 
 udpate-pypi: clean build
-	python -m twine upload dist/*
+	python3 -m twine upload dist/*
 
 install-from-build:
-	python -m wheel install dist/masterplan_tools-*.whl
+	python3 -m wheel install dist/masterplan_tools-*.whl

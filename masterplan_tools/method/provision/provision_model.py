@@ -43,8 +43,8 @@ class ProvisionModel:
     }
 
     services_accessibility_dict = {
-        "kindergartens": 15,
-        "schools": 20,
+        "kindergartens": 10,
+        "schools": 15,
         "universities": 60,
         "hospitals": 60,
         "policlinics": 15,
@@ -57,7 +57,7 @@ class ProvisionModel:
         "sportgrounds": 10,
         "swimming_pools": 30,
         "conveniences": 8,
-        "recreational_areas": 25,
+        "recreational_areas": 15,
         "pharmacies":10,
         "playgrounds": 5,
         "supermarkets": 30,
