@@ -46,7 +46,7 @@ include = ["masterplan_tools*"]
 
 [project.optional-dependencies]
 dev = [
-    "black>=22",
+    "black[jupyter]>=22",
     "isort>=5.6",
     "pylint>=2.17",
     "pre-commit>=3.1",
@@ -68,6 +68,9 @@ target-version = ['py310']
 [tool.pylint.format]
 max-line-length = 120
 expected-line-ending-format = "LF"
+
+[tool.pylint.main]
+extension-pkg-allow-list = ["pydantic"]
 
 [tool.pycodestyle]
 max-line-length = 120

@@ -1,16 +1,21 @@
-from pydantic import BaseModel, FieldSerializationInfo, validator
-from typing import Literal
+"""
+Class holding geometries used by block cutter is defined here.
+"""
+from pydantic import BaseModel
 from masterplan_tools.models.geojson import GeoJSON
-import geopandas as gpd
 
 
 class BlocksCutterFeatureType(BaseModel):
+    """
+    The only feature required is a unique identifier.
+    """
+
     id: int | None
 
 
 class BlocksCutterGeometries(BaseModel):
     """
-    Geometries used in blocks cutting process
+    Geometries used in blocks cutting process.
     """
 
     city: GeoJSON[BlocksCutterFeatureType]

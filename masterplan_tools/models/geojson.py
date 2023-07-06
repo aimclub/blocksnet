@@ -1,15 +1,13 @@
-# pylint: disable=missing-module-docstring, no-name-in-module, too-few-public-methods, duplicate-code
 """
 Geojson response model and its inner parts are defined here.
 """
-from typing import Any, Generic, Iterable, Literal, TypeVar, Optional
+from typing import Any, Generic, Literal, TypeVar
 
-import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Polygon, MultiPolygon, mapping
-from pydantic import BaseModel, Field, create_model
-
-FeaturePropertiesType = TypeVar("FeaturePropertiesType")  # pylint: disable=invalid-name
+import pandas as pd
+from pydantic import BaseModel
+from shapely.geometry import mapping
+from shapely.geometry.base import BaseGeometry
 
 
 class Geometry(BaseModel):
@@ -23,7 +21,8 @@ class Geometry(BaseModel):
     #   return cls(type=dict.type, coordinates=dict.coordinates)
 
     @classmethod
-    def from_shapely_geometry(cls, geom: Polygon | MultiPolygon):
+    def from_shapely_geometry(cls, geom: BaseGeometry) -> "Geometry":
+        """Construct geometry from shapely BaseGeometry"""
         tmp = mapping(geom)
         return cls(type=tmp["type"], coordinates=tmp["coordinates"])
 
@@ -36,27 +35,34 @@ class Geometry(BaseModel):
     #             return geom.MultiPolygon(self.coordinates)
 
 
-class Feature(BaseModel, Generic[FeaturePropertiesType]):
+_FeaturePropertiesType = TypeVar("_FeaturePropertiesType")  # pylint: disable=invalid-name
+
+
+class Feature(BaseModel, Generic[_FeaturePropertiesType]):
     """Feature representation for GeoJSON model."""
 
     geometry: Geometry
-    properties: FeaturePropertiesType
+    properties: _FeaturePropertiesType
 
     @classmethod
-    def from_geoseries(cls, geoseries: gpd.GeoSeries) -> "Feature[FeaturePropertiesType]":
+    def from_geoseries(cls, geoseries: pd.Series) -> "Feature[_FeaturePropertiesType]":
         """Construct Feature object from geoseries."""
         properties = geoseries.to_dict()
         del properties["geometry"]
         return cls(geometry=Geometry.from_shapely_geometry(geoseries.geometry), properties=properties)
 
 
-class GeoJSON(BaseModel, Generic[FeaturePropertiesType]):
+_GeoJSONFeatureType = TypeVar("_GeoJSONFeatureType")  # pylint: disable=invalid-name
+
+
+class GeoJSON(BaseModel, Generic[_GeoJSONFeatureType]):
     """GeoJSON model representation."""
 
-    features: list[Feature[FeaturePropertiesType]]
+    features: list[Feature[_GeoJSONFeatureType]]
 
     @classmethod
-    def from_gdf(cls, gdf: gpd.GeoDataFrame) -> "GeoJSON[FeaturePropertiesType]":
+    def from_gdf(cls, gdf: gpd.GeoDataFrame) -> "GeoJSON[_GeoJSONFeatureType]":
         """Construct GeoJSON model from geopandas GeoDataFrame."""
-        features = list(gdf.apply(lambda row: Feature[FeaturePropertiesType].from_geoseries(row), axis=1))
+        runtime_feature_type = cls.__pydantic_generic_metadata__["args"][0]
+        features = gdf.apply(Feature[runtime_feature_type].from_geoseries, axis=1).to_list()
         return cls(features=features)
