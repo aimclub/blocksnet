@@ -8,12 +8,15 @@ TODO: add landuse devision to avoid weird cutoffs
 
 from functools import reduce
 from typing import Optional
+from pydantic import BaseModel
 
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
+from .blocks_cutter_parameters import BlocksCutterParameters
+from .blocks_cutter_geometries import BlocksCutterGeometries
 
 
-class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-attributes
+class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
 
     """
     A class used to generate city blocks.
@@ -23,21 +26,8 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
     get_blocks(self)
     """
 
-    def __init__(self, city_model):
-        self.roads_buffer = city_model.ROADS_WIDTH
-        """roads geometry buffer in meters"""
-        self.geometry_cutoff_ration = city_model.GEOMETRY_CUTOFF_RATIO
-        """polygon's perimeter to area ratio. Objects with bigger ration will be dropped."""
-        self.geometry_cutoff_area = city_model.GEOMETRY_CUTOFF_AREA
-        """in meters. Objects with smaller area will be dropped."""
-        self.park_cutoff_area = city_model.PARK_CUTOFF_AREA
-        """in meters. Objects with smaller area will be dropped."""
-
-        self.water_geometry: Optional[gpd.GeoDataFrame] = city_model.water_geometry
-        self.roads_geometry: Optional[gpd.GeoDataFrame] = city_model.roads_geometry
-        self.railways_geometry: Optional[gpd.GeoDataFrame] = city_model.railways_geometry
-        self.nature_geometry_boundaries: Optional[gpd.GeoDataFrame] = city_model.nature_geometry_boundaries
-        self.city_geometry: Optional[gpd.GeoDataFrame] = city_model.city_geometry
+    parameters: BlocksCutterParameters = BlocksCutterParameters()
+    geometries: BlocksCutterGeometries
 
     @staticmethod
     def _fill_spaces_in_blocks(row: gpd.GeoSeries) -> Polygon:
@@ -86,14 +76,14 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
 
         Returns
         -------
-        self.city_geometry : GeoDataFrame
+        self.geometries.city : GeoDataFrame
             Geometry of the city without road deadends. City geometry is not returned and setted as a class attribute.
         """
 
         # To make multi-part geometries into several single-part so they coud be processed separatedly
-        self.city_geometry = self.city_geometry.explode(ignore_index=True)
-        self.city_geometry["geometry"] = self.city_geometry["geometry"].map(
-            lambda block: block.buffer(self.roads_buffer + 1).buffer(-(self.roads_buffer + 1))
+        self.geometries.city = self.geometries.city.explode(ignore_index=True)
+        self.geometries.city["geometry"] = self.geometries.city["geometry"].map(
+            lambda block: block.buffer(self.parameters.roads_buffer + 1).buffer(-(self.parameters.roads_buffer + 1))
         )
 
     @staticmethod
@@ -133,9 +123,9 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         """
 
         gdf_cutter = self._polygon_to_multipolygon(gdf_cutter)
-        self.city_geometry = self._polygon_to_multipolygon(self.city_geometry)
+        self.geometries.city = self._polygon_to_multipolygon(self.geometries.city)
 
-        self.city_geometry = gpd.overlay(self.city_geometry, gdf_cutter, how="difference")
+        self.geometries.city = gpd.overlay(self.geometries.city, gdf_cutter, how="difference")
 
     def _drop_overlayed_geometries(self) -> None:
         """
@@ -146,9 +136,9 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         None
         """
 
-        new_geometries = self.city_geometry.unary_union
+        new_geometries = self.geometries.city.unary_union
         new_geometries = gpd.GeoDataFrame(geometry=[new_geometries])
-        self.city_geometry["geometry"] = new_geometries.loc[:, "geometry"]
+        self.geometries.city["geometry"] = new_geometries.loc[:, "geometry"]
         del new_geometries
 
     def _fix_blocks_geometries(self) -> None:
@@ -162,9 +152,9 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         None
         """
 
-        self.city_geometry = self.city_geometry.explode(ignore_index=True)
-        self.city_geometry["rings"] = self.city_geometry.interiors
-        self.city_geometry["geometry"] = self.city_geometry[["geometry", "rings"]].apply(
+        self.geometries.city = self.geometries.city.explode(ignore_index=True)
+        self.geometries.city["rings"] = self.geometries.city.interiors
+        self.geometries.city["geometry"] = self.geometries.city[["geometry", "rings"]].apply(
             self._fill_spaces_in_blocks, axis="columns"
         )
 
@@ -181,16 +171,16 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
 
-        self._cut_city_by_polygons(self.railways_geometry)
-        self._cut_city_by_polygons(self.roads_geometry)
-        self._cut_city_by_polygons(self.nature_geometry_boundaries)
+        self._cut_city_by_polygons(self.geometries.railways)
+        self._cut_city_by_polygons(self.geometries.roads)
+        self._cut_city_by_polygons(self.geometries.nature)
         self._fill_deadends()
-        self._cut_city_by_polygons(self.water_geometry)
+        self._cut_city_by_polygons(self.geometries.water)
         self._fix_blocks_geometries()
         self._drop_overlayed_geometries()
 
-        self.city_geometry = self.city_geometry.reset_index()[["index", "geometry"]].rename(columns={"index": "id"})
-        self.city_geometry = self.city_geometry.explode(ignore_index=True)
+        self.geometries.city = self.geometries.city.reset_index()[["index", "geometry"]].rename(columns={"index": "id"})
+        self.geometries.city = self.geometries.city.explode(ignore_index=True)
 
     def _drop_unnecessary_geometries(self) -> None:
         """
@@ -216,18 +206,18 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
             a GeoDataFrame with substracted blocks without unnecessary geometries.
             Blocks geometry is not returned and setted as a class attribute.
         """
-        self.city_geometry["area"] = self.city_geometry["geometry"].area
+        self.geometries.city["area"] = self.geometries.city["geometry"].area
 
         # First criteria check: total area
-        self.city_geometry = self.city_geometry[self.city_geometry["area"] > self.geometry_cutoff_area]
+        self.geometries.city = self.geometries.city[self.geometries.city["area"] > self.parameters.block_cutoff_area]
 
         # Second criteria check: perimetr / total area ratio
-        self.city_geometry["length"] = self.city_geometry["geometry"].length
-        self.city_geometry["ratio"] = self.city_geometry["length"] / self.city_geometry["area"]
+        self.geometries.city["length"] = self.geometries.city["geometry"].length
+        self.geometries.city["ratio"] = self.geometries.city["length"] / self.geometries.city["area"]
 
         # Drop polygons with an aspect ratio less than the threshold
-        self.city_geometry = self.city_geometry[self.city_geometry["ratio"] < self.geometry_cutoff_ration]
-        self.city_geometry = self.city_geometry.loc[:, ["id", "geometry"]]
+        self.geometries.city = self.geometries.city[self.geometries.city["ratio"] < self.parameters.block_cutoff_ratio]
+        self.geometries.city = self.geometries.city.loc[:, ["id", "geometry"]]
 
     def get_blocks(self) -> gpd.GeoDataFrame:
         """
@@ -254,8 +244,8 @@ class BlocksCutter:  # pylint: disable=too-few-public-methods,too-many-instance-
         self._split_city_geometry()
         self._drop_unnecessary_geometries()
 
-        self.city_geometry.drop(columns=["id"], inplace=True)
-        self.city_geometry = self.city_geometry.reset_index(drop=True).reset_index(drop=False)
-        self.city_geometry.rename(columns={"index": "id"}, inplace=True)
+        self.geometries.city.drop(columns=["id"], inplace=True)
+        self.geometries.city = self.geometries.city.reset_index(drop=True).reset_index(drop=False)
+        self.geometries.city.rename(columns={"index": "id"}, inplace=True)
 
-        return self.city_geometry
+        return self.geometries.city
