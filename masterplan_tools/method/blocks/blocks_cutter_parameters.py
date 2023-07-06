@@ -1,3 +1,6 @@
+"""
+Class holding parameters for blocks cutter is defined here.
+"""
 from pydantic import BaseModel, Field
 
 

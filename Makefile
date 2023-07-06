@@ -10,7 +10,7 @@ install:
 	python3 -m pip install .
 
 install-dev:
-	python3 -m pip install -e . --config-settings editable_mode=strict
+	python3 -m pip install -e '.[dev]' --config-settings editable_mode=strict
 
 build:
 	python3 -m build .

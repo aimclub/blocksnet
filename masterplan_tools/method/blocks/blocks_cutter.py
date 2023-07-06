@@ -7,13 +7,13 @@ TODO: add landuse devision to avoid weird cutoffs
 """
 
 from functools import reduce
-from typing import Optional
-from pydantic import BaseModel
 
 import geopandas as gpd
+from pydantic import BaseModel
 from shapely.geometry import MultiPolygon, Polygon
-from .blocks_cutter_parameters import BlocksCutterParameters
+
 from .blocks_cutter_geometries import BlocksCutterGeometries
+from .blocks_cutter_parameters import BlocksCutterParameters
 
 
 class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
