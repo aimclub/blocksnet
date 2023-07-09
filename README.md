@@ -55,7 +55,7 @@ We have a [GitBook page](https://iduprojects.gitbook.io/masterplanning/)
 
 ## License
 
-The project has [MIT license]()
+The project has [BSD 3-Clause license]()
 
 ## Acknowledgments
 
