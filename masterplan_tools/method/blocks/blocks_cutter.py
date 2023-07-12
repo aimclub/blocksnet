@@ -12,7 +12,8 @@ import geopandas as gpd
 from pydantic import BaseModel
 from shapely.geometry import MultiPolygon, Polygon
 
-from .blocks_cutter_geometries import BlocksCutterGeometries
+from masterplan_tools.models.geojson import GeoJSON
+from .blocks_cutter_geometries import BlocksCutterGeometries, BlocksCutterFeatureType
 from .blocks_cutter_parameters import BlocksCutterParameters
 
 
@@ -30,7 +31,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
     geometries: BlocksCutterGeometries
 
     @staticmethod
-    def _fill_spaces_in_blocks(row: gpd.GeoSeries) -> Polygon:
+    def _fill_spaces_in_blocks(block: gpd.GeoSeries) -> Polygon:
         """
         This geometry will be cut later from city's geometry.
 
@@ -55,20 +56,20 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
 
         new_block_geometry = None
 
-        if len(row["rings"]) > 0:
-            empty_part_to_fill = [Polygon(ring) for ring in row["rings"]]
+        if len(block["rings"]) > 0:
+            empty_part_to_fill = [Polygon(ring) for ring in block["rings"]]
 
             if len(empty_part_to_fill) > 0:
                 new_block_geometry = reduce(
-                    lambda geom1, geom2: geom1.union(geom2), [row["geometry"]] + empty_part_to_fill
+                    lambda geom1, geom2: geom1.union(geom2), [block["geometry"]] + empty_part_to_fill
                 )
 
         if new_block_geometry:
             return new_block_geometry
 
-        return row["geometry"]
+        return block["geometry"]
 
-    def _fill_deadends(self) -> None:
+    def _fill_deadends(self, blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Some roads make a deadend in the blocks. To get rid of such deadends the blocks' polygons
         are buffered and then unbuffered back. This procedure makes possible to fill deadends.
@@ -81,10 +82,11 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         """
 
         # To make multi-part geometries into several single-part so they coud be processed separatedly
-        self.geometries.city = self.geometries.city.explode(ignore_index=True)
-        self.geometries.city["geometry"] = self.geometries.city["geometry"].map(
+        blocks = blocks.explode(ignore_index=True)
+        blocks["geometry"] = blocks["geometry"].map(
             lambda block: block.buffer(self.parameters.roads_buffer + 1).buffer(-(self.parameters.roads_buffer + 1))
         )
+        return blocks
 
     @staticmethod
     def _polygon_to_multipolygon(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
@@ -113,21 +115,19 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             gdf = gpd.GeoDataFrame(geometry=[MultiPolygon(gdf)], crs=crs)
         return gdf
 
-    def _cut_city_by_polygons(self, gdf_cutter) -> None:
+    def _cut_blocks_by_polygons(self, blocks: gpd.GeoDataFrame, polygons: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
-        Cut any geometries from city's geometry
+        Cut any geometries from blocks' geometries
 
         Returns
         -------
         None
         """
 
-        gdf_cutter = self._polygon_to_multipolygon(gdf_cutter)
-        self.geometries.city = self._polygon_to_multipolygon(self.geometries.city)
+        polygons = self._polygon_to_multipolygon(polygons)
+        return gpd.overlay(blocks, polygons, how="difference")
 
-        self.geometries.city = gpd.overlay(self.geometries.city, gdf_cutter, how="difference")
-
-    def _drop_overlayed_geometries(self) -> None:
+    def _drop_overlayed_geometries(self, blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Drop overlayed geometries
 
@@ -136,12 +136,10 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         None
         """
 
-        new_geometries = self.geometries.city.unary_union
-        new_geometries = gpd.GeoDataFrame(geometry=[new_geometries])
-        self.geometries.city["geometry"] = new_geometries.loc[:, "geometry"]
-        del new_geometries
+        blocks = gpd.GeoDataFrame(geometry=[blocks.unary_union])
+        return blocks
 
-    def _fix_blocks_geometries(self) -> None:
+    def _fix_blocks_geometries(self, blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         After cutting several entities from city's geometry, blocks might have unnecessary spaces inside them.
 
@@ -152,15 +150,14 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         None
         """
 
-        self.geometries.city = self.geometries.city.explode(ignore_index=True)
-        self.geometries.city["rings"] = self.geometries.city.interiors
-        self.geometries.city["geometry"] = self.geometries.city[["geometry", "rings"]].apply(
-            self._fill_spaces_in_blocks, axis="columns"
-        )
+        blocks = blocks.explode(ignore_index=True)
+        blocks["rings"] = blocks.interiors
+        blocks["geometry"] = blocks[["geometry", "rings"]].apply(self._fill_spaces_in_blocks, axis="columns")
+        return blocks
 
     def _split_city_geometry(self) -> gpd.GeoDataFrame:
         """
-        Gets city geometry to split it by dividers like different kind of roads. The splitted parts are city blocks.
+        Gets geometry to split it by dividers like different kind of roads. The splitted parts are city blocks.
 
         However, not each resulted geometry is a valid city block. So inaccuracies of this division would be removed
         in the next step.
@@ -170,19 +167,20 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks : Union[Polygon, Multipolygon]
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
+        blocks = self._cut_blocks_by_polygons(self.geometries.city.to_gdf(), self.geometries.railways.to_gdf())
+        blocks = self._cut_blocks_by_polygons(blocks, self.geometries.roads.to_gdf())
+        blocks = self._cut_blocks_by_polygons(blocks, self.geometries.nature.to_gdf())
+        blocks = self._fill_deadends(blocks)
+        blocks = self._cut_blocks_by_polygons(blocks, self.geometries.water.to_gdf())
+        blocks = self._fix_blocks_geometries(blocks)
+        blocks = self._drop_overlayed_geometries(blocks)
 
-        self._cut_city_by_polygons(self.geometries.railways)
-        self._cut_city_by_polygons(self.geometries.roads)
-        self._cut_city_by_polygons(self.geometries.nature)
-        self._fill_deadends()
-        self._cut_city_by_polygons(self.geometries.water)
-        self._fix_blocks_geometries()
-        self._drop_overlayed_geometries()
+        blocks = blocks.reset_index()[["index", "geometry"]].rename(columns={"index": "id"})
+        blocks = blocks.explode(ignore_index=True)
 
-        self.geometries.city = self.geometries.city.reset_index()[["index", "geometry"]].rename(columns={"index": "id"})
-        self.geometries.city = self.geometries.city.explode(ignore_index=True)
+        return blocks
 
-    def _drop_unnecessary_geometries(self) -> None:
+    def _drop_unnecessary_geometries(self, blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Get and clear blocks's geometries, dropping unnecessary geometries.
 
@@ -206,20 +204,21 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             a GeoDataFrame with substracted blocks without unnecessary geometries.
             Blocks geometry is not returned and setted as a class attribute.
         """
-        self.geometries.city["area"] = self.geometries.city["geometry"].area
+        blocks["area"] = blocks["geometry"].area
 
         # First criteria check: total area
-        self.geometries.city = self.geometries.city[self.geometries.city["area"] > self.parameters.block_cutoff_area]
+        blocks = blocks[blocks["area"] > self.parameters.block_cutoff_area]
 
         # Second criteria check: perimetr / total area ratio
-        self.geometries.city["length"] = self.geometries.city["geometry"].length
-        self.geometries.city["ratio"] = self.geometries.city["length"] / self.geometries.city["area"]
+        blocks["length"] = blocks["geometry"].length
+        blocks["ratio"] = blocks["length"] / blocks["area"]
 
         # Drop polygons with an aspect ratio less than the threshold
-        self.geometries.city = self.geometries.city[self.geometries.city["ratio"] < self.parameters.block_cutoff_ratio]
-        self.geometries.city = self.geometries.city.loc[:, ["id", "geometry"]]
+        blocks = blocks[blocks["ratio"] < self.parameters.block_cutoff_ratio]
+        blocks = blocks.loc[:, ["id", "geometry"]]
+        return blocks
 
-    def get_blocks(self) -> gpd.GeoDataFrame:
+    def cut_blocks(self) -> GeoJSON[BlocksCutterFeatureType]:
         """
         Main method.
 
@@ -241,11 +240,11 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             a GeoDataFrame of city blocks
         """
 
-        self._split_city_geometry()
-        self._drop_unnecessary_geometries()
+        blocks: gpd.GeoDataFrame = self._split_city_geometry()
+        blocks = self._drop_unnecessary_geometries(blocks)
 
-        self.geometries.city.drop(columns=["id"], inplace=True)
-        self.geometries.city = self.geometries.city.reset_index(drop=True).reset_index(drop=False)
-        self.geometries.city.rename(columns={"index": "id"}, inplace=True)
+        blocks.drop(columns=["id"], inplace=True)
+        blocks = blocks.reset_index(drop=True).reset_index(drop=False)
+        blocks.rename(columns={"index": "id"}, inplace=True)
 
-        return self.geometries.city
+        return GeoJSON[BlocksCutterFeatureType].from_gdf(blocks)

@@ -110,7 +110,7 @@ class CityModel:  # pylint: disable=too-many-instance-attributes,too-few-public-
 
         # Run modelling blocks if they are not provided
         if self.city_blocks.shape[0] == 0:
-            self.city_blocks = BlocksCutter(self).get_blocks()
+            self.city_blocks = BlocksCutter(self).cut_blocks()
 
         # Run modelling accessibility matrix between blocks if it is not provided
         if self.accessibility_matrix.shape[0] == 0:

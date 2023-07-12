@@ -1,6 +1,7 @@
 """
 Class holding geometries used by block cutter is defined here.
 """
+from typing import Optional
 from pydantic import BaseModel
 from masterplan_tools.models.geojson import GeoJSON
 
@@ -10,7 +11,7 @@ class BlocksCutterFeatureType(BaseModel):
     The only feature required is a unique identifier.
     """
 
-    id: int | None
+    id: Optional[int] = None
 
 
 class BlocksCutterGeometries(BaseModel):
