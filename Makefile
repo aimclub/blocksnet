@@ -1,16 +1,17 @@
 SOURCE_DIR = masterplan_tools
 
 lint:
-	python3 -m pylint ${SOURCE_DIR}
+	pylint ${SOURCE_DIR}
 
 format:
-	python3 -m black ${SOURCE_DIR}
+	isort ${SOURCE_DIR}
+	black ${SOURCE_DIR}
 
 install:
-	python3 -m pip install .
+	pip install .
 
 install-dev:
-	python3 -m pip install -e . --config-settings editable_mode=strict
+	pip install -e . --config-settings editable_mode=strict
 
 build:
 	python3 -m build .

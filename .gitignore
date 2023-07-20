@@ -139,6 +139,7 @@ dmypy.json
 *.parquet
 *.graphml
 *.csv
+/masterplan_tools/output_data
 
 cache/
 /examples/data

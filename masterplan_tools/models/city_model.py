@@ -16,7 +16,7 @@ class CityModel:  # pylint: disable=too-many-instance-attributes,too-few-public-
     City model gathers all data in one class so it could be accessed directly in one place
     """
 
-    ROADS_WIDTH = RAILWAYS_WIDTH = NATURE_WIDTH = 3
+    ROADS_WIDTH = RAILWAYS_WIDTH = NATURE_WIDTH = 5
     """road geometry buffer in meters. So road geometries won't be thin as a line."""
     WATER_WIDTH = 1
     """water geometry buffer in meters. So water geometries in some cases won't be thin as a line."""
@@ -40,6 +40,8 @@ class CityModel:  # pylint: disable=too-many-instance-attributes,too-few-public-
         transport_graph: nx.Graph | None = None,
         greenings: gpd.GeoDataFrame | None = None,
         parkings: gpd.GeoDataFrame | None = None,
+        no_dev_zone: gpd.GeoDataFrame | None = None,
+        landuse_zone: gpd.GeoDataFrame | None = None,
         city_blocks: gpd.GeoDataFrame = ...,
     ) -> None:
         """Initialize CityModel
@@ -59,6 +61,9 @@ class CityModel:  # pylint: disable=too-many-instance-attributes,too-few-public-
             transport_graph (nx.Graph | None, optional): transport graph for provision calculations. Defaults to None.
             greenings (GeoDataFrame | None, optional): green zones areas GeoDataFrame. Defaults to None.
             parkings (GeoDataFrame | None, optional): parking areas GeoDataFrame. Defaults to None.
+            no_dev_zone (GeoDataFrame | None, optional): no-development available areas GeoDataFrame. Defaults to None.
+            TODO: right?
+            landuse_zone (GeoDataFrame | None, optional): landuse areas GeoDataFrame. Defaults to None. TODO: right?
             city_blocks (GeoDataFrame, optional): city blocks GeoDataFrame (if set, no generation will be performed).
             Defaults to empty GeoDataFrame.
         """
@@ -100,7 +105,10 @@ class CityModel:  # pylint: disable=too-many-instance-attributes,too-few-public-
         self.services_graph: nx.Graph | None = None
         """updated block is the id of the modified block"""
 
-        self.collect_data()
+        self.no_dev_zone = no_dev_zone
+        self.landuse_zone = landuse_zone
+
+        self.collect_data()  # TODO: was commented out. Is needed?
 
     def collect_data(self) -> None:
         """
