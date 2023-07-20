@@ -13,7 +13,7 @@ from pydantic import BaseModel
 from shapely.geometry import MultiPolygon, Polygon
 
 from masterplan_tools.models.geojson import GeoJSON
-from .blocks_cutter_geometries import BlocksCutterGeometries, BlocksCutterFeatureType
+from .blocks_cutter_geometries import BlocksCutterGeometries, BlocksCutterFeature
 from .blocks_cutter_parameters import BlocksCutterParameters
 
 
@@ -218,7 +218,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks = blocks.loc[:, ["id", "geometry"]]
         return blocks
 
-    def cut_blocks(self) -> GeoJSON[BlocksCutterFeatureType]:
+    def cut_blocks(self) -> GeoJSON[BlocksCutterFeature]:
         """
         Main method.
 
@@ -247,4 +247,4 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks = blocks.reset_index(drop=True).reset_index(drop=False)
         blocks.rename(columns={"index": "id"}, inplace=True)
 
-        return GeoJSON[BlocksCutterFeatureType].from_gdf(blocks)
+        return GeoJSON[BlocksCutterFeature].from_gdf(blocks)

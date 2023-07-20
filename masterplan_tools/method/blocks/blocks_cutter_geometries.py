@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from masterplan_tools.models.geojson import GeoJSON
 
 
-class BlocksCutterFeatureType(BaseModel):
+class BlocksCutterFeature(BaseModel):
     """
     The only feature required is a unique identifier.
     """
@@ -19,8 +19,8 @@ class BlocksCutterGeometries(BaseModel):
     Geometries used in blocks cutting process.
     """
 
-    city: GeoJSON[BlocksCutterFeatureType]
-    water: GeoJSON[BlocksCutterFeatureType]
-    roads: GeoJSON[BlocksCutterFeatureType]
-    railways: GeoJSON[BlocksCutterFeatureType]
-    nature: GeoJSON[BlocksCutterFeatureType]
+    city: GeoJSON[BlocksCutterFeature]
+    water: GeoJSON[BlocksCutterFeature]
+    roads: GeoJSON[BlocksCutterFeature]
+    railways: GeoJSON[BlocksCutterFeature]
+    nature: GeoJSON[BlocksCutterFeature]

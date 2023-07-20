@@ -4,8 +4,8 @@ from .geojson import Geometry
 
 class Block(BaseModel):
     """
-    A class representing block entity
+    A class representing city block entity
     """
 
     id: int = Field(ge=0)
-    geojson: Geometry
+    geometry: Geometry
