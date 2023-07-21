@@ -18,9 +18,6 @@ class DataGetter:
     This class is used to get and pre-process data to be used in calculations in other modules.
     """
 
-    HECTARE = 10000
-    """hectares in meters"""
-
     def __init__(self) -> None:
         pass
 

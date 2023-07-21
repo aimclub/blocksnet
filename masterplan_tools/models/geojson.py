@@ -4,7 +4,6 @@ Geojson response model and its inner parts are defined here.
 from typing import Any, Generic, Literal, TypeVar
 
 import geopandas as gpd
-import pandas as pd
 from pydantic import BaseModel
 from shapely.geometry import mapping, Polygon, MultiPolygon
 from shapely.geometry.base import BaseGeometry

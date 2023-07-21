@@ -9,7 +9,7 @@ class BlocksCutterParameters(BaseModel):
     Blocks cutter parameters
     """
 
-    roads_buffer: int = Field(3, ge=0)
+    roads_buffer: int = Field(5, ge=0)
     """roads geometry buffer in meters"""
     block_cutoff_ratio: float = Field(0.15, ge=0)
     """block polygon's perimeter to area ratio. Objects with bigger ratio will be dropped."""
