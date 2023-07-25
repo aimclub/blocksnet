@@ -65,7 +65,7 @@ class Feature(BaseModel, Generic[_FeaturePropertiesType]):
 
     def to_dict(self) -> dict["str", any]:
         dict = {"type": "Feature", "geometry": self.geometry.to_dict(), "properties": {}}
-        for field_name in self.properties.__fields__.keys():
+        for field_name in self.properties.model_fields.keys():
             dict["properties"][field_name] = self.properties.__getattribute__(field_name)
         return dict
 
@@ -76,6 +76,7 @@ _GeoJSONFeatureType = TypeVar("_GeoJSONFeatureType")  # pylint: disable=invalid-
 class GeoJSON(BaseModel, Generic[_GeoJSONFeatureType]):
     """GeoJSON model representation."""
 
+    epsg: int
     features: list[Feature[_GeoJSONFeatureType]]
 
     @classmethod
@@ -83,8 +84,10 @@ class GeoJSON(BaseModel, Generic[_GeoJSONFeatureType]):
         """Construct GeoJSON model from geopandas GeoDataFrame."""
         runtime_feature_type = cls.__pydantic_generic_metadata__["args"][0]
         features = gdf.apply(Feature[runtime_feature_type].from_geoseries, axis=1).to_list()
-        return cls(features=features)
+        return cls(features=features, epsg=gdf.crs.to_epsg())
 
     def to_gdf(self) -> None:  # "GeoJSON[_GeoJSONFeatureType]"
         """Generate GeoDataFrame for the object"""
-        return gpd.GeoDataFrame.from_features(map(lambda feature: feature.to_dict(), self.features))
+        gdf = gpd.GeoDataFrame.from_features(map(lambda feature: feature.to_dict(), self.features))
+        gdf.set_crs(epsg=self.epsg, inplace=True)
+        return gdf

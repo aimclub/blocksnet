@@ -25,7 +25,7 @@ class BlocksCutterGeometries(BaseModel):
     roads: GeoJSON[BlocksCutterFeature]
     railways: GeoJSON[BlocksCutterFeature]
     nature: GeoJSON[BlocksCutterFeature]
-    no_development: GeoJSON[BlocksCutterFeature]
+    no_dev: GeoJSON[BlocksCutterFeature]
     landuse: GeoJSON[BlocksCutterFeature]
 
     @field_validator("*", mode="before")

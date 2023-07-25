@@ -111,7 +111,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             gdf = gpd.GeoDataFrame(geometry=[MultiPolygon(gdf)], crs=crs)
         return gdf
 
-    def _cut_blocks_by_polygons(self, blocks: gpd.GeoDataFrame, polygons: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def _cut_blocks_by_polygons(self, blocks: gpd.GeoDataFrame, *polygons: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Cut any geometries from blocks' geometries
 
@@ -119,13 +119,13 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         -------
         None
         """
+        result = gpd.GeoDataFrame(data=blocks)
+        for polygon in polygons:
+            polygon = self._polygon_to_multipolygon(polygon)
+            result = gpd.overlay(result, polygon, how="difference")
+        return result
 
-        polygons = self._polygon_to_multipolygon(polygons)
-        return gpd.overlay(blocks, polygons, how="difference")
-
-        self.city_geometry = gpd.overlay(self.city_geometry, gdf_cutter, how="difference", keep_geom_type=True)
-
-    def _drop_overlayed_geometries(self) -> None:
+    def _drop_overlayed_geometries(self, blocks) -> None:
         """
         Drop overlayed geometries
 
@@ -134,9 +134,10 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         None
         """
 
-        new_geometries = self.city_geometry.unary_union
-        new_geometries = gpd.GeoDataFrame(geometry=[new_geometries], crs=self.city_geometry.crs.to_epsg())
-        self.city_geometry["geometry"] = new_geometries.loc[:, "geometry"]
+        new_geometries = blocks.unary_union
+        new_geometries = gpd.GeoDataFrame(geometry=[new_geometries], crs=blocks.crs.to_epsg())
+        blocks["geometry"] = new_geometries.loc[:, "geometry"]
+        return blocks
 
     @staticmethod
     def _fix_blocks_geometries(city_geometry):
@@ -168,24 +169,16 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks : Union[Polygon, Multipolygon]
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
-        blocks = self._cut_blocks_by_polygons(self.geometries.city.to_gdf(), self.geometries.railways.to_gdf())
-        blocks = self._cut_blocks_by_polygons(blocks, self.geometries.roads.to_gdf())
-        blocks = self._cut_blocks_by_polygons(blocks, self.geometries.nature.to_gdf())
+        blocks = self._cut_blocks_by_polygons(
+            self.geometries.city.to_gdf(), self.geometries.railways.to_gdf(), self.geometries.roads.to_gdf()
+        )
         blocks = self._fill_deadends(blocks)
         blocks = self._cut_blocks_by_polygons(blocks, self.geometries.water.to_gdf())
         blocks = self._fix_blocks_geometries(blocks)
         blocks = self._drop_overlayed_geometries(blocks)
+        return blocks
 
-        self._cut_city_by_polygons(self.railways_geometry)
-        self._cut_city_by_polygons(self.roads_geometry)
-        self._fill_deadends()
-        self._cut_city_by_polygons(self.water_geometry)
-        self._cut_city_by_polygons(self.no_dev_zone)
-        self._cut_city_by_polygons(self.landuse_zone)
-        self.city_geometry = self._fix_blocks_geometries(self.city_geometry)
-        self._drop_overlayed_geometries()
-
-    def get_blocks(self) -> gpd.GeoDataFrame:
+    def get_blocks(self) -> GeoJSON[BlocksCutterFeature]:
         """
         Main method.
 
@@ -209,5 +202,5 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
 
         blocks = self._split_city_geometry()
         blocks = blocks.explode(index_parts=True).reset_index()[["geometry"]]
-
+        blocks["id"] = blocks.index + 1
         return GeoJSON[BlocksCutterFeature].from_gdf(blocks)
