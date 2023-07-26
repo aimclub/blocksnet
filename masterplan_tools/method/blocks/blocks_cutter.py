@@ -86,7 +86,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         return blocks
 
     @staticmethod
-    def _polygon_to_multipolygon(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def polygon_to_multipolygon(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         This function makes one multipolygon from many polygons in the gdf.
         This step allows to fasten overlay operation between two multipolygons since overlay operates ineratively
@@ -111,7 +111,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             gdf = gpd.GeoDataFrame(geometry=[MultiPolygon(gdf)], crs=crs)
         return gdf
 
-    def _cut_blocks_by_polygons(self, blocks: gpd.GeoDataFrame, *polygons: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def cut_blocks_by_polygons(self, blocks: gpd.GeoDataFrame, *polygons: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Cut any geometries from blocks' geometries
 
@@ -121,7 +121,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         """
         result = gpd.GeoDataFrame(data=blocks)
         for polygon in polygons:
-            polygon = self._polygon_to_multipolygon(polygon)
+            polygon = self.polygon_to_multipolygon(polygon)
             result = gpd.overlay(result, polygon, how="difference")
         return result
 
@@ -169,11 +169,11 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks : Union[Polygon, Multipolygon]
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
-        blocks = self._cut_blocks_by_polygons(
+        blocks = self.cut_blocks_by_polygons(
             self.geometries.city.to_gdf(), self.geometries.railways.to_gdf(), self.geometries.roads.to_gdf()
         )
         blocks = self._fill_deadends(blocks)
-        blocks = self._cut_blocks_by_polygons(blocks, self.geometries.water.to_gdf())
+        blocks = self.cut_blocks_by_polygons(blocks, self.geometries.water.to_gdf())
         blocks = self._fix_blocks_geometries(blocks)
         blocks = self._drop_overlayed_geometries(blocks)
         return blocks
