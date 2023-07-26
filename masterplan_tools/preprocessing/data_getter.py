@@ -18,6 +18,9 @@ class DataGetter:
     This class is used to get and pre-process data to be used in calculations in other modules.
     """
 
+    HECTARE = 10000
+    """hectares in meters"""
+
     def __init__(self) -> None:
         pass
 
@@ -243,9 +246,12 @@ class DataGetter:
                 if updated_block["block_id"] not in service_gdf.index:
                     service_gdf.loc[updated_block["block_id"]] = 0
                 if service_type == "recreational_areas":
-                    service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block["G_max_capacity"]
+                    service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block.get("G_max_capacity", 0)
                 else:
-                    service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block[f"{service_type}_capacity"]
+                    service_gdf.loc[updated_block["block_id"], "capacity"] += updated_block.get(
+                        f"{service_type}_capacity", 0
+                    )
+
             blocks.loc[updated_block["block_id"], "population_balanced"] = updated_block["population"]
 
         blocks_geom_dict = blocks[["id", "population_balanced", "is_living"]].set_index("id").to_dict()
@@ -257,7 +263,7 @@ class DataGetter:
         ]
 
         # TODO: is tqdm really necessary?
-        for idx in tqdm(list(blocks_list.index), desc="Iterating blocks to prepare graph"):
+        for idx in list(blocks_list.index):
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
             blocks_list.columns = blocks_list.columns.astype(int)
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]

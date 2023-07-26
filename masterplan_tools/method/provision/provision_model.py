@@ -106,10 +106,10 @@ class ProvisionModel:
             except KeyError:
                 invalid_blocks += 1
 
-        print(f"Number of blocks with service: {self.service_name}: {blocks_service}")
-        print(f"Number of residential blocks: {blocks_living}")
-        print(f"Number of blocks total: {total}")
-        print(f"Number of blocks with an error: {invalid_blocks}\n")
+        # print(f"Number of blocks with service: {self.service_name}: {blocks_service}")
+        # print(f"Number of residential blocks: {blocks_living}")
+        # print(f"Number of blocks total: {total}")
+        # print(f"Number of blocks with an error: {invalid_blocks}\n")
 
         return None
 
