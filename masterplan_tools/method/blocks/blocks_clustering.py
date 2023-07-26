@@ -340,7 +340,7 @@ class BlocksClusterization:
                 new_poly = pd.concat([new_poly, polygon_geom])
 
         new_poly = new_poly[new_poly.geometry.is_empty == False]
-        new_poly["landuse"] = "new"
+        new_poly["landuse"] = "no_dev_area"
 
         self.blocks = pd.concat(
             [
@@ -357,7 +357,7 @@ class BlocksClusterization:
             self.blocks,
             self.buildings_centroids[["geometry"]],
             how="inner",
-            op="contains",
+            predicate="contains",
         )
 
         join = (
@@ -368,16 +368,16 @@ class BlocksClusterization:
         )
 
         # Update the landuse column for the resulting GeoDataFrame
-        join.loc[join["landuse"] == "new", "landuse"] = "new_buildings"
+        join.loc[join["landuse"] == "no_dev_area", "landuse"] = "buildings"
 
         # Note: You can also update the original gdf DataFrame with the updated values:
         self.blocks.update(join[["landuse"]])
 
         self.blocks.loc[
-            (self.blocks["landuse"] == "new") | (self.blocks["landuse"] == "new_buildings"),
+            (self.blocks["landuse"] == "no_dev_area") | (self.blocks["landuse"] == "buildings"),
             "geometry",
         ] = self.blocks.loc[
-            (self.blocks["landuse"] == "new") | (self.blocks["landuse"] == "new_buildings"),
+            (self.blocks["landuse"] == "no_dev_area") | (self.blocks["landuse"] == "buildings"),
             "geometry",
         ].buffer(
             -1

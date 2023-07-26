@@ -6,7 +6,7 @@ from masterplan_tools.method.blocks import BlocksCutter
 
 
 class LuFilter:
-    def __init__(self, city_blocks: gpd.GeoDataFrame, landuse_geometries):
+    def __init__(self, city_blocks: gpd.GeoDataFrame, landuse_geometries=None):
         self.landuse_geometries = landuse_geometries
         self.city_blocks = city_blocks.copy()
         self.local_crs = city_blocks.crs.to_epsg()
@@ -35,7 +35,7 @@ class LuFilter:
         landuse_selected.reset_index(drop=True, inplace=True)
         return landuse_selected
 
-    def _pruning_landuse(self, landuse_selected: gpd.GeoDataFrame) -> None:
+    def _pruning_landuse(self, landuse_selected: gpd.GeoDataFrame, no_dev_area:bool = False) -> None:
 
         if 'landuse' in landuse_selected.columns:
             landuse_tags = landuse_selected.loc[
@@ -65,10 +65,13 @@ class LuFilter:
             territory_without_landuse.loc[selected.index, "landuse"] = "buildings"
         
         else:
-            territory_without_landuse = gpd.overlay(self.city_blocks, landuse_selected, how="difference")
-            
-            territory_with_landuse = gpd.overlay(landuse_selected, self.city_blocks, how="intersection")
-            territory_with_landuse['landuse'] = 'important'
+            territory_without_landuse = gpd.overlay(self.city_blocks, landuse_selected, how="difference", keep_geom_type=True)            
+            territory_with_landuse = gpd.overlay(landuse_selected, self.city_blocks, how="intersection", keep_geom_type=True)
+
+        if no_dev_area:
+            territory_with_landuse['landuse'] = 'no_dev_area'
+        else:
+            territory_with_landuse['landuse'] = 'selected_area'
 
         gdf = pd.concat([territory_without_landuse, territory_with_landuse])
         gdf = gdf[["landuse", "geometry"]]
@@ -77,18 +80,18 @@ class LuFilter:
 
         self.city_blocks = gdf.copy()
 
-
-        # return gdf
-
     def filter_lu(self) -> gpd.GeoDataFrame:
+        # drop_osm_landuse:bool=False
+        # if drop_osm_landuse:
         landuse_selected = self._receiving_landuse()
         self._pruning_landuse(landuse_selected)
         
         no_dev = BlocksCutter.polygon_to_multipolygon(self.landuse_geometries.no_dev.to_gdf())
         lu = BlocksCutter.polygon_to_multipolygon(self.landuse_geometries.landuse.to_gdf())
-        display(no_dev)
-        display(lu)
-        self._pruning_landuse(no_dev)
+
+        self._pruning_landuse(no_dev, no_dev_area=True)
         self._pruning_landuse(lu)
+
+        self.city_blocks['landuse'].fillna("no_dev_area", inplace=True)
 
         return self.city_blocks
