@@ -2,7 +2,7 @@
 import geopandas as gpd
 import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
-from masterplan_tools.method.blocks import BlocksCutter
+from .utils import Utils
 
 
 class LuFilter:
@@ -35,9 +35,9 @@ class LuFilter:
         landuse_selected.reset_index(drop=True, inplace=True)
         return landuse_selected
 
-    def _pruning_landuse(self, landuse_selected: gpd.GeoDataFrame, no_dev_area:bool = False) -> None:
+    def _pruning_landuse(self, landuse_selected: gpd.GeoDataFrame, no_dev_area: bool = False) -> None:
 
-        if 'landuse' in landuse_selected.columns:
+        if "landuse" in landuse_selected.columns:
             landuse_tags = landuse_selected.loc[
                 landuse_selected["landuse"].isin(["cemetery", "industrial", "park", "building", "allotments"])
             ].copy()
@@ -59,19 +59,23 @@ class LuFilter:
 
             # Perform the spatial join
             result = gpd.sjoin(territory_without_landuse, to_drop, predicate="contains")
-            
+
             # Select only those polygons in gdf1 which contain polygons from gdf2
             selected = result[result.index_right.notnull()].copy()
             territory_without_landuse.loc[selected.index, "landuse"] = "buildings"
-        
+
         else:
-            territory_without_landuse = gpd.overlay(self.city_blocks, landuse_selected, how="difference", keep_geom_type=True)            
-            territory_with_landuse = gpd.overlay(landuse_selected, self.city_blocks, how="intersection", keep_geom_type=True)
+            territory_without_landuse = gpd.overlay(
+                self.city_blocks, landuse_selected, how="difference", keep_geom_type=True
+            )
+            territory_with_landuse = gpd.overlay(
+                landuse_selected, self.city_blocks, how="intersection", keep_geom_type=True
+            )
 
         if no_dev_area:
-            territory_with_landuse['landuse'] = 'no_dev_area'
+            territory_with_landuse["landuse"] = "no_dev_area"
         else:
-            territory_with_landuse['landuse'] = 'selected_area'
+            territory_with_landuse["landuse"] = "selected_area"
 
         gdf = pd.concat([territory_without_landuse, territory_with_landuse])
         gdf = gdf[["landuse", "geometry"]]
@@ -85,13 +89,13 @@ class LuFilter:
         # if drop_osm_landuse:
         landuse_selected = self._receiving_landuse()
         self._pruning_landuse(landuse_selected)
-        
-        no_dev = BlocksCutter.polygon_to_multipolygon(self.landuse_geometries.no_dev.to_gdf())
-        lu = BlocksCutter.polygon_to_multipolygon(self.landuse_geometries.landuse.to_gdf())
+
+        no_dev = Utils.polygon_to_multipolygon(self.landuse_geometries.no_development.to_gdf())
+        lu = Utils.polygon_to_multipolygon(self.landuse_geometries.landuse.to_gdf())
 
         self._pruning_landuse(no_dev, no_dev_area=True)
         self._pruning_landuse(lu)
 
-        self.city_blocks['landuse'].fillna("no_dev_area", inplace=True)
+        self.city_blocks["landuse"].fillna("no_dev_area", inplace=True)
 
         return self.city_blocks

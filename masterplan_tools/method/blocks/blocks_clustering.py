@@ -10,19 +10,18 @@ from sklearn.cluster import DBSCAN
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import silhouette_score
 from tqdm import tqdm
-
-from .blocks_cutter import BlocksCutter
+from .utils import Utils
 
 simplefilter("ignore", category=ConvergenceWarning)
 simplefilter(action="ignore", category=FutureWarning)
 
 
 class BlocksClusterization:
-    def __init__(self, blocks, buildings_geom):
+    def __init__(self, blocks, params):
         self.local_crs: int = blocks.crs.to_epsg()
         self.blocks: gpd.GeoDataFrame = blocks
         self.initial_blocks = blocks.copy()
-        self.buildings_geom: gpd.GeoDataFrame = buildings_geom
+        self.buildings_geom: gpd.GeoDataFrame = params.buildings.to_gdf()
         self.buildings_centroids: gpd.GeoDataFrame = None
         self.cutoff_ratio: float = 0.03
         self.blocks_to_consider: list = None
@@ -386,7 +385,7 @@ class BlocksClusterization:
         self.blocks = self.blocks[~self.blocks.is_empty]
 
     def fix_blocks(self):
-        self.blocks = BlocksCutter._fix_blocks_geometries(self.blocks)
+        self.blocks = Utils._fix_blocks_geometries(self.blocks)
 
         self.blocks = self.blocks[["geometry", "landuse"]]
         gdf_no_overlay = self.blocks.copy()

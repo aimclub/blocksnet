@@ -6,15 +6,44 @@ they become suitable to be used in masterplanning process.
 TODO: add landuse devision to avoid weird cutoffs
 """
 
-from functools import reduce
-
 import geopandas as gpd
+from enum import Enum
 from pydantic import BaseModel
-from shapely.geometry import MultiPolygon, Polygon
+from typing import Literal
 
 from masterplan_tools.models.geojson import GeoJSON
-from .blocks_cutter_geometries import BlocksCutterGeometries, BlocksCutterFeature
-from .blocks_cutter_parameters import BlocksCutterParameters
+from .cut_parameters import CutParameters
+from .land_use_parameters import LandUseParameters
+from .clustering_parameters import ClusteringParameters
+from .landuse_filter import LuFilter
+from .blocks_clustering import BlocksClusterization
+from .utils import Utils
+
+
+class BlockLandUseEnum(Enum):
+    """
+    There are three landuse tags in the blocks gdf:
+    1. 'no_dev_area' -- according to th no_debelopment gdf and cutoff without any buildings or specified / selected landuse types;
+    2. 'selected_area' -- according to the landuse gdf. We separate theese polygons since they have specified landuse types;
+    3. 'buildings' -- there are polygons that have buildings landuse type.
+
+    In further calculations we will use the in the following steps:
+    Only 'buildings' -- to find clusters of buildings in big polygons;
+    All of them while calculating the accessibility times among city blocks;
+    All of them except 'no_dev_area' while optimizing the development of new facilities.
+    """
+
+    no_dev_area: 1
+    """according to the no_development gdf and cutoff without any buildings or specified / selected landuse types"""
+    selected_area: 2
+    """according to the landuse gdf we separate these polygons since they have specified landuse types"""
+    buildings: 3
+    """polygons that have buildings landuse type"""
+
+
+class BlocksCutterFeatureProperties(BaseModel):
+    id: int
+    landuse: Literal["no_dev_area", "selected_area", "buildings"] | None = None
 
 
 class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
@@ -27,44 +56,9 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
     get_blocks(self)
     """
 
-    parameters: BlocksCutterParameters = BlocksCutterParameters()
-    geometries: BlocksCutterGeometries
-
-    @staticmethod
-    def _fill_spaces_in_blocks(block: gpd.GeoSeries) -> Polygon:
-        """
-        This geometry will be cut later from city's geometry.
-        The water entities will split blocks from each other. The water geometries are taken using overpass turbo.
-        The tags used in the query are: "natural"="water", "waterway"~"river|stream|tidal_channel|canal".
-        This function is designed to be used with 'apply' function, applied to the pd.DataFrame.
-
-
-        Parameters
-        ----------
-        row : GeoSeries
-
-
-        Returns
-        -------
-        water_geometry : Union[Polygon, Multipolygon]
-            Geometry of water. The water geometries are also buffered a little so the division of city's geometry
-            could be more noticable.
-        """
-
-        new_block_geometry = None
-
-        if len(block["rings"]) > 0:
-            empty_part_to_fill = [Polygon(ring) for ring in block["rings"]]
-
-            if len(empty_part_to_fill) > 0:
-                new_block_geometry = reduce(
-                    lambda geom1, geom2: geom1.union(geom2), [block["geometry"]] + empty_part_to_fill
-                )
-
-        if new_block_geometry:
-            return new_block_geometry
-
-        return block["geometry"]
+    cut_parameters: CutParameters
+    lu_parameters: LandUseParameters | None = None
+    clustering_parameters: ClusteringParameters | None = None
 
     def _fill_deadends(self, blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
@@ -74,42 +68,18 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
 
         Returns
         -------
-        self.geometries.city : GeoDataFrame
+        self.cut_parameters.city : GeoDataFrame
             Geometry of the city without road deadends. City geometry is not returned and setted as a class attribute.
         """
 
         # To make multi-part geometries into several single-part so they coud be processed separatedly
         blocks = blocks.explode(ignore_index=True)
         blocks["geometry"] = blocks["geometry"].map(
-            lambda block: block.buffer(self.parameters.roads_buffer + 1).buffer(-(self.parameters.roads_buffer + 1))
+            lambda block: block.buffer(self.cut_parameters.roads_buffer + 1).buffer(
+                -(self.cut_parameters.roads_buffer + 1)
+            )
         )
         return blocks
-
-    @staticmethod
-    def polygon_to_multipolygon(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-        """
-        This function makes one multipolygon from many polygons in the gdf.
-        This step allows to fasten overlay operation between two multipolygons since overlay operates ineratively
-        by passed geometry objects.
-
-        Attributes
-        ----------
-        gdf: gpd.GeoDataFrame
-            A gdf with many geometries-polygons
-
-        Returns
-        -------
-        gdf: Multipolygon
-            A gdf with one geometry-MultiPolygon
-        """
-
-        crs = gdf.crs
-        gdf = gdf.unary_union
-        if isinstance(gdf, Polygon):
-            gdf = gpd.GeoDataFrame(geometry=[gdf], crs=crs)
-        else:
-            gdf = gpd.GeoDataFrame(geometry=[MultiPolygon(gdf)], crs=crs)
-        return gdf
 
     def cut_blocks_by_polygons(self, blocks: gpd.GeoDataFrame, *polygons: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
@@ -121,7 +91,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         """
         result = gpd.GeoDataFrame(data=blocks)
         for polygon in polygons:
-            polygon = self.polygon_to_multipolygon(polygon)
+            polygon = Utils.polygon_to_multipolygon(polygon)
             result = gpd.overlay(result, polygon, how="difference")
         return result
 
@@ -139,26 +109,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks["geometry"] = new_geometries.loc[:, "geometry"]
         return blocks
 
-    @staticmethod
-    def _fix_blocks_geometries(city_geometry):
-        """
-        After cutting several entities from city's geometry, blocks might have unnecessary spaces inside them.
-        In order to avoid this, this functions prepares data to fill empty spaces inside each city block
-
-        Returns
-        -------
-        None
-        """
-
-        city_geometry = city_geometry.explode(ignore_index=True)
-        city_geometry["rings"] = city_geometry.interiors
-        city_geometry["geometry"] = city_geometry[["geometry", "rings"]].apply(
-            BlocksCutter._fill_spaces_in_blocks, axis="columns"
-        )
-
-        return city_geometry
-
-    def _split_city_geometry(self) -> gpd.GeoDataFrame:
+    def _cut_blocks(self) -> gpd.GeoDataFrame:
         """
         Gets city geometry to split it by dividers like different kind of roads. The splitted parts are city blocks.
         However, not each resulted geometry is a valid city block. So inaccuracies of this division would be removed
@@ -170,15 +121,16 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
         blocks = self.cut_blocks_by_polygons(
-            self.geometries.city.to_gdf(), self.geometries.railways.to_gdf(), self.geometries.roads.to_gdf()
+            self.cut_parameters.city.to_gdf(), self.cut_parameters.railways.to_gdf(), self.cut_parameters.roads.to_gdf()
         )
         blocks = self._fill_deadends(blocks)
-        blocks = self.cut_blocks_by_polygons(blocks, self.geometries.water.to_gdf())
-        blocks = self._fix_blocks_geometries(blocks)
+        blocks = self.cut_blocks_by_polygons(blocks, self.cut_parameters.water.to_gdf())
+        blocks = Utils._fix_blocks_geometries(blocks)
         blocks = self._drop_overlayed_geometries(blocks)
+        blocks = blocks.explode(index_parts=True).reset_index()[["geometry"]]
         return blocks
 
-    def get_blocks(self) -> GeoJSON[BlocksCutterFeature]:
+    def get_blocks(self) -> GeoJSON[BlocksCutterFeatureProperties]:
         """
         Main method.
 
@@ -200,7 +152,10 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             a GeoDataFrame of city blocks
         """
 
-        blocks = self._split_city_geometry()
-        blocks = blocks.explode(index_parts=True).reset_index()[["geometry"]]
-        blocks["id"] = blocks.index + 1
-        return GeoJSON[BlocksCutterFeature].from_gdf(blocks)
+        blocks = self._cut_blocks()
+        if self.lu_parameters != None:
+            blocks = LuFilter(blocks, landuse_geometries=self.lu_parameters).filter_lu()
+        if self.clustering_parameters != None:
+            blocks = BlocksClusterization(blocks, self.clustering_parameters).run()
+        blocks["id"] = blocks.index
+        return GeoJSON[BlocksCutterFeatureProperties].from_gdf(blocks)
