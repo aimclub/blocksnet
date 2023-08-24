@@ -7,24 +7,32 @@ import geopandas as gpd
 import networkx as nx
 import pandas as pd
 from tqdm.auto import tqdm
+from typing import Literal
+from pydantic import BaseModel, field_validator
 
-from masterplan_tools.preprocessing.accs_matrix_calculator import Accessibility
+from .aggregate_parameters import AggregateParameters
+from ..models.city_model import CityBlockFeature, AccessibilityMatrix
+from ..models import PolygonGeoJSON
+from ..method.blocks.blocks_cutter import BlocksCutterFeatureProperties
+from .accs_matrix_calculator import Accessibility
 
 tqdm.pandas()
 
 
-class DataGetter:
+class DataGetter(BaseModel):
     """
     This class is used to get and pre-process data to be used in calculations in other modules.
     """
 
-    HECTARE = 10000
-    """hectares in meters"""
+    blocks: PolygonGeoJSON[BlocksCutterFeatureProperties]
 
-    def __init__(self) -> None:
-        pass
+    @field_validator("blocks", mode="before")
+    def validate_blocks(value):
+        if isinstance(value, gpd.GeoDataFrame):
+            return PolygonGeoJSON[BlocksCutterFeatureProperties].from_gdf(value)
+        return value
 
-    def get_accessibility_matrix(self, blocks: gpd.GeoDataFrame = None, graph: nx.Graph | None = None) -> pd.DataFrame:
+    def get_accessibility_matrix(self, graph: nx.Graph) -> AccessibilityMatrix:
         """
         This function returns an accessibility matrix for a city. The matrix is calculated using
         the `Accessibility` class.
@@ -38,10 +46,11 @@ class DataGetter:
             np.ndarray: An accessibility matrix for the city.
         """
 
-        accessibility = Accessibility(blocks, graph)
-        return accessibility.get_matrix()
+        accessibility = Accessibility(self.blocks.to_gdf(), graph)
+        return AccessibilityMatrix(df=accessibility.get_matrix())
 
-    def _get_living_area(self, row) -> float:
+    @staticmethod
+    def _get_living_area(row) -> float:
         """
         This function calculates the living area of a building based on the data in the given row.
 
@@ -64,7 +73,8 @@ class DataGetter:
             return 0.0
         return 0.0
 
-    def _get_living_area_pyatno(self, row) -> float:
+    @staticmethod
+    def _get_living_area_pyatno(row) -> float:
         """
         This function calculates the living area of a building based on the data in the given row.
         If the `living_area` attribute is not available, the function returns 0.
@@ -80,13 +90,7 @@ class DataGetter:
             return float(row["building_area"])
         return 0.0
 
-    def aggregate_blocks_info(
-        self,
-        blocks: gpd.GeoDataFrame,
-        buildings: gpd.GeoDataFrame,
-        greenings: gpd.GeoDataFrame,
-        parkings: gpd.GeoDataFrame,
-    ):
+    def aggregate_blocks_info(self, params: AggregateParameters) -> "PolygonGeoJSON[CityBlockFeature]":
         """
         This function aggregates information about blocks in a city. The information includes data about buildings,
         green spaces, and parking spaces.
@@ -100,6 +104,11 @@ class DataGetter:
         Returns:
             gpd.GeoDataFrame: A GeoDataFrame containing aggregated information about blocks in the city.
         """
+
+        blocks = self.blocks.to_gdf()
+        buildings = params.buildings.to_gdf()
+        greenings = params.greenings.to_gdf()
+        parkings = params.parkings.to_gdf()
 
         buildings["living_area"].fillna(0, inplace=True)
         buildings["storeys_count"].fillna(0, inplace=True)
@@ -182,10 +191,11 @@ class DataGetter:
         blocks_info_aggregated["area"] = blocks_info_aggregated["geometry"].area
         blocks_info_aggregated.drop(columns=["building_area_pyatno", "building_area", "living_area"], inplace=True)
 
-        return blocks_info_aggregated
+        return PolygonGeoJSON[CityBlockFeature].from_gdf(blocks_info_aggregated)
 
+    @classmethod
     def prepare_graph(  # pylint: disable=too-many-arguments,too-many-locals
-        self,
+        cls,
         blocks,
         service_type=None,
         service_gdf=None,

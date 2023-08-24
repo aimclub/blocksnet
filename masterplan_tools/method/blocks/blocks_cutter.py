@@ -11,39 +11,18 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Literal
 
-from masterplan_tools.models.geojson import GeoJSON
+from masterplan_tools.models.geojson import PolygonGeoJSON
 from .cut_parameters import CutParameters
 from .land_use_parameters import LandUseParameters
-from .clustering_parameters import ClusteringParameters
 from .landuse_filter import LuFilter
 from .blocks_clustering import BlocksClusterization
 from .utils import Utils
 
 
-class BlockLandUseEnum(Enum):
-    """
-    There are three landuse tags in the blocks gdf:
-    1. 'no_dev_area' -- according to th no_debelopment gdf and cutoff without any buildings or specified / selected landuse types;
-    2. 'selected_area' -- according to the landuse gdf. We separate theese polygons since they have specified landuse types;
-    3. 'buildings' -- there are polygons that have buildings landuse type.
-
-    In further calculations we will use the in the following steps:
-    Only 'buildings' -- to find clusters of buildings in big polygons;
-    All of them while calculating the accessibility times among city blocks;
-    All of them except 'no_dev_area' while optimizing the development of new facilities.
-    """
-
-    no_dev_area: 1
-    """according to the no_development gdf and cutoff without any buildings or specified / selected landuse types"""
-    selected_area: 2
-    """according to the landuse gdf we separate these polygons since they have specified landuse types"""
-    buildings: 3
-    """polygons that have buildings landuse type"""
-
-
 class BlocksCutterFeatureProperties(BaseModel):
     id: int
-    landuse: Literal["no_dev_area", "selected_area", "buildings"] | None = None
+    landuse: Literal["no_dev_area", "selected_area", "buildings"] = "selected_area"
+    # development: bool = True
 
 
 class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
@@ -58,7 +37,6 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
 
     cut_parameters: CutParameters
     lu_parameters: LandUseParameters | None = None
-    clustering_parameters: ClusteringParameters | None = None
 
     def _fill_deadends(self, blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
@@ -130,7 +108,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks = blocks.explode(index_parts=True).reset_index()[["geometry"]]
         return blocks
 
-    def get_blocks(self) -> GeoJSON[BlocksCutterFeatureProperties]:
+    def get_blocks(self) -> PolygonGeoJSON[BlocksCutterFeatureProperties]:
         """
         Main method.
 
@@ -155,7 +133,10 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks = self._cut_blocks()
         if self.lu_parameters != None:
             blocks = LuFilter(blocks, landuse_geometries=self.lu_parameters).filter_lu()
-        if self.clustering_parameters != None:
-            blocks = BlocksClusterization(blocks, self.clustering_parameters).run()
+            if self.lu_parameters.buildings != None:
+                blocks = BlocksClusterization(blocks, self.lu_parameters).run()
+        blocks.reset_index(inplace=True)
         blocks["id"] = blocks.index
-        return GeoJSON[BlocksCutterFeatureProperties].from_gdf(blocks)
+        if "landuse" in blocks:
+            blocks["development"] = blocks["landuse"] != "no_dev_area"
+        return PolygonGeoJSON[BlocksCutterFeatureProperties].from_gdf(blocks)
