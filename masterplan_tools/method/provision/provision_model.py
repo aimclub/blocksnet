@@ -68,12 +68,12 @@ class ProvisionModel:
         city_model: CityModel,
         service_name: str = "schools",
     ):
-        self.blocks = city_model.city_blocks.copy()
+        self.blocks = city_model.blocks.to_gdf().copy()
         self.service_name = service_name
         self.standard = self.standard_dict[self.service_name]
         self.accessibility = self.services_accessibility_dict[self.service_name]
         self.graph = city_model.services_graph.copy()
-        self.blocks_aggregated = city_model.blocks_aggregated_info.copy()
+        self.blocks_aggregated = city_model.blocks.to_gdf().copy()
 
     # FIXME: this method does not return anything (0 if graph is missing, None otherwise). Rename and fix logic
     # And printing functions are generally bad
@@ -291,7 +291,7 @@ class ProvisionModel:
                 blocks.loc[i, "population"] = blocks_aggregated.loc[i, "current_population"]
                 blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks_aggregated.loc[i, "current_population"]
 
-        blocks = blocks.drop(columns=["index"])
+        # blocks = blocks.drop(columns=["index"])
         blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
         return blocks
