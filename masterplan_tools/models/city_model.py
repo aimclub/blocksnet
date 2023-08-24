@@ -48,7 +48,7 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
     """
 
     blocks: PolygonGeoJSON[CityBlockFeature]
-    # accessibility_matrix : AccessibilityMatrix
+    accessibility_matrix: AccessibilityMatrix
     services: dict[str, PointGeoJSON[ServicesFeature]]
 
     @field_validator("blocks", mode="before")
@@ -57,11 +57,11 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
             return PolygonGeoJSON[CityBlockFeature].from_gdf(value)
         return value
 
-    # @field_validator("accessibility_matrix", mode="before")
-    # def validate_matrix(value):
-    #     if isinstance(value, pd.DataFrame):
-    #         return AccessibilityMatrix(df=value)
-    #     return value
+    @field_validator("accessibility_matrix", mode="before")
+    def validate_matrix(value):
+        if isinstance(value, pd.DataFrame):
+            return AccessibilityMatrix(df=value)
+        return value
 
     @field_validator("services", mode="before")
     def validate_services(value):
