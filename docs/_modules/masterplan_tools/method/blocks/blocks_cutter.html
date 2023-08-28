@@ -226,14 +226,26 @@ document.write(`
 <span class="sd">TODO: add landuse devision to avoid weird cutoffs</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">reduce</span>
-<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
-
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
-<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">from</span> <span class="nn">masterplan_tools.models.geojson</span> <span class="kn">import</span> <span class="n">PolygonGeoJSON</span>
+<span class="kn">from</span> <span class="nn">.cut_parameters</span> <span class="kn">import</span> <span class="n">CutParameters</span>
+<span class="kn">from</span> <span class="nn">.land_use_parameters</span> <span class="kn">import</span> <span class="n">LandUseParameters</span>
+<span class="kn">from</span> <span class="nn">.landuse_filter</span> <span class="kn">import</span> <span class="n">LuFilter</span>
+<span class="kn">from</span> <span class="nn">.blocks_clustering</span> <span class="kn">import</span> <span class="n">BlocksClusterization</span>
+<span class="kn">from</span> <span class="nn">.utils</span> <span class="kn">import</span> <span class="n">Utils</span>
 
 
-<div class="viewcode-block" id="BlocksCutter"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter">[docs]</a><span class="k">class</span> <span class="nc">BlocksCutter</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-few-public-methods,too-many-instance-attributes</span>
+<div class="viewcode-block" id="BlocksCutterFeatureProperties"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutterFeatureProperties">[docs]</a><span class="k">class</span> <span class="nc">BlocksCutterFeatureProperties</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">landuse</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;no_dev_area&quot;</span><span class="p">,</span> <span class="s2">&quot;selected_area&quot;</span><span class="p">,</span> <span class="s2">&quot;buildings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;selected_area&quot;</span></div>
+    <span class="c1"># development: bool = True</span>
+
+
+<div class="viewcode-block" id="BlocksCutter"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter">[docs]</a><span class="k">class</span> <span class="nc">BlocksCutter</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-few-public-methods,too-many-instance-attributes</span>
 
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A class used to generate city blocks.</span>
@@ -243,62 +255,10 @@ document.write(`
 <span class="sd">    get_blocks(self)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">city_model</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">ROADS_WIDTH</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;roads geometry buffer in meters&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_ration</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">GEOMETRY_CUTOFF_RATIO</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;polygon&#39;s perimeter to area ratio. Objects with bigger ration will be dropped.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_area</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">GEOMETRY_CUTOFF_AREA</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;in meters. Objects with smaller area will be dropped.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">park_cutoff_area</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">PARK_CUTOFF_AREA</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;in meters. Objects with smaller area will be dropped.&quot;&quot;&quot;</span>
+    <span class="n">cut_parameters</span><span class="p">:</span> <span class="n">CutParameters</span>
+    <span class="n">lu_parameters</span><span class="p">:</span> <span class="n">LandUseParameters</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">water_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">water_geometry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">roads_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">roads_geometry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">railways_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">railways_geometry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">city_model</span><span class="o">.</span><span class="n">city_geometry</span>
-
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_fill_spaces_in_blocks</span><span class="p">(</span><span class="n">row</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Polygon</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This geometry will be cut later from city&#39;s geometry.</span>
-
-<span class="sd">        The water entities will split blocks from each other. The water geometries are taken using overpass turbo.</span>
-
-<span class="sd">        The tags used in the query are: &quot;natural&quot;=&quot;water&quot;, &quot;waterway&quot;~&quot;river|stream|tidal_channel|canal&quot;.</span>
-
-<span class="sd">        This function is designed to be used with &#39;apply&#39; function, applied to the pd.DataFrame.</span>
-
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        row : GeoSeries</span>
-
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        water_geometry : Union[Polygon, Multipolygon]</span>
-<span class="sd">            Geometry of water. The water geometries are also buffered a little so the division of city&#39;s geometry</span>
-<span class="sd">            could be more noticable.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">new_block_geometry</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="n">empty_part_to_fill</span> <span class="o">=</span> <span class="p">[</span><span class="n">Polygon</span><span class="p">(</span><span class="n">ring</span><span class="p">)</span> <span class="k">for</span> <span class="n">ring</span> <span class="ow">in</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]]</span>
-
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">empty_part_to_fill</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">new_block_geometry</span> <span class="o">=</span> <span class="n">reduce</span><span class="p">(</span>
-                    <span class="k">lambda</span> <span class="n">geom1</span><span class="p">,</span> <span class="n">geom2</span><span class="p">:</span> <span class="n">geom1</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="n">geom2</span><span class="p">),</span> <span class="p">[</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span> <span class="o">+</span> <span class="n">empty_part_to_fill</span>
-                <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">new_block_geometry</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">new_block_geometry</span>
-
-        <span class="k">return</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">_fill_deadends</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_fill_deadends</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Some roads make a deadend in the blocks. To get rid of such deadends the blocks&#39; polygons</span>
 <span class="sd">        are buffered and then unbuffered back. This procedure makes possible to fill deadends.</span>
@@ -306,58 +266,34 @@ document.write(`
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        self.city_geometry : GeoDataFrame</span>
+<span class="sd">        self.cut_parameters.city : GeoDataFrame</span>
 <span class="sd">            Geometry of the city without road deadends. City geometry is not returned and setted as a class attribute.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
         <span class="c1"># To make multi-part geometries into several single-part so they coud be processed separatedly</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
-            <span class="k">lambda</span> <span class="n">block</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">block</span><span class="p">:</span> <span class="n">block</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_parameters</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span>
+                <span class="o">-</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cut_parameters</span><span class="o">.</span><span class="n">roads_buffer</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="p">)</span>
+        <span class="k">return</span> <span class="n">blocks</span>
 
-    <span class="nd">@staticmethod</span>
-    <span class="k">def</span> <span class="nf">_polygon_to_multipolygon</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="BlocksCutter.cut_blocks_by_polygons"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter.cut_blocks_by_polygons">[docs]</a>    <span class="k">def</span> <span class="nf">cut_blocks_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="o">*</span><span class="n">polygons</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This function makes one multipolygon from many polygons in the gdf.</span>
-
-<span class="sd">        This step allows to fasten overlay operation between two multipolygons since overlay operates</span>
-<span class="sd">        ineratively by passed geometry objects.</span>
-
-<span class="sd">        Attributes</span>
-<span class="sd">        ----------</span>
-<span class="sd">        gdf: gpd.GeoDataFrame</span>
-<span class="sd">            A gdf with many geometries-polygons</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        gdf: Multipolygon</span>
-<span class="sd">            A gdf with one geometry-MultiPolygon</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="n">crs</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span>
-        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">unary_union</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">):</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">gdf</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">MultiPolygon</span><span class="p">(</span><span class="n">gdf</span><span class="p">)],</span> <span class="n">crs</span><span class="o">=</span><span class="n">crs</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">gdf</span>
-
-    <span class="k">def</span> <span class="nf">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf_cutter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Cut any geometries from city&#39;s geometry</span>
+<span class="sd">        Cut any geometries from blocks&#39; geometries</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">blocks</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">polygon</span> <span class="ow">in</span> <span class="n">polygons</span><span class="p">:</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">polygon_to_multipolygon</span><span class="p">(</span><span class="n">polygon</span><span class="p">)</span>
+            <span class="n">result</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">polygon</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;difference&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
 
-        <span class="n">gdf_cutter</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_to_multipolygon</span><span class="p">(</span><span class="n">gdf_cutter</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_polygon_to_multipolygon</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">,</span> <span class="n">gdf_cutter</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;difference&quot;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_drop_overlayed_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_drop_overlayed_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Drop overlayed geometries</span>
 
@@ -366,32 +302,14 @@ document.write(`
 <span class="sd">        None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">new_geometries</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">unary_union</span>
-        <span class="n">new_geometries</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">new_geometries</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_geometries</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
-        <span class="k">del</span> <span class="n">new_geometries</span>
+        <span class="n">new_geometries</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">unary_union</span>
+        <span class="n">new_geometries</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">new_geometries</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="n">blocks</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">())</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_geometries</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">blocks</span>
 
-    <span class="k">def</span> <span class="nf">_fix_blocks_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        After cutting several entities from city&#39;s geometry, blocks might have unnecessary spaces inside them.</span>
-
-<span class="sd">        In order to avoid this, this functions prepares data to fill empty spaces inside each city block</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        None</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;rings&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">interiors</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;rings&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_fill_spaces_in_blocks</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="s2">&quot;columns&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_split_city_geometry</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+    <span class="k">def</span> <span class="nf">_cut_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Gets city geometry to split it by dividers like different kind of roads. The splitted parts are city blocks.</span>
-
 <span class="sd">        However, not each resulted geometry is a valid city block. So inaccuracies of this division would be removed</span>
 <span class="sd">        in the next step.</span>
 
@@ -400,56 +318,17 @@ document.write(`
 <span class="sd">        blocks : Union[Polygon, Multipolygon]</span>
 <span class="sd">            city bounds splitted by railways, roads and water. Resulted polygons are city blocks</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_blocks_by_polygons</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">cut_parameters</span><span class="o">.</span><span class="n">city</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_parameters</span><span class="o">.</span><span class="n">railways</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_parameters</span><span class="o">.</span><span class="n">roads</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fill_deadends</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_blocks_by_polygons</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cut_parameters</span><span class="o">.</span><span class="n">water</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">())</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">Utils</span><span class="o">.</span><span class="n">_fix_blocks_geometries</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_drop_overlayed_geometries</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">return</span> <span class="n">blocks</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">railways_geometry</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_geometry</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fill_deadends</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_cut_city_by_polygons</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">water_geometry</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_fix_blocks_geometries</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_drop_overlayed_geometries</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()[[</span><span class="s2">&quot;index&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">})</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">ignore_index</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">_drop_unnecessary_geometries</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Get and clear blocks&#39;s geometries, dropping unnecessary geometries.</span>
-
-<span class="sd">        There two criterieas to dicide whether drop the geometry or not.</span>
-
-<span class="sd">        First -- if the total area of the polygon is not too small (not less than self.cutoff_area)</span>
-
-<span class="sd">        Second -- if the ratio of perimeter to total polygon area not more than self.cutoff_ratio.</span>
-
-<span class="sd">        The second criteria means that polygon is not too narrow and could be a valid block.</span>
-
-<span class="sd">        A GeoDataFrame with blocks and unnecessary geometries such as roundabouts,</span>
-<span class="sd">        other small polygons or very narrow geometries which happened to exist after</span>
-<span class="sd">        cutting roads and water from the city&#39;s polygon, but have no value for master-planning</span>
-<span class="sd">        purposes</span>
-
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        blocks : GeoDataFrame</span>
-<span class="sd">            a GeoDataFrame with substracted blocks without unnecessary geometries.</span>
-<span class="sd">            Blocks geometry is not returned and setted as a class attribute.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">area</span>
-
-        <span class="c1"># First criteria check: total area</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_area</span><span class="p">]</span>
-
-        <span class="c1"># Second criteria check: perimetr / total area ratio</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">length</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
-
-        <span class="c1"># Drop polygons with an aspect ratio less than the threshold</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry_cutoff_ration</span><span class="p">]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
-
-<div class="viewcode-block" id="BlocksCutter.get_blocks"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter.get_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<div class="viewcode-block" id="BlocksCutter.get_blocks"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.blocks_cutter.BlocksCutter.get_blocks">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">BlocksCutterFeatureProperties</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Main method.</span>
 
@@ -471,14 +350,16 @@ document.write(`
 <span class="sd">            a GeoDataFrame of city blocks</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_split_city_geometry</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_drop_unnecessary_geometries</span><span class="p">()</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">],</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span></div></div>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_cut_blocks</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lu_parameters</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">blocks</span> <span class="o">=</span> <span class="n">LuFilter</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">landuse_geometries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">lu_parameters</span><span class="p">)</span><span class="o">.</span><span class="n">filter_lu</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">lu_parameters</span><span class="o">.</span><span class="n">buildings</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">blocks</span> <span class="o">=</span> <span class="n">BlocksClusterization</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">lu_parameters</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="n">blocks</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">index</span>
+        <span class="k">if</span> <span class="s2">&quot;landuse&quot;</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">:</span>
+            <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;development&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;no_dev_area&quot;</span>
+        <span class="k">return</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">BlocksCutterFeatureProperties</span><span class="p">]</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span></div></div>
 </pre></div>
 
                 </article>

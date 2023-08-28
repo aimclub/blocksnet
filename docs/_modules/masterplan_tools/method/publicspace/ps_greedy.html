@@ -1,0 +1,904 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>masterplan_tools.method.publicspace.ps_greedy &#8212; Masterplanning  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css" />
+    <link rel="stylesheet" href="../../../../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+    <script src="../../../../_static/doctools.js"></script>
+    <script src="../../../../_static/sphinx_highlight.js"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = '_modules/masterplan_tools/method/publicspace/ps_greedy';</script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    <p class="title logo__title">Masterplanning  documentation</p>
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1></h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <h1>Source code for masterplan_tools.method.publicspace.ps_greedy</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">folium</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">osmnx</span> <span class="k">as</span> <span class="nn">ox</span>
+<span class="kn">import</span> <span class="nn">shapely</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<div class="viewcode-block" id="PublicSpaceGreedy"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy">[docs]</a><span class="k">class</span> <span class="nc">PublicSpaceGreedy</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">OPM_path</span><span class="p">,</span> <span class="n">house_path</span><span class="p">):</span>
+
+        <span class="c1"># iso: изохроны в формате geojson с разным временем</span>
+        <span class="c1"># OPM: файл с потенциальными общественными пространствами</span>
+        <span class="c1"># house: дома</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_10</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_20</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_5</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">OPM_path</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">index</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;exists&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;потенциальное&quot;</span>
+
+        <span class="n">house</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">house_path</span><span class="p">)</span>
+        <span class="n">h</span> <span class="o">=</span> <span class="n">house</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+        <span class="n">house</span> <span class="o">=</span> <span class="n">h</span>
+        <span class="n">house</span><span class="p">[</span><span class="s2">&quot;house_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15000</span> <span class="o">+</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1141</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">house</span> <span class="o">=</span> <span class="n">house</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_graph_exist</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">street_graph</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">existed</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Функция для автоматической классификации существующих ОПМ</span>
+<div class="viewcode-block" id="PublicSpaceGreedy.find_exist"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.find_exist">[docs]</a>    <span class="k">def</span> <span class="nf">find_exist</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">services_path</span><span class="p">):</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">services_path</span><span class="p">)</span>
+        <span class="n">opm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="s2">&quot;Городская функция&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Природа&quot;</span><span class="p">]</span>
+        <span class="n">opm</span> <span class="o">=</span> <span class="n">opm</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">3857</span><span class="p">)</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">opm</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">200</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+        <span class="n">buf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">buf</span><span class="p">)</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="n">buf</span><span class="o">.</span><span class="n">set_geometry</span><span class="p">(</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">buf</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">opm</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">buf</span><span class="p">,</span> <span class="n">services</span><span class="p">)</span>
+
+        <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">id_left</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">dic</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;id_left&quot;</span><span class="p">]</span>
+            <span class="n">dic</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">])</span>
+
+        <span class="n">M</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Клуб для детей и подростков&quot;</span><span class="p">,</span> <span class="s2">&quot;Торгово-развлекательный центр&quot;</span><span class="p">,</span> <span class="s2">&quot;Парк развлечений&quot;</span><span class="p">,</span> <span class="s2">&quot;Зоопарк&quot;</span><span class="p">]</span>
+        <span class="n">U</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Музыкальная школа&quot;</span><span class="p">,</span> <span class="s2">&quot;Библиотека&quot;</span><span class="p">,</span> <span class="s2">&quot;Музей&quot;</span><span class="p">]</span>
+        <span class="n">S</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Театр/Концертный зал&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Музей&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Кинотеатр&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Квест&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Картинная галерея&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Арт пространство&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Аквапарк&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Цирк&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Боулинг&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+        <span class="n">Sp</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Спортивная секция&quot;</span><span class="p">,</span> <span class="s2">&quot;Спортивный центр&quot;</span><span class="p">,</span> <span class="s2">&quot;Бассейн&quot;</span><span class="p">,</span> <span class="s2">&quot;Стадион&quot;</span><span class="p">]</span>
+
+        <span class="n">type_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">id_left</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">type_dic</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;id_left&quot;</span><span class="p">]</span>
+            <span class="n">zone_name</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;city_service_type&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">zone_name</span> <span class="ow">in</span> <span class="n">M</span><span class="p">:</span>
+                <span class="n">type_dic</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;Многофункциональное&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">zone_name</span> <span class="ow">in</span> <span class="n">U</span><span class="p">:</span>
+                <span class="n">type_dic</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;Учебное&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">zone_name</span> <span class="ow">in</span> <span class="n">S</span><span class="p">:</span>
+                <span class="n">type_dic</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;Событийное&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">zone_name</span> <span class="ow">in</span> <span class="n">Sp</span><span class="p">:</span>
+                <span class="n">type_dic</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;Спортивное&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="n">new_dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">type_dic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="nb">max</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">max_type</span> <span class="o">=</span> <span class="s2">&quot;Многофункциональное&quot;</span>
+            <span class="k">for</span> <span class="nb">type</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">value</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">:</span>
+                    <span class="nb">max</span> <span class="o">=</span> <span class="n">v</span>
+                    <span class="n">max_type</span> <span class="o">=</span> <span class="nb">type</span>
+            <span class="n">new_dic</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">max_type</span>
+
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">new_dic</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">,</span> <span class="s2">&quot;exists&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;существующее&quot;</span></div>
+
+    <span class="c1"># Функция строит слой с изхронами для указанного времени</span>
+<div class="viewcode-block" id="PublicSpaceGreedy.get_isohrone_time"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.get_isohrone_time">[docs]</a>    <span class="k">def</span> <span class="nf">get_isohrone_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="n">street_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">street_graph</span>
+        <span class="c1"># buildings = gpd.read_file(objects)</span>
+        <span class="n">zones</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span>
+
+        <span class="k">def</span> <span class="nf">nodes_finder</span><span class="p">(</span><span class="n">street_graph</span><span class="p">,</span> <span class="n">objects</span><span class="p">):</span>
+            <span class="n">nodes</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">nearest_nodes</span><span class="p">(</span><span class="n">street_graph</span><span class="p">,</span> <span class="n">objects</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="n">objects</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">nodes</span>
+
+        <span class="k">def</span> <span class="nf">isochrones_generator_time</span><span class="p">(</span><span class="n">street_graph</span><span class="p">,</span> <span class="n">obj_node</span><span class="p">,</span> <span class="n">DIST</span><span class="p">):</span>
+            <span class="n">subgraph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">ego_graph</span><span class="p">(</span><span class="n">street_graph</span><span class="p">,</span> <span class="n">obj_node</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">DIST</span><span class="p">,</span> <span class="n">distance</span><span class="o">=</span><span class="s2">&quot;time&quot;</span><span class="p">)</span>
+            <span class="n">node_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">Point</span><span class="p">((</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]))</span> <span class="k">for</span> <span class="n">node</span><span class="p">,</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">subgraph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)]</span>
+            <span class="n">isochrones</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">(</span><span class="n">node_points</span><span class="p">)</span><span class="o">.</span><span class="n">unary_union</span><span class="o">.</span><span class="n">convex_hull</span>
+            <span class="k">return</span> <span class="n">isochrones</span>
+
+        <span class="n">zones_points</span> <span class="o">=</span> <span class="n">zones</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">zones_points</span> <span class="o">=</span> <span class="n">zones_points</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">32636</span><span class="p">)</span>
+        <span class="n">zones_points</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">zones_points</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid</span>
+        <span class="n">zones_points</span><span class="p">[</span><span class="s2">&quot;node&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes_finder</span><span class="p">(</span><span class="n">street_graph</span><span class="p">,</span> <span class="n">zones_points</span><span class="p">)</span>
+
+        <span class="n">zones_iso_time</span> <span class="o">=</span> <span class="n">zones_points</span>
+        <span class="n">zones_iso_time</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">zones_iso_time</span><span class="o">.</span><span class="n">node</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">isochrones_generator_time</span><span class="p">(</span><span class="n">street_graph</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">time</span><span class="p">))</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Необходимо построить изохроны для разных временных радиусов - 5, 10,  20,  минут.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">zones_iso_time</span> <span class="o">=</span> <span class="n">zones_iso_time</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">zones_iso_time</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.create_isochrones"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.create_isochrones">[docs]</a>    <span class="k">def</span> <span class="nf">create_isochrones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">street_graph_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">street_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">read_graphml</span><span class="p">(</span><span class="n">street_graph_path</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_20</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_isohrone_time</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_10</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_isohrone_time</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_5</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_isohrone_time</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.load_isochrones"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.load_isochrones">[docs]</a>    <span class="k">def</span> <span class="nf">load_isochrones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_20</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;iso_20.geojson&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_10</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;iso_10.geojson&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">iso_5</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="n">path</span> <span class="o">+</span> <span class="s2">&quot;iso_5.geojson&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.nodes_list"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.nodes_list">[docs]</a>    <span class="k">def</span> <span class="nf">nodes_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">iso</span><span class="p">):</span>
+        <span class="c1"># функция, которая возвращает словарь, где ключи - это id зон, а значения - список домов, котлорые входят в зону</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">iso</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">)</span>
+        <span class="n">dic</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">unique</span><span class="p">():</span>
+            <span class="n">dic</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">i</span><span class="p">)]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="nb">id</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">a</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="n">dic</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;house_id&quot;</span><span class="p">])</span>
+
+        <span class="k">return</span> <span class="n">dic</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.add_nodes"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.add_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">add_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">isochrone</span><span class="p">,</span> <span class="n">time</span><span class="p">):</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_list</span><span class="p">(</span><span class="n">isochrone</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">zone</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">house</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">zone</span><span class="p">][</span><span class="n">house</span><span class="p">][</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.create_graph"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.create_graph">[docs]</a>    <span class="k">def</span> <span class="nf">create_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_graph_exist</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+
+            <span class="n">nodes</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes_list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iso_20</span><span class="p">)</span>
+            <span class="n">g</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">&lt;</span> <span class="mi">15000</span><span class="p">:</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;area_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;area_type&quot;</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;exists&quot;</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;house_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;people&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">][</span><span class="s2">&quot;people&quot;</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="k">for</span> <span class="n">zone</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">nodes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">house</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                    <span class="n">g</span><span class="p">[</span><span class="n">zone</span><span class="p">][</span><span class="n">house</span><span class="p">][</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">20</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">g</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iso_10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">add_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">iso_5</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+
+            <span class="n">nodes_list</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">nodes_list</span><span class="p">:</span>
+                <span class="n">node</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;area_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;small&quot;</span><span class="p">:</span>
+                    <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">house</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">g</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">dist</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">20</span> <span class="ow">or</span> <span class="n">dist</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span><span class="p">:</span>
+                            <span class="c1"># print(dist[&#39;time&#39;])</span>
+                            <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">house</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+                        <span class="n">g</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">node</span><span class="p">[</span><span class="s2">&quot;area_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;medium&quot;</span><span class="p">:</span>
+                    <span class="n">to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">house</span><span class="p">,</span> <span class="n">dist</span> <span class="ow">in</span> <span class="n">g</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="k">if</span> <span class="n">dist</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">20</span><span class="p">:</span>
+                            <span class="n">to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">house</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">to_remove</span><span class="p">:</span>
+                        <span class="n">g</span><span class="o">.</span><span class="n">remove_edge</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+
+            <span class="c1"># Подсчет количества людей для каждой зоны</span>
+            <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">people</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">neighbours</span> <span class="o">=</span> <span class="n">g</span><span class="p">[</span><span class="n">node_id</span><span class="p">]</span>
+                    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">neighbours</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                        <span class="n">people</span> <span class="o">+=</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;people&quot;</span><span class="p">]</span>
+                    <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="s2">&quot;people_around&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">people</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">is_graph_exist</span> <span class="o">=</span> <span class="kc">True</span>
+
+            <span class="c1"># Удаление необеспеченных домов</span>
+            <span class="n">drop</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="n">drop</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+            <span class="n">g</span><span class="o">.</span><span class="n">remove_nodes_from</span><span class="p">(</span><span class="n">drop</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">g</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">neighbor</span> <span class="o">=</span> <span class="n">g</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;существующее&quot;</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">existed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">n</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                                <span class="n">g</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span> <span class="o">=</span> <span class="n">g</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.OPM_info"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.OPM_info">[docs]</a>    <span class="k">def</span> <span class="nf">OPM_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="nb">all</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ev</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">sp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">mf</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">ed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;существующее&quot;</span><span class="p">:</span>
+                <span class="nb">all</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span>
+                    <span class="n">ev</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span>
+                    <span class="n">sp</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span>
+                    <span class="n">mf</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span>
+                    <span class="n">ed</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество Многофункциональных ОП: </span><span class="si">{</span><span class="n">mf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество Событийных ОП: </span><span class="si">{</span><span class="n">ev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество Спортивных ОП: </span><span class="si">{</span><span class="n">sp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество Учебных ОП: </span><span class="si">{</span><span class="n">ed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;общее количество ОП: </span><span class="si">{</span><span class="nb">all</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.provision_info"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.provision_info">[docs]</a>    <span class="k">def</span> <span class="nf">provision_info</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">houses_all</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">houses_covered</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">houses_ev</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">houses_sp</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">houses_mf</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">houses_ed</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">zone</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">houses_all</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">houses_ev</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">houses_sp</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">houses_mf</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                    <span class="n">houses_ed</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+                    <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+                <span class="p">):</span>
+                    <span class="n">houses_covered</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;существующее&quot;</span><span class="p">:</span>
+                <span class="n">zone</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                    <span class="n">t</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">neigh</span><span class="p">][</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+                <span class="n">time</span> <span class="o">+=</span> <span class="n">t</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+                <span class="n">t</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество домов, обеспеченных многофункциональным типом: </span><span class="si">{</span><span class="n">houses_mf</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество домов, обеспеченных событийным типом: </span><span class="si">{</span><span class="n">houses_ev</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество домов, обеспеченных спортивным типом: </span><span class="si">{</span><span class="n">houses_sp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество домов, обеспеченных учебным типом: </span><span class="si">{</span><span class="n">houses_ed</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;количество полностью обеспеченных домов: </span><span class="si">{</span><span class="n">houses_covered</span><span class="si">}</span><span class="s2">, общее количество домов: </span><span class="si">{</span><span class="n">houses_all</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">time</span> <span class="o">=</span> <span class="n">time</span> <span class="o">/</span> <span class="n">zone</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Среднее время пути от домов до ОП </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">time</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> минуты&quot;</span><span class="p">)</span></div>
+
+    <span class="c1"># функция с суммированием по домам для выбора места для ОПМ при поиске полного решения</span>
+<div class="viewcode-block" id="PublicSpaceGreedy.best_location_full"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.best_location_full">[docs]</a>    <span class="k">def</span> <span class="nf">best_location_full</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_type</span><span class="p">):</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_ev&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_mf&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_ed&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_sp&quot;</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;потенциальное&quot;</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;people_around&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+            <span class="p">):</span>
+                <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">prov</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="nb">sum</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">neighbor</span><span class="p">)</span>
+                        <span class="c1"># sum += 1 / self.graph[n][neigh][&#39;time&#39;]</span>
+                        <span class="c1"># sum += self.graph.nodes[n][&#39;people_around&#39;]</span>
+                <span class="k">if</span> <span class="nb">sum</span> <span class="o">&gt;</span> <span class="nb">max</span><span class="p">:</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="n">n</span>
+                    <span class="nb">max</span> <span class="o">=</span> <span class="nb">sum</span>
+                <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">,</span> <span class="n">index</span><span class="p">,</span> <span class="n">prov</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.best_location1"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.best_location1">[docs]</a>    <span class="k">def</span> <span class="nf">best_location1</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_type</span><span class="p">,</span> <span class="n">area_type</span><span class="p">):</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+        <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_ev&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_mf&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_ed&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span>
+            <span class="n">prov</span> <span class="o">=</span> <span class="s2">&quot;provision_sp&quot;</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;потенциальное&quot;</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;people_around&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;area_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">area_type</span>
+            <span class="p">):</span>
+                <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+                <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">prov</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="c1"># sum += gr.nodes[neigh][&#39;people&#39;] / gr[n][neigh][&#39;time&#39;]</span>
+                        <span class="nb">sum</span> <span class="o">+=</span> <span class="mi">1</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="n">neigh</span><span class="p">][</span><span class="s2">&quot;time&quot;</span><span class="p">]</span>
+                    <span class="n">index</span> <span class="o">=</span> <span class="n">n</span>
+                    <span class="nb">max</span> <span class="o">=</span> <span class="nb">sum</span>
+                <span class="nb">sum</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">,</span> <span class="n">index</span></div>
+
+    <span class="c1"># поиск полного решения</span>
+<div class="viewcode-block" id="PublicSpaceGreedy.full_solution"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.full_solution">[docs]</a>    <span class="k">def</span> <span class="nf">full_solution</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_public_spaces</span><span class="p">):</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="mi">4</span>
+        <span class="n">order</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Многофункциональное&quot;</span><span class="p">,</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">,</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">,</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">]</span>
+        <span class="n">num_public_spaces</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Counter for the number of public spaces created</span>
+
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">func_type</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+                <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_location_full</span><span class="p">(</span><span class="n">func_type</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">num_public_spaces</span> <span class="o">&lt;</span> <span class="n">max_public_spaces</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;существующее&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">func_type</span>
+                    <span class="n">neighbor</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                    <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="n">num_public_spaces</span> <span class="o">+=</span> <span class="mi">1</span>  <span class="c1"># Increment the counter</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">flag</span> <span class="o">-=</span> <span class="mi">1</span>
+            <span class="k">if</span> <span class="n">flag</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">num_public_spaces</span> <span class="o">&gt;=</span> <span class="n">max_public_spaces</span><span class="p">:</span>
+                <span class="k">break</span>
+            <span class="n">flag</span> <span class="o">=</span> <span class="mi">4</span></div>
+
+    <span class="c1"># локальный поиск, когда нельзя закрывать изначально существующие ОПМ</span>
+<div class="viewcode-block" id="PublicSpaceGreedy.local_search"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.local_search">[docs]</a>    <span class="k">def</span> <span class="nf">local_search</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">closed_func</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span> <span class="s2">&quot;provision_mf&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span> <span class="s2">&quot;provision_ev&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span> <span class="s2">&quot;provision_sp&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span> <span class="s2">&quot;provision_ed&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">zones_open</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">existed</span><span class="p">)</span>
+        <span class="n">ls</span> <span class="o">=</span> <span class="n">zones_open</span>
+        <span class="n">clsd</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">}</span>
+        <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;существующее&quot;</span>
+                <span class="ow">and</span> <span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existed</span>
+            <span class="p">):</span>
+                <span class="n">ls</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">clsd</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="n">closed_func</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;потенциальное&quot;</span>
+                <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">nodes</span><span class="p">[</span><span class="n">i</span><span class="p">]))</span>
+                <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">func</span><span class="p">[</span><span class="n">closed_func</span><span class="p">]]</span> <span class="o">-=</span> <span class="mi">1</span>
+                <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+                    <span class="n">loc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">best_location_full</span><span class="p">(</span><span class="n">closed_func</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">ls</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;существующее&quot;</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">closed_func</span>
+                        <span class="n">clsd</span><span class="p">[</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                        <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">loc</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                        <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">loc</span><span class="p">[</span><span class="mi">2</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="k">break</span>
+                <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span>
+                        <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;существующее&quot;</span>
+                        <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">closed_func</span>
+                        <span class="ow">and</span> <span class="n">n</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">existed</span>
+                    <span class="p">):</span>
+                        <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+                        <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">func</span><span class="p">[</span><span class="n">closed_func</span><span class="p">]]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                                <span class="n">flag</span> <span class="o">=</span> <span class="kc">False</span>
+                                <span class="k">break</span>
+                        <span class="k">if</span> <span class="n">flag</span><span class="p">:</span>
+                            <span class="n">ls</span> <span class="o">-=</span> <span class="mi">1</span>
+                            <span class="n">clsd</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;потенциальное&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">func</span><span class="p">[</span><span class="n">closed_func</span><span class="p">]]</span> <span class="o">-=</span> <span class="mi">1</span>
+                        <span class="n">flag</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">if</span> <span class="n">ls</span> <span class="o">&gt;=</span> <span class="n">zones_open</span><span class="p">:</span>
+                    <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">clsd</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">clsd</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="o">-</span><span class="mi">1</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;существующее&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">closed_func</span>
+                            <span class="n">neighbor</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbor</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">func</span><span class="p">[</span><span class="n">closed_func</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">clsd</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="k">elif</span> <span class="n">clsd</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;потенциальное&quot;</span>
+                            <span class="n">neighbors</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">k</span><span class="p">))</span>
+                            <span class="k">for</span> <span class="n">neigh</span> <span class="ow">in</span> <span class="n">neighbors</span><span class="p">:</span>
+                                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">neigh</span><span class="p">][</span><span class="n">func</span><span class="p">[</span><span class="n">closed_func</span><span class="p">]]</span> <span class="o">-=</span> <span class="mi">1</span>
+                            <span class="n">clsd</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">ls</span> <span class="o">=</span> <span class="n">zones_open</span>
+                    <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">nodes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+                    <span class="n">zones_open</span> <span class="o">=</span> <span class="n">ls</span>
+                    <span class="n">clsd</span> <span class="o">=</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.provision"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.provision">[docs]</a>    <span class="k">def</span> <span class="nf">provision</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.25</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.25</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.25</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mf">0.25</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.get_ratio"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.get_ratio">[docs]</a>    <span class="k">def</span> <span class="nf">get_ratio</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_type</span><span class="p">,</span> <span class="n">area</span><span class="p">):</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="p">[[</span><span class="mf">0.53</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.17</span><span class="p">,</span> <span class="mf">0.15</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.67</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.23</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">]]</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Многофункциональное&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Отдых и общение: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Обслуживание базовых потребностей: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Событийная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Спортивная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Учебная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">4</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Спортивное&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Спортивная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Обслуживание базовых потребностей: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Событийная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Отдых и общение: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">1</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Событийное&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Событийная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Обслуживание базовых потребностей: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Отдых и общение: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">2</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2&quot;</span>
+        <span class="k">if</span> <span class="n">func_type</span> <span class="o">==</span> <span class="s2">&quot;Учебное&quot;</span><span class="p">:</span>
+            <span class="n">a</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Учебная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Событийная: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Отдых и общение: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">2</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2, Обслуживание базовых потребностей: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="mi">3</span><span class="p">][</span><span class="mi">3</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">area</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2"> м^2&quot;</span>
+        <span class="k">return</span> <span class="n">a</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.recommend_services"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.recommend_services">[docs]</a>    <span class="k">def</span> <span class="nf">recommend_services</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">func_type</span><span class="p">,</span> <span class="n">area</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">(</span><span class="n">func_type</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">a</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; м^2, &quot;</span><span class="p">)</span>
+        <span class="n">f_zone</span> <span class="o">=</span> <span class="p">[</span><span class="n">o</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;: &quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">o</span> <span class="ow">in</span> <span class="n">a</span><span class="p">]</span>
+        <span class="n">f_zone</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">f_zone</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_zone</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="n">f_zone</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">f_zone</span><span class="p">:</span>
+            <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Спортивная&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">200</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">250</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">800</span><span class="p">):</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Универсальное спортивное поле&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">250</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">500</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Спортивная площадка&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">800</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">1200</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Скейтпарк&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1200</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Универсальное спортивное поле&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Скейтпарк&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Спортивная площадка&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Обслуживание базовых потребностей&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">15</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Общественный туалет&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">15</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">30</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Фуд-трак&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Кафе&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Кафе&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Фуд-трак&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Общественный туалет&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Событийная&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">20</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">50</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Музыкальное пространство&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">50</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Зона искусства&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">500</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Сцена (амфитеатр)&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Сцена (амфитеатр)&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Зона искусства&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Музыкальное пространство&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Отдых и общение&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">10</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Беседки&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Зелёные зоны&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">400</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Игровые зоны&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Зелёные зоны&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">400</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Игровые зоны&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Беседки&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Зелёные зоны&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Учебная&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">20</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">100</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Учебная зона&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">100</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">200</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Лектории&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">200</span> <span class="ow">and</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">300</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Выставки&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">f</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">320</span><span class="p">:</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Учебная зона&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Лектории&quot;</span><span class="p">)</span>
+                    <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Выставки&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">services</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.geo"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.geo">[docs]</a>    <span class="k">def</span> <span class="nf">geo</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;существующее&quot;</span><span class="p">:</span>
+                <span class="n">indx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span>
+        <span class="n">opm</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">OPM</span><span class="p">[</span><span class="s2">&quot;functional_type&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+        <span class="n">opm</span> <span class="o">=</span> <span class="n">opm</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;functional_type&quot;</span><span class="p">,</span> <span class="s2">&quot;area_type&quot;</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="n">opm</span><span class="p">[</span><span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">opm</span><span class="p">[</span><span class="s2">&quot;services&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">opm</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+            <span class="n">opm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;ratio&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_ratio</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;functional_type&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">])</span>
+            <span class="c1"># opm[&#39;services&#39;][i] = self.recommend_services(opm[&#39;ratio&#39;][i])</span>
+            <span class="n">opm</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;services&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">recommend_services</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;functional_type&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">opm</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.get_houses"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.get_houses">[docs]</a>    <span class="k">def</span> <span class="nf">get_houses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">provision</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;is_zone&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">indx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="p">[</span><span class="s2">&quot;house_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ev&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_mf&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_ed&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision_sp&quot;</span><span class="p">]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">house</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">indx</span><span class="p">,</span> <span class="s2">&quot;provision&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">n</span><span class="p">][</span><span class="s2">&quot;provision&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">house</span></div>
+
+<div class="viewcode-block" id="PublicSpaceGreedy.draw"><a class="viewcode-back" href="../../../../masterplan_tools.method.publicspace.html#masterplan_tools.method.publicspace.ps_greedy.PublicSpaceGreedy.draw">[docs]</a>    <span class="k">def</span> <span class="nf">draw</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_figheight</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_figwidth</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">nx</span><span class="o">.</span><span class="n">draw_kamada_kawai</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">font_weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span> <span class="n">node_size</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div></div>
+</pre></div>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By open-source
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2023, open-source.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

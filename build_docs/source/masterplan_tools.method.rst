@@ -10,6 +10,7 @@ Subpackages
    masterplan_tools.method.balancing
    masterplan_tools.method.blocks
    masterplan_tools.method.provision
+   masterplan_tools.method.publicspace
 
 Module contents
 ---------------

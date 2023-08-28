@@ -226,139 +226,231 @@ document.write(`
 <span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
 <span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
 <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">InstanceOf</span><span class="p">,</span> <span class="n">field_validator</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">LineString</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
 
-<span class="kn">from</span> <span class="nn">masterplan_tools.method.blocks.blocks_cutter</span> <span class="kn">import</span> <span class="n">BlocksCutter</span>
-<span class="kn">from</span> <span class="nn">masterplan_tools.preprocessing.data_getter</span> <span class="kn">import</span> <span class="n">DataGetter</span>
+<span class="kn">from</span> <span class="nn">.geojson</span> <span class="kn">import</span> <span class="n">PolygonGeoJSON</span><span class="p">,</span> <span class="n">PointGeoJSON</span>
+
+<span class="c1"># from masterplan_tools.preprocessing.utils import Utils</span>
+
+<span class="c1"># from masterplan_tools.method.blocks.blocks_cutter import BlocksCutter</span>
+<div class="viewcode-block" id="AccessibilityMatrix"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.AccessibilityMatrix">[docs]</a><span class="k">class</span> <span class="nc">AccessibilityMatrix</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+
+    <span class="n">df</span><span class="p">:</span> <span class="n">InstanceOf</span><span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]</span>
+
+<div class="viewcode-block" id="AccessibilityMatrix.validate_df"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.AccessibilityMatrix.validate_df">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;df&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_df</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="s2">&quot;Size must be NxN&quot;</span>
+        <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">value</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">unique</span><span class="p">()</span> <span class="o">==</span> <span class="n">value</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">unique</span><span class="p">()),</span> <span class="s2">&quot;Columns and rows are not equal&quot;</span>
+        <span class="k">return</span> <span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span></div></div>
 
 
-<div class="viewcode-block" id="CityModel"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel">[docs]</a><span class="k">class</span> <span class="nc">CityModel</span><span class="p">:</span>  <span class="c1"># pylint: disable=too-many-instance-attributes,too-few-public-methods</span>
+<div class="viewcode-block" id="CityBlockFeature"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityBlockFeature">[docs]</a><span class="k">class</span> <span class="nc">CityBlockFeature</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">landuse</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;buildings&quot;</span><span class="p">,</span> <span class="s2">&quot;selected_area&quot;</span><span class="p">,</span> <span class="s2">&quot;no_dev_area&quot;</span><span class="p">]</span>
+    <span class="n">block_id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">is_living</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">current_population</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">floors</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">current_living_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">current_green_capacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">current_green_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">current_parking_capacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">current_industrial_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ServicesFeature"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.ServicesFeature">[docs]</a><span class="k">class</span> <span class="nc">ServicesFeature</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="CityModel"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel">[docs]</a><span class="k">class</span> <span class="nc">CityModel</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>  <span class="c1"># pylint: disable=too-many-instance-attributes,too-few-public-methods</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    City model gathers all data in one class so it could be accessed directly in one place</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">ROADS_WIDTH</span> <span class="o">=</span> <span class="n">RAILWAYS_WIDTH</span> <span class="o">=</span> <span class="n">NATURE_WIDTH</span> <span class="o">=</span> <span class="mi">3</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;road geometry buffer in meters. So road geometries won&#39;t be thin as a line.&quot;&quot;&quot;</span>
-    <span class="n">WATER_WIDTH</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;water geometry buffer in meters. So water geometries in some cases won&#39;t be thin as a line.&quot;&quot;&quot;</span>
-    <span class="n">GEOMETRY_CUTOFF_RATIO</span> <span class="o">=</span> <span class="mf">0.15</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;polygon&#39;s perimeter to area ratio. Objects with bigger ration will be dropped.&quot;&quot;&quot;</span>
-    <span class="n">GEOMETRY_CUTOFF_AREA</span> <span class="o">=</span> <span class="mi">1_400</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;in meters. Objects with smaller area will be dropped.&quot;&quot;&quot;</span>
-    <span class="n">PARK_CUTOFF_AREA</span> <span class="o">=</span> <span class="mi">10_000</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;in meters. Objects with smaller area will be dropped.&quot;&quot;&quot;</span>
+    <span class="n">blocks</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">CityBlockFeature</span><span class="p">]</span>
+    <span class="n">accessibility_matrix</span><span class="p">:</span> <span class="n">AccessibilityMatrix</span>
+    <span class="n">services</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointGeoJSON</span><span class="p">[</span><span class="n">ServicesFeature</span><span class="p">]]</span>
+    <span class="n">services_graph</span><span class="p">:</span> <span class="n">InstanceOf</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">exclude</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments</span>
+<div class="viewcode-block" id="CityModel.get_service_types"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.get_service_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_service_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+
+<div class="viewcode-block" id="CityModel.validate_blocks"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.validate_blocks">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;blocks&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_blocks</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">CityBlockFeature</span><span class="p">]</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="CityModel.validate_matrix"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.validate_matrix">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;accessibility_matrix&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_matrix</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">AccessibilityMatrix</span><span class="p">(</span><span class="n">df</span><span class="o">=</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">value</span></div>
+
+<div class="viewcode-block" id="CityModel.validate_services"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.validate_services">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;services&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">validate_services</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>
+        <span class="nb">dict</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">service_type</span> <span class="ow">in</span> <span class="nb">dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="n">service_type</span><span class="p">],</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+                <span class="nb">dict</span><span class="p">[</span><span class="n">service_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">PointGeoJSON</span><span class="p">[</span><span class="n">ServicesFeature</span><span class="p">]</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span><span class="n">value</span><span class="p">[</span><span class="n">service_type</span><span class="p">])</span>
+        <span class="k">return</span> <span class="nb">dict</span></div>
+
+<div class="viewcode-block" id="CityModel.visualize"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.visualize">[docs]</a>    <span class="k">def</span> <span class="nf">visualize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">max_distance</span><span class="o">=</span><span class="mi">7</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+        <span class="n">centroids</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">centroids</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">centroids</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">centroid</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">u</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">max_distance</span> <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">edges</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">],</span>
+                        <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">LineString</span><span class="p">([</span><span class="n">centroids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">u</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">],</span> <span class="n">centroids</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">v</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+        <span class="n">edges</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">by</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+        <span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#ddd&quot;</span><span class="p">)</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;summer&quot;</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="CityModel.prepare_graph"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.prepare_graph">[docs]</a>    <span class="k">def</span> <span class="nf">prepare_graph</span><span class="p">(</span>  <span class="c1"># pylint: disable=too-many-arguments,too-many-locals</span>
         <span class="bp">self</span><span class="p">,</span>
-        <span class="n">buildings</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">services</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-        <span class="n">roads_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">water_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">railways_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">nature_geometry_boundaries</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">city_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">accessibility_matrix</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-        <span class="n">transport_graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">greenings</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">parkings</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-        <span class="n">city_blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="o">...</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize CityModel</span>
+        <span class="n">service_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">services_graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span>
+        <span class="n">updated_block_info</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        This function prepares a graph for calculating the provision of a specified service in a city.</span>
 
 <span class="sd">        Args:</span>
-<span class="sd">            buildings (GeoDataFrame | None, optional): city buildings geometry. Defaults to None.</span>
-<span class="sd">            services (dict[GeoDataFrame], optional): city services geodataframes dictionary where keys are service</span>
-<span class="sd">            names and values - their geometry. Defaults to empty dictionary.</span>
-<span class="sd">            roads_geometry (GeoDataFrame | None, optional): roads GeoDataFrame for blocks generation. Defaults to None.</span>
-<span class="sd">            water_geometry (GeoDataFrame | None, optional): water GeoDataFrame for blocks generation. Defaults to None.</span>
-<span class="sd">            railways_geometry (GeoDataFrame | None, optional): railways GeoDataFrame for blocks generation.</span>
+<span class="sd">            blocks (gpd.GeoDataFrame): A GeoDataFrame containing information about the blocks in the city.</span>
+<span class="sd">            service_type (str, optional): The type of service to calculate the provision for. Defaults to None.</span>
+<span class="sd">            service_gdf (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about blocks with the</span>
+<span class="sd">            specified service in the city. Defaults to None.</span>
+<span class="sd">            accessibility_matrix (np.ndarray, optional): An accessibility matrix for the city. Defaults to None.</span>
+<span class="sd">            buildings (gpd.GeoDataFrame, optional): A GeoDataFrame containing information about buildings in the city.</span>
 <span class="sd">            Defaults to None.</span>
-<span class="sd">            nature_geometry_boundaries (GeoDataFrame | None, optional): nature GeoDataFrame. Defaults to None.</span>
-<span class="sd">            city_geometry (GeoDataFrame | None, optional): full city geometry. Defaults to None.</span>
-<span class="sd">            accessibility_matrix (GeoDataFrame, optional): accesibility matrix GeoDataFrame. Defaults to empty</span>
-<span class="sd">            GeoDataFrame.</span>
-<span class="sd">            transport_graph (nx.Graph | None, optional): transport graph for provision calculations. Defaults to None.</span>
-<span class="sd">            greenings (GeoDataFrame | None, optional): green zones areas GeoDataFrame. Defaults to None.</span>
-<span class="sd">            parkings (GeoDataFrame | None, optional): parking areas GeoDataFrame. Defaults to None.</span>
-<span class="sd">            city_blocks (GeoDataFrame, optional): city blocks GeoDataFrame (if set, no generation will be performed).</span>
-<span class="sd">            Defaults to empty GeoDataFrame.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># TODO: add notes about needed columns for DataFrames/GeoDataFrames/Graphs</span>
-        <span class="c1"># TODO: Maybe it is more logical to pass city_geometry as shapely.geometry.base.BaseGeometry, not GeoDataFrame?</span>
-        <span class="k">if</span> <span class="n">services</span> <span class="ow">is</span> <span class="o">...</span><span class="p">:</span>
-            <span class="n">services</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">accessibility_matrix</span> <span class="ow">is</span> <span class="o">...</span><span class="p">:</span>
-            <span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">city_blocks</span> <span class="ow">is</span> <span class="o">...</span><span class="p">:</span>
-            <span class="n">city_blocks</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">buildings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">services_gdfs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="n">services</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">water_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">water_geometry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">roads_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">roads_geometry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">railways_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">railways_geometry</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">nature_geometry_boundaries</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">nature_geometry_boundaries</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;GeoDataFrame of the nature in the city&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_geometry</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">city_geometry</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;geometry of the city on specified admin level&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="n">accessibility_matrix</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        if the user have pre-caluclated accessibility_matrix, else the matrix will be calculated</span>
-<span class="sd">        (!) Imortant note: it takes about 40GB RAM to calculate the matris on the intermodal or walk graph</span>
-<span class="sd">        for the big city like Saint Petersburg</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transport_graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">transport_graph</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        if there&#39;s no specified accessibility matrix, the graph is needed to calculate one.</span>
-<span class="sd">        For example, the graph could be the drive, bike or walk graph from the OSM</span>
-<span class="sd">        or the intermodal graph from CityGeoTools</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">greenings</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">greenings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">parkings</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">parkings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">city_blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">=</span> <span class="n">city_blocks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blocks_aggregated_info</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;aggregated info by blocks is needed for further balancing&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">updated_block_info</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">services_graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;updated block is the id of the modified block&quot;&quot;&quot;</span>
+<span class="sd">            updated_block_info (gpd.GeoDataFrame, optional): A GeoDataFrame containing updated information</span>
+<span class="sd">            about blocks in the city. Defaults to None.</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">collect_data</span><span class="p">()</span>
-
-<div class="viewcode-block" id="CityModel.collect_data"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.collect_data">[docs]</a>    <span class="k">def</span> <span class="nf">collect_data</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        This method calls DataGetter and BlocksCutter to collect all required data</span>
-<span class="sd">        to get city blocks and service graphs.</span>
+<span class="sd">        Returns:</span>
+<span class="sd">            nx.Graph: A networkx graph representing the city&#39;s road network with additional data for calculating</span>
+<span class="sd">            the provision of the specified service.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+        <span class="n">service</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">[</span><span class="n">service_type</span><span class="p">]</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
+        <span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
 
-        <span class="c1"># Run modelling blocks if they are not provided</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_blocks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">city_blocks</span> <span class="o">=</span> <span class="n">BlocksCutter</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">get_blocks</span><span class="p">()</span>
+        <span class="n">blocks</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;current_population&quot;</span><span class="p">:</span> <span class="s2">&quot;population_balanced&quot;</span><span class="p">,</span> <span class="s2">&quot;block_id&quot;</span><span class="p">:</span> <span class="s2">&quot;id&quot;</span><span class="p">},</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;is_living&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;population_balanced&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
 
-        <span class="c1"># Run modelling accessibility matrix between blocks if it is not provided</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="n">DataGetter</span><span class="p">()</span><span class="o">.</span><span class="n">get_accessibility_matrix</span><span class="p">(</span>
-                <span class="n">blocks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city_blocks</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">transport_graph</span>
+        <span class="n">living_blocks</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">service_gdf</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">service</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">agg</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="s2">&quot;sum&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
             <span class="p">)</span>
-
-        <span class="c1"># Get aggregated information about blocks</span>
-        <span class="c1"># This information will be used during modelling new parameters for blocks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">blocks_aggregated_info</span> <span class="o">=</span> <span class="n">DataGetter</span><span class="p">()</span><span class="o">.</span><span class="n">aggregate_blocks_info</span><span class="p">(</span>
-            <span class="n">blocks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city_blocks</span><span class="p">,</span>
-            <span class="n">buildings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">,</span>
-            <span class="n">parkings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parkings</span><span class="p">,</span>
-            <span class="n">greenings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">greenings</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="c1"># Create graphs between living blocks and specified services</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">services_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
-        <span class="k">for</span> <span class="n">service_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services_gdfs</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">services_graph</span> <span class="o">=</span> <span class="n">DataGetter</span><span class="p">()</span><span class="o">.</span><span class="n">prepare_graph</span><span class="p">(</span>
-                <span class="n">blocks</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city_blocks</span><span class="p">,</span>
+        <span class="k">if</span> <span class="n">updated_block_info</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">updated_block</span> <span class="ow">in</span> <span class="n">updated_block_info</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">updated_block</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">service_gdf</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                    <span class="n">service_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">updated_block</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">if</span> <span class="n">service_type</span> <span class="o">==</span> <span class="s2">&quot;recreational_areas&quot;</span><span class="p">:</span>
+                    <span class="n">service_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">updated_block</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">],</span> <span class="s2">&quot;capacity&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">updated_block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;G_max_capacity&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">service_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">updated_block</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">],</span> <span class="s2">&quot;capacity&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">updated_block</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">_capacity&quot;</span><span class="p">,</span> <span class="mi">0</span>
+                    <span class="p">)</span>
+
+            <span class="n">blocks</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">updated_block</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">],</span> <span class="s2">&quot;population_balanced&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">updated_block</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span>
+
+        <span class="n">blocks_geom_dict</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[[</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;population_balanced&quot;</span><span class="p">,</span> <span class="s2">&quot;is_living&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">service_blocks_dict</span> <span class="o">=</span> <span class="n">service_gdf</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span>
+
+        <span class="n">blocks_list</span> <span class="o">=</span> <span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">service_gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;Int64&quot;</span><span class="p">)),</span>
+            <span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">living_blocks</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]),</span>
+        <span class="p">]</span>
+
+        <span class="c1"># TODO: is tqdm really necessary?</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">blocks_list</span><span class="o">.</span><span class="n">index</span><span class="p">):</span>
+            <span class="n">blocks_list_tmp</span> <span class="o">=</span> <span class="n">blocks_list</span><span class="p">[</span><span class="n">blocks_list</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">idx</span><span class="p">]</span>
+            <span class="n">blocks_list</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">blocks_list</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+            <span class="n">blocks_list_tmp_dict</span> <span class="o">=</span> <span class="n">blocks_list_tmp</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()[</span><span class="n">idx</span><span class="p">]</span>
+
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">blocks_list_tmp_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="n">idx</span><span class="p">:</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">blocks_list_tmp_dict</span><span class="p">[</span><span class="n">key</span><span class="p">],</span> <span class="mi">1</span><span class="p">))</span>
+
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="n">idx</span><span class="p">)</span>
+
+                <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;population&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks_geom_dict</span><span class="p">[</span><span class="s2">&quot;population_balanced&quot;</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+                <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;is_living&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks_geom_dict</span><span class="p">[</span><span class="s2">&quot;is_living&quot;</span><span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+
+                <span class="k">if</span> <span class="n">key</span> <span class="o">!=</span> <span class="n">idx</span><span class="p">:</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">_service&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+                            <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">_service&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                            <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>
+                        <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">_service&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                        <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;is_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">_service&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">_capacity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_blocks_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;provision_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;id_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+                <span class="k">if</span> <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="s2">&quot;is_living&quot;</span><span class="p">]:</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;population_prov_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                    <span class="n">services_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">key</span><span class="p">][</span><span class="sa">f</span><span class="s2">&quot;population_unprov_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks_geom_dict</span><span class="p">[</span>
+                        <span class="s2">&quot;population_balanced&quot;</span>
+                    <span class="p">][</span><span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)]</span>
+
+        <span class="k">return</span> <span class="n">services_graph</span></div>
+
+<div class="viewcode-block" id="CityModel.model_post_init"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel.model_post_init">[docs]</a>    <span class="k">def</span> <span class="nf">model_post_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">__context</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dict</span><span class="p">()</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="n">values</span><span class="p">[</span><span class="s2">&quot;services&quot;</span><span class="p">]</span>
+        <span class="n">services_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">service_type</span> <span class="ow">in</span> <span class="n">services</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+            <span class="n">services_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">prepare_graph</span><span class="p">(</span>
                 <span class="n">service_type</span><span class="o">=</span><span class="n">service_type</span><span class="p">,</span>
-                <span class="n">buildings</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">,</span>
-                <span class="n">service_gdf</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">services_gdfs</span><span class="p">[</span><span class="n">service_type</span><span class="p">],</span>
-                <span class="n">updated_block_info</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">accessibility_matrix</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">accessibility_matrix</span><span class="p">,</span>
-                <span class="n">services_graph</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">services_graph</span><span class="p">,</span>
-            <span class="p">)</span></div></div>
+                <span class="n">services_graph</span><span class="o">=</span><span class="n">services_graph</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">services_graph</span> <span class="o">=</span> <span class="n">services_graph</span></div></div>
+
+    <span class="c1"># def collect_data(self) -&gt; None:</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+    <span class="c1">#     This method calls DataGetter and BlocksCutter to collect all required data</span>
+    <span class="c1">#     to get city blocks and service graphs.</span>
+    <span class="c1">#     &quot;&quot;&quot;</span>
+
+    <span class="c1">#     # Create graphs between living blocks and specified services</span>
+    <span class="c1">#     self.services_graph = nx.Graph()</span>
+    <span class="c1">#     for service_type in self.services_gdfs.keys():</span>
+    <span class="c1">#         self.services_graph = DataGetter().prepare_graph(</span>
+    <span class="c1">#             blocks=self.city_blocks,</span>
+    <span class="c1">#             service_type=service_type,</span>
+    <span class="c1">#             buildings=self.buildings,</span>
+    <span class="c1">#             service_gdf=self.services_gdfs[service_type],</span>
+    <span class="c1">#             updated_block_info=None,</span>
+    <span class="c1">#             accessibility_matrix=self.accessibility_matrix,</span>
+    <span class="c1">#             services_graph=self.services_graph,</span>
+    <span class="c1">#         )</span>
 </pre></div>
 
                 </article>

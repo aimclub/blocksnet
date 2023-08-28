@@ -12,6 +12,14 @@ masterplan\_tools.preprocessing.accs\_matrix\_calculator module
    :undoc-members:
    :show-inheritance:
 
+masterplan\_tools.preprocessing.aggregate\_parameters module
+------------------------------------------------------------
+
+.. automodule:: masterplan_tools.preprocessing.aggregate_parameters
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 masterplan\_tools.preprocessing.data\_getter module
 ---------------------------------------------------
 

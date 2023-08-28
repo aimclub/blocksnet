@@ -12,6 +12,14 @@ masterplan\_tools.models.city\_model module
    :undoc-members:
    :show-inheritance:
 
+masterplan\_tools.models.geojson module
+---------------------------------------
+
+.. automodule:: masterplan_tools.models.geojson
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 
