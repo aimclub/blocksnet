@@ -184,10 +184,12 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
                             services_graph.nodes[key][f"is_{service_type}_service"] = 0
                             services_graph.nodes[key][f"provision_{service_type}"] = 0
                             services_graph.nodes[key][f"id_{service_type}"] = 0
+                            services_graph.nodes[key][f"{service_type}_capacity"] = 0
                     except KeyError:
                         services_graph.nodes[key][f"is_{service_type}_service"] = 0
                         services_graph.nodes[key][f"provision_{service_type}"] = 0
                         services_graph.nodes[key][f"id_{service_type}"] = 0
+                        services_graph.nodes[key][f"{service_type}_capacity"] = 0
                 else:
                     services_graph.nodes[key][f"is_{service_type}_service"] = 1
                     services_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
