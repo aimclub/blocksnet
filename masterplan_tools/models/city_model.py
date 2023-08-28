@@ -31,6 +31,7 @@ class AccessibilityMatrix(BaseModel):
 class CityBlockFeature(BaseModel):
     landuse: Literal["buildings", "selected_area", "no_dev_area"]
     block_id: int
+    is_living: bool
     current_population: float = Field(ge=0)
     floors: float = Field(ge=0)
     current_living_area: float = Field(ge=0)
