@@ -103,7 +103,7 @@ def school_area(schoolkids) -> tuple[float, int]:
     return school_area_ranges(schoolkids)
 
 
-def balance_data(gdf, polygon, school, kindergarten, greening):  # pylint: disable=too-many-arguments
+def balance_data(gdf, polygon, services_prov):  # pylint: disable=too-many-arguments
     """
     This function balances data about blocks in a city by intersecting the given GeoDataFrame with a polygon
     and calculating various statistics.
@@ -136,12 +136,11 @@ def balance_data(gdf, polygon, school, kindergarten, greening):  # pylint: disab
         ]
     ]
 
-    gdf_ = (
-        gdf_.merge(school[["id", "population_unprov_schools"]], left_on="block_id", right_on="id")
-        .merge(kindergarten[["id", "population_unprov_kindergartens"]], left_on="block_id", right_on="id")
-        .merge(greening[["id", "population_unprov_recreational_areas"]], left_on="block_id", right_on="id")
-    )
-    gdf_.drop(["id_x", "id_y", "id"], axis=1, inplace=True)
+    for service_type in services_prov.keys():
+        gdf_ = gdf_.merge(
+            services_prov[service_type][["id", f"population_unprov_{service_type}"]], left_on="block_id", right_on="id"
+        )
+    gdf_ = gdf_.drop(columns=["id_x", "id_y"])
 
     gdf_["area"] = gdf_["area"] / HECTARE_IN_SQUARE_METERS
     gdf_["current_living_area"] = gdf_["current_living_area"] / HECTARE_IN_SQUARE_METERS

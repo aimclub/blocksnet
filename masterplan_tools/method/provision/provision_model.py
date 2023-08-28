@@ -58,7 +58,7 @@ class ProvisionModel:
         "swimming_pools": 30,
         "conveniences": 8,
         "recreational_areas": 15,
-        "pharmacies":10,
+        "pharmacies": 10,
         "playgrounds": 5,
         "supermarkets": 30,
     }
@@ -68,12 +68,12 @@ class ProvisionModel:
         city_model: CityModel,
         service_name: str = "schools",
     ):
-        self.blocks = city_model.city_blocks.copy()
+        self.blocks = city_model.blocks.to_gdf().copy()
         self.service_name = service_name
         self.standard = self.standard_dict[self.service_name]
         self.accessibility = self.services_accessibility_dict[self.service_name]
         self.graph = city_model.services_graph.copy()
-        self.blocks_aggregated = city_model.blocks_aggregated_info.copy()
+        self.blocks_aggregated = city_model.blocks.to_gdf().copy()
 
     # FIXME: this method does not return anything (0 if graph is missing, None otherwise). Rename and fix logic
     # And printing functions are generally bad
@@ -106,10 +106,10 @@ class ProvisionModel:
             except KeyError:
                 invalid_blocks += 1
 
-        print(f"Number of blocks with service: {self.service_name}: {blocks_service}")
-        print(f"Number of residential blocks: {blocks_living}")
-        print(f"Number of blocks total: {total}")
-        print(f"Number of blocks with an error: {invalid_blocks}\n")
+        # print(f"Number of blocks with service: {self.service_name}: {blocks_service}")
+        # print(f"Number of residential blocks: {blocks_living}")
+        # print(f"Number of blocks total: {total}")
+        # print(f"Number of blocks with an error: {invalid_blocks}\n")
 
         return None
 
@@ -170,10 +170,12 @@ class ProvisionModel:
                                 graph.nodes[node][f"population_unprov_{self.service_name}"] - prov_people
                             )
                             graph.nodes[node][f"id_{self.service_name}"] = node
-                            graph.nodes[node][f"provision_{self.service_name}"] = graph.nodes[node][
-                                f"population_prov_{self.service_name}"] * 100 / graph.nodes[
-                                    node]["population"]
-                            
+                            graph.nodes[node][f"provision_{self.service_name}"] = (
+                                graph.nodes[node][f"population_prov_{self.service_name}"]
+                                * 100
+                                / graph.nodes[node]["population"]
+                            )
+
         for node in graph.nodes:  # pylint: disable=too-many-nested-blocks
             if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
                 capacity = graph.nodes[node][f"{self.service_name}_capacity"]
@@ -217,9 +219,11 @@ class ProvisionModel:
                                         graph.nodes[neighbor][f"population_unprov_{self.service_name}"] - prov_people
                                     )
                                     graph.nodes[neighbor][f"id_{self.service_name}"] = node
-                                    graph.nodes[neighbor][f"provision_{self.service_name}"] = graph.nodes[neighbor][
-                                        f"population_prov_{self.service_name}"] * 100 / graph.nodes[
-                                            neighbor]["population"]
+                                    graph.nodes[neighbor][f"provision_{self.service_name}"] = (
+                                        graph.nodes[neighbor][f"population_prov_{self.service_name}"]
+                                        * 100
+                                        / graph.nodes[neighbor]["population"]
+                                    )
 
         self.graph = graph
 
@@ -287,7 +291,7 @@ class ProvisionModel:
                 blocks.loc[i, "population"] = blocks_aggregated.loc[i, "current_population"]
                 blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks_aggregated.loc[i, "current_population"]
 
-        blocks = blocks.drop(columns=["index"])
+        # blocks = blocks.drop(columns=["index"])
         blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
         return blocks

@@ -134,11 +134,13 @@ dmypy.json
 /mp_data
 
 # data
+*.parquet
 *.geojson
 *.pkl
 *.parquet
 *.graphml
 *.csv
+/masterplan_tools/output_data
 
 cache/
 /examples/data
