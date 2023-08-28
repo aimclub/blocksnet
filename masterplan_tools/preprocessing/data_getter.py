@@ -190,5 +190,5 @@ class DataGetter(BaseModel):
         )
         blocks_info_aggregated["area"] = blocks_info_aggregated["geometry"].area
         blocks_info_aggregated.drop(columns=["building_area_pyatno", "building_area", "living_area"], inplace=True)
-        blocks_info_aggregated["is_living"] = blocks_info_aggregated["population_balanced"].apply(lambda x: x > 0)
+        blocks_info_aggregated["is_living"] = blocks_info_aggregated["current_population"].apply(lambda x: x > 0)
         return PolygonGeoJSON[CityBlockFeature].from_gdf(blocks_info_aggregated)

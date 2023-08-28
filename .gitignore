@@ -134,6 +134,7 @@ dmypy.json
 /mp_data
 
 # data
+*.parquet
 *.geojson
 *.pkl
 *.parquet
