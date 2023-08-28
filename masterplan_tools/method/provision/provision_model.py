@@ -113,7 +113,7 @@ class ProvisionModel:
 
         return None
 
-    def get_provision(self):  # pylint: disable=too-many-branches,too-many-statements
+    def get_provision(self, overflow : bool =False):  # pylint: disable=too-many-branches,too-many-statements
         """
         This function calculates the provision of a specified service in a city.
         The provision is calculated based on the data in the `g` attribute of the object.
@@ -127,13 +127,14 @@ class ProvisionModel:
         standard = self.standard
         accessibility = self.accessibility
 
-        for u, v, data in list(graph.edges(data=True)):  # pylint: disable=invalid-name
-            if data["weight"] > accessibility:
-                graph.remove_edge(u, v)
+        if not overflow:
+            for u, v, data in list(graph.edges(data=True)):  # pylint: disable=invalid-name
+                if data["weight"] > accessibility:
+                    graph.remove_edge(u, v)
 
-        for node in list(graph.nodes):
-            if graph.degree(node) == 0 and graph.nodes[node][f"is_{self.service_name}_service"] != 1:
-                graph.remove_node(node)
+            for node in list(graph.nodes):
+                if graph.degree(node) == 0 and graph.nodes[node][f"is_{self.service_name}_service"] != 1:
+                    graph.remove_node(node)
 
         for node in graph.nodes:
             if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
@@ -296,7 +297,7 @@ class ProvisionModel:
 
         return blocks
 
-    def run(self):
+    def run(self, overflow: bool =False):
         """
         This function runs the model to calculate the provision of a specified service in a city.
         The function calls the `get_stats`, `get_provision`, and `get_geo` methods of the object.
@@ -306,5 +307,5 @@ class ProvisionModel:
         """
 
         self.get_stats()
-        self.get_provision()
+        self.get_provision(overflow=overflow)
         return self.set_blocks_attributes()
