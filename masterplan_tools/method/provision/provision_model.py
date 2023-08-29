@@ -113,7 +113,7 @@ class ProvisionModel:
 
         return None
 
-    def get_provision(self, overflow : bool =False):  # pylint: disable=too-many-branches,too-many-statements
+    def get_provision(self, overflow: bool = False):  # pylint: disable=too-many-branches,too-many-statements
         """
         This function calculates the provision of a specified service in a city.
         The provision is calculated based on the data in the `g` attribute of the object.
@@ -136,95 +136,168 @@ class ProvisionModel:
                 if graph.degree(node) == 0 and graph.nodes[node][f"is_{self.service_name}_service"] != 1:
                     graph.remove_node(node)
 
+
+            
+        for node in graph.nodes:
+            if graph.nodes[node]["is_living"]:
+                graph.nodes[node][f"demand_{self.service_name}"] = (
+                graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
+
+        total_load = 0
+        total_capacity = 0
+
+
         for node in graph.nodes:
             if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
-                capacity = graph.nodes[node][f"{self.service_name}_capacity"]
-                if (
-                    graph.nodes[node]["is_living"]
+                total_capacity += graph.nodes[node][f"{self.service_name}_capacity"]
+
+            if graph.nodes[node]["is_living"] and graph.nodes[node]["population"] > 0:
+                total_load += (graph.nodes[node]
+                               [f"population_unprov_{self.service_name}"] / 1000) * standard
+
+        print(total_load)
+        print(total_capacity)
+
+        counter = 0
+        while  True:
+
+            for node in graph.nodes:
+                if (graph.nodes[node][f"is_{self.service_name}_service"] == 1
+                    and graph.nodes[node]["is_living"]
                     and graph.nodes[node]["population"] > 0
+                    and graph.nodes[node][f"demand_{self.service_name}"] > 0
                     and graph.nodes[node][f"provision_{self.service_name}"] < 100
-                ):
-                    if graph.nodes[node][f"provision_{self.service_name}"] == 0:
-                        load = (graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
+                    ):
+                    # demand = (
+                    #     graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
+                    
+                    load = 1
+                    graph.nodes[node][f"demand_{self.service_name}"] -=load
+                    # graph.nodes[node][f"demand_{self.service_name}"] -= load
 
-                    elif graph.nodes[node][f"provision_{self.service_name}"] > 0:
-                        load = (graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
+                    # if graph.nodes[node][f"provision_{self.service_name}"] == 0:
+                    #     load = (graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
 
-                    if load <= capacity:
-                        graph.nodes[node][f"{self.service_name}_capacity"] -= load
-                        graph.nodes[node][f"provision_{self.service_name}"] = 100
-                        graph.nodes[node][f"id_{self.service_name}"] = node
-                        graph.nodes[node][f"population_prov_{self.service_name}"] += graph.nodes[node][
-                            f"population_unprov_{self.service_name}"
-                        ]
-                        graph.nodes[node][f"population_unprov_{self.service_name}"] -= graph.nodes[node][
-                            f"population_unprov_{self.service_name}"
-                        ]
+                    # elif graph.nodes[node][f"provision_{self.service_name}"] > 0:
+                    #     load = (graph.nodes[node][f"population_unprov_{self.service_name}"] / 1000) * standard
 
-                    else:
-                        if capacity > 0:
-                            prov_people = (capacity * 1000) / standard
-                            graph.nodes[node][f"{self.service_name}_capacity"] -= capacity
-                            graph.nodes[node][f"id_{self.service_name}"] = node
-                            graph.nodes[node][f"population_prov_{self.service_name}"] += prov_people
-                            graph.nodes[node][f"population_unprov_{self.service_name}"] = (
-                                graph.nodes[node][f"population_unprov_{self.service_name}"] - prov_people
-                            )
-                            graph.nodes[node][f"id_{self.service_name}"] = node
-                            graph.nodes[node][f"provision_{self.service_name}"] = (
-                                graph.nodes[node][f"population_prov_{self.service_name}"]
-                                * 100
-                                / graph.nodes[node]["population"]
-                            )
+                    graph.nodes[node][f"{self.service_name}_capacity"] -= load
+                    total_capacity -= load
+                    graph.nodes[node][f"population_prov_{self.service_name}"] += load
+                    total_load -= load
+                    graph.nodes[node][f"population_unprov_{self.service_name}"] -= load
+                    graph.nodes[node][f"provision_{self.service_name}"] = (
+                        graph.nodes[node][f"population_prov_{self.service_name}"] * 100
+                        /  graph.nodes[node]["population"]
+                    )
 
-        for node in graph.nodes:  # pylint: disable=too-many-nested-blocks
-            if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
-                capacity = graph.nodes[node][f"{self.service_name}_capacity"]
-                neighbors = list(graph.neighbors(node))
-                for neighbor in neighbors:
-                    if graph.nodes[neighbor]["is_living"] and graph.nodes[neighbor]["population"] > 0 and capacity > 0:
+            for node in graph.nodes:
+                if (graph.nodes[node][f"is_{self.service_name}_service"] == 1
+                    and graph.nodes[node][f"{self.service_name}_capacity"] > 0
+                    ):
+                    neighbors = list(graph.neighbors(node))
+                    for neighbor in neighbors:
                         if (
                             graph.nodes[neighbor]["is_living"]
                             and graph.nodes[neighbor]["population"] > 0
+                            and graph.nodes[neighbor][f"demand_{self.service_name}"] > 0
                             and graph.nodes[neighbor][f"provision_{self.service_name}"] < 100
                         ):
-                            if graph.nodes[neighbor][f"provision_{self.service_name}"] == 0:
-                                load = (
-                                    graph.nodes[neighbor][f"population_unprov_{self.service_name}"] / 1000
-                                ) * standard
+                            graph.nodes[node][f"{self.service_name}_capacity"] -= load
+                            total_capacity -= load
+                            graph.nodes[neighbor][f"population_prov_{self.service_name}"] += load
+                            total_load -= load
+                            graph.nodes[neighbor][f"demand_{self.service_name}"]-=load
+                            graph.nodes[neighbor][f"population_unprov_{self.service_name}"] -= load
+                            graph.nodes[neighbor][f"provision_{self.service_name}"] = (
+                                graph.nodes[neighbor][f"population_prov_{self.service_name}"] * 100
+                                /  graph.nodes[neighbor]["population"]
+                            )
 
-                            elif graph.nodes[neighbor][f"provision_{self.service_name}"] > 0:
-                                load = (
-                                    graph.nodes[neighbor][f"population_unprov_{self.service_name}"] / 1000
-                                ) * standard
+            print(total_load)
+            print(total_capacity)
+            counter += 1
+            print(counter)
+            if counter == 20:
+                break 
 
-                            if load <= capacity:
-                                graph.nodes[node][f"{self.service_name}_capacity"] -= load
-                                graph.nodes[neighbor][f"provision_{self.service_name}"] = 100
-                                graph.nodes[neighbor][f"id_{self.service_name}"] = node
-                                graph.nodes[neighbor][f"population_prov_{self.service_name}"] += graph.nodes[neighbor][
-                                    f"population_unprov_{self.service_name}"
-                                ]
-                                graph.nodes[neighbor][f"population_unprov_{self.service_name}"] -= graph.nodes[
-                                    neighbor
-                                ][f"population_unprov_{self.service_name}"]
+                        # graph.nodes[node][f"provision_{self.service_name}"] = 100
+                        # graph.nodes[node][f"id_{self.service_name}"] = node
+                        # graph.nodes[node][f"population_prov_{self.service_name}"] += graph.nodes[node][
+                        #     f"population_unprov_{self.service_name}"
+                        # ]
+                        # graph.nodes[node][f"population_unprov_{self.service_name}"] -= graph.nodes[node][
+                        #     f"population_unprov_{self.service_name}"
+                        # ]
 
-                            else:
-                                if capacity > 0:
-                                    prov_people = (capacity * 1000) / standard
-                                    graph.nodes[node][f"{self.service_name}_capacity"] -= capacity
+                        # if capacity > 0:
+                        #     prov_people = (capacity * 1000) / standard
+                        #     graph.nodes[node][f"{self.service_name}_capacity"] -= capacity
+                        #     graph.nodes[node][f"id_{self.service_name}"] = node
+                        #     graph.nodes[node][f"population_prov_{self.service_name}"] += prov_people
+                        #     graph.nodes[node][f"population_unprov_{self.service_name}"] = (
+                        #         graph.nodes[node][f"population_unprov_{self.service_name}"] - prov_people
+                        #     )
+                        #     graph.nodes[node][f"id_{self.service_name}"] = node
+                        #     graph.nodes[node][f"provision_{self.service_name}"] = (
+                        #         graph.nodes[node][f"population_prov_{self.service_name}"]
+                        #         * 100
+                        #         / graph.nodes[node]["population"]
+                        #     )
 
-                                    graph.nodes[neighbor][f"id_{self.service_name}"] = neighbor
-                                    graph.nodes[neighbor][f"population_prov_{self.service_name}"] += prov_people
-                                    graph.nodes[neighbor][f"population_unprov_{self.service_name}"] = (
-                                        graph.nodes[neighbor][f"population_unprov_{self.service_name}"] - prov_people
-                                    )
-                                    graph.nodes[neighbor][f"id_{self.service_name}"] = node
-                                    graph.nodes[neighbor][f"provision_{self.service_name}"] = (
-                                        graph.nodes[neighbor][f"population_prov_{self.service_name}"]
-                                        * 100
-                                        / graph.nodes[neighbor]["population"]
-                                    )
+            # for node in graph.nodes:  # pylint: disable=too-many-nested-blocks
+            #     if (
+            #         graph.nodes[node][f"is_{self.service_name}_service"] == 1
+            #         and graph.nodes[node][f"{self.service_name}_capacity"] > 0
+            #     ):
+            #         capacity = graph.nodes[node][f"{self.service_name}_capacity"]
+            #         neighbors = list(graph.neighbors(node))
+            #         for neighbor in neighbors:
+            #             if graph.nodes[neighbor]["is_living"] and graph.nodes[neighbor]["population"] > 0:
+            #                 if (
+            #                     graph.nodes[neighbor]["is_living"]
+            #                     and graph.nodes[neighbor]["population"] > 0
+            #                     and graph.nodes[neighbor][f"provision_{self.service_name}"] < 100
+            #                 ):
+            #                     if graph.nodes[neighbor][f"provision_{self.service_name}"] == 0:
+            #                         load = (
+            #                             graph.nodes[neighbor][f"population_unprov_{self.service_name}"] / 1000
+            #                         ) * standard
+
+            #                     elif graph.nodes[neighbor][f"provision_{self.service_name}"] > 0:
+            #                         load = (
+            #                             graph.nodes[neighbor][f"population_unprov_{self.service_name}"] / 1000
+            #                         ) * standard
+
+            #                     if load <= capacity:
+            #                         graph.nodes[node][f"{self.service_name}_capacity"] -= load
+            #                         graph.nodes[neighbor][f"provision_{self.service_name}"] = 100
+            #                         graph.nodes[neighbor][f"id_{self.service_name}"] = node
+            #                         graph.nodes[neighbor][f"population_prov_{self.service_name}"] += graph.nodes[neighbor][
+            #                             f"population_unprov_{self.service_name}"
+            #                         ]
+            #                         graph.nodes[neighbor][f"population_unprov_{self.service_name}"] -= graph.nodes[
+            #                             neighbor
+            #                         ][f"population_unprov_{self.service_name}"]
+
+            #                     else:
+            #                         if capacity > 0:
+            #                             prov_people = (
+            #                                 capacity * 1000) / standard
+            #                             graph.nodes[node][f"{self.service_name}_capacity"] -= capacity
+
+            #                             graph.nodes[neighbor][f"id_{self.service_name}"] = neighbor
+            #                             graph.nodes[neighbor][f"population_prov_{self.service_name}"] += prov_people
+            #                             graph.nodes[neighbor][f"population_unprov_{self.service_name}"] = (
+            #                                 graph.nodes[neighbor][
+            #                                     f"population_unprov_{self.service_name}"] - prov_people
+            #                             )
+            #                             graph.nodes[neighbor][f"id_{self.service_name}"] = node
+            #                             graph.nodes[neighbor][f"provision_{self.service_name}"] = (
+            #                                 graph.nodes[neighbor][f"population_prov_{self.service_name}"]
+            #                                 * 100
+            #                                 / graph.nodes[neighbor]["population"]
+            #                             )
 
         self.graph = graph
 
@@ -246,15 +319,20 @@ class ProvisionModel:
         blocks[f"population_unprov_{self.service_name}"] = 0
         blocks[f"provision_{self.service_name}"] = 0
         blocks["population"] = 0
+        blocks[f"demand_{self.service_name}"] = 0
         standard = self.standard
 
         for node in graph:
             indx = blocks[blocks.index == node].index[0]
             if graph.nodes[node]["is_living"]:
                 if graph.nodes[node].get(f"id_{self.service_name}") is not None:
-                    blocks.loc[indx, f"id_{self.service_name}"] = graph.nodes[node][f"id_{self.service_name}"]
+                    blocks.loc[indx,
+                               f"id_{self.service_name}"] = graph.nodes[node][f"id_{self.service_name}"]
                     blocks.loc[indx, f"population_prov_{self.service_name}"] = graph.nodes[node][
                         f"population_prov_{self.service_name}"
+                    ]
+                    blocks.loc[indx, f"demand_{self.service_name}"] = graph.nodes[node][
+                        f"demand_{self.service_name}"
                     ]
                     blocks.loc[indx, f"population_unprov_{self.service_name}"] = graph.nodes[node][
                         f"population_unprov_{self.service_name}"
@@ -262,42 +340,53 @@ class ProvisionModel:
                     blocks.loc[indx, f"provision_{self.service_name}"] = graph.nodes[node][
                         f"provision_{self.service_name}"
                     ]
-                    blocks.loc[indx, "population"] = graph.nodes[node]["population"]
+                    blocks.loc[indx,
+                               "population"] = graph.nodes[node]["population"]
 
                 else:
                     blocks[f"population_unprov_{self.service_name}"][indx] = graph.nodes[node][
                         f"population_unprov_{self.service_name}"
                     ]
 
-        blocks[f"id_{self.service_name}"] = blocks[f"id_{self.service_name}"].astype(int)
+        blocks[f"id_{self.service_name}"] = blocks[f"id_{self.service_name}"].astype(
+            int)
 
         if self.service_name == "recreational_areas":
             blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
             blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"]
         else:
             blocks[f"population_unprov_{self.service_name}"] = (
-                blocks[f"population_unprov_{self.service_name}"] / 1000 * standard
+                blocks[f"population_unprov_{self.service_name}"] /
+                1000 * standard
             )
             blocks[f"population_prov_{self.service_name}"] = (
-                blocks[f"population_prov_{self.service_name}"] / 1000 * standard
+                blocks[f"population_prov_{self.service_name}"] /
+                1000 * standard
             )
 
-        blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"].astype(int)
-        blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"].astype(int)
-        blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].astype(int)
+        blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"].astype(
+            int)
+        blocks[f"demand_{self.service_name}"] = blocks[f"demand_{self.service_name}"].astype(
+            int)
+        blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"].astype(
+            int)
+        blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].astype(
+            int)
         blocks["population"] = blocks["population"].astype(int)
 
         for i in range(len(blocks)):
             if blocks.loc[i, "population"] == 0:
-                blocks.loc[i, "population"] = blocks_aggregated.loc[i, "current_population"]
-                blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks_aggregated.loc[i, "current_population"]
+                blocks.loc[i, "population"] = blocks_aggregated.loc[i,
+                                                                    "current_population"]
+                blocks.loc[i,
+                           f"population_unprov_{self.service_name}"] = blocks_aggregated.loc[i, "current_population"]
 
         # blocks = blocks.drop(columns=["index"])
         blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
         return blocks
 
-    def run(self, overflow: bool =False):
+    def run(self, overflow: bool = False):
         """
         This function runs the model to calculate the provision of a specified service in a city.
         The function calls the `get_stats`, `get_provision`, and `get_geo` methods of the object.
