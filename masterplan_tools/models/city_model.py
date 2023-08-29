@@ -122,6 +122,8 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
             nx.Graph: A networkx graph representing the city's road network with additional data for calculating
             the provision of the specified service.
         """
+
+        
         blocks = self.blocks.to_gdf()
         service = self.services[service_type].to_gdf()
         accessibility_matrix = self.accessibility_matrix.df.copy()
@@ -177,7 +179,7 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
 
                 services_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
                 services_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
-                services_graph.nodes[key][f"demand_{service_type}"] = 0
+
 
                 if key != idx:
                     try:
@@ -206,7 +208,6 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
                     
 
                 if services_graph.nodes[key]["is_living"]:
-                    services_graph.nodes[key][f"demand_{service_type}"] = 0
                     services_graph.nodes[key][f"population_prov_{service_type}"] = 0
                     services_graph.nodes[key][f"population_unprov_{service_type}"] = blocks_geom_dict[
                         "population_balanced"
