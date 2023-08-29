@@ -159,27 +159,28 @@ class ProvisionModel:
                     neighbors = list(graph.neighbors(node))
                     neighbors_sorted = sorted(neighbors, key=lambda neighbor: graph[node][neighbor]["weight"])
                     for neighbor in neighbors_sorted:
-                        if (graph.nodes[neighbor]["is_living"]
-                            and graph.nodes[neighbor]["population"] > 0
-                            and graph.nodes[neighbor][f"population_unprov_{self.service_name}"] > 0
-                            and graph.nodes[neighbor][f"provision_{self.service_name}"] < 100
-                            ):
-                            graph.nodes[neighbor][f"id_{self.service_name}"] = node
-                            graph.nodes[node][f"{self.service_name}_capacity"] -= load
-                            total_capacity -= load
-                            if total_capacity < 0:
-                                total_capacity = prev_total_capacity
-                                break
-                            graph.nodes[neighbor][f"population_prov_{self.service_name}"] += load  
-                            total_load -= load
-                            if total_load < 0:
-                                total_load = prev_total_load
-                                break
-                            graph.nodes[neighbor][f"population_unprov_{self.service_name}"] -= load
-                            graph.nodes[neighbor][f"provision_{self.service_name}"] = (
-                                graph.nodes[neighbor][f"population_prov_{self.service_name}"] * 100
-                                / graph.nodes[neighbor][f"demand_{self.service_name}"]
-                            )
+                        # if graph[node][neighbor]["weight"] < accessibility:
+                            if (graph.nodes[neighbor]["is_living"]
+                                and graph.nodes[neighbor]["population"] > 0
+                                and graph.nodes[neighbor][f"population_unprov_{self.service_name}"] > 0
+                                and graph.nodes[neighbor][f"provision_{self.service_name}"] < 100
+                                ):
+                                graph.nodes[neighbor][f"id_{self.service_name}"] = node
+                                graph.nodes[node][f"{self.service_name}_capacity"] -= load
+                                total_capacity -= load
+                                if total_capacity < 0:
+                                    total_capacity = prev_total_capacity
+                                    break
+                                graph.nodes[neighbor][f"population_prov_{self.service_name}"] += load  
+                                total_load -= load
+                                if total_load < 0:
+                                    total_load = prev_total_load
+                                    break
+                                graph.nodes[neighbor][f"population_unprov_{self.service_name}"] -= load
+                                graph.nodes[neighbor][f"provision_{self.service_name}"] = (
+                                    graph.nodes[neighbor][f"population_prov_{self.service_name}"] * 100
+                                    / graph.nodes[neighbor][f"demand_{self.service_name}"]
+                                )
 
             if prev_total_load == total_load and prev_total_capacity == total_capacity:
                 break
@@ -202,7 +203,7 @@ class ProvisionModel:
         Returns:
             DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
         """
-
+        standard = self.standard
         graph = self.graph.copy()
         blocks = self.blocks.copy()
 
@@ -229,6 +230,12 @@ class ProvisionModel:
         if self.service_name == "recreational_areas":
             blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
 
+        for i in range(len(blocks)):
+            if blocks.loc[i, "population"] == 0:
+                blocks.loc[i, "population"] = blocks.loc[i, "current_population"]
+                blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks.loc[i, "current_population"] /1000* standard
+
+
         int_columns = [f"population_prov_{self.service_name}", f"population_unprov_{self.service_name}",
                     f"provision_{self.service_name}", "population"]
 
@@ -238,6 +245,7 @@ class ProvisionModel:
 
         blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
+       
         return blocks
 
     def run(self, overflow: bool = False):
