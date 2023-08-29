@@ -94,7 +94,7 @@ class ProvisionModel:
 
         if not overflow:
             for u, v, data in list(graph.edges(data=True)):  # pylint: disable=invalid-name
-                if data["weight"] >= accessibility:
+                if data["weight"] > accessibility:
                     graph.remove_edge(u, v)
 
             for node in list(graph.nodes):
@@ -123,8 +123,10 @@ class ProvisionModel:
         print(total_load)
         print(total_capacity)
 
-        counter = 0
         while total_load > 0 and total_capacity > 0:
+            prev_total_load = total_load
+            prev_total_capacity = total_capacity
+
             load = 1   
             for node in graph.nodes:
                 if (graph.nodes[node][f"is_{self.service_name}_service"] == 1
@@ -138,17 +140,18 @@ class ProvisionModel:
                     graph.nodes[node][f"{self.service_name}_capacity"] -= load
                     total_capacity -= load
                     if total_capacity < 0:
-                                break
-                    graph.nodes[node][f"population_prov_{self.service_name}"] +=  load
+                        total_capacity = prev_total_capacity
+                        break
+                    graph.nodes[node][f"population_prov_{self.service_name}"] += load
                     total_load -= load
                     if total_load < 0:
-                                break
+                        total_load = prev_total_load
+                        break
                     graph.nodes[node][f"population_unprov_{self.service_name}"] -= load
                     graph.nodes[node][f"provision_{self.service_name}"] = (
                         graph.nodes[node][f"population_prov_{self.service_name}"] * 100
-                        /   graph.nodes[node][f"demand_{self.service_name}"]
+                        / graph.nodes[node][f"demand_{self.service_name}"]
                     )
-
 
                 if (graph.nodes[node][f"is_{self.service_name}_service"] == 1
                     and graph.nodes[node][f"{self.service_name}_capacity"] >= 1
@@ -165,16 +168,21 @@ class ProvisionModel:
                             graph.nodes[node][f"{self.service_name}_capacity"] -= load
                             total_capacity -= load
                             if total_capacity < 0:
+                                total_capacity = prev_total_capacity
                                 break
-                            graph.nodes[neighbor][f"population_prov_{self.service_name}"] +=  load  
+                            graph.nodes[neighbor][f"population_prov_{self.service_name}"] += load  
                             total_load -= load
                             if total_load < 0:
+                                total_load = prev_total_load
                                 break
                             graph.nodes[neighbor][f"population_unprov_{self.service_name}"] -= load
                             graph.nodes[neighbor][f"provision_{self.service_name}"] = (
                                 graph.nodes[neighbor][f"population_prov_{self.service_name}"] * 100
                                 / graph.nodes[neighbor][f"demand_{self.service_name}"]
                             )
+
+            if prev_total_load == total_load and prev_total_capacity == total_capacity:
+                break
 
             print(total_load)
             print(total_capacity)
@@ -186,52 +194,51 @@ class ProvisionModel:
 
 
     def set_blocks_attributes(self) -> pd.DataFrame:
-            """
-            This function returns a copy of the `blocks` attribute of the object with updated values for the service
-            specified by the `service_name` attribute. The values are updated based on the data in the `graph` attribute
-            of the object.
+        """
+        This function returns a copy of the `blocks` attribute of the object with updated values for the service
+        specified by the `service_name` attribute. The values are updated based on the data in the `graph` attribute
+        of the object.
 
-            Returns:
-                DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
-            """
-            graph = self.graph.copy()
-            blocks = self.blocks.copy()
+        Returns:
+            DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
+        """
 
-            # Initialize new columns
-            new_columns = [f"provision_{self.service_name}", f"population_prov_{self.service_name}",
-                        f"population_unprov_{self.service_name}", f"id_{self.service_name}"]
-            for col in new_columns:
-                blocks[col] = 0
+        graph = self.graph.copy()
+        blocks = self.blocks.copy()
 
-            blocks["population"] = 0
+        new_columns = [f"provision_{self.service_name}", f"population_prov_{self.service_name}",
+                    f"population_unprov_{self.service_name}", f"id_{self.service_name}"]
 
-            # Process nodes in the graph
-            for node in graph:
-                if graph.nodes[node]["is_living"]:
-                    indx = blocks.index.get_loc(node)
-                    node_data = graph.nodes[node]
-                    blocks.at[indx, f"id_{self.service_name}"] = node_data[f"id_{self.service_name}"]
-                    blocks.at[indx, f"population_prov_{self.service_name}"] = node_data[f"population_prov_{self.service_name}"]
-                    blocks.at[indx, f"population_unprov_{self.service_name}"] = node_data[f"population_unprov_{self.service_name}"]
-                    blocks.at[indx, f"provision_{self.service_name}"] = node_data[f"provision_{self.service_name}"]
-                    blocks.at[indx, "population"] = node_data["population"]
+        for col in new_columns:
+            blocks[col] = 0
 
-            # Handle special case for "recreational_areas"
-            if self.service_name == "recreational_areas":
-                blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
+        blocks["population"] = 0
 
-            # Convert columns to int type
-            int_columns = [f"population_prov_{self.service_name}", f"population_unprov_{self.service_name}",
-                        f"provision_{self.service_name}", "population"]
-            blocks[int_columns] = blocks[int_columns].astype(int)
+        # Process nodes in the graph
+        for node in graph:
+            if graph.nodes[node]["is_living"]:
+                indx = blocks.index.get_loc(node)
+                node_data = graph.nodes[node]
 
-            # Apply the min function to the provision column
-            blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].apply(lambda x: min(x, 100))
+                for col in new_columns:
+                    if col in node_data:
+                        blocks.at[indx, col] = node_data[col]
 
-            # Drop unnecessary columns
-            blocks = blocks.drop(columns=[f"id_{self.service_name}"])
+                blocks.at[indx, "population"] = node_data["population"]
 
-            return blocks
+        if self.service_name == "recreational_areas":
+            blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
+
+        int_columns = [f"population_prov_{self.service_name}", f"population_unprov_{self.service_name}",
+                    f"provision_{self.service_name}", "population"]
+
+        blocks[int_columns] = blocks[int_columns].astype(int)
+
+        blocks[f"provision_{self.service_name}"] = np.minimum(blocks[f"provision_{self.service_name}"], 100)
+
+        blocks = blocks.drop(columns=[f"id_{self.service_name}"])
+
+        return blocks
 
     def run(self, overflow: bool = False):
         """
