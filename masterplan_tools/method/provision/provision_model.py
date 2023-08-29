@@ -184,56 +184,54 @@ class ProvisionModel:
 
 
 
+
     def set_blocks_attributes(self) -> pd.DataFrame:
-        graph = self.graph.copy()
-        blocks = self.blocks.copy()
+            """
+            This function returns a copy of the `blocks` attribute of the object with updated values for the service
+            specified by the `service_name` attribute. The values are updated based on the data in the `graph` attribute
+            of the object.
 
-        # Initialize columns with zeros
-        for col_name in [
-            f"provision_{self.service_name}",
-            f"id_{self.service_name}",
-            f"population_prov_{self.service_name}",
-            f"population_unprov_{self.service_name}",
-            "population"
-        ]:
-            blocks[col_name] = 0
+            Returns:
+                DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
+            """
+            graph = self.graph.copy()
+            blocks = self.blocks.copy()
 
-        mask = blocks.index.isin(graph.nodes())
-        relevant_nodes = blocks.index[mask]
-        relevant_nodes_data = {node: graph.nodes[node] for node in relevant_nodes}
+            # Initialize new columns
+            new_columns = [f"provision_{self.service_name}", f"population_prov_{self.service_name}",
+                        f"population_unprov_{self.service_name}", f"id_{self.service_name}"]
+            for col in new_columns:
+                blocks[col] = 0
 
-        for node, node_data in relevant_nodes_data.items():
-            indx = blocks.index.get_loc(node)
-            if node_data["is_living"]:
-                id_col_name = f"id_{self.service_name}"
-                if id_col_name in node_data:
-                    blocks.loc[indx, id_col_name] = node_data[id_col_name]
-                    blocks.loc[indx, f"population_prov_{self.service_name}"] = node_data[f"population_prov_{self.service_name}"]
-                    blocks.loc[indx, f"population_unprov_{self.service_name}"] = node_data[f"population_unprov_{self.service_name}"]
-                    blocks.loc[indx, f"provision_{self.service_name}"] = node_data[f"provision_{self.service_name}"]
-                    blocks.loc[indx, "population"] = node_data["population"]
-                else:
+            blocks["population"] = 0
+
+            # Process nodes in the graph
+            for node in graph:
+                if graph.nodes[node]["is_living"]:
+                    indx = blocks.index.get_loc(node)
+                    node_data = graph.nodes[node]
+                    blocks.at[indx, f"id_{self.service_name}"] = node_data[f"id_{self.service_name}"]
+                    blocks.at[indx, f"population_prov_{self.service_name}"] = node_data[f"population_prov_{self.service_name}"]
                     blocks.at[indx, f"population_unprov_{self.service_name}"] = node_data[f"population_unprov_{self.service_name}"]
+                    blocks.at[indx, f"provision_{self.service_name}"] = node_data[f"provision_{self.service_name}"]
+                    blocks.at[indx, "population"] = node_data["population"]
 
-        if self.service_name == "recreational_areas":
-            blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
-            blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"]
-        else:
-            standard = self.standard
-            blocks[f"population_unprov_{self.service_name}"] /= 1000 * standard
-            blocks[f"population_prov_{self.service_name}"] /= 1000 * standard
+            # Handle special case for "recreational_areas"
+            if self.service_name == "recreational_areas":
+                blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
 
-        blocks[f"id_{self.service_name}"] = blocks[f"id_{self.service_name}"].astype(int)
-        blocks[f"population_prov_{self.service_name}"] = blocks[f"population_prov_{self.service_name}"].astype(int)
-        blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"].astype(int)
-        blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].astype(int)
-        blocks["population"] = blocks["population"].astype(int)
+            # Convert columns to int type
+            int_columns = [f"population_prov_{self.service_name}", f"population_unprov_{self.service_name}",
+                        f"provision_{self.service_name}", "population"]
+            blocks[int_columns] = blocks[int_columns].astype(int)
 
-        blocks[f"provision_{self.service_name}"] = np.minimum(blocks[f"provision_{self.service_name}"], 100)
+            # Apply the min function to the provision column
+            blocks[f"provision_{self.service_name}"] = blocks[f"provision_{self.service_name}"].apply(lambda x: min(x, 100))
 
-        blocks.drop(columns=[f"id_{self.service_name}"], inplace=True)
+            # Drop unnecessary columns
+            blocks = blocks.drop(columns=[f"id_{self.service_name}"])
 
-        return blocks
+            return blocks
 
     def run(self, overflow: bool = False):
         """
