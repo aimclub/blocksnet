@@ -182,6 +182,7 @@ class ProvisionModel:
                                     graph.nodes[node][f"count_{self.service_name}"] -= load
                                     total_load -= load
                                     graph.nodes[node][f"small_prov_{self.service_name}"] +=1
+                                    break
 
 
             # count+=1
