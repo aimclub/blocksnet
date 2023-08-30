@@ -107,7 +107,7 @@ class ProvisionModel:
                     graph.nodes[node]["population"]/ 1000 * standard)
                 graph.nodes[node][f"demand_{self.service_name}"] =  graph.nodes[node][f"population_unprov_{self.service_name}"]
                 graph.nodes[node][f"count_{self.service_name}"] = graph.nodes[node][f"demand_{self.service_name}"]
-                graph.nodes[node][f"small_prov_{self.service_name}"] = 0
+                graph.nodes[node][f"weakly_prov_{self.service_name}"] = 0
 
 
         total_load = 0
@@ -119,12 +119,12 @@ class ProvisionModel:
                 total_capacity += graph.nodes[node][f"{self.service_name}_capacity"]
 
             if graph.nodes[node]["is_living"] and graph.nodes[node]["population"] > 0:
-                total_load += graph.nodes[node][f"count_{self.service_name}"]
+                total_load += int(graph.nodes[node][f"count_{self.service_name}"])
                                
         print(f'total load = {total_load}')
         print(f'total capacity = {total_capacity}')
         
-        count = 0
+
         load = 1
 
         
@@ -133,7 +133,6 @@ class ProvisionModel:
             prev_total_capacity = total_capacity
 
             for node in graph.nodes:
-                # print('break')
                 if (graph.nodes[node]["is_living"]
                     and graph.nodes[node][f"count_{self.service_name}"] > 0
                 ):
@@ -180,33 +179,15 @@ class ProvisionModel:
                                     graph.nodes[neighbor][f"{self.service_name}_capacity"] -= load
                                     total_capacity -= load
                                     graph.nodes[node][f"count_{self.service_name}"] -= load
+                                    graph.nodes[node][f"population_unprov_{self.service_name}"] -= load
                                     total_load -= load
-                                    graph.nodes[node][f"small_prov_{self.service_name}"] +=1
+                                    graph.nodes[node][f"weakly_prov_{self.service_name}"] +=1
                                     break
-
-
-            # count+=1
-            # if total_capacity < 0:
-            #     print('c4')
-            #     print(total_load)
-            #     print(total_capacity)
-            #     total_capacity = prev_total_capacity
-            #     print(count)
-            #     break
-            # if total_load < 0:
-            #     print('l4')
-            #     print(total_load)
-            #     print(total_capacity)
-            #     total_load = prev_total_load
-            #     print(count)
-            #     break
-
 
             if prev_total_load == total_load or prev_total_capacity == total_capacity:
                 print('fin')
                 print(f' load = {total_load}')
                 print(f' cap = {total_capacity}')
-                print(count)
                 break
         
         self.graph = graph
@@ -227,7 +208,7 @@ class ProvisionModel:
         blocks = self.blocks.copy()
 
         new_columns = [f"provision_{self.service_name}", f"population_prov_{self.service_name}",
-                    f"population_unprov_{self.service_name}", f"small_prov_{self.service_name}"]
+                    f"population_unprov_{self.service_name}", f"weakly_prov_{self.service_name}"]
 
         for col in new_columns:
             blocks[col] = 0
@@ -249,21 +230,17 @@ class ProvisionModel:
         if self.service_name == "recreational_areas":
             blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
 
-        # for i in range(len(blocks)):
-        #     if blocks.loc[i, "population"] == 0:
-        #         blocks.loc[i, "population"] = blocks.loc[i, "current_population"]
-        #         blocks.loc[i, f"population_unprov_{self.service_name}"] = blocks.loc[i, "current_population"] /1000* standard
-
-
         int_columns = [f"population_prov_{self.service_name}", f"population_unprov_{self.service_name}",
-                    f"small_prov_{self.service_name}",
+                    f"weakly_prov_{self.service_name}",
                     f"provision_{self.service_name}", "population"]
 
         blocks[int_columns] = blocks[int_columns].astype(int)
 
         blocks[f"provision_{self.service_name}"] = np.minimum(blocks[f"provision_{self.service_name}"], 100)
 
-        # blocks = blocks.drop(columns=[f"id_{self.service_name}"])
+        columns_to_keep = ['geometry', 'block_id', f"provision_{self.service_name}", f"population_prov_{self.service_name}", f"weakly_prov_{self.service_name}", f"population_unprov_{self.service_name}", 'population']
+
+        blocks =  blocks[columns_to_keep]
 
        
         return blocks
