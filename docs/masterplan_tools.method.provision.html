@@ -268,7 +268,6 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-masterplan_tools.method.provision.provision_model">masterplan_tools.method.provision.provision_model module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel"><code class="docutils literal notranslate"><span class="pre">ProvisionModel</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.get_provision()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_stats"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.get_stats()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.run"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.run()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.services_accessibility_dict"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.services_accessibility_dict</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.set_blocks_attributes"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.set_blocks_attributes()</span></code></a></li>
@@ -313,23 +312,20 @@ g (int): The value of the <cite>g</cite> attribute.</p>
 <p class="rubric">Methods</p>
 <table class="autosummary longtable table autosummary">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision" title="masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_provision</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision" title="masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_provision</span></code></a>([overflow])</p></td>
 <td><p>This function calculates the provision of a specified service in a city.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_stats" title="masterplan_tools.method.provision.provision_model.ProvisionModel.get_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_stats</span></code></a>()</p></td>
-<td><p>This function prints statistics about the blocks in the <cite>graph</cite> attribute of the object.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.run" title="masterplan_tools.method.provision.provision_model.ProvisionModel.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>()</p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.run" title="masterplan_tools.method.provision.provision_model.ProvisionModel.run"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run</span></code></a>([overflow])</p></td>
 <td><p>This function runs the model to calculate the provision of a specified service in a city.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.set_blocks_attributes" title="masterplan_tools.method.provision.provision_model.ProvisionModel.set_blocks_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_blocks_attributes</span></code></a>()</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.set_blocks_attributes" title="masterplan_tools.method.provision.provision_model.ProvisionModel.set_blocks_attributes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_blocks_attributes</span></code></a>()</p></td>
 <td><p>This function returns a copy of the <cite>blocks</cite> attribute of the object with updated values for the service specified by the <cite>service_name</cite> attribute.</p></td>
 </tr>
 </tbody>
 </table>
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision">
-<span class="sig-name descname"><span class="pre">get_provision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/provision_model.html#ProvisionModel.get_provision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">get_provision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/provision_model.html#ProvisionModel.get_provision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision" title="Permalink to this definition">#</a></dt>
 <dd><p>This function calculates the provision of a specified service in a city.
 The provision is calculated based on the data in the <cite>g</cite> attribute of the object.</p>
 <dl class="simple">
@@ -340,21 +336,8 @@ about the provision of the specified service.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="masterplan_tools.method.provision.provision_model.ProvisionModel.get_stats">
-<span class="sig-name descname"><span class="pre">get_stats</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/masterplan_tools/method/provision/provision_model.html#ProvisionModel.get_stats"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_stats" title="Permalink to this definition">#</a></dt>
-<dd><p>This function prints statistics about the blocks in the <cite>graph</cite> attribute of the object.
-The statistics include the number of blocks with the service specified by the <cite>service_name</cite>
-attribute, the number of residential blocks, the total number of blocks, and the number
-of blocks with errors.</p>
-<dl class="simple">
-<dt>Returns:</dt><dd><p>stats</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.provision_model.ProvisionModel.run">
-<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/provision_model.html#ProvisionModel.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.run" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overflow</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/provision_model.html#ProvisionModel.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.run" title="Permalink to this definition">#</a></dt>
 <dd><p>This function runs the model to calculate the provision of a specified service in a city.
 The function calls the <cite>get_stats</cite>, <cite>get_provision</cite>, and <cite>get_geo</cite> methods of the object.</p>
 <dl class="simple">
@@ -428,7 +411,6 @@ of the object.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-masterplan_tools.method.provision.provision_model">masterplan_tools.method.provision.provision_model module</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel"><code class="docutils literal notranslate"><span class="pre">ProvisionModel</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_provision"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.get_provision()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.get_stats"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.get_stats()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.run"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.run()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.services_accessibility_dict"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.services_accessibility_dict</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#masterplan_tools.method.provision.provision_model.ProvisionModel.set_blocks_attributes"><code class="docutils literal notranslate"><span class="pre">ProvisionModel.set_blocks_attributes()</span></code></a></li>
