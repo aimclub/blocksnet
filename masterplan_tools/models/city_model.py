@@ -122,6 +122,8 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
             nx.Graph: A networkx graph representing the city's road network with additional data for calculating
             the provision of the specified service.
         """
+
+        
         blocks = self.blocks.to_gdf()
         service = self.services[service_type].to_gdf()
         accessibility_matrix = self.accessibility_matrix.df.copy()
@@ -167,7 +169,7 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
             blocks_list.columns = blocks_list.columns.astype(int)
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
-
+            
             for key in blocks_list_tmp_dict.keys():
                 if key != idx:
                     services_graph.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
@@ -178,21 +180,32 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
                 services_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
                 services_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
 
+
                 if key != idx:
                     try:
                         if services_graph.nodes[key][f"is_{service_type}_service"] != 1:
+                            services_graph.nodes[key]["id"] = key
                             services_graph.nodes[key][f"is_{service_type}_service"] = 0
                             services_graph.nodes[key][f"provision_{service_type}"] = 0
                             services_graph.nodes[key][f"id_{service_type}"] = 0
+                            services_graph.nodes[key][f"{service_type}_capacity"] = 0
+                            
+                                      
                     except KeyError:
+                        services_graph.nodes[key]["id"] = key
                         services_graph.nodes[key][f"is_{service_type}_service"] = 0
                         services_graph.nodes[key][f"provision_{service_type}"] = 0
                         services_graph.nodes[key][f"id_{service_type}"] = 0
+                        services_graph.nodes[key][f"{service_type}_capacity"] = 0
+                        
+                        
                 else:
+                    services_graph.nodes[key]["id"] = key
                     services_graph.nodes[key][f"is_{service_type}_service"] = 1
                     services_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
                     services_graph.nodes[key][f"provision_{service_type}"] = 0
                     services_graph.nodes[key][f"id_{service_type}"] = 0
+                    
 
                 if services_graph.nodes[key]["is_living"]:
                     services_graph.nodes[key][f"population_prov_{service_type}"] = 0
