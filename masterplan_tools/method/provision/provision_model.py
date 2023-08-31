@@ -92,34 +92,32 @@ class ProvisionModel:
         standard = self.standard
         accessibility = self.accessibility
 
-        # if not overflow:
-        #     for u, v, data in list(graph.edges(data=True)):  # pylint: disable=invalid-name
-        #         if data["weight"] > accessibility:
-        #             graph.remove_edge(u, v)
-
-        #     for node in list(graph.nodes):
-        #         if graph.degree(node) == 0 and graph.nodes[node][f"is_{self.service_name}_service"] != 1:
-        #             graph.remove_node(node)
-
         for node in graph.nodes:
             if graph.nodes[node]["is_living"]:
                 graph.nodes[node][f"population_unprov_{self.service_name}"] =(
-                    graph.nodes[node]["population"]/ 1000 * standard)
+                graph.nodes[node]["population"]/ 1000 * standard)
                 graph.nodes[node][f"demand_{self.service_name}"] =  graph.nodes[node][f"population_unprov_{self.service_name}"]
-                graph.nodes[node][f"count_{self.service_name}"] = graph.nodes[node][f"demand_{self.service_name}"]
                 graph.nodes[node][f"weakly_prov_{self.service_name}"] = 0
 
+        
+        for node in graph.nodes:
+            if self.service_name == "recreational_areas":
+                if graph.nodes[node]["is_living"]:
+                    graph.nodes[node][f"population_unprov_{self.service_name}"] = (
+                    graph.nodes[node][f"population_unprov_{self.service_name}"] / 100
+                    )
+                if graph.nodes[node][f"is_{self.service_name}_service"] >= 1:
+                    graph.nodes[node][f"{self.service_name}_capacity"] = graph.nodes[node][f"{self.service_name}_capacity"] / 100
 
         total_load = 0
         total_capacity = 0
 
-
         for node in graph.nodes:
-            if graph.nodes[node][f"is_{self.service_name}_service"] == 1:
-                total_capacity += graph.nodes[node][f"{self.service_name}_capacity"]
+            if graph.nodes[node][f"is_{self.service_name}_service"] >= 1:
+                total_capacity += int(graph.nodes[node][f"{self.service_name}_capacity"])
 
-            if graph.nodes[node]["is_living"] and graph.nodes[node]["population"] > 0:
-                total_load += int(graph.nodes[node][f"count_{self.service_name}"])
+            if graph.nodes[node]["is_living"]:
+                total_load += int(graph.nodes[node][f"population_unprov_{self.service_name}"])
                                
         print(f'total load = {total_load}')
         print(f'total capacity = {total_capacity}')
@@ -127,44 +125,40 @@ class ProvisionModel:
 
         load = 1
 
-        
         while total_load > 0 or total_capacity > 0:
             prev_total_load = total_load
             prev_total_capacity = total_capacity
 
             for node in graph.nodes:
                 if (graph.nodes[node]["is_living"]
-                    and graph.nodes[node][f"count_{self.service_name}"] > 0
+                    and graph.nodes[node][f"population_unprov_{self.service_name}"] > 0
                 ):
-                    if (graph.nodes[node][f"is_{self.service_name}_service"] == 1
+                    if (graph.nodes[node][f"is_{self.service_name}_service"] >= 1
                         and graph.nodes[node][f"{self.service_name}_capacity"] >= 1
                     ):
                         if (graph.nodes[node][f"provision_{self.service_name}"] < 100
                             and total_capacity >0
-                            and total_load > 0 
+                            and total_load > 0
                         ):
                             graph.nodes[node][f"{self.service_name}_capacity"] -=load
                             total_capacity -= load
                             graph.nodes[node][f"population_prov_{self.service_name}"] += load
                             total_load -= load
-                            graph.nodes[node][f"count_{self.service_name}"] -= load
                             graph.nodes[node][f"population_unprov_{self.service_name}"] -= load
                             graph.nodes[node][f"provision_{self.service_name}"] = (
                                 graph.nodes[node][f"population_prov_{self.service_name}"] * 100
                                 / graph.nodes[node][f"demand_{self.service_name}"]
                             )
-                            
                     else:
                         neighbors = list(graph.neighbors(node))
                         neighbors_sorted = sorted(neighbors, key=lambda neighbor: graph[node][neighbor]["weight"])
                         for neighbor in neighbors_sorted:
-                            if (graph.nodes[neighbor][f"is_{self.service_name}_service"] == 1
+                            if (graph.nodes[neighbor][f"is_{self.service_name}_service"] >= 1
                             and graph.nodes[neighbor][f"{self.service_name}_capacity"] >= 1
                             and total_capacity >0
-                            and total_load > 0 
+                            and total_load > 0
                             ):
                                 if graph[node][neighbor]["weight"] <= accessibility:
-                                    graph.nodes[node][f"count_{self.service_name}"] -= load
                                     graph.nodes[neighbor][f"{self.service_name}_capacity"] -= load
                                     total_capacity -= load
                                     graph.nodes[node][f"population_prov_{self.service_name}"] += load
@@ -175,10 +169,9 @@ class ProvisionModel:
                                         / graph.nodes[node][f"demand_{self.service_name}"]
                                     )
                                     break
-                                else: 
+                                elif overflow:
                                     graph.nodes[neighbor][f"{self.service_name}_capacity"] -= load
                                     total_capacity -= load
-                                    graph.nodes[node][f"count_{self.service_name}"] -= load
                                     graph.nodes[node][f"population_unprov_{self.service_name}"] -= load
                                     total_load -= load
                                     graph.nodes[node][f"weakly_prov_{self.service_name}"] +=1
@@ -189,7 +182,6 @@ class ProvisionModel:
                 print(f' load = {total_load}')
                 print(f' cap = {total_capacity}')
                 break
-        
         self.graph = graph
 
 
@@ -203,7 +195,7 @@ class ProvisionModel:
         Returns:
             DataFrame: A copy of the `blocks` attribute with updated values for the specified service.
         """
-        standard = self.standard
+        # standard = self.standard
         graph = self.graph.copy()
         blocks = self.blocks.copy()
 
@@ -227,9 +219,6 @@ class ProvisionModel:
 
                 blocks.at[indx, "population"] = node_data["population"]
 
-        if self.service_name == "recreational_areas":
-            blocks[f"population_unprov_{self.service_name}"] = blocks[f"population_unprov_{self.service_name}"]
-
         int_columns = [f"population_prov_{self.service_name}", f"population_unprov_{self.service_name}",
                     f"weakly_prov_{self.service_name}",
                     f"provision_{self.service_name}", "population"]
@@ -238,9 +227,9 @@ class ProvisionModel:
 
         blocks[f"provision_{self.service_name}"] = np.minimum(blocks[f"provision_{self.service_name}"], 100)
 
-        columns_to_keep = ['geometry', 'block_id', f"provision_{self.service_name}", f"population_prov_{self.service_name}", f"weakly_prov_{self.service_name}", f"population_unprov_{self.service_name}", 'population']
+        # columns_to_keep = ['geometry', 'block_id', f"provision_{self.service_name}", f"population_prov_{self.service_name}", f"weakly_prov_{self.service_name}", f"population_unprov_{self.service_name}", 'population']
 
-        blocks =  blocks[columns_to_keep]
+        # blocks =  blocks[columns_to_keep]
 
        
         return blocks
