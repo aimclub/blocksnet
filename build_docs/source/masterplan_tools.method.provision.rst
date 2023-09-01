@@ -4,6 +4,14 @@ masterplan\_tools.method.provision package
 Submodules
 ----------
 
+masterplan\_tools.method.provision.lp\_provision module
+-------------------------------------------------------
+
+.. automodule:: masterplan_tools.method.provision.lp_provision
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 masterplan\_tools.method.provision.provision\_model module
 ----------------------------------------------------------
 
