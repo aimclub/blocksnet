@@ -82,16 +82,16 @@ class LpProvision(BaseModel):
         capacity = capacity.loc[lambda x: x > 0]
         # add fictive blocks to balance the problem
         delta = demand.sum() - capacity.sum()
-        last_index = None
-        last_column = None
+        fictive_index = None
+        fictive_column = None
         if delta > 0:
-            last_column = costs.iloc[:, -1].name + 1
-            costs.loc[:, last_column + 1] = 0
-            capacity[last_column + 1] = delta
+            fictive_column = costs.iloc[:, -1].name + 1
+            costs.loc[:, fictive_column] = 0
+            capacity[fictive_column] = delta
         if delta < 0:
-            last_index = costs.iloc[-1, :].name + 1
-            costs.loc[last_index + 1, :] = 0
-            demand[last_index + 1] = -delta
+            fictive_index = costs.iloc[-1, :].name + 1
+            costs.loc[fictive_index, :] = 0
+            demand[fictive_index] = -delta
         # begin to solve the problem
         prob = LpProblem("Transportation", LpMinimize)
         x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None)
@@ -108,9 +108,9 @@ class LpProvision(BaseModel):
             a = int(name[1])
             b = int(name[2])
             if value > 0 and costs.loc[a, b] <= self.services[service_type_name]["accessibility"]:
-                if last_index != None and a != (last_index + 1):
+                if fictive_index != None and a != fictive_index:
                     result.loc[a, b] = value
-                if last_column != None and b != (last_column + 1):
+                if fictive_column != None and b != fictive_column:
                     result.loc[a, b] = value
         blocks["demand"] = demand
         blocks["supplied"] = result.sum(axis=1)
