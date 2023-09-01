@@ -71,7 +71,7 @@ class LpProvision(BaseModel):
             ]
         ).apply(lambda x: math.ceil(x))
         for block_id, updated_info in updated_blocks.items():
-            if service_type_name in updated_info.items():
+            if service_type_name in updated_info:
                 capacity.loc[block_id] += updated_info[service_type_name]
         # drop 0 demand
         blocks.drop(labels=list(demand.loc[lambda x: x == 0].index), inplace=True, axis="index")
