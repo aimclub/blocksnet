@@ -20,9 +20,11 @@ class LpProvision(BaseModel):
         "policlinics": {"demand": 27, "accessibility": 15},
     }
 
-    def visualize_provision(self, provision, updated_blocks={}):
-        ...
 
+    @classmethod
+    def sum_provision(cls, gdf):
+        return gdf["supplied"].sum() / gdf["demand"].sum()
+    
     def visualize_provisions(self, provisions: dict, updated_blocks={}):
         def show_me_chart(fig, gs, prov, name, i, sum):
             ax = fig.add_subplot(gs[i // 3, i % 3])
@@ -38,18 +40,15 @@ class LpProvision(BaseModel):
             i = i + 1
         plt.show()
 
-    def get_scenario_provisions(self, service_types, updated_blocks={}):
+    def get_scenario_provisions(self, scenario, updated_blocks={}):
         provisions = {}
-        sum = 0
-        for service_type in service_types:
+        metric = 0
+        for service_type, weight in scenario.items():
             provision = self.get_provision(service_type, updated_blocks)
             provisions[service_type] = provision
-            sum += self.sum_provision(provision)
-        return provisions, sum / len(provisions)
+            metric += self.sum_provision(provision)*weight
+        return provisions, np.mean(metric)
 
-    @classmethod
-    def sum_provision(cls, gdf):
-        return gdf["supplied"].sum() / gdf["demand"].sum()
 
     def get_provision(self, service_type_name, updated_blocks={}):
         acc_df = self.city_model.accessibility_matrix.df
