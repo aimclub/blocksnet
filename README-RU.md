@@ -77,7 +77,7 @@ from masterplan_tools import CityModel
 
 ## Лицензия
 
-Проект имеет [лицензию BSD-3-Clause](./LICENSE.md)
+Проект имеет [лицензию BSD-3-Clause](./LICENSE.md).
 
 ## Благодарности
 
