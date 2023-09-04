@@ -404,6 +404,7 @@ All data is gathered once and then reused during calculations.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.AccessibilityMatrix">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.city_model.</span></span><span class="sig-name descname"><span class="pre">AccessibilityMatrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/city_model.html#AccessibilityMatrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.city_model.AccessibilityMatrix" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Accessibility matrix between city blocks</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -497,7 +498,8 @@ All data is gathered once and then reused during calculations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.AccessibilityMatrix.df">
 <span class="sig-name descname"><span class="pre">df</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">DataFrame</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.AccessibilityMatrix.df" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Accessibility matrix DataFrame</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.AccessibilityMatrix.model_config">
@@ -520,6 +522,7 @@ All data is gathered once and then reused during calculations.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.city_model.</span></span><span class="sig-name descname"><span class="pre">CityBlockFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">landuse</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'buildings'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'selected_area'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'no_dev_area'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_living</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_living_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_green_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_green_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_parking_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_industrial_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/city_model.html#CityBlockFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Aggregated city block feature properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -610,57 +613,71 @@ All data is gathered once and then reused during calculations.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.area">
 <span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total area of the block (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.block_id">
 <span class="sig-name descname"><span class="pre">block_id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.block_id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Unique city block identifier</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.current_green_area">
 <span class="sig-name descname"><span class="pre">current_green_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.current_green_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total greenings area (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.current_green_capacity">
 <span class="sig-name descname"><span class="pre">current_green_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.current_green_capacity" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total greenings capacity (in units)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.current_industrial_area">
 <span class="sig-name descname"><span class="pre">current_industrial_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.current_industrial_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total industrial area of the block (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.current_living_area">
 <span class="sig-name descname"><span class="pre">current_living_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.current_living_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total living area of the block (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.current_parking_capacity">
 <span class="sig-name descname"><span class="pre">current_parking_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.current_parking_capacity" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total parkings capacity (in units)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.current_population">
 <span class="sig-name descname"><span class="pre">current_population</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.current_population" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total population of the block</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.floors">
 <span class="sig-name descname"><span class="pre">floors</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.floors" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Median storeys count of the buildings inside the block</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.is_living">
 <span class="sig-name descname"><span class="pre">is_living</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.is_living" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Is block living</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.landuse">
 <span class="sig-name descname"><span class="pre">landuse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'buildings'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'selected_area'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'no_dev_area'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityBlockFeature.landuse" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Landuse label, containing one of the next values:
+1. ‘no_dev_area’ – according to th no_debelopment gdf and cutoff without any buildings or specified / selected landuse types;
+2. ‘selected_area’ – according to the landuse gdf. We separate theese polygons since they have specified landuse types;
+3. ‘buildings’ – there are polygons that have buildings landuse type.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityBlockFeature.model_config">
@@ -678,7 +695,7 @@ All data is gathered once and then reused during calculations.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.city_model.</span></span><span class="sig-name descname"><span class="pre">CityModel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.city_model.CityBlockFeature" title="masterplan_tools.models.city_model.CityBlockFeature"><span class="pre">CityBlockFeature</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accessibility_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#masterplan_tools.models.city_model.AccessibilityMatrix" title="masterplan_tools.models.city_model.AccessibilityMatrix"><span class="pre">AccessibilityMatrix</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">services</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">masterplan_tools.models.geojson.PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.city_model.ServicesFeature" title="masterplan_tools.models.city_model.ServicesFeature"><span class="pre">ServicesFeature</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">services_graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/city_model.html#CityModel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.city_model.CityModel" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>City model gathers all data in one class so it could be accessed directly in one place</p>
+<p>City representation as an information model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -730,6 +747,9 @@ All data is gathered once and then reused during calculations.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#masterplan_tools.models.city_model.CityModel.prepare_graph" title="masterplan_tools.models.city_model.CityModel.prepare_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prepare_graph</span></code></a>(service_type, services_graph)</p></td>
 <td><p>This function prepares a graph for calculating the provision of a specified service in a city.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.models.city_model.CityModel.visualize" title="masterplan_tools.models.city_model.CityModel.visualize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">visualize</span></code></a>([max_distance])</p></td>
+<td><p>Method for city model visualization</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -779,20 +799,19 @@ All data is gathered once and then reused during calculations.</p>
 <tr class="row-odd"><td><p><strong>validate_services</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>visualize</strong></p></td>
-<td></td>
-</tr>
 </tbody>
 </table>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.accessibility_matrix">
 <span class="sig-name descname"><span class="pre">accessibility_matrix</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.city_model.AccessibilityMatrix" title="masterplan_tools.models.city_model.AccessibilityMatrix"><span class="pre">AccessibilityMatrix</span></a></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityModel.accessibility_matrix" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Accessibility matrix between city blocks</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.blocks">
 <span class="sig-name descname"><span class="pre">blocks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.city_model.CityBlockFeature" title="masterplan_tools.models.city_model.CityBlockFeature"><span class="pre">CityBlockFeature</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityModel.blocks" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Aggregated city blocks</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.get_service_types">
@@ -840,12 +859,14 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.services">
 <span class="sig-name descname"><span class="pre">services</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">masterplan_tools.models.geojson.PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.city_model.ServicesFeature" title="masterplan_tools.models.city_model.ServicesFeature"><span class="pre">ServicesFeature</span></a><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityModel.services" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Services geometries of the city</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.services_graph">
 <span class="sig-name descname"><span class="pre">services_graph</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Graph</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.CityModel.services_graph" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>nx.Graph of the city, containing provision assessment capacities</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.validate_blocks">
@@ -865,7 +886,8 @@ the provision of the specified service.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.CityModel.visualize">
 <span class="sig-name descname"><span class="pre">visualize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">max_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">7</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/masterplan_tools/models/city_model.html#CityModel.visualize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.city_model.CityModel.visualize" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Method for city model visualization</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -873,6 +895,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.ServicesFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.city_model.</span></span><span class="sig-name descname"><span class="pre">ServicesFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/city_model.html#ServicesFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.city_model.ServicesFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Service feature properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -963,7 +986,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.ServicesFeature.capacity">
 <span class="sig-name descname"><span class="pre">capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.models.city_model.ServicesFeature.capacity" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total service object capacity</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.city_model.ServicesFeature.model_config">
@@ -1037,6 +1061,9 @@ the provision of the specified service.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.models.geojson.Feature.to_dict" title="masterplan_tools.models.geojson.Feature.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<td><p>Generate dict for the Feature</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -1068,13 +1095,10 @@ the provision of the specified service.</p>
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>to_dict</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -1088,7 +1112,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Feature.geometry">
 <span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.geojson.Geometry" title="masterplan_tools.models.geojson.Geometry"><span class="pre">Geometry</span></a></em><a class="headerlink" href="#masterplan_tools.models.geojson.Feature.geometry" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Feature geometry</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Feature.model_config">
@@ -1103,12 +1128,14 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Feature.properties">
 <span class="sig-name descname"><span class="pre">properties</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">_FeaturePropertiesType</span></em><a class="headerlink" href="#masterplan_tools.models.geojson.Feature.properties" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Feature properties</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Feature.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'str'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#Feature.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.Feature.to_dict" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate dict for the Feature</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1213,12 +1240,14 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.GeoJSON.epsg">
 <span class="sig-name descname"><span class="pre">epsg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.models.geojson.GeoJSON.epsg" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>EPSG value</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.GeoJSON.features">
 <span class="sig-name descname"><span class="pre">features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.geojson.Feature" title="masterplan_tools.models.geojson.Feature"><span class="pre">masterplan_tools.models.geojson.Feature</span></a><span class="p"><span class="pre">[</span></span><span class="pre">_GeoJSONFeatureType</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.GeoJSON.features" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>GeoJSON features list</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.GeoJSON.from_gdf">
@@ -1248,7 +1277,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Geometry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">Geometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Polygon'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MultiPolygon'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Point'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#Geometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.Geometry" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>Geometry representation for GeoJSON model.</p>
+<p>Geometry representation for GeoJSON model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1300,6 +1329,9 @@ the provision of the specified service.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.models.geojson.Geometry.to_dict" title="masterplan_tools.models.geojson.Geometry.to_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code></a>()</p></td>
+<td><p>Generate dict for the Feature</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -1331,13 +1363,10 @@ the provision of the specified service.</p>
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>to_dict</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -1345,7 +1374,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Geometry.coordinates">
 <span class="sig-name descname"><span class="pre">coordinates</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.Geometry.coordinates" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Geometry coordinates list</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Geometry.from_shapely_geometry">
@@ -1366,12 +1396,14 @@ the provision of the specified service.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Geometry.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'str'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#Geometry.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.Geometry.to_dict" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Generate dict for the Feature</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.Geometry.type">
 <span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Polygon'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MultiPolygon'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'Point'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.Geometry.type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Geometry type</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1379,6 +1411,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">PointFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#masterplan_tools.models.geojson.PointGeometry" title="masterplan_tools.models.geojson.PointGeometry"><span class="pre">PointGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_FeaturePropertiesType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#PointFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.PointFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#masterplan_tools.models.geojson.Feature" title="masterplan_tools.models.geojson.Feature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Feature</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_FeaturePropertiesType</span></code>]</p>
+<p>Point feature representation for GeoJSON model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1430,6 +1463,9 @@ the provision of the specified service.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Generate dict for the Feature</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -1461,13 +1497,10 @@ the provision of the specified service.</p>
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>to_dict</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -1475,7 +1508,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointFeature.geometry">
 <span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.geojson.PointGeometry" title="masterplan_tools.models.geojson.PointGeometry"><span class="pre">PointGeometry</span></a></em><a class="headerlink" href="#masterplan_tools.models.geojson.PointFeature.geometry" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Feature geometry</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointFeature.model_config">
@@ -1493,6 +1527,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointGeoJSON">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">PointGeoJSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.geojson.PointFeature" title="masterplan_tools.models.geojson.PointFeature"><span class="pre">masterplan_tools.models.geojson.PointFeature</span></a><span class="p"><span class="pre">[</span></span><span class="pre">_GeoJSONFeatureType</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#PointGeoJSON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.PointGeoJSON" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#masterplan_tools.models.geojson.GeoJSON" title="masterplan_tools.models.geojson.GeoJSON"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoJSON</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_GeoJSONFeatureType</span></code>]</p>
+<p>Class for representing GeoJSON, containing point features</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1589,7 +1624,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointGeoJSON.features">
 <span class="sig-name descname"><span class="pre">features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.geojson.PointFeature" title="masterplan_tools.models.geojson.PointFeature"><span class="pre">masterplan_tools.models.geojson.PointFeature</span></a><span class="p"><span class="pre">[</span></span><span class="pre">_GeoJSONFeatureType</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.PointGeoJSON.features" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>GeoJSON features list</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointGeoJSON.model_config">
@@ -1607,6 +1643,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointGeometry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">PointGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Point'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#PointGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.PointGeometry" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#masterplan_tools.models.geojson.Geometry" title="masterplan_tools.models.geojson.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a></p>
+<p>Point geometry representation for GeoJSON model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1658,6 +1695,9 @@ the provision of the specified service.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Generate dict for the Feature</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -1689,13 +1729,10 @@ the provision of the specified service.</p>
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>to_dict</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -1713,7 +1750,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PointGeometry.type">
 <span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Point'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.PointGeometry.type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Point geometry type</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -1721,6 +1759,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">PolygonFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">geometry</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#masterplan_tools.models.geojson.PolygonGeometry" title="masterplan_tools.models.geojson.PolygonGeometry"><span class="pre">PolygonGeometry</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">properties</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">_FeaturePropertiesType</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#PolygonFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.PolygonFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#masterplan_tools.models.geojson.Feature" title="masterplan_tools.models.geojson.Feature"><code class="xref py py-class docutils literal notranslate"><span class="pre">Feature</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_FeaturePropertiesType</span></code>]</p>
+<p>Polygon and multipolygon features representation for GeoJSON model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1772,6 +1811,9 @@ the provision of the specified service.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Generate dict for the Feature</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -1803,13 +1845,10 @@ the provision of the specified service.</p>
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>to_dict</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -1817,7 +1856,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonFeature.geometry">
 <span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="#masterplan_tools.models.geojson.PolygonGeometry" title="masterplan_tools.models.geojson.PolygonGeometry"><span class="pre">PolygonGeometry</span></a></em><a class="headerlink" href="#masterplan_tools.models.geojson.PolygonFeature.geometry" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Feature geometry</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonFeature.model_config">
@@ -1835,6 +1875,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonGeoJSON">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">PolygonGeoJSON</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.geojson.PolygonFeature" title="masterplan_tools.models.geojson.PolygonFeature"><span class="pre">masterplan_tools.models.geojson.PolygonFeature</span></a><span class="p"><span class="pre">[</span></span><span class="pre">_GeoJSONFeatureType</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#PolygonGeoJSON"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.PolygonGeoJSON" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#masterplan_tools.models.geojson.GeoJSON" title="masterplan_tools.models.geojson.GeoJSON"><code class="xref py py-class docutils literal notranslate"><span class="pre">GeoJSON</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Generic</span></code>[<code class="xref py py-obj docutils literal notranslate"><span class="pre">_GeoJSONFeatureType</span></code>]</p>
+<p>Class for representing GeoJSON, containing polygon and multipolygon features</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1931,7 +1972,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonGeoJSON.features">
 <span class="sig-name descname"><span class="pre">features</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.models.geojson.PolygonFeature" title="masterplan_tools.models.geojson.PolygonFeature"><span class="pre">masterplan_tools.models.geojson.PolygonFeature</span></a><span class="p"><span class="pre">[</span></span><span class="pre">_GeoJSONFeatureType</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.PolygonGeoJSON.features" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>GeoJSON features list</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonGeoJSON.model_config">
@@ -1949,6 +1991,7 @@ the provision of the specified service.</p>
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonGeometry">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.models.geojson.</span></span><span class="sig-name descname"><span class="pre">PolygonGeometry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Polygon'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MultiPolygon'</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/models/geojson.html#PolygonGeometry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.models.geojson.PolygonGeometry" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#masterplan_tools.models.geojson.Geometry" title="masterplan_tools.models.geojson.Geometry"><code class="xref py py-class docutils literal notranslate"><span class="pre">Geometry</span></code></a></p>
+<p>Polygon and multipolygon geometries representation for GeoJSON model</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -2000,6 +2043,9 @@ the provision of the specified service.</p>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_dict</span></code>()</p></td>
+<td><p>Generate dict for the Feature</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -2031,13 +2077,10 @@ the provision of the specified service.</p>
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>to_dict</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -2055,7 +2098,8 @@ the provision of the specified service.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.models.geojson.PolygonGeometry.type">
 <span class="sig-name descname"><span class="pre">type</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Literal</span><span class="p"><span class="pre">[</span></span><span class="s"><span class="pre">'Polygon'</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="s"><span class="pre">'MultiPolygon'</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.models.geojson.PolygonGeometry.type" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Polygon geometry type</p>
+</dd></dl>
 
 </dd></dl>
 

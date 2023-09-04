@@ -227,7 +227,14 @@ document.write(`
 
 
 <div class="viewcode-block" id="CutFeatureProperties"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties">[docs]</a><span class="k">class</span> <span class="nc">CutFeatureProperties</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Landuse features properties</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unique identifier</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="CutParameters"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.cut_parameters.CutParameters">[docs]</a><span class="k">class</span> <span class="nc">CutParameters</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -238,9 +245,13 @@ document.write(`
     <span class="n">roads_buffer</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;roads geometry buffer in meters used to fill dead ends inside blocks, should be the same size as roads width&quot;&quot;&quot;</span>
     <span class="n">city</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">CutFeatureProperties</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;city boundaries geometry&quot;&quot;&quot;</span>
     <span class="n">water</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">CutFeatureProperties</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;water objects geometries&quot;&quot;&quot;</span>
     <span class="n">roads</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">CutFeatureProperties</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;road network geometries&quot;&quot;&quot;</span>
     <span class="n">railways</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">CutFeatureProperties</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;railways network geometries&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="CutParameters.validate_fields"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.cut_parameters.CutParameters.validate_fields">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;city&quot;</span><span class="p">,</span> <span class="s2">&quot;water&quot;</span><span class="p">,</span> <span class="s2">&quot;roads&quot;</span><span class="p">,</span> <span class="s2">&quot;railways&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">validate_fields</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>

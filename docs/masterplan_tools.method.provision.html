@@ -314,6 +314,7 @@ document.write(`
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.method.provision.lp_provision.</span></span><span class="sig-name descname"><span class="pre">LpProvision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel" title="masterplan_tools.models.city_model.CityModel"><span class="pre">CityModel</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">services</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">{'hospitals':</span> <span class="pre">{'accessibility':</span> <span class="pre">60,</span> <span class="pre">'demand':</span> <span class="pre">9},</span> <span class="pre">'kindergartens':</span> <span class="pre">{'accessibility':</span> <span class="pre">10,</span> <span class="pre">'demand':</span> <span class="pre">61},</span> <span class="pre">'pharmacies':</span> <span class="pre">{'accessibility':</span> <span class="pre">10,</span> <span class="pre">'demand':</span> <span class="pre">50},</span> <span class="pre">'policlinics':</span> <span class="pre">{'accessibility':</span> <span class="pre">15,</span> <span class="pre">'demand':</span> <span class="pre">27},</span> <span class="pre">'recreational_areas':</span> <span class="pre">{'accessibility':</span> <span class="pre">15,</span> <span class="pre">'demand':</span> <span class="pre">6000},</span> <span class="pre">'schools':</span> <span class="pre">{'accessibility':</span> <span class="pre">15,</span> <span class="pre">'demand':</span> <span class="pre">120}}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/lp_provision.html#LpProvision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Class provides linear optimization method for provision assessment for certain service type of scenario</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -331,6 +332,12 @@ document.write(`
 <tbody>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code>(*[, include, exclude, update, deep])</p></td>
 <td><p>Returns a copy of the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.lp_provision.LpProvision.get_provision" title="masterplan_tools.method.provision.lp_provision.LpProvision.get_provision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_provision</span></code></a>(service_type_name[, ...])</p></td>
+<td><p>Provision assessment for certain service type and updated blocks (optional)</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.lp_provision.LpProvision.get_scenario_provisions" title="masterplan_tools.method.provision.lp_provision.LpProvision.get_scenario_provisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_scenario_provisions</span></code></a>(scenario[, ...])</p></td>
+<td><p>Provision assessment for the scenario and updated blocks (optional)</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_construct</span></code>([_fields_set])</p></td>
 <td><p>Creates a new instance of the <cite>Model</cite> class with validated data.</p></td>
@@ -362,6 +369,12 @@ document.write(`
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">model_validate_json</span></code>(json_data, *[, strict, ...])</p></td>
 <td><p>Validate the given JSON data against the Pydantic model.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.lp_provision.LpProvision.sum_provision" title="masterplan_tools.method.provision.lp_provision.LpProvision.sum_provision"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sum_provision</span></code></a>(gdf)</p></td>
+<td><p>Get total provision of the get_provision() result</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#masterplan_tools.method.provision.lp_provision.LpProvision.visualize_provisions" title="masterplan_tools.method.provision.lp_provision.LpProvision.visualize_provisions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">visualize_provisions</span></code></a>(provisions[, ...])</p></td>
+<td><p>Method for provisions visualization</p></td>
+</tr>
 </tbody>
 </table>
 <table class="table">
@@ -373,12 +386,6 @@ document.write(`
 <td></td>
 </tr>
 <tr class="row-odd"><td><p><strong>from_orm</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>get_provision</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>get_scenario_provisions</strong></p></td>
 <td></td>
 </tr>
 <tr class="row-even"><td><p><strong>json</strong></p></td>
@@ -399,16 +406,10 @@ document.write(`
 <tr class="row-odd"><td><p><strong>schema_json</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><strong>sum_provision</strong></p></td>
+<tr class="row-even"><td><p><strong>update_forward_refs</strong></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><strong>update_forward_refs</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><strong>validate</strong></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><strong>visualize_provisions</strong></p></td>
+<tr class="row-odd"><td><p><strong>validate</strong></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -416,17 +417,20 @@ document.write(`
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.city_model">
 <span class="sig-name descname"><span class="pre">city_model</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.city_model.CityModel" title="masterplan_tools.models.city_model.CityModel"><span class="pre">CityModel</span></a></em><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision.city_model" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Current city model for the provision assessment</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.get_provision">
 <span class="sig-name descname"><span class="pre">get_provision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">service_type_name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated_blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/lp_provision.html#LpProvision.get_provision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision.get_provision" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Provision assessment for certain service type and updated blocks (optional)</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.get_scenario_provisions">
 <span class="sig-name descname"><span class="pre">get_scenario_provisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">scenario</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated_blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/lp_provision.html#LpProvision.get_scenario_provisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision.get_scenario_provisions" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Provision assessment for the scenario and updated blocks (optional)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.model_config">
@@ -441,17 +445,20 @@ document.write(`
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.services">
 <span class="sig-name descname"><span class="pre">services</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision.services" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Service types information about demands per 1000 population and normative assessibilities</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.sum_provision">
 <em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sum_provision</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/lp_provision.html#LpProvision.sum_provision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision.sum_provision" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Get total provision of the get_provision() result</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.method.provision.lp_provision.LpProvision.visualize_provisions">
 <span class="sig-name descname"><span class="pre">visualize_provisions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">provisions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">updated_blocks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{}</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/provision/lp_provision.html#LpProvision.visualize_provisions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.provision.lp_provision.LpProvision.visualize_provisions" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Method for provisions visualization</p>
+</dd></dl>
 
 </dd></dl>
 

@@ -230,7 +230,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="LpProvision"><a class="viewcode-back" href="../../../../masterplan_tools.method.provision.html#masterplan_tools.method.provision.lp_provision.LpProvision">[docs]</a><span class="k">class</span> <span class="nc">LpProvision</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class provides linear optimization method for provision assessment for certain service type of scenario&quot;&quot;&quot;</span>
+
     <span class="n">city_model</span><span class="p">:</span> <span class="n">CityModel</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Current city model for the provision assessment&quot;&quot;&quot;</span>
     <span class="n">services</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;kindergartens&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;demand&quot;</span><span class="p">:</span> <span class="mi">61</span><span class="p">,</span> <span class="s2">&quot;accessibility&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
         <span class="s2">&quot;schools&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;demand&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span> <span class="s2">&quot;accessibility&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
@@ -239,13 +242,16 @@ document.write(`
         <span class="s2">&quot;pharmacies&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;demand&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;accessibility&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
         <span class="s2">&quot;policlinics&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;demand&quot;</span><span class="p">:</span> <span class="mi">27</span><span class="p">,</span> <span class="s2">&quot;accessibility&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
     <span class="p">}</span>
-
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Service types information about demands per 1000 population and normative assessibilities&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LpProvision.sum_provision"><a class="viewcode-back" href="../../../../masterplan_tools.method.provision.html#masterplan_tools.method.provision.lp_provision.LpProvision.sum_provision">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">sum_provision</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">gdf</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get total provision of the get_provision() result&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;supplied&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">/</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;demand&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span></div>
-    
+
 <div class="viewcode-block" id="LpProvision.visualize_provisions"><a class="viewcode-back" href="../../../../masterplan_tools.method.provision.html#masterplan_tools.method.provision.lp_provision.LpProvision.visualize_provisions">[docs]</a>    <span class="k">def</span> <span class="nf">visualize_provisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">provisions</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">updated_blocks</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Method for provisions visualization&quot;&quot;&quot;</span>
+
         <span class="k">def</span> <span class="nf">show_me_chart</span><span class="p">(</span><span class="n">fig</span><span class="p">,</span> <span class="n">gs</span><span class="p">,</span> <span class="n">prov</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">i</span><span class="p">,</span> <span class="nb">sum</span><span class="p">):</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">gs</span><span class="p">[</span><span class="n">i</span> <span class="o">//</span> <span class="mi">3</span><span class="p">,</span> <span class="n">i</span> <span class="o">%</span> <span class="mi">3</span><span class="p">])</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#ddd&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
@@ -261,16 +267,17 @@ document.write(`
         <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="LpProvision.get_scenario_provisions"><a class="viewcode-back" href="../../../../masterplan_tools.method.provision.html#masterplan_tools.method.provision.lp_provision.LpProvision.get_scenario_provisions">[docs]</a>    <span class="k">def</span> <span class="nf">get_scenario_provisions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">scenario</span><span class="p">,</span> <span class="n">updated_blocks</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provision assessment for the scenario and updated blocks (optional)&quot;&quot;&quot;</span>
         <span class="n">provisions</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">metric</span> <span class="o">=</span> <span class="mi">0</span>
         <span class="k">for</span> <span class="n">service_type</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">scenario</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">provision</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_provision</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">updated_blocks</span><span class="p">)</span>
             <span class="n">provisions</span><span class="p">[</span><span class="n">service_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">provision</span>
-            <span class="n">metric</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_provision</span><span class="p">(</span><span class="n">provision</span><span class="p">)</span><span class="o">*</span><span class="n">weight</span>
+            <span class="n">metric</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sum_provision</span><span class="p">(</span><span class="n">provision</span><span class="p">)</span> <span class="o">*</span> <span class="n">weight</span>
         <span class="k">return</span> <span class="n">provisions</span><span class="p">,</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">metric</span><span class="p">)</span></div>
 
-
 <div class="viewcode-block" id="LpProvision.get_provision"><a class="viewcode-back" href="../../../../masterplan_tools.method.provision.html#masterplan_tools.method.provision.lp_provision.LpProvision.get_provision">[docs]</a>    <span class="k">def</span> <span class="nf">get_provision</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type_name</span><span class="p">,</span> <span class="n">updated_blocks</span><span class="o">=</span><span class="p">{}):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Provision assessment for certain service type and updated blocks (optional)&quot;&quot;&quot;</span>
         <span class="n">acc_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">df</span>
         <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">to_gdf</span><span class="p">()</span>
         <span class="k">for</span> <span class="n">block_id</span><span class="p">,</span> <span class="n">updated_info</span> <span class="ow">in</span> <span class="n">updated_blocks</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>

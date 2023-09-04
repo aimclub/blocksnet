@@ -228,43 +228,56 @@ document.write(`
 
 <div class="viewcode-block" id="AggregateBuildingsFeature"><a class="viewcode-back" href="../../../masterplan_tools.preprocessing.html#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature">[docs]</a><span class="k">class</span> <span class="nc">AggregateBuildingsFeature</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The only feature required is a unique identifier.</span>
+<span class="sd">    Buildings features properties</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">population_balanced</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Total population of the building&quot;&quot;&quot;</span>
     <span class="n">building_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Building area (in square meters)&quot;&quot;&quot;</span>
     <span class="n">living_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Living area (in square meters)&quot;&quot;&quot;</span>
     <span class="n">storeys_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Storeys count of the building&quot;&quot;&quot;</span>
     <span class="n">is_living</span><span class="p">:</span> <span class="nb">bool</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Is building living&quot;&quot;&quot;</span>
     <span class="n">living_area_pyatno</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">total_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Living area pyatno (in square meters)&quot;&quot;&quot;</span>
+    <span class="n">total_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Total building area (in square meters)&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="AggregateGreeningsFeature"><a class="viewcode-back" href="../../../masterplan_tools.preprocessing.html#masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature">[docs]</a><span class="k">class</span> <span class="nc">AggregateGreeningsFeature</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The only feature required is a unique identifier.</span>
+<span class="sd">    Greenings features properties</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">current_green_area</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
-    <span class="n">current_green_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Greening area (in square meters)&quot;&quot;&quot;</span>
+    <span class="n">current_green_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Total greening capacity (in units)&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="AggregateParkingsFeature"><a class="viewcode-back" href="../../../masterplan_tools.preprocessing.html#masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature">[docs]</a><span class="k">class</span> <span class="nc">AggregateParkingsFeature</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    The only feature required is a unique identifier.</span>
+<span class="sd">    Parkings features properties</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">current_parking_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
+    <span class="n">current_parking_capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Total parking capacity (in units)&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="AggregateParameters"><a class="viewcode-back" href="../../../masterplan_tools.preprocessing.html#masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters">[docs]</a><span class="k">class</span> <span class="nc">AggregateParameters</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Geometries used in blocks cutting process.</span>
+<span class="sd">    Geometries used in parameters aggregation process.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">buildings</span><span class="p">:</span> <span class="n">PointGeoJSON</span><span class="p">[</span><span class="n">AggregateBuildingsFeature</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Buildings geometries&quot;&quot;&quot;</span>
     <span class="n">greenings</span><span class="p">:</span> <span class="n">PointGeoJSON</span><span class="p">[</span><span class="n">AggregateGreeningsFeature</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Green areas geometries&quot;&quot;&quot;</span>
     <span class="n">parkings</span><span class="p">:</span> <span class="n">PointGeoJSON</span><span class="p">[</span><span class="n">AggregateParkingsFeature</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parkings geometries&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="AggregateParameters.validate_buildings"><a class="viewcode-back" href="../../../masterplan_tools.preprocessing.html#masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.validate_buildings">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;buildings&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">validate_buildings</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>

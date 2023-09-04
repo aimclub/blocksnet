@@ -227,7 +227,14 @@ document.write(`
 
 
 <div class="viewcode-block" id="LandUseFeatureProperties"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties">[docs]</a><span class="k">class</span> <span class="nc">LandUseFeatureProperties</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Landuse features properties</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Unique identifier</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="LandUseParameters"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.land_use_parameters.LandUseParameters">[docs]</a><span class="k">class</span> <span class="nc">LandUseParameters</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
@@ -236,11 +243,11 @@ document.write(`
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">landuse</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">LandUseFeatureProperties</span><span class="p">]</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;basic landuse geometries&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Basic landuse geometries&quot;&quot;&quot;</span>
     <span class="n">no_development</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">LandUseFeatureProperties</span><span class="p">]</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;territories with restricted development&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Territories with restricted development&quot;&quot;&quot;</span>
     <span class="n">buildings</span><span class="p">:</span> <span class="n">PolygonGeoJSON</span><span class="p">[</span><span class="n">LandUseFeatureProperties</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;buildings geometries that are used for clustering inside of blocks&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Buildings geometries that are used for clustering inside of blocks&quot;&quot;&quot;</span>
 
 <div class="viewcode-block" id="LandUseParameters.validate_fields"><a class="viewcode-back" href="../../../../masterplan_tools.method.blocks.html#masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.validate_fields">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;landuse&quot;</span><span class="p">,</span> <span class="s2">&quot;no_development&quot;</span><span class="p">,</span> <span class="s2">&quot;buildings&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">validate_fields</span><span class="p">(</span><span class="n">value</span><span class="p">):</span>

@@ -395,7 +395,7 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.preprocessing.aggregate_parameters.</span></span><span class="sig-name descname"><span class="pre">AggregateBuildingsFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">population_balanced</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">building_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">living_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">storeys_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_living</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">living_area_pyatno</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/preprocessing/aggregate_parameters.html#AggregateBuildingsFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>The only feature required is a unique identifier.</p>
+<p>Buildings features properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -486,22 +486,26 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.building_area">
 <span class="sig-name descname"><span class="pre">building_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.building_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Building area (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.is_living">
 <span class="sig-name descname"><span class="pre">is_living</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.is_living" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Is building living</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.living_area">
 <span class="sig-name descname"><span class="pre">living_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.living_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Living area (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.living_area_pyatno">
 <span class="sig-name descname"><span class="pre">living_area_pyatno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.living_area_pyatno" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Living area pyatno (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.model_config">
@@ -516,17 +520,20 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.population_balanced">
 <span class="sig-name descname"><span class="pre">population_balanced</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.population_balanced" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total population of the building</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.storeys_count">
 <span class="sig-name descname"><span class="pre">storeys_count</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.storeys_count" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Storeys count of the building</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.total_area">
 <span class="sig-name descname"><span class="pre">total_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature.total_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total building area (in square meters)</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -534,7 +541,7 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.preprocessing.aggregate_parameters.</span></span><span class="sig-name descname"><span class="pre">AggregateGreeningsFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_green_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_green_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/preprocessing/aggregate_parameters.html#AggregateGreeningsFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>The only feature required is a unique identifier.</p>
+<p>Greenings features properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -625,12 +632,14 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature.current_green_area">
 <span class="sig-name descname"><span class="pre">current_green_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature.current_green_area" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Greening area (in square meters)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature.current_green_capacity">
 <span class="sig-name descname"><span class="pre">current_green_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature.current_green_capacity" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total greening capacity (in units)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature.model_config">
@@ -648,7 +657,7 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.preprocessing.aggregate_parameters.</span></span><span class="sig-name descname"><span class="pre">AggregateParameters</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature" title="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature"><span class="pre">AggregateBuildingsFeature</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">greenings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature" title="masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature"><span class="pre">AggregateGreeningsFeature</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parkings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature" title="masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature"><span class="pre">AggregateParkingsFeature</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/preprocessing/aggregate_parameters.html#AggregateParameters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>Geometries used in blocks cutting process.</p>
+<p>Geometries used in parameters aggregation process.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -748,12 +757,14 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.buildings">
 <span class="sig-name descname"><span class="pre">buildings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature" title="masterplan_tools.preprocessing.aggregate_parameters.AggregateBuildingsFeature"><span class="pre">AggregateBuildingsFeature</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.buildings" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Buildings geometries</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.greenings">
 <span class="sig-name descname"><span class="pre">greenings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature" title="masterplan_tools.preprocessing.aggregate_parameters.AggregateGreeningsFeature"><span class="pre">AggregateGreeningsFeature</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.greenings" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Green areas geometries</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.model_config">
@@ -768,7 +779,8 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.parkings">
 <span class="sig-name descname"><span class="pre">parkings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON" title="masterplan_tools.models.geojson.PointGeoJSON"><span class="pre">PointGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature" title="masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature"><span class="pre">AggregateParkingsFeature</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.parkings" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Parkings geometries</p>
+</dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParameters.validate_buildings">
@@ -791,7 +803,7 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.preprocessing.aggregate_parameters.</span></span><span class="sig-name descname"><span class="pre">AggregateParkingsFeature</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_parking_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/preprocessing/aggregate_parameters.html#AggregateParkingsFeature"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
-<p>The only feature required is a unique identifier.</p>
+<p>Parkings features properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -882,7 +894,8 @@ It takes a lot of RAM to calculate one since we have thousands of city blocks.</
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature.current_parking_capacity">
 <span class="sig-name descname"><span class="pre">current_parking_capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature.current_parking_capacity" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Total parking capacity (in units)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.preprocessing.aggregate_parameters.AggregateParkingsFeature.model_config">

@@ -230,10 +230,12 @@ document.write(`
 
 
 <div class="viewcode-block" id="Geometry"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.Geometry">[docs]</a><span class="k">class</span> <span class="nc">Geometry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Geometry representation for GeoJSON model.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Geometry representation for GeoJSON model&quot;&quot;&quot;</span>
 
     <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">,</span> <span class="s2">&quot;Point&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Geometry type&quot;&quot;&quot;</span>
     <span class="n">coordinates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Geometry coordinates list&quot;&quot;&quot;</span>
 
     <span class="c1"># @classmethod</span>
     <span class="c1"># def from_dict(cls, dict : dict[str, any]) -&gt; &#39;Geometry&#39;:</span>
@@ -250,15 +252,22 @@ document.write(`
     <span class="c1">#     return Polygon(coordinates)</span>
 
 <div class="viewcode-block" id="Geometry.to_dict"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.Geometry.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate dict for the Feature&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">type</span><span class="p">,</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">coordinates</span><span class="p">}</span></div></div>
 
 
 <div class="viewcode-block" id="PointGeometry"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeometry">[docs]</a><span class="k">class</span> <span class="nc">PointGeometry</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Point&quot;</span><span class="p">]</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Point geometry representation for GeoJSON model&quot;&quot;&quot;</span>
+
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Point&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Point geometry type&quot;&quot;&quot;</span></div>
 
 
 <div class="viewcode-block" id="PolygonGeometry"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeometry">[docs]</a><span class="k">class</span> <span class="nc">PolygonGeometry</span><span class="p">(</span><span class="n">Geometry</span><span class="p">):</span>
-    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">]</span></div>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Polygon and multipolygon geometries representation for GeoJSON model&quot;&quot;&quot;</span>
+
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Polygon geometry type&quot;&quot;&quot;</span></div>
 
 
 <span class="n">_FeaturePropertiesType</span> <span class="o">=</span> <span class="n">TypeVar</span><span class="p">(</span><span class="s2">&quot;_FeaturePropertiesType&quot;</span><span class="p">)</span>  <span class="c1"># pylint: disable=invalid-name</span>
@@ -268,7 +277,9 @@ document.write(`
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature representation for GeoJSON model.&quot;&quot;&quot;</span>
 
     <span class="n">geometry</span><span class="p">:</span> <span class="n">Geometry</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature geometry&quot;&quot;&quot;</span>
     <span class="n">properties</span><span class="p">:</span> <span class="n">_FeaturePropertiesType</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature properties&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_geometry_from_shapely</span><span class="p">(</span><span class="n">geoseries</span><span class="p">):</span>
@@ -282,6 +293,7 @@ document.write(`
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="bp">cls</span><span class="o">.</span><span class="n">_geometry_from_shapely</span><span class="p">(</span><span class="n">geoseries</span><span class="p">),</span> <span class="n">properties</span><span class="o">=</span><span class="n">properties</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Feature.to_dict"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.Feature.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;str&quot;</span><span class="p">,</span> <span class="nb">any</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate dict for the Feature&quot;&quot;&quot;</span>
         <span class="nb">dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;Feature&quot;</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{}}</span>
         <span class="k">for</span> <span class="n">field_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="n">model_fields</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
             <span class="nb">dict</span><span class="p">[</span><span class="s2">&quot;properties&quot;</span><span class="p">][</span><span class="n">field_name</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">properties</span><span class="o">.</span><span class="fm">__getattribute__</span><span class="p">(</span><span class="n">field_name</span><span class="p">)</span>
@@ -289,7 +301,10 @@ document.write(`
 
 
 <div class="viewcode-block" id="PointFeature"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.PointFeature">[docs]</a><span class="k">class</span> <span class="nc">PointFeature</span><span class="p">(</span><span class="n">Feature</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_FeaturePropertiesType</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Point feature representation for GeoJSON model&quot;&quot;&quot;</span>
+
     <span class="n">geometry</span><span class="p">:</span> <span class="n">PointGeometry</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature geometry&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_geometry_from_shapely</span><span class="p">(</span><span class="n">geoseries</span><span class="p">):</span>
@@ -297,10 +312,14 @@ document.write(`
 
 
 <div class="viewcode-block" id="PolygonFeature"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonFeature">[docs]</a><span class="k">class</span> <span class="nc">PolygonFeature</span><span class="p">(</span><span class="n">Feature</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_FeaturePropertiesType</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Polygon and multipolygon features representation for GeoJSON model&quot;&quot;&quot;</span>
+
     <span class="n">geometry</span><span class="p">:</span> <span class="n">PolygonGeometry</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Feature geometry&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_geometry_from_shapely</span><span class="p">(</span><span class="n">geoseries</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate Geometry from Shapely&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">PolygonGeometry</span><span class="o">.</span><span class="n">from_shapely_geometry</span><span class="p">(</span><span class="n">geoseries</span><span class="o">.</span><span class="n">geometry</span><span class="p">)</span></div>
 
 
@@ -311,10 +330,13 @@ document.write(`
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;GeoJSON model representation.&quot;&quot;&quot;</span>
 
     <span class="n">epsg</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;EPSG value&quot;&quot;&quot;</span>
     <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Feature</span><span class="p">[</span><span class="n">_GeoJSONFeatureType</span><span class="p">]]</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;GeoJSON features list&quot;&quot;&quot;</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_gdf_to_features</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">runtime_feature_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate Features from GeoDataFrame&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">Feature</span><span class="p">[</span><span class="n">runtime_feature_type</span><span class="p">]</span><span class="o">.</span><span class="n">from_geoseries</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
 
 <div class="viewcode-block" id="GeoJSON.from_gdf"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.GeoJSON.from_gdf">[docs]</a>    <span class="nd">@classmethod</span>
@@ -332,18 +354,24 @@ document.write(`
 
 
 <div class="viewcode-block" id="PointGeoJSON"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.PointGeoJSON">[docs]</a><span class="k">class</span> <span class="nc">PointGeoJSON</span><span class="p">(</span><span class="n">GeoJSON</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_GeoJSONFeatureType</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for representing GeoJSON, containing point features&quot;&quot;&quot;</span>
+
     <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PointFeature</span><span class="p">[</span><span class="n">_GeoJSONFeatureType</span><span class="p">]]</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_gdf_to_features</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">runtime_feature_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate Features from GeoDataFrame&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">PointFeature</span><span class="p">[</span><span class="n">runtime_feature_type</span><span class="p">]</span><span class="o">.</span><span class="n">from_geoseries</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="PolygonGeoJSON"><a class="viewcode-back" href="../../../masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON">[docs]</a><span class="k">class</span> <span class="nc">PolygonGeoJSON</span><span class="p">(</span><span class="n">GeoJSON</span><span class="p">,</span> <span class="n">Generic</span><span class="p">[</span><span class="n">_GeoJSONFeatureType</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Class for representing GeoJSON, containing polygon and multipolygon features&quot;&quot;&quot;</span>
+
     <span class="n">features</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">PolygonFeature</span><span class="p">[</span><span class="n">_GeoJSONFeatureType</span><span class="p">]]</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_gdf_to_features</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">runtime_feature_type</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate Features from GeoDataFrame&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">gdf</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">PolygonFeature</span><span class="p">[</span><span class="n">runtime_feature_type</span><span class="p">]</span><span class="o">.</span><span class="n">from_geoseries</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span></div>
 </pre></div>
 

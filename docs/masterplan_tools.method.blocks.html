@@ -736,6 +736,7 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.method.blocks.cut_parameters.</span></span><span class="sig-name descname"><span class="pre">CutFeatureProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/blocks/cut_parameters.html#CutFeatureProperties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Landuse features properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -826,7 +827,8 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties.id">
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Unique identifier</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties.model_config">
@@ -938,7 +940,8 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutParameters.city">
 <span class="sig-name descname"><span class="pre">city</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties" title="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties"><span class="pre">CutFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.cut_parameters.CutParameters.city" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>city boundaries geometry</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutParameters.model_config">
@@ -953,12 +956,14 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutParameters.railways">
 <span class="sig-name descname"><span class="pre">railways</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties" title="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties"><span class="pre">CutFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.cut_parameters.CutParameters.railways" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>railways network geometries</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutParameters.roads">
 <span class="sig-name descname"><span class="pre">roads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties" title="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties"><span class="pre">CutFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.cut_parameters.CutParameters.roads" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>road network geometries</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutParameters.roads_buffer">
@@ -974,7 +979,8 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.cut_parameters.CutParameters.water">
 <span class="sig-name descname"><span class="pre">water</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties" title="masterplan_tools.method.blocks.cut_parameters.CutFeatureProperties"><span class="pre">CutFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.cut_parameters.CutParameters.water" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>water objects geometries</p>
+</dd></dl>
 
 </dd></dl>
 
@@ -986,6 +992,7 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">masterplan_tools.method.blocks.land_use_parameters.</span></span><span class="sig-name descname"><span class="pre">LandUseFeatureProperties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/masterplan_tools/method/blocks/land_use_parameters.html#LandUseFeatureProperties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Landuse features properties</p>
 <dl class="field-list simple">
 <dt class="field-odd">Attributes<span class="colon">:</span></dt>
 <dd class="field-odd"><dl class="simple">
@@ -1076,7 +1083,8 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties.id">
 <span class="sig-name descname"><span class="pre">id</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties.id" title="Permalink to this definition">#</a></dt>
-<dd></dd></dl>
+<dd><p>Unique identifier</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties.model_config">
@@ -1188,13 +1196,13 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.buildings">
 <span class="sig-name descname"><span class="pre">buildings</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties" title="masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties"><span class="pre">LandUseFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.buildings" title="Permalink to this definition">#</a></dt>
-<dd><p>buildings geometries that are used for clustering inside of blocks</p>
+<dd><p>Buildings geometries that are used for clustering inside of blocks</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.landuse">
 <span class="sig-name descname"><span class="pre">landuse</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties" title="masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties"><span class="pre">LandUseFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.landuse" title="Permalink to this definition">#</a></dt>
-<dd><p>basic landuse geometries</p>
+<dd><p>Basic landuse geometries</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1210,7 +1218,7 @@ them from OSM. Somehow they are poorly documented on OSM.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.no_development">
 <span class="sig-name descname"><span class="pre">no_development</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="masterplan_tools.models.html#masterplan_tools.models.geojson.PolygonGeoJSON" title="masterplan_tools.models.geojson.PolygonGeoJSON"><span class="pre">PolygonGeoJSON</span></a><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties" title="masterplan_tools.method.blocks.land_use_parameters.LandUseFeatureProperties"><span class="pre">LandUseFeatureProperties</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#masterplan_tools.method.blocks.land_use_parameters.LandUseParameters.no_development" title="Permalink to this definition">#</a></dt>
-<dd><p>territories with restricted development</p>
+<dd><p>Territories with restricted development</p>
 </dd></dl>
 
 <dl class="py method">
