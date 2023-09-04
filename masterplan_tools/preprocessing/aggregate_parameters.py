@@ -8,43 +8,56 @@ from ..models import PointGeoJSON
 
 class AggregateBuildingsFeature(BaseModel):
     """
-    The only feature required is a unique identifier.
+    Buildings features properties
     """
 
     population_balanced: int = Field(ge=0)
+    """Total population of the building"""
     building_area: float = Field(ge=0)
+    """Building area (in square meters)"""
     living_area: float = Field(ge=0)
+    """Living area (in square meters)"""
     storeys_count: int = Field(ge=0)
+    """Storeys count of the building"""
     is_living: bool
+    """Is building living"""
     living_area_pyatno: float = Field(ge=0)
+    """Living area pyatno (in square meters)"""
     total_area: float = Field(ge=0)
+    """Total building area (in square meters)"""
 
 
 class AggregateGreeningsFeature(BaseModel):
     """
-    The only feature required is a unique identifier.
+    Greenings features properties
     """
 
     current_green_area: int = Field(ge=0)
+    """Greening area (in square meters)"""
     current_green_capacity: int = Field(ge=0)
+    """Total greening capacity (in units)"""
 
 
 class AggregateParkingsFeature(BaseModel):
     """
-    The only feature required is a unique identifier.
+    Parkings features properties
     """
 
     current_parking_capacity: int = Field(ge=0)
+    """Total parking capacity (in units)"""
 
 
 class AggregateParameters(BaseModel):
     """
-    Geometries used in blocks cutting process.
+    Geometries used in parameters aggregation process.
     """
 
     buildings: PointGeoJSON[AggregateBuildingsFeature]
+    """Buildings geometries"""
     greenings: PointGeoJSON[AggregateGreeningsFeature]
+    """Green areas geometries"""
     parkings: PointGeoJSON[AggregateParkingsFeature]
+    """Parkings geometries"""
 
     @field_validator("buildings", mode="before")
     def validate_buildings(value):

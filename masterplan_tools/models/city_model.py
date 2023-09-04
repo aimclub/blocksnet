@@ -18,8 +18,14 @@ from .geojson import PolygonGeoJSON, PointGeoJSON
 
 # from masterplan_tools.method.blocks.blocks_cutter import BlocksCutter
 class AccessibilityMatrix(BaseModel):
+    """
+    Accessibility matrix between city blocks
+    """
 
     df: InstanceOf[pd.DataFrame]
+    """
+    Accessibility matrix DataFrame
+    """
 
     @field_validator("df", mode="before")
     def validate_df(value):
@@ -29,32 +35,60 @@ class AccessibilityMatrix(BaseModel):
 
 
 class CityBlockFeature(BaseModel):
+    """
+    Aggregated city block feature properties
+    """
+
     landuse: Literal["buildings", "selected_area", "no_dev_area"]
+    """Landuse label, containing one of the next values:
+    1. 'no_dev_area' -- according to th no_debelopment gdf and cutoff without any buildings or specified / selected landuse types;
+    2. 'selected_area' -- according to the landuse gdf. We separate theese polygons since they have specified landuse types;
+    3. 'buildings' -- there are polygons that have buildings landuse type.
+    """
     block_id: int
+    """Unique city block identifier"""
     is_living: bool
+    """Is block living"""
     current_population: float = Field(ge=0)
+    """Total population of the block"""
     floors: float = Field(ge=0)
+    """Median storeys count of the buildings inside the block"""
     current_living_area: float = Field(ge=0)
+    """Total living area of the block (in square meters)"""
     current_green_capacity: float = Field(ge=0)
+    """Total greenings capacity (in units)"""
     current_green_area: float = Field(ge=0)
+    """Total greenings area (in square meters)"""
     current_parking_capacity: float = Field(ge=0)
+    """Total parkings capacity (in units)"""
     current_industrial_area: float = Field(ge=0)
+    """Total industrial area of the block (in square meters)"""
     area: float = Field(ge=0)
+    """Total area of the block (in square meters)"""
 
 
 class ServicesFeature(BaseModel):
+    """
+    Service feature properties
+    """
+
     capacity: int = Field(ge=0)
+    """Total service object capacity"""
 
 
 class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-few-public-methods
     """
-    City model gathers all data in one class so it could be accessed directly in one place
+    City representation as an information model
     """
 
     blocks: PolygonGeoJSON[CityBlockFeature]
+    """Aggregated city blocks"""
     accessibility_matrix: AccessibilityMatrix
+    """Accessibility matrix between city blocks"""
     services: dict[str, PointGeoJSON[ServicesFeature]]
+    """Services geometries of the city"""
     services_graph: InstanceOf[nx.Graph] = Field(exclude=True, default=None)
+    """nx.Graph of the city, containing provision assessment capacities"""
 
     def get_service_types(self) -> list[str]:
         return list(self.services.keys())
@@ -80,6 +114,7 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
         return dict
 
     def visualize(self, max_distance=7) -> None:
+        """Method for city model visualization"""
         blocks = self.blocks.to_gdf()
         centroids = blocks.copy()
         centroids["geometry"] = centroids["geometry"].centroid
@@ -123,7 +158,6 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
             the provision of the specified service.
         """
 
-        
         blocks = self.blocks.to_gdf()
         service = self.services[service_type].to_gdf()
         accessibility_matrix = self.accessibility_matrix.df.copy()
@@ -169,7 +203,7 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
             blocks_list_tmp = blocks_list[blocks_list.index == idx]
             blocks_list.columns = blocks_list.columns.astype(int)
             blocks_list_tmp_dict = blocks_list_tmp.transpose().to_dict()[idx]
-            
+
             for key in blocks_list_tmp_dict.keys():
                 if key != idx:
                     services_graph.add_edge(idx, key, weight=round(blocks_list_tmp_dict[key], 1))
@@ -180,7 +214,6 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
                 services_graph.nodes[key]["population"] = blocks_geom_dict["population_balanced"][int(key)]
                 services_graph.nodes[key]["is_living"] = blocks_geom_dict["is_living"][int(key)]
 
-
                 if key != idx:
                     try:
                         if services_graph.nodes[key][f"is_{service_type}_service"] != 1:
@@ -189,23 +222,20 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
                             services_graph.nodes[key][f"provision_{service_type}"] = 0
                             services_graph.nodes[key][f"id_{service_type}"] = 0
                             services_graph.nodes[key][f"{service_type}_capacity"] = 0
-                            
-                                      
+
                     except KeyError:
                         services_graph.nodes[key]["id"] = key
                         services_graph.nodes[key][f"is_{service_type}_service"] = 0
                         services_graph.nodes[key][f"provision_{service_type}"] = 0
                         services_graph.nodes[key][f"id_{service_type}"] = 0
                         services_graph.nodes[key][f"{service_type}_capacity"] = 0
-                        
-                        
+
                 else:
                     services_graph.nodes[key]["id"] = key
                     services_graph.nodes[key][f"is_{service_type}_service"] = 1
                     services_graph.nodes[key][f"{service_type}_capacity"] = service_blocks_dict[key]
                     services_graph.nodes[key][f"provision_{service_type}"] = 0
                     services_graph.nodes[key][f"id_{service_type}"] = 0
-                    
 
                 if services_graph.nodes[key]["is_living"]:
                     services_graph.nodes[key][f"population_prov_{service_type}"] = 0
@@ -225,22 +255,3 @@ class CityModel(BaseModel):  # pylint: disable=too-many-instance-attributes,too-
                 services_graph=services_graph,
             )
         self.services_graph = services_graph
-
-    # def collect_data(self) -> None:
-    #     """
-    #     This method calls DataGetter and BlocksCutter to collect all required data
-    #     to get city blocks and service graphs.
-    #     """
-
-    #     # Create graphs between living blocks and specified services
-    #     self.services_graph = nx.Graph()
-    #     for service_type in self.services_gdfs.keys():
-    #         self.services_graph = DataGetter().prepare_graph(
-    #             blocks=self.city_blocks,
-    #             service_type=service_type,
-    #             buildings=self.buildings,
-    #             service_gdf=self.services_gdfs[service_type],
-    #             updated_block_info=None,
-    #             accessibility_matrix=self.accessibility_matrix,
-    #             services_graph=self.services_graph,
-    #         )

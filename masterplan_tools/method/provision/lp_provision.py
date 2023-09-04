@@ -10,7 +10,10 @@ import numpy as np
 
 
 class LpProvision(BaseModel):
+    """Class provides linear optimization method for provision assessment for certain service type of scenario"""
+
     city_model: CityModel
+    """Current city model for the provision assessment"""
     services: dict = {
         "kindergartens": {"demand": 61, "accessibility": 10},
         "schools": {"demand": 120, "accessibility": 15},
@@ -19,13 +22,16 @@ class LpProvision(BaseModel):
         "pharmacies": {"demand": 50, "accessibility": 10},
         "policlinics": {"demand": 27, "accessibility": 15},
     }
-
+    """Service types information about demands per 1000 population and normative assessibilities"""
 
     @classmethod
     def sum_provision(cls, gdf):
+        """Get total provision of the get_provision() result"""
         return gdf["supplied"].sum() / gdf["demand"].sum()
-    
+
     def visualize_provisions(self, provisions: dict, updated_blocks={}):
+        """Method for provisions visualization"""
+
         def show_me_chart(fig, gs, prov, name, i, sum):
             ax = fig.add_subplot(gs[i // 3, i % 3])
             self.city_model.blocks.to_gdf().plot(ax=ax, color="#ddd", alpha=1)
@@ -41,16 +47,17 @@ class LpProvision(BaseModel):
         plt.show()
 
     def get_scenario_provisions(self, scenario, updated_blocks={}):
+        """Provision assessment for the scenario and updated blocks (optional)"""
         provisions = {}
         metric = 0
         for service_type, weight in scenario.items():
             provision = self.get_provision(service_type, updated_blocks)
             provisions[service_type] = provision
-            metric += self.sum_provision(provision)*weight
+            metric += self.sum_provision(provision) * weight
         return provisions, np.mean(metric)
 
-
     def get_provision(self, service_type_name, updated_blocks={}):
+        """Provision assessment for certain service type and updated blocks (optional)"""
         acc_df = self.city_model.accessibility_matrix.df
         blocks = self.city_model.blocks.to_gdf()
         for block_id, updated_info in updated_blocks.items():
