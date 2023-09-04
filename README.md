@@ -77,7 +77,7 @@ Editable installation allows to keep the number of re-installs to the minimum. A
 
 ## License
 
-The project has [BSD-3-Clause license](./LICENSE.md)
+The project has [BSD-3-Clause license](./LICENSE)
 
 ## Acknowledgments
 
