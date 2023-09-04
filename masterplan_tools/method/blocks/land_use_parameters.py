@@ -7,7 +7,14 @@ from masterplan_tools.models.geojson import PolygonGeoJSON
 
 
 class LandUseFeatureProperties(BaseModel):
+    """
+    Landuse features properties
+    """
+
     id: int | None = None
+    """
+    Unique identifier
+    """
 
 
 class LandUseParameters(BaseModel):
@@ -16,11 +23,11 @@ class LandUseParameters(BaseModel):
     """
 
     landuse: PolygonGeoJSON[LandUseFeatureProperties]
-    """basic landuse geometries"""
+    """Basic landuse geometries"""
     no_development: PolygonGeoJSON[LandUseFeatureProperties]
-    """territories with restricted development"""
+    """Territories with restricted development"""
     buildings: PolygonGeoJSON[LandUseFeatureProperties] = None
-    """buildings geometries that are used for clustering inside of blocks"""
+    """Buildings geometries that are used for clustering inside of blocks"""
 
     @field_validator("landuse", "no_development", "buildings", mode="before")
     def validate_fields(value):

@@ -23,6 +23,7 @@
   - [Installation](#installation)
   - [Examples](#examples)
   - [Documentation](#documentation)
+  - [Developing](#developing)
   - [License](#license)
   - [Acknowledgments](#acknowledgments)
   - [Contacts](#contacts)

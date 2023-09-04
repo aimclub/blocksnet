@@ -10,10 +10,12 @@ from shapely.geometry.base import BaseGeometry
 
 
 class Geometry(BaseModel):
-    """Geometry representation for GeoJSON model."""
+    """Geometry representation for GeoJSON model"""
 
     type: Literal["Polygon", "MultiPolygon", "Point"]
+    """Geometry type"""
     coordinates: list[Any] = []
+    """Geometry coordinates list"""
 
     # @classmethod
     # def from_dict(cls, dict : dict[str, any]) -> 'Geometry':
@@ -30,15 +32,22 @@ class Geometry(BaseModel):
     #     return Polygon(coordinates)
 
     def to_dict(self) -> dict["str", any]:
+        """Generate dict for the Feature"""
         return {"type": self.type, "coordinates": self.coordinates}
 
 
 class PointGeometry(Geometry):
+    """Point geometry representation for GeoJSON model"""
+
     type: Literal["Point"]
+    """Point geometry type"""
 
 
 class PolygonGeometry(Geometry):
+    """Polygon and multipolygon geometries representation for GeoJSON model"""
+
     type: Literal["Polygon", "MultiPolygon"]
+    """Polygon geometry type"""
 
 
 _FeaturePropertiesType = TypeVar("_FeaturePropertiesType")  # pylint: disable=invalid-name
@@ -48,7 +57,9 @@ class Feature(BaseModel, Generic[_FeaturePropertiesType]):
     """Feature representation for GeoJSON model."""
 
     geometry: Geometry
+    """Feature geometry"""
     properties: _FeaturePropertiesType
+    """Feature properties"""
 
     @staticmethod
     def _geometry_from_shapely(geoseries):
@@ -62,6 +73,7 @@ class Feature(BaseModel, Generic[_FeaturePropertiesType]):
         return cls(geometry=cls._geometry_from_shapely(geoseries), properties=properties)
 
     def to_dict(self) -> dict["str", any]:
+        """Generate dict for the Feature"""
         dict = {"type": "Feature", "geometry": self.geometry.to_dict(), "properties": {}}
         for field_name in self.properties.model_fields.keys():
             dict["properties"][field_name] = self.properties.__getattribute__(field_name)
@@ -69,7 +81,10 @@ class Feature(BaseModel, Generic[_FeaturePropertiesType]):
 
 
 class PointFeature(Feature, Generic[_FeaturePropertiesType]):
+    """Point feature representation for GeoJSON model"""
+
     geometry: PointGeometry
+    """Feature geometry"""
 
     @staticmethod
     def _geometry_from_shapely(geoseries):
@@ -77,10 +92,14 @@ class PointFeature(Feature, Generic[_FeaturePropertiesType]):
 
 
 class PolygonFeature(Feature, Generic[_FeaturePropertiesType]):
+    """Polygon and multipolygon features representation for GeoJSON model"""
+
     geometry: PolygonGeometry
+    """Feature geometry"""
 
     @staticmethod
     def _geometry_from_shapely(geoseries):
+        """Generate Geometry from Shapely"""
         return PolygonGeometry.from_shapely_geometry(geoseries.geometry)
 
 
@@ -91,10 +110,13 @@ class GeoJSON(BaseModel, Generic[_GeoJSONFeatureType]):
     """GeoJSON model representation."""
 
     epsg: int
+    """EPSG value"""
     features: list[Feature[_GeoJSONFeatureType]]
+    """GeoJSON features list"""
 
     @staticmethod
     def _gdf_to_features(gdf, runtime_feature_type):
+        """Generate Features from GeoDataFrame"""
         return gdf.apply(Feature[runtime_feature_type].from_geoseries, axis=1).to_list()
 
     @classmethod
@@ -112,16 +134,22 @@ class GeoJSON(BaseModel, Generic[_GeoJSONFeatureType]):
 
 
 class PointGeoJSON(GeoJSON, Generic[_GeoJSONFeatureType]):
+    """Class for representing GeoJSON, containing point features"""
+
     features: list[PointFeature[_GeoJSONFeatureType]]
 
     @staticmethod
     def _gdf_to_features(gdf, runtime_feature_type):
+        """Generate Features from GeoDataFrame"""
         return gdf.apply(PointFeature[runtime_feature_type].from_geoseries, axis=1).to_list()
 
 
 class PolygonGeoJSON(GeoJSON, Generic[_GeoJSONFeatureType]):
+    """Class for representing GeoJSON, containing polygon and multipolygon features"""
+
     features: list[PolygonFeature[_GeoJSONFeatureType]]
 
     @staticmethod
     def _gdf_to_features(gdf, runtime_feature_type):
+        """Generate Features from GeoDataFrame"""
         return gdf.apply(PolygonFeature[runtime_feature_type].from_geoseries, axis=1).to_list()
