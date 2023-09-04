@@ -50,9 +50,9 @@ Before running the examples, please, download the [input data](https://drive.goo
 2. [Aggregating city blocks information](examples/2%20data_getter.ipynb) - how to fill blocks with aggregated information and also generate the accessibility matrix between blocks.
 3. [City model creation](examples/3%20city_model.ipynb) - how to create the **city model** and visualize it (to make sure it is real and correct).
 4. [Linear optimization provision assessment](examples/3a%20city_model%20lp_provision.ipynb) - how to assess provision of certain city service type.
-5. [Iterative algorithm provision assessment](examples/4%20provision.ipynb) - another example of how to assess provision, but using different iterative method.
-6. [Genetic algorithm master plan optimization]() - how to generate optimized master plans for certain territory or the whole city according to certain scenario.
-7. [Balancing territory parameters]() - how to increase certain territory population without decreasing the quality of life of the city.
+5. [Iterative algorithm provision assessment](examples/3b%20city_model%20iterative_provision.ipynb) - another example of how to assess provision, but using different iterative method.
+6. [Genetic algorithm master plan optimization](examples/3d%20city_model%20genetic.ipynb) - how to generate optimized master plans for certain territory or the whole city according to certain scenario.
+7. [Balancing territory parameters](examples/3c%20city_model%20balancer.ipynb) - how to increase certain territory population without decreasing the quality of life of the city.
 
 We advice to start with [city model creation](examples/3%20city_model.ipynb) example, if you downloaded the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) we prepared.
 
@@ -88,7 +88,7 @@ You can contact us:
 
 - [NCCR](https://actcognitive.org/o-tsentre/kontakty) - National Center for Cognitive Research
 - [IDU](https://idu.itmo.ru/en/contacts/contacts.htm) - Institute of Design and Urban Studies
-- [Tatyana Churyakova](https://t.me/tanya_chk) - project manager
+- [Tanya Churyakova](https://t.me/tanya_chk) - project manager
 
 ## Citation
 
@@ -105,5 +105,3 @@ Accepted:
 2. Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison of solution methods the maximal covering location problem of public spaces for teenagers in the urban environment // International Conference on Advanced Research in Technologies, Information, Innovation and Sustainability 2023 – ARTIIS 2023
 3. Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for automatically identifying vacant area in the current urban environment based on open source data // 12th International Young Scientists Conference in Computational Science – YSC 2023
 4. Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin S. Urban blocks modelling method // 12th International Young Scientists Conference in Computational Science – YSC 2023
-5. Стариков В.А, Чурякова Т.А., Митягин С.А. Ценностно-ориентированные требования к мастер-планированию // Альманах молодых ученых Университета ИТМО - 2023
-6. Натыкин М. В. Разработка метода расчёта основных объемно-пространственных показателей урбанизированных территорий // Альманах молодых ученых Университета ИТМО - 2023
