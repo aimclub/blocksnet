@@ -69,7 +69,7 @@ instance/
 .scrapy
 
 # Sphinx documentation
-docs/_build/
+build_docs/_build/
 
 # PyBuilder
 target/
@@ -131,8 +131,20 @@ dmypy.json
 
 /.vscode
 /cache
+/mp_data
 
 # data
+*.pickle
+*.parquet
 *.geojson
 *.pkl
 *.parquet
+*.graphml
+*.csv
+/masterplan_tools/output_data
+
+cache/
+/examples/data
+
+# PyCharm env
+.idea

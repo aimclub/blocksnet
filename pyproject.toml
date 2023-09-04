@@ -1,3 +1,71 @@
+[build-system]
+requires = ["setuptools>=64.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "masterplan_tools"
+version = "0.0.1"
+authors = [
+    # { name = "", email = "" }, # TODO add authors
+]
+description = "Package provides methods of master plan requirements automated generation for urban areas"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { file = "LICENCE.md" }
+
+dependencies = [
+    "geopandas==0.13.0",
+    "loguru==0.7.0",
+    "matplotlib==3.7.1",
+    "matplotlib-inline==0.1.6",
+    "networkit==10.1",
+    "networkx==3.1",
+    "numpy==1.24.3",
+    "osmnx",
+    "pandas==1.5.3",
+    "PuLP==2.7.0",
+    "pyarrow==12.0.0",
+    "pydantic==2.0",
+    "pylint==2.17.4",
+    "pygad==3.1.0",
+    "requests==2.31.0",
+    "scikit-learn==1.2.2",
+    "scipy==1.10.1",
+    "shapely==2.0.1",
+    "six==1.16.0",
+    "tqdm==4.65.0",
+    "seaborn==0.12.2",
+    "folium==0.14.0",
+]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: BSD License",
+    "Operating System :: OS Independent",
+    "Intended Audience :: Science/Research",
+]
+
+[tool.setuptools.packages.find]
+include = ["masterplan_tools*"]
+
+
+[project.optional-dependencies]
+dev = [
+    "black[jupyter]>=22",
+    "isort>=5.6",
+    "pylint>=2.17",
+    "pre-commit>=3.1",
+    "sphinx==6.2.1",
+    "sphinx-book-theme==1.0.1",
+    "numpydoc==1.5.0",
+]
+
+
+[project.urls]
+"Repository" = "https://github.com/iduprojects/masterplanning"
+"Bug Tracker" = "https://github.com/iduprojects/masterplanning/issues"
+
+
 [tool.black]
 line-length = 120
 target-version = ['py310']
@@ -5,3 +73,16 @@ target-version = ['py310']
 [tool.pylint.format]
 max-line-length = 120
 expected-line-ending-format = "LF"
+
+[tool.pylint.main]
+extension-pkg-allow-list = ["pydantic"]
+
+[tool.pycodestyle]
+max-line-length = 120
+
+
+[tool.isort]
+lines_after_imports = 2
+multi_line_output = 3
+line_length = 120
+include_trailing_comma = true

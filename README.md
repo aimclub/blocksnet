@@ -1,33 +1,29 @@
-# Masterplanning
+# BlockNet
 
-![Your logo](https://sun9-46.userapi.com/impf/aUFBStH0x_6jN9UhgwrKN1WN4hZ9Y2HMMrXT2w/NuzVobaGlZ0.jpg?size=1590x400&quality=95&crop=0,0,1878,472&sign=9d33baa41a86de35d951d4bbd8011994&type=cover_group)
+![Your logo](https://psv4.userapi.com/c236331/u6931256/docs/d54/bf3e6a5a3aeb/background-without-some.png?extra=0UhxWRG5hnl9wMXt_xuNBJnKPk28rqvDqW990UqdJJjJ0VnbhDq9qKd7UQawD2-QVz1QMP_ekK4Iw0e6oa1vPVYtwcgeQcAZ0FyTXaGT38JxBvhU5v46AwiQza1Q25Xsnb52wSvF_bqdRirFZyg)
 
-[![Azure](https://dev.azure.com/scikit-learn/scikit-learn/_apis/build/status/scikit-learn.scikit-learn?branchName=main)](https://dev.azure.com/scikit-learn/scikit-learn/_build/latest?definitionId=1&branchName=main)
-[![CirrusCI](https://img.shields.io/cirrus/github/scikit-learn/scikit-learn/main?label=Cirrus%20CI)](https://circleci.com/gh/scikit-learn/scikit-learn)
-[![Codecov](https://codecov.io/gh/scikit-learn/scikit-learn/branch/main/graph/badge.svg?token=Pk8G9gg3y9)](https://codecov.io/gh/scikit-learn/scikit-learn)
-[![Nightly wheels](https://github.com/scikit-learn/scikit-learn/workflows/Wheel%20builder/badge.svg?event=schedule)](https://github.com/scikit-learn/scikit-learn/actions?query=workflow%3A%22Wheel+builder%22+event%3Aschedule)
-[![PythonVersion](https://img.shields.io/badge/python-3.8%20%7C%203.9%20%7C%203.10-blue)](https://pypi.org/project/scikit-learn/)
-[![PyPi](https://img.shields.io/pypi/v/scikit-learn)](https://pypi.org/project/scikit-learn)
+[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![DOI](https://zenodo.org/badge/21369/scikit-learn/scikit-learn.svg)](https://zenodo.org/badge/latestdoi/21369/scikit-learn/scikit-learn)
-[![MIT license](https://img.shields.io/badge/License-MIT-yellow.svg)](https://github.com/iduprojects/masterplanning/blob/develop/LICENSE.md)
 
 ## The purpose of the project
 
-**Masterplanning** is an open-source library for generating master plan requirements for urban areas. While achieving the main goal of generating requirements, the library provides more than that:
+**BlockNet** is an open-source library for generating master plan requirements for urban areas. While achieving the main goal of generating requirements, the library provides more than that:
 
-- Simple yet detailed **city information model** based on urban blocks accessibility in graph.
-- **Provision assessment** based on normative requirements.
-- Urban territory **parameters balance** based on city development **concept**.
+- Simple yet detailed **city information model** based on city blocks accessibility in graph.
+- A **city blocks** generating method.
+- Optimized **master plan** generating method provided by **genetic algorithm** according to certain city development **scenario**.
+- Fast **provision assessment** method based on normative requirements and linear optimization algorithm.
+- Urban territory **parameters balance** based on city development **scenario**.
 
 ## Table of Contents
 
-- [Masterplanning](#masterplanning)
+- [BlockNet](#blocknet)
   - [The purpose of the project](#the-purpose-of-the-project)
   - [Table of Contents](#table-of-contents)
   - [Installation](#installation)
   - [Examples](#examples)
   - [Documentation](#documentation)
+  - [Developing](#developing)
   - [License](#license)
   - [Acknowledgments](#acknowledgments)
   - [Contacts](#contacts)
@@ -35,27 +31,53 @@
 
 ## Installation
 
-*Masterplanning* can be installed with `git clone`:
+_masterplan_tools_ can be installed with `pip`:
 
+1. `pip install git+https://github.com/iduprojects/masterplanning`
+
+Then use the library by importing classes from `masterplan_tools`. For example:
+
+```python
+from masterplan_tools import CityModel
 ```
-git clone https://github.com/iduprojects/masterplanning
-```
+
+For more detailed use case see our [examples](#examples) below.
 
 ## Examples
 
-Example notebooks are listed below:
+Before running the examples, please, download the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) and place it in `examples/data` directory. You are free to use your own data, but it should match specification classes. Next examples will help to get used to the library:
 
-1. [Creating city information model]() - example of how to create city information graph model, containing blocks as nodes and distances between blocks as edges.
-2. [Evaluating service type provision]() - example of service type provision assessment on city information model.
-3. [Balancing urban territory parameters]() - example of balancing urban territory parameters for requirements generation.
+1. [City blocks generating](examples/1%20blocks_cutter.ipynb) - city blocks generating according to landuse and buildings clustering.
+2. [Aggregating city blocks information](examples/2%20data_getter.ipynb) - how to fill blocks with aggregated information and also generate the accessibility matrix between blocks.
+3. [City model creation](examples/3%20city_model.ipynb) - how to create the **city model** and visualize it (to make sure it is real and correct).
+4. [Linear optimization provision assessment](examples/3a%20city_model%20lp_provision.ipynb) - how to assess provision of certain city service type.
+5. [Iterative algorithm provision assessment](examples/3b%20city_model%20iterative_provision.ipynb) - another example of how to assess provision, but using different iterative method.
+6. [Genetic algorithm master plan optimization](examples/3d%20city_model%20genetic.ipynb) - how to generate optimized master plans for certain territory or the whole city according to certain scenario.
+7. [Balancing territory parameters](examples/3c%20city_model%20balancer.ipynb) - how to increase certain territory population without decreasing the quality of life of the city.
+
+We advice to start with [city model creation](examples/3%20city_model.ipynb) example, if you downloaded the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) we prepared.
 
 ## Documentation
 
-We have a [GitBook page](https://iduprojects.gitbook.io/masterplanning/)
+We have a [documentation](https://iduprojects.github.io/masterplanning/), but our [examples](#examples) will explain the use cases cleaner.
+
+## Developing
+
+To start developing the library, one must perform following actions:
+
+1. Clone repository (`git clone https://github.com/iduprojects/masterplanning`)
+2. (optionally) create a virtual environment as the library demands exact packages versions: `python -m venv venv` and activate it.
+3. Install the library in editable mode: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`
+4. Install pre-commit hooks: `pre-commit install`
+5. Create a new branch based on **develop**: `git checkout -b develop <new_branch_name>`
+6. Add changes to the code
+7. Make a commit, push the new branch and create a pull-request into **develop**
+
+Editable installation allows to keep the number of re-installs to the minimum. A developer will need to repeat step 3 in case of adding new files to the library.
 
 ## License
 
-The project has [BSD 3-Clause license]()
+The project has [BSD-3-Clause license](./LICENSE)
 
 ## Acknowledgments
 
@@ -63,20 +85,24 @@ The library was developed as the main part of the ITMO University project #62228
 
 ## Contacts
 
-You can contact us through telegram or email:
+You can contact us:
 
-- [IDU]() - Institute of Design and Urban Studies
-- [Telegram]() | [Email]() - Tatyana Churyakova
-- [Telegram]() | [Email]() - George Kontsevik
+- [NCCR](https://actcognitive.org/o-tsentre/kontakty) - National Center for Cognitive Research
+- [IDU](https://idu.itmo.ru/en/contacts/contacts.htm) - Institute of Design and Urban Studies
+- [Tanya Churyakova](https://t.me/tanya_chk) - project manager
 
 ## Citation
 
-@article{"name",
-  title = {},
-  author = {},
-  journal = {},
-  year = {},
-  issn = {},
-  doi = {}}
+Published:
 
-bibtex-ссылку удобно брать с google scholar
+1. [Morozov A. S. et al. Assessing the transport connectivity of urban territories, based on intermodal transport accessibility // Frontiers in Built Environment. – 2023. – Т. 9. – С. 1148708.](https://www.frontiersin.org/articles/10.3389/fbuil.2023.1148708/full)
+2. [Kontsevik G. et al. Assessment of Spatial Inequality in Agglomeration Planning // International Conference on Computational Science and Its Applications. – Cham : Springer Nature Switzerland, 2023. – С. 256-269.](https://link.springer.com/chapter/10.1007/978-3-031-36808-0_17)
+3. [Morozov A. et al. Assessment of Spatial Inequality Through the Accessibility of Urban Services // International Conference on Computational Science and Its Applications. – Cham : Springer Nature Switzerland, 2023. – С. 270-286.](https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18)
+4. [Судакова В. В. Символический капитал территории как ресурс ревитализации: методики выявления // Вестник Омского государственного педагогического университета. Гуманитарные исследования. – 2023. – №. 2 (39). – С. 45-49](<https://vestnik-omgpu.ru/volume/2023-2-39/vestnik_2(39)2023_45-49.pdf>)
+
+Accepted:
+
+1. Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S. Digital Master Plan as a tool for generating territory development requirements // International Conference on Advanced Research in Technologies, Information, Innovation and Sustainability 2023 – ARTIIS 2023
+2. Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison of solution methods the maximal covering location problem of public spaces for teenagers in the urban environment // International Conference on Advanced Research in Technologies, Information, Innovation and Sustainability 2023 – ARTIIS 2023
+3. Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for automatically identifying vacant area in the current urban environment based on open source data // 12th International Young Scientists Conference in Computational Science – YSC 2023
+4. Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin S. Urban blocks modelling method // 12th International Young Scientists Conference in Computational Science – YSC 2023

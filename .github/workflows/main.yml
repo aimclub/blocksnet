@@ -1,0 +1,48 @@
+name: Deploy Documentation
+
+
+on:
+  push:
+    branches: [main, develop]
+
+jobs:
+  build:
+    env:
+      commitmsg: ${{ github.event.head_commit.message }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.10.12
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install '.[dev]'
+
+      - name: Build documentation
+        if: ${{ env.commitmsg != 'Update documentation' }}
+        run: |
+          cd ./build_docs
+          sphinx-apidoc -f -o source/ ../masterplan_tools/
+          make html
+          rm -rf ../docs
+          ls -l ./build/html
+          mv ./build/html ../docs
+          cd ..
+          rm -rf docs/_sources
+          ls -l ./docs
+
+      - name: Commit and push changes
+        run: |
+          git config user.name "$(git log -n 1 --pretty=format:%an)"
+          git config user.email "$(git log -n 1 --pretty=format:%ae)"
+          git status
+          git add .
+          git commit --allow-empty -m "Update documentation"
+          git push origin ${{ github.event.pull_request.base.ref }}
