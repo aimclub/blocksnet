@@ -4,7 +4,7 @@
 
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](https://github.com/iduprojects/masterplanning/blob/main/README-RU.md)
+[![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
 
 ## The purpose of the project
 
