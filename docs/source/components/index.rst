@@ -10,3 +10,5 @@ Components
 
    method/index
    models/index
+   preprocessing/index
+

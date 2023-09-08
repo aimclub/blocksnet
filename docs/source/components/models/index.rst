@@ -1,7 +1,7 @@
 Models
 ==========
 
-**That is about modules into GEFEST**
+**That is about Models into BlockNet**
 
 .. toctree::
    :glob:

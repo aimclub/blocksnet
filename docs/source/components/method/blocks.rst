@@ -1,46 +1,15 @@
-
-.. Blocks
-.. =========
-
-.. class  BlocksClusterization
-.. ~~~~~~~~~~~~~~
-
-.. .. autoclass:: masterplan_tools.method.blocks.blocks_clustering.BlocksClusterization
-
-
-.. class  BlocksCutter
-.. ~~~~~~~~~~~~~~
-
-.. .. autoclass:: masterplan_tools.method.blocks.blocks_cutter.BlocksCutter
-
-.. class  CutParameters
-.. ~~~~~~~~~~~~~~
-
-.. .. autoclass:: masterplan_tools.method.blocks.cut_parameters.CutParameters
-
-
-.. class  LandUseParameters
-.. ~~~~~~~~~~~~~~
-
-.. .. autoclass:: masterplan_tools.method.blocks.land_use_parameters.LandUseParameters
-
-.. class  LuFilter
-.. ~~~~~~~~~~~~~~
-
-.. .. autoclass:: masterplan_tools.method.blocks.landuse_filter.LuFilter
-
-    
+ 
 Blocks
 =========
 
-class  BlocksClusterization
+BlocksClusterization
 ~~~~~~~~~~~~~~
 
 .. automodule:: masterplan_tools.method.blocks.blocks_clustering
     :undoc-members:
     :show-inheritance:
 
-class  BlocksCutter
+BlocksCutter
 ~~~~~~~~~~~~~~
 
 .. automodule:: masterplan_tools.method.blocks.blocks_cutter
@@ -48,7 +17,7 @@ class  BlocksCutter
     :undoc-members:
     :show-inheritance:
 
-class  CutParameters
+CutParameters
 ~~~~~~~~~~~~~~
 
 .. automodule:: masterplan_tools.method.blocks.cut_parameters
@@ -56,7 +25,7 @@ class  CutParameters
     :undoc-members:
     :show-inheritance:
 
-class  LandUseParameters
+LandUseParameters
 ~~~~~~~~~~~~~~
 
 .. automodule:: masterplan_tools.method.blocks.land_use_parameters
@@ -64,10 +33,18 @@ class  LandUseParameters
     :undoc-members:
     :show-inheritance:
 
-class  LuFilter
+LuFilter
 ~~~~~~~~~~~~~~
 
 .. automodule:: masterplan_tools.method.blocks.landuse_filter
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
+Utils
+~~~~~~~~~~~~~~
+
+.. automodule:: masterplan_tools.method.blocks.utils
     :members:
     :undoc-members:
     :show-inheritance:

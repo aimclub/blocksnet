@@ -2,7 +2,7 @@
 Methods
 ==========
 
-**That is about modules into GEFEST**
+**That is about methods into BlockNet**
 
 .. toctree::
    :glob:
@@ -10,3 +10,5 @@ Methods
 
    balancing
    blocks
+   genetic
+   provision
