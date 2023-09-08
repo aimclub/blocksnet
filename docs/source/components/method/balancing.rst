@@ -1,8 +1,8 @@
 =========
-Balancing
+Balancer
 =========
 
-class  MasterPlan
-~~~~~~~~~~~~~~
-
-.. autoclass:: masterplan_tools.method.balancing.balancer.MasterPlan
+.. automodule::: masterplan_tools.method.balancing.balancer
+    :members:
+    :undoc-members:
+    :show-inheritance:
