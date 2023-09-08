@@ -2,6 +2,7 @@
 
 ![Your logo](https://psv4.userapi.com/c236331/u6931256/docs/d54/bf3e6a5a3aeb/background-without-some.png?extra=0UhxWRG5hnl9wMXt_xuNBJnKPk28rqvDqW990UqdJJjJ0VnbhDq9qKd7UQawD2-QVz1QMP_ekK4Iw0e6oa1vPVYtwcgeQcAZ0FyTXaGT38JxBvhU5v46AwiQza1Q25Xsnb52wSvF_bqdRirFZyg)
 
+[![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
@@ -60,7 +61,7 @@ We advice to start with [city model creation](examples/3%20city_model.ipynb) exa
 
 ## Documentation
 
-We have a [documentation](https://iduprojects.github.io/masterplanning/), but our [examples](#examples) will explain the use cases cleaner.
+We have a [documentation]([https://iduprojects.github.io/masterplanning/](https://blocknet.readthedocs.io/en/latest/), but our [examples](#examples) will explain the use cases cleaner.
 
 ## Developing
 
