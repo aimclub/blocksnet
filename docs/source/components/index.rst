@@ -8,5 +8,5 @@ Components
    :maxdepth: 2
 
 
-method/index
-models/index
+   method/index
+   models/index

@@ -11,7 +11,7 @@ Content:
 .. toctree::
    :maxdepth: 1
    
-   BlockNet/index
+   blocknet/index
    components/index
    contribution
    faq

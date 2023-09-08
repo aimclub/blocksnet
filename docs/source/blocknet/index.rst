@@ -7,6 +7,8 @@ BlockNet
    :glob:
    :maxdepth: 2
 
-   BlockNet
+   blocknet
    installation
    quickstart
+
+   
