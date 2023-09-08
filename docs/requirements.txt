@@ -21,3 +21,5 @@ scipy
 shapely
 seaborn
 folium
+tqdm
+six

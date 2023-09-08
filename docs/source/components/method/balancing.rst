@@ -1,6 +1,9 @@
-=========
+
 Balancer
 =========
+
+class  Balancer
+~~~~~~~~~~~~~~
 
 .. automodule::: masterplan_tools.method.balancing.balancer
     :members:
