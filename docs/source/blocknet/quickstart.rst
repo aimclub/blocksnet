@@ -15,6 +15,7 @@ How to get cut blocks
 ----------------------------------------------------
 
 An example of using the BlockNet library to extract addresses from the "Comment text" column in the sample_data.csv file.  
+
 - **Step 1**. Input data fetch and parameters setting.
 .. code:: python
 
@@ -25,7 +26,6 @@ An example of using the BlockNet library to extract addresses from the "Comment 
    roads_geometry = gpd.read_parquet(os.path.join(example_data_path, "roads_geometry.parquet")).to_crs(local_crs)
    railways_geometry = gpd.read_parquet(os.path.join(example_data_path, "railways_geometry.parquet")).to_crs(local_crs)
 
-   #basically we need just these 4 geometries to cut some blocks
    cut_params = CutParameters(
    city=city_geometry,
    water=water_geometry,
@@ -74,11 +74,11 @@ In further calculations we will use the in the following steps:
  - All of them while calculating the accessibility times among city blocks;
  - All of them except 'no_dev_area' while optimizing the development of new facilities.
 
-How to classify text messages 
+How to сreate CityModel
 ----------------------------------------------------
 We use the results from our previous examples, but you can use your own prepared GeoDataFrames.
 
-- **Step 1**. # load aggregated info we have and data required for service graphs creation.
+- **Step 1**. Load aggregated info we have and data required for service graphs creation.
 .. code:: python
 
    aggregated_blocks = gpd.read_parquet(os.path.join(example_data_path, "data_getter_blocks.parquet"))
