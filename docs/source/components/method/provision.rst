@@ -2,7 +2,7 @@
 Provision modules
 =========
 
-Agent-based model provision
+Iterative provision
 ~~~~~~~~~~~~~~
 .. automodule:: masterplan_tools.method.provision.provision_mode
     :members:

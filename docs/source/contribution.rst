@@ -2,51 +2,51 @@ Contribution
 ============
 
 We welcome you to `check the existing
-issues <https://github.com/iduprojects/BlockNet/issues>`__ for bugs or
+issues <https://github.com/iduprojects/masterplanning/issues>`__ for bugs or
 enhancements to work on. If you have an idea for an extension to BlockNet,
 please `file a new
-issue <https://github.com/iduprojects/BlockNet/issues/new>`__ so we can
+issue <https://github.com/iduprojects/masterplanning/issues/new>`__ so we can
 discuss it.
 
 Make sure to familiarize yourself with the project layout before making
 any major contributions.
 
-
 How to contribute
 -----------------
 
-The preferred way to contribute to BlockNet is to fork the `master
-repository <https://github.com/iduprojects/BlockNet/>`__ on GitHub:
 
-1. Fork the `project repository <https://github.com/iduprojects/BlockNet>`__:
-   click on the 'Fork' button near the top of the page. This creates a
-   copy of the code under your account on the GitHub server.
-
-2. Clone this copy to your local disk:
-
+1. Clone the repository:
    ::
+   
+       git clone https://github.com/iduprojects/masterplanning
 
-         $ git clone git@github.com:YourUsername/BlockNet.git
-         $ cd BlockNet
-
-3. Create a branch to hold your changes:
-
+2. (Optional) Create a virtual environment as the library demands exact package versions:
    ::
+   
+       python -m venv venv
 
-         $ git checkout -b my-contribution
+   Activate the virtual environment if you created one.
 
-4. Make sure your local environment is setup correctly for development.
-   Installation instructions are almost identical to `the user
-   instructions <instructions file>`__ except that BlockNet should *not* be
-   installed. If you have BlockNet installed on your computer then make
-   sure you are using a virtual environment that does not have BlockNet
-   installed.
+3. Install the library in editable mode with development dependencies:
+   ::
+   
+       python -m pip install -e '.[dev]' --config-settings editable_mode=strict
 
-5. Start making changes on your newly created branch, remembering to
+4. Install pre-commit hooks:
+   ::
+   
+       pre-commit install
+
+5. Create a new branch based on **develop**:
+   ::
+   
+       git checkout -b develop <new_branch_name>
+
+6. Start making changes on your newly created branch, remembering to
    never work on the ``masters`` branch! Work on this copy on your
    computer using Git to do the version control.
 
-6. To check your changes haven't broken any existing tests and to check
+7.  To check your changes haven't broken any existing tests and to check
    new tests you've added pass run the following (note, you must have
    the ``nose`` package installed within your dev environment for this
    to work):
@@ -55,7 +55,7 @@ repository <https://github.com/iduprojects/BlockNet/>`__ on GitHub:
 
          $ pytest -s
 
-7. When you're done editing and local testing, run:
+11. When you're done editing and local testing, run:
 
    ::
 
@@ -84,11 +84,11 @@ necessary so we can efficiently review and accept your changes.
 If your contribution changes BlockNet in any way:
 
 -  Update the
-   `documentation <https://github.com/iduprojects/BlockNet/wiki>`__
+   `documentation <https://github.com/iduprojects/masterplanning/docs>`__
    so all of your changes are reflected there.
 
 -  Update the
-   `README <https://github.com/iduprojects/BlockNet/blob/master/README.rst>`__
+   `README <https://github.com/iduprojects/masterplanning/blob/master/README.rst>`__
    if anything there has changed.
 
 If your contribution involves any code changes:
@@ -109,9 +109,6 @@ If your contribution requires a new library dependency:
    complicated installation, then we most likely won't merge your
    changes because we want to keep BlockNet easy to install.
 
--  Add the required version of the library to
-   `requirements.txt <https://github.com/iduprojects/BlockNet/blob/master/requirements.txt>`__
-
 Contribute to the documentation
 -------------------------------
 Take care of the documentation.
@@ -121,7 +118,7 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new package with several scripts:
 
-   1. Go to `docs/source/BlockNet <https://github.com/iduprojects/BlockNet/tree/master/docs>`__ and create new your_name_for_file.rst file.
+   1. Go to `docs/source/BlockNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ and create new your_name_for_file.rst file.
 
    2. Add a Header underlined with “=” sign. It’s crucial.
 
@@ -142,7 +139,7 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new module to the existed package:
 
-    Most of the sections are already described in `docs/source/BlockNet <https://github.com/iduprojects/BlockNet/tree/master/docs>`__ , so you can:
+    Most of the sections are already described in `docs/source/BlockNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ , so you can:
 
    -  choose the most appropriate and repeat 3-d step from the previous section.
    -  or create a new one and repeat 2-3 steps from the previous section.

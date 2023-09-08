@@ -9,7 +9,7 @@ How to install
 --------------
 .. code::
 
- pip install https://github.com/iduprojects/masterplanning/master.zip
+pip install git+https://github.com/iduprojects/masterplanning
 
 How to get cut blocks
 ----------------------------------------------------
