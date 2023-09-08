@@ -61,7 +61,7 @@ We advice to start with [city model creation](examples/3%20city_model.ipynb) exa
 
 ## Documentation
 
-We have a [documentation]([https://iduprojects.github.io/masterplanning/](https://blocknet.readthedocs.io/en/latest/), but our [examples](#examples) will explain the use cases cleaner.
+We have a [documentation](https://blocknet.readthedocs.io/en/latest/), but our [examples](#examples) will explain the use cases cleaner.
 
 ## Developing
 
