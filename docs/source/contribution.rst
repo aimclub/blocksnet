@@ -127,12 +127,12 @@ automodule:: <module_name> section which describes all the code in the module.
 
    3. Add automodule description for each of your scripts. ::
 
-       .. automodule:: BlockNet.core.your.first.script.path
+       .. automodule:: BlockNet.your.first.script.path
           :members:
           :undoc-members:
           :show-inheritance:
 
-       .. automodule:: BlockNet.core.your.second.script.path
+       .. automodule:: BlockNet.your.second.script.path
           :members:
           :undoc-members:
           :show-inheritance:
