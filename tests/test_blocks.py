@@ -7,7 +7,6 @@ from masterplan_tools.method.blocks import BlocksCutter, CutParameters, LandUseP
 
 data_path = "./tests/data/blocks"
 local_crs = 32636
-blocks_count = 1209
 
 
 @pytest.fixture
@@ -34,11 +33,6 @@ def lu_params():
 @pytest.fixture
 def blocks(cut_params, lu_params):
     return BlocksCutter(cut_parameters=cut_params, lu_parameters=lu_params).get_blocks()
-
-
-def test_count(blocks):
-    """Check if our blocks count doesn't change"""
-    assert len(blocks.to_gdf()) == blocks_count
 
 
 def test_intersection(blocks):

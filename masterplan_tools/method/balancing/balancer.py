@@ -15,68 +15,33 @@ from masterplan_tools.utils.measurement_units import HECTARE_IN_SQUARE_METERS
 
 
 def kindergarten_area_ranges(children_number: int) -> tuple[float, int]:
-    """
-    This method select weight coefficient according to the kindergarten area
+    children_number = ceil(children_number)
 
-    Attributes
-    ----------
-    children_number: int
-        The number of children in the school
+    conditions = [
+        140 < children_number <= 180,
+        180 < children_number <= 250,
+        250 < children_number <= 281,
+    ]
 
-    Returns
-    -------
-    Weight coefficient: tuple[float, int]
-    """
-
-    if 140 < children_number < 180:
-        return (0.72, 180)
-    if 250 < children_number < 280:
-        return (1.1, 280)
-    return (0, 0)
+    choices = [(0.72, 180), (1.44, 250), (1.1, 280)]
+    return tuple(np.select(conditions, choices, default=(0, 0)))
 
 
 def kindergarten_area(children_number) -> tuple[float, int]:
-    """
-    This method select weight coefficient according to the number of children in kindergarten
-
-    Attributes
-    ----------
-    children_number: int
-        The number of children in the school
-
-    Returns
-    -------
-    weights: tuple[float, int]
-        The weight coefficient for the specified number of kids
-    """
-
     if children_number >= 280:
         return tuple(map(sum, zip(kindergarten_area_ranges(280), kindergarten_area(children_number - 280))))
     return kindergarten_area_ranges(children_number)
 
 
 def school_area_ranges(schoolkids: int) -> tuple[float, int]:
-    """
-    This method select weight coefficient according to the number of schoolchildren
-
-    Attributes
-    ----------
-    schoolkids: int
-        The number of children in the school
-
-    Returns
-    -------
-    Weight coefficient: tuple[float, int]
-    """
-
     schoolkids = ceil(schoolkids)
 
     conditions = [
-        100 < schoolkids < 250,
-        250 < schoolkids < 300,
-        300 < schoolkids < 600,
-        600 < schoolkids < 800,
-        800 < schoolkids < 1101,
+        100 < schoolkids <= 250,
+        250 < schoolkids <= 300,
+        300 < schoolkids <= 600,
+        600 < schoolkids <= 800,
+        800 < schoolkids <= 1101,
     ]
 
     choices = [(1.2, 250), (1.1, 300), (1.3, 600), (1.5, 800), (1.8, 1100)]
@@ -84,20 +49,6 @@ def school_area_ranges(schoolkids: int) -> tuple[float, int]:
 
 
 def school_area(schoolkids) -> tuple[float, int]:
-    """
-    This method select weight coefficient according to the number of children in school
-
-    Attributes
-    ----------
-    schoolkids: int
-        The number of kids in the school
-
-    Returns
-    -------
-    weights: tuple
-        The weight coefficient for the specified number of kids
-    """
-
     if schoolkids >= 1100:
         return tuple(map(sum, zip(school_area_ranges(1100), school_area(schoolkids - 1100))))
     return school_area_ranges(schoolkids)
@@ -222,133 +173,29 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         self.max_population = ceil(self.max_living_area_full / self.b_max)
 
     def sc_area(self, population: int) -> float:
-        """
-        Method calculates coefficients for school area based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
         return school_area(self.SC_coef * population)[0]
 
     def kg_area(self, population: int) -> float:
-        """
-        Method calculates coefficients for kindergarten area based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
         return kindergarten_area(self.KG_coef * population)[0]
-
+    
     def op_area(self, population: int) -> float:
-        """
-        Method calculates coefficients for public spaces based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
         return self.OP_coef * population
 
     def parking1_area(self, population: int) -> float:
-        """
-        Method calculates coefficients №1 for parking area based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
         return self.P1_coef * population
 
     def parking2_area(self, population: int) -> float:
-        """
-        Method calculates coefficients №2 for parking area based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
         return self.P2_coef * population
 
     @staticmethod
-    def living_area(population: int, b):  # FIXME: what is "b"?
-        """
-        Method calculates coefficients №1 for parking area based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
+    def living_area(population: int, b):
         return population * b
 
     @staticmethod
-    def green_area(population, G):  # FIXME: what is "G"?
-        """
-        Method calculates coefficients for green area based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-            maximized number of inhabitants
-
-        Returns
-        -------
-        Weight coefficient
-        """
-
+    def green_area(population, G): 
         return population * G
 
-    def fun(self, x):  # FIXME: "fun"? "x"? Returns float?
-        """
-        Method calculates coefficients №1 for parking area based on the number of inhabitants
-
-        Attributes
-        ----------
-        Parameters for the selected variable: tuple
-            population and
-
-        Returns
-        -------
-        Integral weight coefficient
-        """
-
+    def fun(self, x):
         return (
             self.area
             - self.living_area(x[0], x[1])
@@ -360,9 +207,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
             - self.parking2_area(x[0])
         )
 
-    def bnds_and_cons(self):  # FIXME: docstring, typing?
-        """Information adout this method will be provided later"""
-
+    def bnds_and_cons(self): 
         self.cons = (
             {"type": "ineq", "fun": lambda x: self.max_population - x[0]},
             {
@@ -387,8 +232,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
 
         self.bnds = ((0, self.max_population), (self.b_min, self.b_max), (self.G_min, self.G_max))
 
-    def make_x0s(self):  # FIXME: docstring, typing?
-        """Information adout this method will be provided later"""
+    def make_x0s(self): 
 
         self.x0s = [
             (0, 0, 0),
@@ -398,8 +242,8 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
             (self.max_population / 8, self.b_max, self.G_max),
         ]
 
-    def find_optimal_solutions(self):  # FIXME: docstring, typing?
-        """Information adout this method will be provided later"""
+    def find_optimal_solutions(self):
+        """Find optimal solutions"""
 
         self.bnds_and_cons()
         self.make_x0s()
@@ -411,26 +255,14 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
             )
         self.results = pd.concat(itertools.chain([self.results], results)).reset_index(drop=True)
 
-    def select_one_optimal(self):  # FIXME: docstring, typing?
-        """Information adout this method will be provided later"""
+    def select_one_optimal(self): 
+        """Select ine optimal solution"""
 
         return self.results["x"][self.results[self.results["fun"] > 0]["fun"].idxmin()]
 
     def recalculate_indicators(
         self, population, b, G
-    ) -> dict:  # TODO: add typing to the dict (dict[str, float | int]?)
-        """
-        This method calculates desired indicator based on the number of inhabitants
-
-        Attributes
-        ----------
-        population: int
-
-        Returns
-        -------
-        Block's new parameters
-            new parameters for the feasibility report
-        """
+    ) -> dict:  
 
         population = ceil(population)
         green = self.green_area(population + self.current_unprov_green_population, G) + self.current_green_area
@@ -456,7 +288,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
             "parking2_area": self.parking2_area(population),
         }
 
-    def optimal_solution_indicators(self) -> dict:  # TODO: add tpting to the dict
+    def optimal_solution_indicators(self) -> dict:
         """
         This method selects optimal parameters for the specified area
 
