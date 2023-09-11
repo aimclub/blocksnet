@@ -1,4 +1,4 @@
-# BlockNet
+# UrbanBlockNet
 
 ![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
