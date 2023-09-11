@@ -1,135 +1,135 @@
-# BlockNet
+# UrbanBlockNet
 
-![Your logo](https://psv4.userapi.com/c236331/u6931256/docs/d54/bf3e6a5a3aeb/background-without-some.png?extra=0UhxWRG5hnl9wMXt_xuNBJnKPk28rqvDqW990UqdJJjJ0VnbhDq9qKd7UQawD2-QVz1QMP_ekK4Iw0e6oa1vPVYtwcgeQcAZ0FyTXaGT38JxBvhU5v46AwiQza1Q25Xsnb52wSvF_bqdRirFZyg)
+![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
-[![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
+[![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README-EN.md)
 
-**UrbanBlockNet** is an open-source library that includes methods of modeling urbanized areas for the generation of value-oriented master planning requirements. The library is provided for generating a universal information city model based on the accessibility of urban blocks. The library also provides tools for working with the information city model, which allow: to generate a layer of urban blocks, to calculate provisioning based on regulatory requirements, to obtain optimal requirements for master planning of territories.
+**UrbanBlockNet** – это библиотека с открытым исходным кодом, включающая методы моделирования урбанизированных территорий для задач генерации ценностно-ориентированных требований к мастер-планированию. Библиотека предназначена для формирования универсальной информационной модели города, основанной на доступности городских кварталов. В библиотеке также представлены инструменты для работы с информационной моделью города, которые позволяют: генерировать слой городских кварталов, рассчитывать обеспеченность на основе нормативных требований, а также получить оптимальные требования к мастер-планированию территорий.
 
-## UrbanBlockNet Features
-UrbanBlockNet — a library for modeling urban development scenarios (e.g. creating a master plan), supporting the following tools:
+## Преимущества UrbanBlockNet
 
-1. The method of generating a layer of urban blocks is the division of the territory into the smallest elements for the analysis of the urban area - blocks. The method of generating a layer of urban blocks is based on clustering algorithms taking into account additional data on land use.
-2. The Universal Information City Model is used to further analyze urban areas and to obtain information on the accessibility of urban blocks. The City Model includes aggregated information on services, intermodal accessibility and urban blocks.
-3. Methods for assessing urban provision of different types of services with regard to normative requirements and value attitudes of the population. The estimation of provisioning is performed by iterative algorithm on graphs, as well as by solving linear optimization problem.
-4. A method for computing the function for evaluating the optimality of master planning projects based on the value attitudes of the population and systems of external limitations. The method is based on solving an optimization problem: it is necessary to find an optimal development to increase the provision. The problem is solved with the help of genetic algorithm, user scenarios support is added.
+UrbanBlockNet — это библиотека для моделирования сценариев развития города, например при создании мастер-плана, поддерживающая следующие инструменты:
 
-Main differences from existing solutions:
+1. Метод генерации слоя городских кварталов - разделение территории на наименьшие элементы для анализа городской территории - кварталы. Метод генерации слоя городских кварталов основан на алгоритмах кластеризации с учетом дополнительных данных о землпепользовании.
+2. Универсальная информационная модель города используется для дальнейшей аналитики городских территорий и получения информации о доступности городских кварталов. Универсальная модель города включает агрегированную информацию о сервисах, интермодальной доступности и городских кварталах.
+3. Методы оценки городской обеспеченности различными типами сервисов с учетом нормативных требований и ценностных установок населения. Оценка обеспеченности производится при помощи итеративного алгоритма на графах, а также при помощи решения задачи линейной оптимизации.
+4. Метод вычисления функции оценки оптимальности проектов мастер-планирования, основанный на ценностных установках населения и систем внешних ограничений. Метод основан на решении задачи оптимизации: необходимо найти оптимальную застройку, чтобы повысить обеспеченность. Задача решается при помощи генетического алгоритма, добавлена поддержка пользовательских сценариев.
 
-- The method of generating a layer of **urban blocks** considers the type of land use, which makes it possible to define limitations for the development of the territory in the context of master planning.
-- The universal information **city model** can be built on open data; the smallest spatial unit for analysis is a block, which makes it possible to analyze on a city scale.
-- Not only normative documents are taken into account when assessing **provisioning**, but also the value attitudes of the population. 
-- Genetic algorithm for optimization of development supports user-defined **scenarios**.
-- Support for different regulatory requirements.
+Основные отличия от существующих решений:
 
-## Installation
+- Метод генерации слоя городских кварталов учитывет тип землепользования, что позволяет определить ограничения для развития территории в контексте мастер-планирования.
+- Универсальная информационная модель города может быть построена на открытых данных; наименьшая пространственная единица для анализа - квартал, что делает возможным аналитику в масштабах города.
+- При оценки обеспеченности учитываются не только нормативные документы, но и ценностные утсановки населения.
+- Генетический алгоритм для оптимизации застройки поддерживает пользовательские сценарии.
+- Поддержка различных нормативных требований.
 
-**UrbanBlockNet** can be installed with `pip`:
+## Установка
+
+Чтобы установить библиотеку **UrbanBlockNet** необходимо использовать `pip`:
 
 ```
 pip install git+https://github.com/iduprojects/masterplanning
 ```
 
-## How to use
+## Использование
 
-Then use the library by importing classes from `masterplan_tools`:
+Затем, необходимые классы импортируются из библиотеки:
 
 ```
 from masterplan_tools import CityModel
 ```
 
-Next, use the necessary functions and modules:
+Используются необходимые функции и модули:
 
 ```
 city_model = CityModel(
-  blocks=aggregated_blocks, 
-  accessibility_matrix=accessibility_matrix, 
+  blocks=aggregated_blocks,
+  accessibility_matrix=accessibility_matrix,
   services=services
 )
 city_model.visualize()
 ```
 
-For more detailed use case see our [examples](#examples) below.
+Более подробные примеры использования приведены ниже.
 
-## Data
+## Данные
 
-Before running the examples, you must download the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) and place it in the `examples/data` directory. You can use your own data, but it must follow the structure described in the [specification](https://blocknet.readthedocs.io/en/latest/index.html).
+Перед запуском примеров необходимо скачать [входные данные](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) и поместить их в директорию `examples/data`. Вы можете использовать свои собственные данные, но они должны соответствовать структуре, описанной в [спецификации](https://blocknet.readthedocs.io/en/latest/index.html).
 
-## Examples
+## Примеры
 
- Next examples will help to get used to the library:
+Следующие примеры помогут ознакомиться с библиотекой:
 
-1. [City blocks generating](examples/1%20blocks_cutter.ipynb) - city blocks generating according to landuse and buildings clustering.
-2. [Aggregating city blocks information](examples/2%20data_getter.ipynb) - how to fill blocks with aggregated information and also generate the accessibility matrix between blocks.
-3. [City model creation](examples/3%20city_model.ipynb) - how to create the **city model** and visualize it (to make sure it is real and correct).
-4. [Linear optimization provision assessment](examples/3a%20city_model%20lp_provision.ipynb) - how to assess provision of certain city service type.
-5. [Iterative algorithm provision assessment](examples/3b%20city_model%20iterative_provision.ipynb) - another example of how to assess provision, but using different iterative method.
-6. [Genetic algorithm master plan optimization](examples/3d%20city_model%20genetic.ipynb) - how to optimize the search for master planning requirements for a specific area or the entire city in a specific scenario.
-7. [Balancing territory parameters](examples/3c%20city_model%20balancer.ipynb) - how to increase certain territory population without decreasing the quality of life of the city.
+1. [Генерация слоя городских кварталов](examples/1%20blocks_cutter.ipynb) в соответствии с кластеризацией землепользования и зданий.
+2. [Агрегирование информации о городских кварталах](examples/2%20data_getter.ipynb) – как заполнить кварталы информацией о сервисах, содержащихся в них, а также сформировать матрицу интермодальной доступности между кварталами.
+3. [Создание информационной модели города](examples/3%20city_model.ipynb) – как создать **информационную модель города** и визуализировать ее (чтобы убедиться в ее реальности и правильности).
+4. [Оценка обеспеченности с помощью линейной оптимизации](examples/3a%20city_model%20lp_provision.ipynb) – как определить обеспеченность городскими сервисами.
+5. [Оценка обеспеченности по итерационному алгоритму](examples/3b%20city_model%20iterative_provision.ipynb) – еще один пример оценки обеспеченности, но с использованием другого итерационного метода.
+6. [Генетический алгоритм оптимизации требований к мастер-плану](examples/3d%20city_model%20genetic.ipynb) – как оптимизировать поиск требований к мастер-планированию для определенной территории или всего города по определенному сценарию.
+7. [Балансировка параметров территории](examples/3c%20city_model%20balancer.ipynb) при увеличении жилой площади, не снижая качество жизни в городе.
 
-We advice to start with [city model creation](examples/3%20city_model.ipynb) example, if you downloaded the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) we prepared.
+Мы советуем начать с п. 3 [создание информационной модели города](examples/3%20city_model.ipynb), если вы скачали подготовленные нами [исходные данные](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP).
 
-## Documentation
+## Документация
 
-Detailed information and description of UrbanBlockNet is available in [documentation](https://blocknet.readthedocs.io/en/latest/).
+Более детальная информация и описание работы с UrbanBlockNet доступны в [документации](https://blocknet.readthedocs.io/en/latest/).
 
-## Project Structure
+## Структура проекта
 
-The latest version of the library is available in the main branch.
+Последняя версия библиотеки доступна в main branch.
 
-The repository includes the following directories and modules:
+Она включает следующие модули и директории:
 
-* [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - directory with the framework code:
-    * preprocessing - preprocessing module
-    * models - model classes
-    * method - library tool methods
-    * utils - module for static units of measure
-* [data](https://github.com/iduprojects/masterplanning/tree/main/data) - directory with data for experiments and tests
-* [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - directory with units of measurement and integration tests
-* [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - directory with examples of how the methods work
-* [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - directory with RTD documentation
+- [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - каталог с кодом фреймворка:
+  - preprocessing - модуль для предпроцессинга
+  - models - классы моделей
+  - method - методы работы инструментов библиотеки
+  - utils - модуль для статических единиц изменения
+- [data](https://github.com/iduprojects/masterplanning/tree/main/data) - каталог с данными для экспериментов и тестов
+- [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
+- [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - каталог с примерами работы методов
+- [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - каталог с RTD документацией
 
-## Developing
+## Разработка
 
-To start developing the library, one must perform following actions:
+Для начала разработки библиотеки необходимо выполнить следующие действия:
 
-1. Clone repository (`git clone https://github.com/iduprojects/masterplanning`)
-2. (optionally) create a virtual environment as the library demands exact packages versions: `python -m venv venv` and activate it.
-3. Install the library in editable mode: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`
-4. Install pre-commit hooks: `pre-commit install`
-5. Create a new branch based on **develop**: `git checkout -b develop <new_branch_name>`
-6. Add changes to the code
-7. Make a commit, push the new branch and create a pull-request into **develop**
+1. Склонируйте репозиторий: `git clone https://github.com/iduprojects/masterplanning`.
+2. Создайте виртуальную среду (опционально), поскольку библиотека требует точных версий пакетов: `python -m venv venv` и активируйте ее.
+3. Установите библиотеку в редактируемом режиме: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`.
+4. Установите pre-commit: `pre-commit install`.
+5. Создайте новую ветку на основе **develop**: `git checkout -b develop <new_branch_name>`.
+6. Добавьте изменения в код.
+7. Сделайте коммит, переместите новую ветку и выполните pull-request в **develop**.
 
-Editable installation allows to keep the number of re-installs to the minimum. A developer will need to repeat step 3 in case of adding new files to the library.
+Редактируемая установка позволяет свести к минимуму количество повторных инсталляций. При добавлении новых файлов в библиотеку разработчику необходимо повторить шаг 3.
 
-## License
+## Лицензия
 
-The project has [BSD-3-Clause license](./LICENSE)
+Проект имеет [лицензию BSD-3-Clause](./LICENSE.md).
 
-## Acknowledgments
+## Благодарности
 
-The library was developed as the main part of the ITMO University project #622280 **"Machine learning algorithms library for the tasks of generating value-oriented requirements for urban areas master planning"**
+Библиотека была разработана как основная часть проекта Университета ИТМО № 622280 **"Библиотека алгоритмов машинного обучения для задач генерации ценностно-ориентированных требований к мастер-планированию урбанизированных территорий"**.
 
-## Contacts
+## Контакты
 
-You can contact us:
+Вы можете связаться с нами:
 
-- [NCCR](https://actcognitive.org/o-tsentre/kontakty) - National Center for Cognitive Research
-- [IDU](https://idu.itmo.ru/en/contacts/contacts.htm) - Institute of Design and Urban Studies
-- [Tatiana Churiakova](https://t.me/tanya_chk) - project manager
+- [НЦКР](https://actcognitive.org/o-tsentre/kontakty) – Национальный Центр Когнитивных Разработок
+- [ИДУ](https://idu.itmo.ru/en/contacts/contacts.htm) – Институт Дизайна и Урбанистики
+- [Татьяна Чурякова](https://t.me/tanya_chk) – руководитель проекта
 
-## Publications on library tools
+## Публикации по инструментам библиотеки
 
-Published:
+Опубликованные работы:
 
 1. [Morozov A. S. et al. Assessing the transport connectivity of urban territories, based on intermodal transport accessibility // Frontiers in Built Environment. – 2023. – Т. 9. – С. 1148708.](https://www.frontiersin.org/articles/10.3389/fbuil.2023.1148708/full)
 2. [Morozov A. et al. Assessment of Spatial Inequality Through the Accessibility of Urban Services // International Conference on Computational Science and Its Applications. – Cham : Springer Nature Switzerland, 2023. – С. 270-286.](https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18)
 
-Accepted:
+Принятые к публикации работы:
 
 1. Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S. Digital Master Plan as a tool for generating territory development requirements // International Conference on Advanced Research in Technologies, Information, Innovation and Sustainability 2023 – ARTIIS 2023
 2. Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison of solution methods the maximal covering location problem of public spaces for teenagers in the urban environment // International Conference on Advanced Research in Technologies, Information, Innovation and Sustainability 2023 – ARTIIS 2023
