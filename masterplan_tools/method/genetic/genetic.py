@@ -13,15 +13,14 @@ class Genetic():
     """The class provides a method for calculating the optimal options for the development 
     of a territory (a set of services) for given blocks and a scenario using a genetic algorithm"""
 
-    def __init__(self, CITY_MODEL, BLOCKS, SERVICES, SCENARIO, COMBINATION_SUBSEQ_LEN):
+    def __init__(self, CITY_MODEL, BLOCKS, SERVICES, SCENARIO, COMBINATION_SUBSEQ_LEN=None):
         self.CITY_MODEL = CITY_MODEL
         self.BLOCKS = BLOCKS
         self.SERVICES = SERVICES
         self.SCENARIO = SCENARIO 
         self.SERVICES_DF = pd.DataFrame()
         self.SERVICES_DICT = {}
-        self.COMBINATION_SUBSEQ_LEN = COMBINATION_SUBSEQ_LEN
-
+        self.COMBINATION_SUBSEQ_LEN = COMBINATION_SUBSEQ_LEN if COMBINATION_SUBSEQ_LEN is not None else 3
         self.LPP = LpProvision(city_model=self.CITY_MODEL)
 
         

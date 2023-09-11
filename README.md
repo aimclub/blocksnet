@@ -1,65 +1,97 @@
-# BlockNet
+# UrbanBlockNet
 
-![Your logo](https://psv4.userapi.com/c236331/u6931256/docs/d54/bf3e6a5a3aeb/background-without-some.png?extra=0UhxWRG5hnl9wMXt_xuNBJnKPk28rqvDqW990UqdJJjJ0VnbhDq9qKd7UQawD2-QVz1QMP_ekK4Iw0e6oa1vPVYtwcgeQcAZ0FyTXaGT38JxBvhU5v46AwiQza1Q25Xsnb52wSvF_bqdRirFZyg)
+![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
+[![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
+[![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
 
-## The purpose of the project
+**UrbanBlockNet** is an open-source library that includes methods of modeling urbanized areas for the generation of value-oriented master planning requirements. The library is provided for generating a universal information city model based on the accessibility of urban blocks. The library also provides tools for working with the information city model, which allow: to generate a layer of urban blocks, to calculate provisioning based on regulatory requirements, to obtain optimal requirements for master planning of territories.
 
-**BlockNet** is an open-source library for generating master plan requirements for urban areas. While achieving the main goal of generating requirements, the library provides more than that:
+## UrbanBlockNet Features
 
-- Simple yet detailed **city information model** based on city blocks accessibility in graph.
-- A **city blocks** generating method.
-- Optimized **master plan** generating method provided by **genetic algorithm** according to certain city development **scenario**.
-- Fast **provision assessment** method based on normative requirements and linear optimization algorithm.
-- Urban territory **parameters balance** based on city development **scenario**.
+UrbanBlockNet — a library for modeling urban development scenarios (e.g. creating a master plan), supporting the following tools:
 
-## Table of Contents
+1. The method of generating a layer of urban blocks is the division of the territory into the smallest elements for the analysis of the urban area - blocks. The method of generating a layer of urban blocks is based on clustering algorithms taking into account additional data on land use.
+2. The Universal Information City Model is used to further analyze urban areas and to obtain information on the accessibility of urban blocks. The City Model includes aggregated information on services, intermodal accessibility and urban blocks.
+3. Methods for assessing urban provision of different types of services with regard to normative requirements and value attitudes of the population. The estimation of provisioning is performed by iterative algorithm on graphs, as well as by solving linear optimization problem.
+4. A method for computing the function for evaluating the optimality of master planning projects based on the value attitudes of the population and systems of external limitations. The method is based on solving an optimization problem: it is necessary to find an optimal development to increase the provision. The problem is solved with the help of genetic algorithm, user scenarios support is added.
 
-- [BlockNet](#blocknet)
-  - [The purpose of the project](#the-purpose-of-the-project)
-  - [Table of Contents](#table-of-contents)
-  - [Installation](#installation)
-  - [Examples](#examples)
-  - [Documentation](#documentation)
-  - [Developing](#developing)
-  - [License](#license)
-  - [Acknowledgments](#acknowledgments)
-  - [Contacts](#contacts)
-  - [Citation](#citation)
+Main differences from existing solutions:
+
+- The method of generating a layer of **urban blocks** considers the type of land use, which makes it possible to define limitations for the development of the territory in the context of master planning.
+- The universal information **city model** can be built on open data; the smallest spatial unit for analysis is a block, which makes it possible to analyze on a city scale.
+- Not only normative documents are taken into account when assessing **provisioning**, but also the value attitudes of the population.
+- Genetic algorithm for optimization of development supports user-defined **scenarios**.
+- Support for different regulatory requirements.
 
 ## Installation
 
-_masterplan_tools_ can be installed with `pip`:
+**UrbanBlockNet** can be installed with `pip`:
 
-1. `pip install git+https://github.com/iduprojects/masterplanning`
+```
+pip install git+https://github.com/iduprojects/masterplanning
+```
 
-Then use the library by importing classes from `masterplan_tools`. For example:
+## How to use
 
-```python
+Then use the library by importing classes from `masterplan_tools`:
+
+```
 from masterplan_tools import CityModel
+```
+
+Next, use the necessary functions and modules:
+
+```
+city_model = CityModel(
+  blocks=aggregated_blocks,
+  accessibility_matrix=accessibility_matrix,
+  services=services
+)
+city_model.visualize()
 ```
 
 For more detailed use case see our [examples](#examples) below.
 
+## Data
+
+Before running the examples, you must download the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) and place it in the `examples/data` directory. You can use your own data, but it must follow the structure described in the [specification](https://blocknet.readthedocs.io/en/latest/index.html).
+
 ## Examples
 
-Before running the examples, please, download the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) and place it in `examples/data` directory. You are free to use your own data, but it should match specification classes. Next examples will help to get used to the library:
+Next examples will help to get used to the library:
 
 1. [City blocks generating](examples/1%20blocks_cutter.ipynb) - city blocks generating according to landuse and buildings clustering.
 2. [Aggregating city blocks information](examples/2%20data_getter.ipynb) - how to fill blocks with aggregated information and also generate the accessibility matrix between blocks.
 3. [City model creation](examples/3%20city_model.ipynb) - how to create the **city model** and visualize it (to make sure it is real and correct).
 4. [Linear optimization provision assessment](examples/3a%20city_model%20lp_provision.ipynb) - how to assess provision of certain city service type.
 5. [Iterative algorithm provision assessment](examples/3b%20city_model%20iterative_provision.ipynb) - another example of how to assess provision, but using different iterative method.
-6. [Genetic algorithm master plan optimization](examples/3d%20city_model%20genetic.ipynb) - how to generate optimized master plans for certain territory or the whole city according to certain scenario.
+6. [Genetic algorithm master plan optimization](examples/3d%20city_model%20genetic.ipynb) - how to optimize the search for master planning requirements for a specific area or the entire city in a specific scenario.
 7. [Balancing territory parameters](examples/3c%20city_model%20balancer.ipynb) - how to increase certain territory population without decreasing the quality of life of the city.
 
 We advice to start with [city model creation](examples/3%20city_model.ipynb) example, if you downloaded the [input data](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) we prepared.
 
 ## Documentation
 
-We have a [documentation](https://iduprojects.github.io/masterplanning/), but our [examples](#examples) will explain the use cases cleaner.
+Detailed information and description of UrbanBlockNet is available in [documentation](https://blocknet.readthedocs.io/en/latest/).
+
+## Project Structure
+
+The latest version of the library is available in the main branch.
+
+The repository includes the following directories and modules:
+
+- [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - directory with the framework code:
+  - preprocessing - preprocessing module
+  - models - model classes
+  - method - library tool methods
+  - utils - module for static units of measure
+- [data](https://github.com/iduprojects/masterplanning/tree/main/data) - directory with data for experiments and tests
+- [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - directory with units of measurement and integration tests
+- [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - directory with examples of how the methods work
+- [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - directory with RTD documentation
 
 ## Developing
 
@@ -89,16 +121,14 @@ You can contact us:
 
 - [NCCR](https://actcognitive.org/o-tsentre/kontakty) - National Center for Cognitive Research
 - [IDU](https://idu.itmo.ru/en/contacts/contacts.htm) - Institute of Design and Urban Studies
-- [Tanya Churyakova](https://t.me/tanya_chk) - project manager
+- [Tatiana Churiakova](https://t.me/tanya_chk) - project manager
 
-## Citation
+## Publications on library tools
 
 Published:
 
 1. [Morozov A. S. et al. Assessing the transport connectivity of urban territories, based on intermodal transport accessibility // Frontiers in Built Environment. – 2023. – Т. 9. – С. 1148708.](https://www.frontiersin.org/articles/10.3389/fbuil.2023.1148708/full)
-2. [Kontsevik G. et al. Assessment of Spatial Inequality in Agglomeration Planning // International Conference on Computational Science and Its Applications. – Cham : Springer Nature Switzerland, 2023. – С. 256-269.](https://link.springer.com/chapter/10.1007/978-3-031-36808-0_17)
-3. [Morozov A. et al. Assessment of Spatial Inequality Through the Accessibility of Urban Services // International Conference on Computational Science and Its Applications. – Cham : Springer Nature Switzerland, 2023. – С. 270-286.](https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18)
-4. [Судакова В. В. Символический капитал территории как ресурс ревитализации: методики выявления // Вестник Омского государственного педагогического университета. Гуманитарные исследования. – 2023. – №. 2 (39). – С. 45-49](<https://vestnik-omgpu.ru/volume/2023-2-39/vestnik_2(39)2023_45-49.pdf>)
+2. [Morozov A. et al. Assessment of Spatial Inequality Through the Accessibility of Urban Services // International Conference on Computational Science and Its Applications. – Cham : Springer Nature Switzerland, 2023. – С. 270-286.](https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18)
 
 Accepted:
 
