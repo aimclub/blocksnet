@@ -1,7 +1,7 @@
 Components
 ==========
 
-**That is about modules into GEFEST**
+**Here are all the modules of BlockNet**
 
 .. toctree::
    :glob:
@@ -11,4 +11,3 @@ Components
    method/index
    models/index
    preprocessing/index
-
