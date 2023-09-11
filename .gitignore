@@ -134,11 +134,10 @@ dmypy.json
 /mp_data
 
 # data
-*.pickle
-*.parquet
-*.geojson
+# *.pickle
+# *.parquet
+# *.geojson
 *.pkl
-*.parquet
 *.graphml
 *.csv
 /masterplan_tools/output_data
