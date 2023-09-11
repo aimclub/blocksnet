@@ -2,6 +2,7 @@
 
 ![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
+[![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README-EN.md)
