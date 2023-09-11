@@ -2,14 +2,15 @@
 
 ![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
+[![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README-EN.md)
 
-
 **UrbanBlockNet** – это библиотека с открытым исходным кодом, включающая методы моделирования урбанизированных территорий для задач генерации ценностно-ориентированных требований к мастер-планированию. Библиотека предназначена для формирования универсальной информационной модели города, основанной на доступности городских кварталов. В библиотеке также представлены инструменты для работы с информационной моделью города, которые позволяют: генерировать слой городских кварталов, рассчитывать обеспеченность на основе нормативных требований, а также получить оптимальные требования к мастер-планированию территорий.
 
-## UrbanBlockNet Features
+## Преимущества UrbanBlockNet
+
 UrbanBlockNet — это библиотека для моделирования сценариев развития города, например при создании мастер-плана, поддерживающая следующие инструменты:
 
 1. Метод генерации слоя городских кварталов - разделение территории на наименьшие элементы для анализа городской территории - кварталы. Метод генерации слоя городских кварталов основан на алгоритмах кластеризации с учетом дополнительных данных о землпепользовании.
@@ -54,8 +55,8 @@ city_model.visualize()
 
 Более подробные примеры использования приведены ниже.
 
-
 ## Данные
+
 Перед запуском примеров необходимо скачать [входные данные](https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP) и поместить их в директорию `examples/data`. Вы можете использовать свои собственные данные, но они должны соответствовать структуре, описанной в [спецификации](https://blocknet.readthedocs.io/en/latest/index.html).
 
 ## Примеры
@@ -74,25 +75,23 @@ city_model.visualize()
 
 ## Документация
 
-Более детальная информация и описание работы с UrbanBlockNet доступны в [документации](https://iduprojects.github.io/masterplanning/).
+Более детальная информация и описание работы с UrbanBlockNet доступны в [документации](https://blocknet.readthedocs.io/en/latest/).
 
 ## Структура проекта
 
-Последняя версия библиотеки доступна в master branch.
+Последняя версия библиотеки доступна в main branch.
 
 Она включает следующие модули и директории:
 
-* [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - каталог с кодом фреймворка:
-    * preprocessing - модуль для предпроцессинга
-    * models - классы моделей
-    * method - методы работы инструментов библиотеки
-    * utils - модуль для статических единиц изменения
-* [data](https://github.com/iduprojects/masterplanning/tree/main/data) - каталог с данными для экспериментов и тестов
-* [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
-* [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - каталог с примерами работы методов
-* [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - каталог с RTD документацией
-
-
+- [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - каталог с кодом фреймворка:
+  - preprocessing - модуль для предпроцессинга
+  - models - классы моделей
+  - method - методы работы инструментов библиотеки
+  - utils - модуль для статических единиц изменения
+- [data](https://github.com/iduprojects/masterplanning/tree/main/data) - каталог с данными для экспериментов и тестов
+- [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
+- [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - каталог с примерами работы методов
+- [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - каталог с RTD документацией
 
 ## Разработка
 
@@ -101,7 +100,7 @@ city_model.visualize()
 1. Склонируйте репозиторий: `git clone https://github.com/iduprojects/masterplanning`.
 2. Создайте виртуальную среду (опционально), поскольку библиотека требует точных версий пакетов: `python -m venv venv` и активируйте ее.
 3. Установите библиотеку в редактируемом режиме: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`.
-4. Устаовите pre-commit hooks: `pre-commit install`.
+4. Установите pre-commit: `pre-commit install`.
 5. Создайте новую ветку на основе **develop**: `git checkout -b develop <new_branch_name>`.
 6. Добавьте изменения в код.
 7. Сделайте коммит, переместите новую ветку и выполните pull-request в **develop**.
