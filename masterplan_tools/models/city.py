@@ -54,7 +54,7 @@ class Block(BaseModel):
         items = list(filter(lambda x: x.service_type.name == service_type_name, self.services))
         if len(items) == 0:
             return 0
-        return items[0].capacity
+        return {"capacity": items[0].capacity, "demand": items[0].service_type.calculate_in_need(self.population)}
 
     def __contains__(self, service_type_name):
         return service_type_name in [x.service_type.name for x in self.services]
