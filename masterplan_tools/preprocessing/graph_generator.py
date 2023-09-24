@@ -22,6 +22,14 @@ class GraphGenerator(BaseModel):
     overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"
     """Overpass url used in OSM queries"""
     speed: dict[str, int] = {"walk": 4, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
+    """Average transport type speed in km/h"""
+    waiting_time: dict[str, int] = {
+        "subway": 5,
+        "tram": 5,
+        "trolleybus": 5,
+        "bus": 5,
+    }
+    """Average waiting time in min"""
 
     def _get_walk_graph(self):
         """Returns pedestrian graph for the given geometry"""
@@ -133,17 +141,17 @@ class GraphGenerator(BaseModel):
         transport_nodes.set_geometry("geometry", inplace=True)
         transport_nodes.set_crs(epsg=self.local_crs, inplace=True)
 
-        connect_nodes = transport_nodes.sjoin_nearest(walk_nodes, how="left", distance_col="distance")
+        sjoin = transport_nodes.sjoin_nearest(walk_nodes, how="left", distance_col="distance")
         intermodal_graph = nx.compose(G_walk, G_transport)
         intermodal_graph.graph = {"epsg": self.local_crs}
-        for i in connect_nodes.index:
-            gs = connect_nodes.loc[i]
+        for i in sjoin.index:
+            gs = sjoin.loc[i]
             transport_node = gs["id"]
             walk_node = gs["index_right"]
             distance = gs["distance"]
             speed = 1000 * 4 / 60
             weight = distance / speed
             intermodal_graph.add_edge(transport_node, walk_node, weight=weight)
-            intermodal_graph.add_edge(walk_node, transport_node, weight=weight)
+            intermodal_graph.add_edge(walk_node, transport_node, weight=weight + 5)
 
         return intermodal_graph
