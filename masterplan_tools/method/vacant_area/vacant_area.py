@@ -4,7 +4,6 @@ import pandas as pd
 import geopandas as gpd
 from typing import ClassVar
 
-
 from pydantic import BaseModel
 from ...models import CityModel
 
@@ -32,9 +31,10 @@ class VacantArea(BaseModel):
     @classmethod
     def dwn_landuse(cls,block, local_crs):
         landuse = ox.geometries_from_polygon(block, tags={"landuse": True})
-        filtered_landuse = landuse[landuse['landuse'] != 'residential']
-        filtered_landuse['geometry'] = filtered_landuse['geometry'].to_crs(local_crs)
-        return filtered_landuse.geometry
+        if not landuse.empty:
+            landuse = landuse[landuse['landuse'] != 'residential']
+        landuse['geometry'] = landuse['geometry'].to_crs(local_crs)
+        return landuse.geometry
     
     @classmethod
     def dwn_amenity(cls,block, local_crs):
@@ -52,9 +52,10 @@ class VacantArea(BaseModel):
     @classmethod
     def dwn_natural(cls,block, local_crs):
         natural = ox.geometries_from_polygon(block, tags={"natural": True})
-        filtered_natural = natural[natural['natural'] != 'bay']
-        filtered_natural['geometry'] = filtered_natural['geometry'].to_crs(local_crs)
-        return filtered_natural.geometry
+        if not natural.empty:
+            natural = natural[natural['natural'] != 'bay']
+        natural['geometry'] = natural['geometry'].to_crs(local_crs)
+        return natural.geometry
     
     @classmethod
     def dwn_waterway(cls,block, local_crs):
@@ -67,7 +68,7 @@ class VacantArea(BaseModel):
         highway = ox.geometries_from_polygon(block, tags={"highway": True})
         condition = (highway['highway'] != 'path') & (highway['highway'] != 'footway') & (highway['highway'] != 'pedestrian')
         filtered_highway = highway[condition]
-        if roads_buffer is not None:
+        if roads_buffer:
             filtered_highway['geometry'] = filtered_highway['geometry'].to_crs(local_crs).buffer(roads_buffer)
         filtered_highway['geometry'] = filtered_highway['geometry'].to_crs(local_crs).buffer(1)
         return filtered_highway.geometry
@@ -82,13 +83,15 @@ class VacantArea(BaseModel):
     @classmethod
     def dwn_railway(cls, block, local_crs):
         railway = ox.geometries_from_polygon(block, tags={"railway": True})
-        filtered_railway = railway[railway['railway'] != 'subway']
-        filtered_railway['geometry'] = filtered_railway['geometry'].to_crs(local_crs)
-        return filtered_railway.geometry
+        if not railway.empty:
+            railway = railway[railway['railway'] != 'subway']
+        railway['geometry'] = railway['geometry'].to_crs(local_crs)
+        return railway.geometry
     
     @classmethod
     def create_minimum_bounding_rectangle(cls, polygon):
         return polygon.minimum_rotated_rectangle
+    
     @classmethod
     def buffer_and_union(cls, row, buffer_distance=1):
         polygon = row['geometry']
@@ -96,6 +99,7 @@ class VacantArea(BaseModel):
         return buffer_polygon
     
     def get_vacant_area(self, blpck_id:int):
+  
         blocks= self.city_model.blocks.to_gdf().copy()
         blocks = gpd.GeoDataFrame(geometry=gpd.GeoSeries(blocks.geometry))
         if blpck_id:
@@ -120,14 +124,20 @@ class VacantArea(BaseModel):
         occupied_area = pd.concat(occupied_area)
         occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area))
 
+        block_buffer2 = gpd.GeoDataFrame(geometry=block_gdf.buffer(20))
         polygon = occupied_area.geometry.geom_type == "Polygon"
         multipolygon = occupied_area.geometry.geom_type == "MultiPolygon"
-        blocks_new = gpd.overlay(block_gdf, occupied_area[polygon], how="difference")
+        blocks_new = gpd.overlay(block_buffer2, occupied_area[polygon], how="difference")
         blocks_new = gpd.overlay(blocks_new, occupied_area[multipolygon], how="difference")
+        blocks_new = gpd.overlay(block_gdf, blocks_new, how="intersection")
         blocks_exploded = blocks_new.explode(index_parts=True)
         blocks_exploded.reset_index(drop=True,inplace=True)
 
         blocks_filtered_area = blocks_exploded[blocks_exploded['geometry'].area >= 100] #1
+        if blocks_filtered_area.empty:
+            print('The block has no vacant area')
+            return  None
+        
         area_attitude = 1.9 # 2
         for index, row in blocks_filtered_area.iterrows():
             polygon = row['geometry']
