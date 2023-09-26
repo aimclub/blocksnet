@@ -50,7 +50,7 @@ class Block(BaseModel):
     parking_capacity: int = Field(ge=0)
     services: list[Service] = []
 
-    def __getitem__(self, service_type_name) -> int:
+    def __getitem__(self, service_type_name: str) -> int:
         items = list(filter(lambda x: x.service_type.name == service_type_name, self.services))
         if len(items) == 0:
             return 0
