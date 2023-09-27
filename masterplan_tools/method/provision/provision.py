@@ -19,11 +19,11 @@ class Provision(BaseMethod):
         gdf.plot(column="provision", cmap="RdYlGn", vmin=0, vmax=1, legend=True).set_axis_off()
 
     @classmethod
-    def plot_delta(cls, gdf_before: gpd.GeoDataFrame, gdf_after: gpd.GeoDataFrame, column: str = "provision"):
+    def plot_delta(cls, gdf_before: gpd.GeoDataFrame, gdf_after: gpd.GeoDataFrame):
         gdf = gdf_after.copy()
-        gdf = gdf.loc[gdf[column] != 0]
-        gdf[column] -= gdf_before[column]
-        gdf.plot(column=column, cmap="RdYlGn", vmin=-1, vmax=1, legend=True).set_axis_off()
+        gdf = gdf.loc[gdf["provision"] != 0]
+        gdf["provision"] -= gdf_before["provision"]
+        gdf.plot(column="provision", cmap="RdYlGn", vmin=-1, vmax=1, legend=True).set_axis_off()
 
     @classmethod
     def plot_provisions(cls, provisions: dict[str, gpd.GeoDataFrame]):
@@ -49,7 +49,7 @@ class Provision(BaseMethod):
     def _get_sorted_neighbors(self, block, capacity_blocks: list[Block]):
         return sorted(capacity_blocks, key=lambda b: self.city_model.graph[block][b]["weight"])
 
-    def _blocks_gdf(self, service_type: ServiceType) -> dict[Block, dict]:
+    def _get_blocks_gdf(self, service_type: ServiceType) -> dict[Block, dict]:
         """Returns blocks gdf for provision assessment"""
         data: list[dict] = []
         for block in self.city_model.blocks:
@@ -84,7 +84,7 @@ class Provision(BaseMethod):
         if not isinstance(service_type, ServiceType):
             service_type = self.city_model[service_type]
 
-        gdf = self._blocks_gdf(service_type)
+        gdf = self._get_blocks_gdf(service_type)
         if update_df is not None:
             gdf = gdf.join(update_df)
             gdf[update_df.columns] = gdf[update_df.columns].fillna(0)
@@ -145,13 +145,21 @@ class Provision(BaseMethod):
             a = int(name[1])
             b = int(name[2])
             weight = _get_weight(a, b)
-            if value > 0 and weight <= service_type.accessibility:
-                if fictive_index != None and a != fictive_index:
-                    gdf.loc[a, "demand_within"] = value
-                    gdf.loc[b, "capacity_left"] = value
-                if fictive_column != None and b != fictive_column:
-                    gdf.loc[a, "demand_within"] = value
-                    gdf.loc[b, "capacity_left"] = value
+            if value > 0:
+                if weight <= service_type.accessibility:
+                    if fictive_index != None and a != fictive_index:
+                        gdf.loc[a, "demand_within"] = value
+                        gdf.loc[b, "capacity_left"] = value
+                    if fictive_column != None and b != fictive_column:
+                        gdf.loc[a, "demand_within"] = value
+                        gdf.loc[b, "capacity_left"] = value
+                else:
+                    if fictive_index != None and a != fictive_index:
+                        gdf.loc[a, "demand_without"] = value
+                        gdf.loc[b, "capacity_left"] = value
+                    if fictive_column != None and b != fictive_column:
+                        gdf.loc[a, "demand_without"] = value
+                        gdf.loc[b, "capacity_left"] = value
         return gdf
 
     def _iterative_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
