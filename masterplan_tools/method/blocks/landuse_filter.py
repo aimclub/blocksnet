@@ -1,9 +1,7 @@
-"""Landuse filter class is defined here."""
 import geopandas as gpd
 import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
 from .utils import Utils
-
 
 class LuFilter:
     def __init__(self, city_blocks: gpd.GeoDataFrame, landuse_geometries=None):
@@ -46,13 +44,15 @@ class LuFilter:
                 geometry=[landuse_tags.loc[~landuse_tags["landuse"].isin(["building"])].unary_union],
                 crs=self.city_blocks.crs.to_epsg(),
             )
-
+            
+            # display(self.city_blocks)
+            # display(to_drop)
             territory_without_landuse = gpd.overlay(self.city_blocks, to_drop, how="difference")
             territory_without_landuse = territory_without_landuse.explode(ignore_index=True).reset_index(drop=True)
 
             territory_with_landuse = gpd.overlay(self.city_blocks, to_drop, how="intersection")
             territory_with_landuse["landuse"] = "important"
-            territory_with_landuse.geometry = territory_with_landuse.buffer(-5)
+            # territory_with_landuse.geometry = territory_with_landuse.buffer(-5)
 
             to_drop = landuse_tags.loc[landuse_tags["landuse"].isin(["building"])].copy()
             to_drop.geometry = to_drop.representative_point()
@@ -65,6 +65,9 @@ class LuFilter:
             territory_without_landuse.loc[selected.index, "landuse"] = "buildings"
 
         else:
+            # display(self.city_blocks)
+            # display(landuse_selected)
+
             territory_without_landuse = gpd.overlay(
                 self.city_blocks, landuse_selected, how="difference", keep_geom_type=True
             )
@@ -84,17 +87,33 @@ class LuFilter:
 
         self.city_blocks = gdf.copy()
 
-    def filter_lu(self) -> gpd.GeoDataFrame:
-        # drop_osm_landuse:bool=False
-        # if drop_osm_landuse:
-        landuse_selected = self._receiving_landuse()
-        self._pruning_landuse(landuse_selected)
+    def filter_geom_types(gdf):
+        return gdf[gdf.geometry.geom_type.isin(['Polygon', 'MultiPolygon'])]
 
-        no_dev = Utils.polygon_to_multipolygon(self.landuse_geometries.no_development.to_gdf())
-        lu = Utils.polygon_to_multipolygon(self.landuse_geometries.landuse.to_gdf())
+    def filter_lu(self, osm_landuse=None) -> gpd.GeoDataFrame:
+
+        if not isinstance(osm_landuse, gpd.GeoDataFrame):
+            osm_landuse = self._receiving_landuse()
+
+        self.city_blocks = Utils.polygon_to_multipolygon(self.city_blocks)
+
+        osm_landuse = LuFilter.filter_geom_types(osm_landuse)
+
+        no_dev = LuFilter.filter_geom_types(self.landuse_geometries.no_development.to_gdf())
+        no_dev = Utils.polygon_to_multipolygon(no_dev)
+        
+        lu = LuFilter.filter_geom_types(self.landuse_geometries.landuse.to_gdf())
+        lu = Utils.polygon_to_multipolygon(lu)
+
+        self._pruning_landuse(osm_landuse)
 
         self._pruning_landuse(no_dev, no_dev_area=True)
+
         self._pruning_landuse(lu)
+        
+        lu_b = osm_landuse[osm_landuse['landuse']=='building']
+        lu_b = gpd.GeoDataFrame(geometry=lu_b.loc[:, 'geometry'], crs=osm_landuse.crs.to_epsg())
+        self.city_blocks = gpd.sjoin(self.city_blocks, lu_b, predicate="contains")
 
         self.city_blocks["landuse"].fillna("no_dev_area", inplace=True)
 
