@@ -16,30 +16,29 @@ class VacantArea(BaseModel):
     roads_buffer: ClassVar[int] = 10
     buildings_buffer: ClassVar[int] = 10
 
-    @classmethod
-    def dwn_other(cls, block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_other(block, local_crs) -> gpd.GeoSeries:
         '''download other'''
         try:
-            other = ox.geometries_from_polygon(block, tags={"man_made": True, "aeroway": True,"military": True })
+            other = ox.features_from_polygon(block, tags={"man_made": True, "aeroway": True,"military": True })
             other['geometry'] = other['geometry'].to_crs(local_crs)
             return other.geometry
-        except Exception as exe:
-            print(f"An error occurred: {str(exe)}")
+        except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_leisure(cls, block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_leisure(block, local_crs) -> gpd.GeoSeries:
         try:
-            leisure = ox.geometries_from_polygon(block, tags={"leisure": True})
+            leisure = ox.features_from_polygon(block, tags={"leisure": True})
             leisure['geometry'] = leisure['geometry'].to_crs(local_crs)
             return leisure.geometry
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_landuse(cls,block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_landuse(block, local_crs) -> gpd.GeoSeries:
         try:
-            landuse = ox.geometries_from_polygon(block, tags={"landuse": True})
+            landuse = ox.features_from_polygon(block, tags={"landuse": True})
             if not landuse.empty:
                 landuse = landuse[landuse['landuse'] != 'residential']
             landuse['geometry'] = landuse['geometry'].to_crs(local_crs)
@@ -47,29 +46,29 @@ class VacantArea(BaseModel):
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_amenity(cls,block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_amenity(block, local_crs) -> gpd.GeoSeries:
         try:
-            amenity = ox.geometries_from_polygon(block, tags={"amenity": True})
+            amenity = ox.features_from_polygon(block, tags={"amenity": True})
             amenity['geometry'] = amenity['geometry'].to_crs(local_crs)
             return amenity.geometry
         except:
             return gpd.GeoSeries()
 
-    @classmethod
-    def dwn_buildings(cls,block, local_crs ,buildings_buffer) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_buildings(block, local_crs ,buildings_buffer) -> gpd.GeoSeries:
         try:
-            buildings = ox.geometries_from_polygon(block, tags={"building": True})
+            buildings = ox.features_from_polygon(block, tags={"building": True})
             if buildings_buffer:
                 buildings['geometry'] = buildings['geometry'].to_crs(local_crs).buffer(buildings_buffer)
             return buildings.geometry
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_natural(cls,block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_natural(block, local_crs) -> gpd.GeoSeries:
         try:
-            natural = ox.geometries_from_polygon(block, tags={"natural": True})
+            natural = ox.features_from_polygon(block, tags={"natural": True})
             if not natural.empty:
                 natural = natural[natural['natural'] != 'bay']
             natural['geometry'] = natural['geometry'].to_crs(local_crs)
@@ -77,19 +76,19 @@ class VacantArea(BaseModel):
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_waterway(cls,block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_waterway(block, local_crs) -> gpd.GeoSeries:
         try:
-            waterway = ox.geometries_from_polygon(block, tags={"waterway": True})
+            waterway = ox.features_from_polygon(block, tags={"waterway": True})
             waterway['geometry'] = waterway['geometry'].to_crs(local_crs)
             return waterway.geometry
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_highway(cls, block, local_crs, roads_buffer) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_highway(block, local_crs, roads_buffer) -> gpd.GeoSeries:
         try:
-            highway = ox.geometries_from_polygon(block, tags={"highway": True})
+            highway = ox.features_from_polygon(block, tags={"highway": True})
             condition = (highway['highway'] != 'path') & (highway['highway'] != 'footway') & (highway['highway'] != 'pedestrian')
             filtered_highway = highway[condition]
             if roads_buffer:
@@ -99,20 +98,20 @@ class VacantArea(BaseModel):
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_path(cls, block, local_crs)-> gpd.GeoSeries:
+    @staticmethod
+    def dwn_path(block, local_crs)-> gpd.GeoSeries:
         try:
             tags = {'highway': 'path', 'highway': 'footway'}
-            path = ox.geometries_from_polygon(block, tags=tags)
+            path = ox.features_from_polygon(block, tags=tags)
             path['geometry'] = path['geometry'].to_crs(local_crs).buffer(0.5)
             return path.geometry
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def dwn_railway(cls, block, local_crs) -> gpd.GeoSeries:
+    @staticmethod
+    def dwn_railway(block, local_crs) -> gpd.GeoSeries:
         try:
-            railway = ox.geometries_from_polygon(block, tags={"railway": True})
+            railway = ox.features_from_polygon(block, tags={"railway": True})
             if not railway.empty:
                 railway = railway[railway['railway'] != 'subway']
             railway['geometry'] = railway['geometry'].to_crs(local_crs)
@@ -120,19 +119,19 @@ class VacantArea(BaseModel):
         except:
             return gpd.GeoSeries()
     
-    @classmethod
-    def create_minimum_bounding_rectangle(cls, polygon) -> gpd.GeoSeries:
+    @staticmethod
+    def create_minimum_bounding_rectangle(polygon) -> gpd.GeoSeries:
         return polygon.minimum_rotated_rectangle
     
-    @classmethod
-    def buffer_and_union(cls, row, buffer_distance=1) -> gpd.GeoSeries:
+    @staticmethod
+    def buffer_and_union(row, buffer_distance=1) -> gpd.GeoSeries:
         polygon = row['geometry']
         buffer_polygon = polygon.buffer(buffer_distance)
         return buffer_polygon
-    
-    def get_vacant_area(self, blpck_id:int):
-  
-        blocks= self.city_model.blocks.to_gdf().copy()
+        
+    def get_vacant_area(self, blpck_id:int) -> gpd.GeoDataFrame:
+        
+        blocks = self.city_model.blocks.to_gdf().copy()
         blocks = gpd.GeoDataFrame(geometry=gpd.GeoSeries(blocks.geometry))
         if blpck_id:
             block_gdf = gpd.GeoDataFrame([blocks.iloc[blpck_id]], crs=blocks.crs)
@@ -156,7 +155,7 @@ class VacantArea(BaseModel):
         occupied_area = pd.concat(occupied_area)
         occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area))
 
-        block_buffer2 = gpd.GeoDataFrame(geometry=block_gdf.buffer(20))
+        block_buffer2 = gpd.GeoDataFrame(geometry=block_gdf.buffer(60))
         polygon = occupied_area.geometry.geom_type == "Polygon"
         multipolygon = occupied_area.geometry.geom_type == "MultiPolygon"
         blocks_new = gpd.overlay(block_buffer2, occupied_area[polygon], how="difference")
