@@ -106,14 +106,18 @@ class LuFilter:
         lu = Utils.polygon_to_multipolygon(lu)
 
         self._pruning_landuse(osm_landuse)
-
         self._pruning_landuse(no_dev, no_dev_area=True)
-
         self._pruning_landuse(lu)
         
         lu_b = osm_landuse[osm_landuse['landuse']=='building']
         lu_b = gpd.GeoDataFrame(geometry=lu_b.loc[:, 'geometry'], crs=osm_landuse.crs.to_epsg())
-        self.city_blocks = gpd.sjoin(self.city_blocks, lu_b, predicate="contains")
+        self.city_blocks = gpd.sjoin(self.city_blocks, lu_b, predicate="contains", how='left')
+
+        # Select only those polygons in gdf1 which contain polygons from gdf2
+        self.city_blocks = self.city_blocks[self.city_blocks.index_right.notnull()].copy()
+        self.city_blocks.drop(columns=['index_right'], inplace=True)
+        self.city_blocks = self.city_blocks.drop_duplicates(keep='first')
+        # territory_without_landuse.loc[selected.index, "landuse"] = "buildings"
 
         self.city_blocks["landuse"].fillna("no_dev_area", inplace=True)
 

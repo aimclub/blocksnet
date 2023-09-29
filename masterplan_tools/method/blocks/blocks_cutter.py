@@ -149,4 +149,7 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         blocks = blocks.drop(["index_right", "index", "id"], axis=1)
         blocks = blocks.reset_index(names="id")
 
+        # to avoid intersection
+        blocks.geometry = blocks.geometry.buffer(-0.01)
+
         return PolygonGeoJSON[BlocksCutterFeatureProperties].from_gdf(blocks)
