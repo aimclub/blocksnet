@@ -1,10 +1,10 @@
-masterplan\_tools.method.publicspace package
+blocksnet.method.publicspace package
 ============================================
 
 Submodules
 ----------
 
-masterplan\_tools.method.publicspace.ps\_greedy module
+blocksnet.method.publicspace.ps\_greedy module
 ------------------------------------------------------
 
 .. automodule:: blocksnet.method.publicspace.ps_greedy

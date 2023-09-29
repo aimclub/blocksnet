@@ -1,10 +1,10 @@
-masterplan\_tools.utils package
+blocksnet.utils package
 ===============================
 
 Submodules
 ----------
 
-masterplan\_tools.utils.measurement\_units module
+blocksnet.utils.measurement\_units module
 -------------------------------------------------
 
 .. automodule:: blocksnet.utils.measurement_units

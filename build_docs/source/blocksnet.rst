@@ -1,4 +1,4 @@
-masterplan\_tools package
+blocksnet package
 =========================
 
 Subpackages

@@ -1,10 +1,10 @@
-masterplan\_tools.method.blocks package
+blocksnet.method.blocks package
 =======================================
 
 Submodules
 ----------
 
-masterplan\_tools.method.blocks.blocks\_clustering module
+blocksnet.method.blocks.blocks\_clustering module
 ---------------------------------------------------------
 
 .. automodule:: blocksnet.method.blocks.blocks_clustering
@@ -12,7 +12,7 @@ masterplan\_tools.method.blocks.blocks\_clustering module
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.blocks\_cutter module
+blocksnet.method.blocks.blocks\_cutter module
 -----------------------------------------------------
 
 .. automodule:: blocksnet.method.blocks.blocks_cutter
@@ -20,7 +20,7 @@ masterplan\_tools.method.blocks.blocks\_cutter module
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.cut\_parameters module
+blocksnet.method.blocks.cut\_parameters module
 ------------------------------------------------------
 
 .. automodule:: blocksnet.method.blocks.cut_parameters
@@ -28,7 +28,7 @@ masterplan\_tools.method.blocks.cut\_parameters module
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.land\_use\_parameters module
+blocksnet.method.blocks.land\_use\_parameters module
 ------------------------------------------------------------
 
 .. automodule:: blocksnet.method.blocks.land_use_parameters
@@ -36,7 +36,7 @@ masterplan\_tools.method.blocks.land\_use\_parameters module
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.landuse\_filter module
+blocksnet.method.blocks.landuse\_filter module
 ------------------------------------------------------
 
 .. automodule:: blocksnet.method.blocks.landuse_filter
@@ -44,7 +44,7 @@ masterplan\_tools.method.blocks.landuse\_filter module
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.utils module
+blocksnet.method.blocks.utils module
 --------------------------------------------
 
 .. automodule:: blocksnet.method.blocks.utils

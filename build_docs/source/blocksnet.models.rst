@@ -1,10 +1,10 @@
-masterplan\_tools.models package
+blocksnet.models package
 ================================
 
 Submodules
 ----------
 
-masterplan\_tools.models.city\_model module
+blocksnet.models.city\_model module
 -------------------------------------------
 
 .. automodule:: blocksnet.models.city_model
@@ -12,7 +12,7 @@ masterplan\_tools.models.city\_model module
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.models.geojson module
+blocksnet.models.geojson module
 ---------------------------------------
 
 .. automodule:: blocksnet.models.geojson

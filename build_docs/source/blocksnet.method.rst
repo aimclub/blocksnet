@@ -1,4 +1,4 @@
-masterplan\_tools.method package
+blocksnet.method package
 ================================
 
 Subpackages

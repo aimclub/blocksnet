@@ -1,10 +1,10 @@
-masterplan\_tools.method.balancing package
+blocksnet.method.balancing package
 ==========================================
 
 Submodules
 ----------
 
-masterplan\_tools.method.balancing.balancer module
+blocksnet.method.balancing.balancer module
 --------------------------------------------------
 
 .. automodule:: blocksnet.method.balancing.balancer
