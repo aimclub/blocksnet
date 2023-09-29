@@ -3,7 +3,7 @@ Contribution
 
 We welcome you to `check the existing
 issues <https://github.com/iduprojects/masterplanning/issues>`__ for bugs or
-enhancements to work on. If you have an idea for an extension to BlockNet,
+enhancements to work on. If you have an idea for an extension to BlocksNet,
 please `file a new
 issue <https://github.com/iduprojects/masterplanning/issues/new>`__ so we can
 discuss it.
@@ -17,29 +17,29 @@ How to contribute
 
 1. Clone the repository:
    ::
-   
+
        git clone https://github.com/iduprojects/masterplanning
 
 2. (Optional) Create a virtual environment as the library demands exact package versions:
    ::
-   
+
        python -m venv venv
 
    Activate the virtual environment if you created one.
 
 3. Install the library in editable mode with development dependencies:
    ::
-   
+
        python -m pip install -e '.[dev]' --config-settings editable_mode=strict
 
 4. Install pre-commit hooks:
    ::
-   
+
        pre-commit install
 
 5. Create a new branch based on **develop**:
    ::
-   
+
        git checkout -b develop <new_branch_name>
 
 6. Start making changes on your newly created branch, remembering to
@@ -68,7 +68,7 @@ to record your changes in Git, then push them to GitHub with:
 
           $ git push -u origin my-contribution
 
-Finally, go to the web page of your fork of the BlockNet repo, and click
+Finally, go to the web page of your fork of the BlocksNet repo, and click
 'Pull Request' (PR) to send your changes to the maintainers for review.
 
 (If it looks confusing to you, then look up the `Git
@@ -81,7 +81,7 @@ Before you submit a pull request for your contribution, please work
 through this checklist to make sure that you have done everything
 necessary so we can efficiently review and accept your changes.
 
-If your contribution changes BlockNet in any way:
+If your contribution changes BlocksNet in any way:
 
 -  Update the
    `documentation <https://github.com/iduprojects/masterplanning/docs>`__
@@ -107,7 +107,7 @@ If your contribution requires a new library dependency:
 -  Double-check that the new dependency is easy to install via ``pip``
    or Anaconda and supports Python 3. If the dependency requires a
    complicated installation, then we most likely won't merge your
-   changes because we want to keep BlockNet easy to install.
+   changes because we want to keep BlocksNet easy to install.
 
 Contribute to the documentation
 -------------------------------
@@ -118,28 +118,28 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new package with several scripts:
 
-   1. Go to `docs/source/BlockNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ and create new your_name_for_file.rst file.
+   1. Go to `docs/source/BlocksNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ and create new your_name_for_file.rst file.
 
    2. Add a Header underlined with “=” sign. It’s crucial.
 
    3. Add automodule description for each of your scripts. ::
 
-       .. automodule:: BlockNet.your.first.script.path
+       .. automodule:: BlocksNet.your.first.script.path
           :members:
           :undoc-members:
           :show-inheritance:
 
-       .. automodule:: BlockNet.your.second.script.path
+       .. automodule:: BlocksNet.your.second.script.path
           :members:
           :undoc-members:
           :show-inheritance:
        ...
 
-   4. Add your_name_for_file to the toctree at docs/source/BlockNet/index.rst
+   4. Add your_name_for_file to the toctree at docs/source/BlocksNet/index.rst
 
 -  If a new module to the existed package:
 
-    Most of the sections are already described in `docs/source/BlockNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ , so you can:
+    Most of the sections are already described in `docs/source/BlocksNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ , so you can:
 
    -  choose the most appropriate and repeat 3-d step from the previous section.
    -  or create a new one and repeat 2-3 steps from the previous section.

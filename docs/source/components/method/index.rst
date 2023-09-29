@@ -2,7 +2,7 @@
 Methods
 ==========
 
-**That is about methods into BlockNet**
+**That is about methods into BlocksNet**
 
 .. toctree::
    :glob:

@@ -1,7 +1,7 @@
 Models
 ==========
 
-**That is about Models into BlockNet**
+**That is about Models into BlocksNet**
 
 .. toctree::
    :glob:

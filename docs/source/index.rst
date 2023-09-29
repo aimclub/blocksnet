@@ -1,17 +1,17 @@
-Welcome to BlockNet documentation!
+Welcome to BlocksNet documentation!
 ==================================
 
 .. container::
 
    | |logo|
-   | There is contained main documentation for the `BlockNet <https://github.com/iduprojects/masterplanning>`__.
+   | There is contained main documentation for the `BlocksNet <https://github.com/iduprojects/masterplanning>`__.
 
 Content:
 ========
 .. toctree::
    :maxdepth: 1
-   
-   blocknet/index
+
+   blocksnet/index
    components/index
    contribution
    faq

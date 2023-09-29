@@ -1,4 +1,4 @@
-# UrbanBlockNet
+# BlocksNet
 
 ![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
@@ -7,11 +7,11 @@
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
 
-**UrbanBlockNet** is an open-source library that includes methods of modeling urbanized areas for the generation of value-oriented master planning requirements. The library is provided for generating a universal information city model based on the accessibility of urban blocks. The library also provides tools for working with the information city model, which allow: to generate a layer of urban blocks, to calculate provisioning based on regulatory requirements, to obtain optimal requirements for master planning of territories.
+**BlocksNet** is an open-source library that includes methods of modeling urbanized areas for the generation of value-oriented master planning requirements. The library is provided for generating a universal information city model based on the accessibility of urban blocks. The library also provides tools for working with the information city model, which allow: to generate a layer of urban blocks, to calculate provisioning based on regulatory requirements, to obtain optimal requirements for master planning of territories.
 
-## UrbanBlockNet Features
+## BlocksNet Features
 
-UrbanBlockNet — a library for modeling urban development scenarios (e.g. creating a master plan), supporting the following tools:
+BlocksNet — a library for modeling urban development scenarios (e.g. creating a master plan), supporting the following tools:
 
 1. The method of generating a layer of urban blocks is the division of the territory into the smallest elements for the analysis of the urban area - blocks. The method of generating a layer of urban blocks is based on clustering algorithms taking into account additional data on land use.
 2. The Universal Information City Model is used to further analyze urban areas and to obtain information on the accessibility of urban blocks. The City Model includes aggregated information on services, intermodal accessibility and urban blocks.
@@ -28,7 +28,7 @@ Main differences from existing solutions:
 
 ## Installation
 
-**UrbanBlockNet** can be installed with `pip`:
+**BlocksNet** can be installed with `pip`:
 
 ```
 pip install git+https://github.com/iduprojects/masterplanning
@@ -75,7 +75,7 @@ We advice to start with [city model creation](examples/3%20city_model.ipynb) exa
 
 ## Documentation
 
-Detailed information and description of UrbanBlockNet is available in [documentation](https://blocknet.readthedocs.io/en/latest/).
+Detailed information and description of BlocksNet is available in [documentation](https://blocknet.readthedocs.io/en/latest/).
 
 ## Project Structure
 
