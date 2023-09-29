@@ -1,6 +1,6 @@
 # BlocksNet
 
-![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
+![Your logo](https://i.ibb.co/QC9XD07/blocksnet.png)
 
 [![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/blocksnet/)

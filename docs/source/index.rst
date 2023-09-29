@@ -17,4 +17,4 @@ Content:
    faq
    about
 
-.. |logo| image:: https://i.ibb.co/jTVHdkp/background-without-some.png
+.. |logo| image:: https://i.ibb.co/QC9XD07/blocksnet.png
