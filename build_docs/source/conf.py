@@ -20,7 +20,7 @@ sys.path.append(os.path.abspath(str(pathlib.Path(__file__).resolve().parent.pare
 
 
 # TODO: change properties to correct values
-project = "Masterplanning"
+project = "BlocksNet"
 copyright = "2023, open-source"
 author = "open-source"
 
