@@ -62,8 +62,8 @@ dev = [
 
 
 [project.urls]
-"Repository" = "https://github.com/iduprojects/masterplanning"
-"Bug Tracker" = "https://github.com/iduprojects/masterplanning/issues"
+"Repository" = "https://github.com/iduprojects/blocksnet"
+"Bug Tracker" = "https://github.com/iduprojects/blocksnet/issues"
 
 
 [tool.black]

@@ -31,7 +31,7 @@ Main differences from existing solutions:
 **BlocksNet** can be installed with `pip`:
 
 ```
-pip install git+https://github.com/iduprojects/masterplanning
+pip install git+https://github.com/iduprojects/blocksnet
 ```
 
 ## How to use
@@ -83,21 +83,21 @@ The latest version of the library is available in the main branch.
 
 The repository includes the following directories and modules:
 
-- [**blocksnet**](https://github.com/iduprojects/masterplanning/tree/main/blocksnet) - directory with the framework code:
+- [**blocksnet**](https://github.com/iduprojects/blocksnet/tree/main/blocksnet) - directory with the framework code:
   - preprocessing - preprocessing module
   - models - model classes
   - method - library tool methods
   - utils - module for static units of measure
-- [data](https://github.com/iduprojects/masterplanning/tree/main/data) - directory with data for experiments and tests
-- [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - directory with units of measurement and integration tests
-- [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - directory with examples of how the methods work
-- [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - directory with RTD documentation
+- [data](https://github.com/iduprojects/blocksnet/tree/main/data) - directory with data for experiments and tests
+- [tests](https://github.com/iduprojects/blocksnet/tree/main/tests) - directory with units of measurement and integration tests
+- [examples](https://github.com/iduprojects/blocksnet/tree/main/examples) - directory with examples of how the methods work
+- [docs](https://github.com/iduprojects/blocksnet/tree/main/docs) - directory with RTD documentation
 
 ## Developing
 
 To start developing the library, one must perform following actions:
 
-1. Clone repository (`git clone https://github.com/iduprojects/masterplanning`)
+1. Clone repository (`git clone https://github.com/iduprojects/blocksnet`)
 2. (optionally) create a virtual environment as the library demands exact packages versions: `python -m venv venv` and activate it.
 3. Install the library in editable mode: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`
 4. Install pre-commit hooks: `pre-commit install`

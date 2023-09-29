@@ -9,7 +9,7 @@ How to install
 --------------
 .. code::
 
-   pip install git+https://github.com/iduprojects/masterplanning
+   pip install git+https://github.com/iduprojects/blocksnet
 
 Easy start with prepared data
 -----------------------------

@@ -4,7 +4,7 @@ Welcome to BlocksNet documentation!
 .. container::
 
    | |logo|
-   | There is contained main documentation for the `BlocksNet <https://github.com/iduprojects/masterplanning>`__.
+   | There is contained main documentation for the `BlocksNet <https://github.com/iduprojects/blocksnet>`__.
 
 Content:
 ========

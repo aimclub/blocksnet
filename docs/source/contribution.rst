@@ -2,10 +2,10 @@ Contribution
 ============
 
 We welcome you to `check the existing
-issues <https://github.com/iduprojects/masterplanning/issues>`__ for bugs or
+issues <https://github.com/iduprojects/blocksnet/issues>`__ for bugs or
 enhancements to work on. If you have an idea for an extension to BlocksNet,
 please `file a new
-issue <https://github.com/iduprojects/masterplanning/issues/new>`__ so we can
+issue <https://github.com/iduprojects/blocksnet/issues/new>`__ so we can
 discuss it.
 
 Make sure to familiarize yourself with the project layout before making
@@ -18,7 +18,7 @@ How to contribute
 1. Clone the repository:
    ::
 
-       git clone https://github.com/iduprojects/masterplanning
+       git clone https://github.com/iduprojects/blocksnet
 
 2. (Optional) Create a virtual environment as the library demands exact package versions:
    ::
@@ -84,11 +84,11 @@ necessary so we can efficiently review and accept your changes.
 If your contribution changes BlocksNet in any way:
 
 -  Update the
-   `documentation <https://github.com/iduprojects/masterplanning/docs>`__
+   `documentation <https://github.com/iduprojects/blocksnet/docs>`__
    so all of your changes are reflected there.
 
 -  Update the
-   `README <https://github.com/iduprojects/masterplanning/blob/master/README.rst>`__
+   `README <https://github.com/iduprojects/blocksnet/blob/master/README.rst>`__
    if anything there has changed.
 
 If your contribution involves any code changes:
@@ -118,7 +118,7 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new package with several scripts:
 
-   1. Go to `docs/source/BlocksNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ and create new your_name_for_file.rst file.
+   1. Go to `docs/source/BlocksNet <https://github.com/iduprojects/blocksnet/tree/master/docs>`__ and create new your_name_for_file.rst file.
 
    2. Add a Header underlined with “=” sign. It’s crucial.
 
@@ -139,7 +139,7 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new module to the existed package:
 
-    Most of the sections are already described in `docs/source/BlocksNet <https://github.com/iduprojects/masterplanning/tree/master/docs>`__ , so you can:
+    Most of the sections are already described in `docs/source/BlocksNet <https://github.com/iduprojects/blocksnet/tree/master/docs>`__ , so you can:
 
    -  choose the most appropriate and repeat 3-d step from the previous section.
    -  or create a new one and repeat 2-3 steps from the previous section.

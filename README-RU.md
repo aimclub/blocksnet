@@ -31,7 +31,7 @@ BlocksNet — это библиотека для моделирования сц
 Чтобы установить библиотеку **BlocksNet** необходимо использовать `pip`:
 
 ```
-pip install git+https://github.com/iduprojects/masterplanning
+pip install git+https://github.com/iduprojects/blocksnet
 ```
 
 ## Использование
@@ -83,21 +83,21 @@ city_model.visualize()
 
 Она включает следующие модули и директории:
 
-- [**blocksnet**](https://github.com/iduprojects/masterplanning/tree/main/blocksnet) - каталог с кодом фреймворка:
+- [**blocksnet**](https://github.com/iduprojects/blocksnet/tree/main/blocksnet) - каталог с кодом фреймворка:
   - preprocessing - модуль для предпроцессинга
   - models - классы моделей
   - method - методы работы инструментов библиотеки
   - utils - модуль для статических единиц изменения
-- [data](https://github.com/iduprojects/masterplanning/tree/main/data) - каталог с данными для экспериментов и тестов
-- [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
-- [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - каталог с примерами работы методов
-- [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - каталог с RTD документацией
+- [data](https://github.com/iduprojects/blocksnet/tree/main/data) - каталог с данными для экспериментов и тестов
+- [tests](https://github.com/iduprojects/blocksnet/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
+- [examples](https://github.com/iduprojects/blocksnet/tree/main/examples) - каталог с примерами работы методов
+- [docs](https://github.com/iduprojects/blocksnet/tree/main/docs) - каталог с RTD документацией
 
 ## Разработка
 
 Для начала разработки библиотеки необходимо выполнить следующие действия:
 
-1. Склонируйте репозиторий: `git clone https://github.com/iduprojects/masterplanning`.
+1. Склонируйте репозиторий: `git clone https://github.com/iduprojects/blocksnet`.
 2. Создайте виртуальную среду (опционально), поскольку библиотека требует точных версий пакетов: `python -m venv venv` и активируйте ее.
 3. Установите библиотеку в редактируемом режиме: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`.
 4. Установите pre-commit: `pre-commit install`.
