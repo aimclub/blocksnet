@@ -3,7 +3,7 @@
 import os
 import pytest
 import geopandas as gpd
-from masterplan_tools.preprocessing import DataGetter, AggregateParameters
+from blocksnet.preprocessing import DataGetter, AggregateParameters
 
 data_path = "./tests/data/preprocessing"
 local_crs = 32636

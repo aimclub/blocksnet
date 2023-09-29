@@ -4,7 +4,7 @@
 
 Steps to generate documentation:
 1) cd to /build_docs
-2) run sphinx-apidoc -f -o /source ../masterplan_tools/   - generates project structure
+2) run sphinx-apidoc -f -o /source ../blocksnet/   - generates project structure
 3) run make html (or .\make html if you don't have make available globally)    - builds html with sphinx structure
 4) newly built documentation will be in /build_docs/build/html
 
@@ -16,7 +16,7 @@ import pathlib
 import sys
 
 sys.path.insert(0, os.path.abspath(str(pathlib.Path(__file__).resolve().parent.parent)))
-sys.path.append(os.path.abspath(str(pathlib.Path(__file__).resolve().parent.parent / "masterplan_tools")))
+sys.path.append(os.path.abspath(str(pathlib.Path(__file__).resolve().parent.parent / "blocksnet")))
 
 
 # TODO: change properties to correct values

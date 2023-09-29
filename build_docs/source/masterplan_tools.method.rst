@@ -7,15 +7,15 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   masterplan_tools.method.balancing
-   masterplan_tools.method.blocks
-   masterplan_tools.method.provision
-   masterplan_tools.method.publicspace
+   blocksnet.method.balancing
+   blocksnet.method.blocks
+   blocksnet.method.provision
+   blocksnet.method.publicspace
 
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.method
+.. automodule:: blocksnet.method
    :members:
    :undoc-members:
    :show-inheritance:

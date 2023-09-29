@@ -3,7 +3,7 @@
 ![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
 [![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
-[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
+[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/blocksnet/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
 
@@ -39,7 +39,7 @@ pip install git+https://github.com/iduprojects/masterplanning
 Затем, необходимые классы импортируются из библиотеки:
 
 ```
-from masterplan_tools import CityModel
+from blocksnet import CityModel
 ```
 
 Используются необходимые функции и модули:
@@ -83,7 +83,7 @@ city_model.visualize()
 
 Она включает следующие модули и директории:
 
-- [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - каталог с кодом фреймворка:
+- [**blocksnet**](https://github.com/iduprojects/masterplanning/tree/main/blocksnet) - каталог с кодом фреймворка:
   - preprocessing - модуль для предпроцессинга
   - models - классы моделей
   - method - методы работы инструментов библиотеки

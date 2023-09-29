@@ -7,7 +7,7 @@ Submodules
 masterplan\_tools.method.publicspace.ps\_greedy module
 ------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.publicspace.ps_greedy
+.. automodule:: blocksnet.method.publicspace.ps_greedy
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ masterplan\_tools.method.publicspace.ps\_greedy module
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.method.publicspace
+.. automodule:: blocksnet.method.publicspace
    :members:
    :undoc-members:
    :show-inheritance:

@@ -38,7 +38,7 @@ An example of using the BlocksNet library to cut city blocks for the city.
 - **Step 1**. Input data fetch and parameters setting.
 .. code:: python
 
-   from masterplan_tools.method.blocks import CutParameters
+   from blocksnet.method.blocks import CutParameters
 
    city_geometry = gpd.read_parquet(os.path.join(example_data_path, "city_geometry.parquet")).to_crs(local_crs)
    water_geometry = gpd.read_parquet(os.path.join(example_data_path, "water_geometry.parquet")).to_crs(local_crs)
@@ -56,7 +56,7 @@ An example of using the BlocksNet library to cut city blocks for the city.
 - **Step 2**. To improve our method we should use land use filtering. If we don't set landuse parameters, no LU filtering will be applied to the blocks.
 .. code:: python
 
-   from masterplan_tools.method.blocks import LandUseParameters
+   from blocksnet.method.blocks import LandUseParameters
 
    no_development = gpd.read_file(os.path.join(example_data_path, "no_development_pzz.geojson"), mask=city_geometry.to_crs(4326)).to_crs(local_crs)
    no_development = no_development[no_development['RAYON']=='Василеостровский']
@@ -74,7 +74,7 @@ An example of using the BlocksNet library to cut city blocks for the city.
 
 .. code:: python
 
-   from masterplan_tools.method import BlocksCutter
+   from blocksnet.method import BlocksCutter
 
    blocks = BlocksCutter(
    cut_parameters=cut_params,
@@ -114,7 +114,7 @@ The ``DataGetter`` class requires the following input data to aggregate blocks i
 - **Step 1**. Load cutted blocks and initialize a ``DataGetter`` object.
 .. code:: python
 
-   from masterplan_tools.preprocessing import DataGetter, AggregateParameters
+   from blocksnet.preprocessing import DataGetter, AggregateParameters
 
    blocks = gpd.read_parquet(os.path.join(example_data_path, "blocks_cutter_result.parquet")).to_crs(local_crs)
    getter = DataGetter(blocks=blocks)
@@ -190,7 +190,7 @@ We use the results from our previous examples, but you can use your own prepared
 - **Step 2**. Creation of a city model
 .. code:: python
 
-   from masterplan_tools import CityModel
+   from blocksnet import CityModel
 
    city_model = CityModel(
    blocks=aggregated_blocks,

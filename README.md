@@ -3,7 +3,7 @@
 ![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
 
 [![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
-[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
+[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/blocksnet/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
 
@@ -36,10 +36,10 @@ pip install git+https://github.com/iduprojects/masterplanning
 
 ## How to use
 
-Then use the library by importing classes from `masterplan_tools`:
+Then use the library by importing classes from `blocksnet`:
 
 ```
-from masterplan_tools import CityModel
+from blocksnet import CityModel
 ```
 
 Next, use the necessary functions and modules:
@@ -83,7 +83,7 @@ The latest version of the library is available in the main branch.
 
 The repository includes the following directories and modules:
 
-- [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - directory with the framework code:
+- [**blocksnet**](https://github.com/iduprojects/masterplanning/tree/main/blocksnet) - directory with the framework code:
   - preprocessing - preprocessing module
   - models - model classes
   - method - library tool methods

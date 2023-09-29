@@ -1,4 +1,4 @@
-SOURCE_DIR = masterplan_tools
+SOURCE_DIR = blocksnet
 
 lint:
 	pylint ${SOURCE_DIR}
@@ -17,10 +17,10 @@ build:
 	python3 -m build .
 
 clean:
-	rm -rf ./build ./dist ./masterplan_tools.egg-info
+	rm -rf ./build ./dist ./blocksnet.egg-info
 
 udpate-pypi: clean build
 	python3 -m twine upload dist/*
 
 install-from-build:
-	python3 -m wheel install dist/masterplan_tools-*.whl
+	python3 -m wheel install dist/blocksnet-*.whl

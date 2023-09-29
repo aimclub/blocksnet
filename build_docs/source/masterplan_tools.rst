@@ -7,15 +7,15 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   masterplan_tools.method
-   masterplan_tools.models
-   masterplan_tools.preprocessing
-   masterplan_tools.utils
+   blocksnet.method
+   blocksnet.models
+   blocksnet.preprocessing
+   blocksnet.utils
 
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools
+.. automodule:: blocksnet
    :members:
    :undoc-members:
    :show-inheritance:

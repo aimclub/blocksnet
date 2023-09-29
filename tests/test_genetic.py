@@ -3,9 +3,9 @@ import os
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-from masterplan_tools import CityModel
-from masterplan_tools.method.provision import LpProvision
-from masterplan_tools.method.genetic.genetic import Genetic
+from blocksnet import CityModel
+from blocksnet.method.provision import LpProvision
+from blocksnet.method.genetic.genetic import Genetic
 
 
 local_crs = 32636
