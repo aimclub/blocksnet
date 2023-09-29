@@ -1,7 +1,8 @@
 import networkx as nx
 import geopandas as gpd
 import pandas as pd
-from shapely import Polygon
+from matplotlib import pyplot as plt
+from shapely import Polygon, LineString
 from pydantic import BaseModel, Field, InstanceOf
 from functools import singledispatchmethod
 import math
@@ -92,12 +93,39 @@ class Block(BaseModel):
 
 class City:
     epsg: int
-    graph: nx.Graph
+    graph: nx.DiGraph
     service_types: list[ServiceType] = []
 
+    def plot(self) -> None:
+        """Plot city model blocks and relations"""
+        # blocks = self.blocks.to_gdf()
+        # centroids = blocks.copy()
+        # centroids["geometry"] = centroids["geometry"].centroid
+        # edges = []
+        # for u, v, a in self.services_graph.edges(data=True):
+        #     if a["weight"] <  and a["weight"] > 0:
+        #         edges.append(
+        #             {
+        #                 "distance": a["weight"],
+        #                 "geometry": LineString([centroids.loc[u, "geometry"], centroids.loc[v, "geometry"]]),
+        #             }
+        #         )
+        # edges = gpd.GeoDataFrame(edges).sort_values(ascending=False, by="distance")
+        # fig, ax = plt.subplots(figsize=(15, 15))
+        # blocks.plot(ax=ax, alpha=0.5, color="#ddd")
+        # edges.plot(ax=ax, alpha=0.1, column="distance", cmap="summer")
+        # plt.show()
+
     @property
-    def blocks(self) -> "list[Block]":
+    def blocks(self) -> list[Block]:
         return list(self.graph.nodes)
+
+    def get_blocks_gdf(self) -> gpd.GeoDataFrame:
+        data: list[dict] = []
+        for block in self.blocks:
+            data.append({"id": block.id, "geometry": block.geometry})
+        gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
+        return gdf
 
     def update_service_type_layer(self, service_type: ServiceType, gdf: gpd.GeoDataFrame):
         crs_gdf = gdf.to_crs(epsg=self.epsg)
@@ -147,9 +175,10 @@ class City:
     def __init__(self, matrix: pd.DataFrame, blocks_gdf: gpd.GeoDataFrame) -> None:
         self.epsg = blocks_gdf.crs.to_epsg()
         blocks = Block.from_gdf(blocks_gdf)
-        graph = nx.Graph()
+        graph = nx.DiGraph()
         for i in matrix.index:
-            for j in matrix.columns[: i + 1]:
+            graph.add_edge(blocks[i], blocks[i], weight=matrix.loc[i, i])
+            for j in matrix.columns.drop(i):
                 graph.add_edge(blocks[i], blocks[j], weight=matrix.loc[i, j])
         self.graph = graph
         for name in SERVICE_TYPES:

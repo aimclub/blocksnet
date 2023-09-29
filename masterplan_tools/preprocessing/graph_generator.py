@@ -3,7 +3,7 @@ import osmnx as ox
 import networkx as nx
 import pandas as pd
 import geopandas as gpd
-from pydantic import BaseModel, Field, InstanceOf
+from pydantic import BaseModel, Field, InstanceOf, field_validator
 from typing import Literal
 from shapely import Polygon, MultiPolygon, LineString, Point, line_locate_point
 from shapely.ops import nearest_points, linemerge, split
@@ -30,6 +30,10 @@ class GraphGenerator(BaseModel):
         "bus": 5,
     }
     """Average waiting time in min"""
+
+    @field_validator("city_geometry", mode="after")
+    def validate_fields(gdf: gpd.GeoDataFrame):
+        return gdf.to_crs(OX_CRS)
 
     def _get_speed(self, transport_type: str):
         """Return transport type speed in meters per minute"""
