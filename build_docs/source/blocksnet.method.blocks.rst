@@ -1,53 +1,53 @@
-masterplan\_tools.method.blocks package
+blocksnet.method.blocks package
 =======================================
 
 Submodules
 ----------
 
-masterplan\_tools.method.blocks.blocks\_clustering module
+blocksnet.method.blocks.blocks\_clustering module
 ---------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.blocks.blocks_clustering
+.. automodule:: blocksnet.method.blocks.blocks_clustering
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.blocks\_cutter module
+blocksnet.method.blocks.blocks\_cutter module
 -----------------------------------------------------
 
-.. automodule:: masterplan_tools.method.blocks.blocks_cutter
+.. automodule:: blocksnet.method.blocks.blocks_cutter
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.cut\_parameters module
+blocksnet.method.blocks.cut\_parameters module
 ------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.blocks.cut_parameters
+.. automodule:: blocksnet.method.blocks.cut_parameters
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.land\_use\_parameters module
+blocksnet.method.blocks.land\_use\_parameters module
 ------------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.blocks.land_use_parameters
+.. automodule:: blocksnet.method.blocks.land_use_parameters
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.landuse\_filter module
+blocksnet.method.blocks.landuse\_filter module
 ------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.blocks.landuse_filter
+.. automodule:: blocksnet.method.blocks.landuse_filter
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.blocks.utils module
+blocksnet.method.blocks.utils module
 --------------------------------------------
 
-.. automodule:: masterplan_tools.method.blocks.utils
+.. automodule:: blocksnet.method.blocks.utils
    :members:
    :undoc-members:
    :show-inheritance:
@@ -55,7 +55,7 @@ masterplan\_tools.method.blocks.utils module
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.method.blocks
+.. automodule:: blocksnet.method.blocks
    :members:
    :undoc-members:
    :show-inheritance:

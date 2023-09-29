@@ -1,29 +1,29 @@
-masterplan\_tools.preprocessing package
+blocksnet.preprocessing package
 =======================================
 
 Submodules
 ----------
 
-masterplan\_tools.preprocessing.accs\_matrix\_calculator module
+blocksnet.preprocessing.accs\_matrix\_calculator module
 ---------------------------------------------------------------
 
-.. automodule:: masterplan_tools.preprocessing.accs_matrix_calculator
+.. automodule:: blocksnet.preprocessing.accs_matrix_calculator
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.preprocessing.aggregate\_parameters module
+blocksnet.preprocessing.aggregate\_parameters module
 ------------------------------------------------------------
 
-.. automodule:: masterplan_tools.preprocessing.aggregate_parameters
+.. automodule:: blocksnet.preprocessing.aggregate_parameters
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.preprocessing.data\_getter module
+blocksnet.preprocessing.data\_getter module
 ---------------------------------------------------
 
-.. automodule:: masterplan_tools.preprocessing.data_getter
+.. automodule:: blocksnet.preprocessing.data_getter
    :members:
    :undoc-members:
    :show-inheritance:
@@ -31,7 +31,7 @@ masterplan\_tools.preprocessing.data\_getter module
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.preprocessing
+.. automodule:: blocksnet.preprocessing
    :members:
    :undoc-members:
    :show-inheritance:

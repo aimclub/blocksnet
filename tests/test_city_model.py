@@ -4,8 +4,8 @@ import os
 import pytest
 import geopandas as gpd
 import pandas as pd
-from masterplan_tools.models import CityModel
-from masterplan_tools.method.provision import LpProvision, ProvisionModel
+from blocksnet.models import CityModel
+from blocksnet.method.provision import LpProvision, ProvisionModel
 
 data_path = "./tests/data/city_model"
 local_crs = 32636

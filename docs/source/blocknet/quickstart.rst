@@ -1,6 +1,6 @@
 Quickstart
 ==========
-BlockNet quick start guide
+BlocksNet quick start guide
 
 .. |network_model| image:: https://i.ibb.co/khQDKLq/output.png
 
@@ -9,14 +9,14 @@ How to install
 --------------
 .. code::
 
-   pip install git+https://github.com/iduprojects/masterplanning
+   pip install git+https://github.com/iduprojects/blocksnet
 
 Easy start with prepared data
 -----------------------------
-You can download the  
+You can download the
 `data
 <https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP?usp=sharing>`_
-we used in our study cases: 
+we used in our study cases:
 
 How to cut city blocks
 ----------------------------------------------------
@@ -33,12 +33,12 @@ How to cut city blocks
 
 The result of cutting blocks is a ``GeoDataFrame``, containing Polygon or MultiPolygon geometries and following fiels: **id** (int), **landuse** ("``no_dev_area``", "``selected_area``" or "``buildings``")
 
-An example of using the BlockNet library to cut city blocks for the city.  
+An example of using the BlocksNet library to cut city blocks for the city.
 
 - **Step 1**. Input data fetch and parameters setting.
 .. code:: python
 
-   from masterplan_tools.method.blocks import CutParameters
+   from blocksnet.method.blocks import CutParameters
 
    city_geometry = gpd.read_parquet(os.path.join(example_data_path, "city_geometry.parquet")).to_crs(local_crs)
    water_geometry = gpd.read_parquet(os.path.join(example_data_path, "water_geometry.parquet")).to_crs(local_crs)
@@ -53,10 +53,10 @@ An example of using the BlockNet library to cut city blocks for the city.
 )
 
 
-- **Step 2**. To improve our method we should use land use filtering. If we don't set landuse parameters, no LU filtering will be applied to the blocks. 
+- **Step 2**. To improve our method we should use land use filtering. If we don't set landuse parameters, no LU filtering will be applied to the blocks.
 .. code:: python
 
-   from masterplan_tools.method.blocks import LandUseParameters
+   from blocksnet.method.blocks import LandUseParameters
 
    no_development = gpd.read_file(os.path.join(example_data_path, "no_development_pzz.geojson"), mask=city_geometry.to_crs(4326)).to_crs(local_crs)
    no_development = no_development[no_development['RAYON']=='Василеостровский']
@@ -68,16 +68,16 @@ An example of using the BlockNet library to cut city blocks for the city.
    landuse=landuse,
    buildings=buildings_geom
    )
-   
 
-- **Step 3**. To generate city blocks GeoDataFrame we use the ``BlocksCutter`` class. 
+
+- **Step 3**. To generate city blocks GeoDataFrame we use the ``BlocksCutter`` class.
 
 .. code:: python
 
-   from masterplan_tools.method import BlocksCutter
+   from blocksnet.method import BlocksCutter
 
    blocks = BlocksCutter(
-   cut_parameters=cut_params, 
+   cut_parameters=cut_params,
    lu_parameters=lu_params,
    ).get_blocks()
 
@@ -86,7 +86,7 @@ An example of using the BlockNet library to cut city blocks for the city.
 There are three landuse tags in the blocks gdf:
   - 'no_dev_area' -- according to th no_debelopment gdf and cutoff without any buildings or specified / selected landuse types;
   - 'selected_area' -- according to the landuse gdf. We separate theese polygons since they have specified landuse types;
-  - 'buildings' -- there are polygons that have buildings landuse type. 
+  - 'buildings' -- there are polygons that have buildings landuse type.
 
 In further calculations we will use the in the following steps:
  - Only 'buildings' -- to find clusters of buildings in big polygons;
@@ -99,7 +99,7 @@ The ``DataGetter`` class requires the following input data to aggregate blocks i
 
 * **blocks** - cutted blocks from the ``BlocksCutter``. ``GeoDataFrame``, containing Polygon or MultiPolygon geometries and following fiels: **id** (int), **landuse** ("``no_dev_area``", "``selected_area``" or "``buildings``")
 * **buildings** - buildings objects. ``GeoDataFrame``, containing Point geometries and following fields:
-  
+
   * **population_balanced** (int) - total population of the building
   * **building_area** (float) - building area (in square meters)
   * **living_area** (float) - living area (in square meters)
@@ -114,30 +114,30 @@ The ``DataGetter`` class requires the following input data to aggregate blocks i
 - **Step 1**. Load cutted blocks and initialize a ``DataGetter`` object.
 .. code:: python
 
-   from masterplan_tools.preprocessing import DataGetter, AggregateParameters
+   from blocksnet.preprocessing import DataGetter, AggregateParameters
 
    blocks = gpd.read_parquet(os.path.join(example_data_path, "blocks_cutter_result.parquet")).to_crs(local_crs)
    getter = DataGetter(blocks=blocks)
 
 - **Step 2**. Load buildings, greenings and parkings geometries and aggregate information with ``aggregate_block_info()``
 .. code:: python
-   
+
    buildings = gpd.read_parquet(os.path.join(example_data_path, "buildings.parquet"))
    greenings = gpd.read_parquet(os.path.join(example_data_path, "greenings.parquet")).rename_geometry('geometry')
    parkings = gpd.read_parquet(os.path.join(example_data_path, "parkings.parquet")).rename_geometry('geometry')
-   
+
    aggr_params = AggregateParameters(
      buildings=buildings,
      greenings=greenings,
      parkings=parkings
    )
-   
+
    aggregated_blocks = getter.aggregate_blocks_info(params=aggr_params)
    aggregated_blocks.to_gdf().head()
 
 The accessibility matrix is created with intermodal ``nx.Graph`` from the
 `CityGeoTools
-<https://github.com/iduprojects/CityGeoTools>`_ 
+<https://github.com/iduprojects/CityGeoTools>`_
 library, imported as a GraphML object.
 
 .. code:: python
@@ -153,8 +153,8 @@ How to сreate CityModel
 
 We use the results from our previous examples, but you can use your own prepared GeoDataFrames. The ``CityModel`` class requires the following input data:
 
-* **aggregated_blocks** - cutted and aggregated city blocks. ``GeoDataFrame``, containing Polygon or MultiPolygon geometries and following fields: 
-  
+* **aggregated_blocks** - cutted and aggregated city blocks. ``GeoDataFrame``, containing Polygon or MultiPolygon geometries and following fields:
+
   * **landuse** ("``no_dev_area``", "``selected_area``" or "``buildings``").
   * **block_id** (int) - unique city block identifier.
   * **is_living** (bool) - is block living.
@@ -169,7 +169,7 @@ We use the results from our previous examples, but you can use your own prepared
 
 * **accessibility_matrix** - accessibility matrix between city blocks. ``DataFrame`` containing distances between all the blocks (in minutes)
 * **services** - services dict, where **key** is a service type name, and **value** is a ``GeoDataFrame``, containing Point geometries and following fields: **capacity** (int) - total service object capacity.
-  
+
 
 - **Step 1**. Load aggregated info we have and data required for service graphs creation.
 .. code:: python
@@ -190,11 +190,11 @@ We use the results from our previous examples, but you can use your own prepared
 - **Step 2**. Creation of a city model
 .. code:: python
 
-   from masterplan_tools import CityModel
+   from blocksnet import CityModel
 
    city_model = CityModel(
-   blocks=aggregated_blocks, 
-   accessibility_matrix=accessibility_matrix, 
+   blocks=aggregated_blocks,
+   accessibility_matrix=accessibility_matrix,
    services=services
    )
 

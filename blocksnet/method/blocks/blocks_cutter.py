@@ -11,7 +11,7 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Literal
 
-from masterplan_tools.models.geojson import PolygonGeoJSON
+from blocksnet.models.geojson import PolygonGeoJSON
 from .cut_parameters import CutParameters
 from .land_use_parameters import LandUseParameters
 from .landuse_filter import LuFilter
@@ -141,8 +141,8 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             blocks["development"] = blocks["landuse"] != "no_dev_area"
         new_geometries = blocks.unary_union
         new_geometries = gpd.GeoDataFrame(geometry=[new_geometries], crs=blocks.crs.to_epsg())
-        new_blocks = new_geometries.explode(index_parts=True).reset_index()[['geometry']]
-        blocks = gpd.sjoin(new_blocks, blocks, how='inner', predicate='intersects').drop_duplicates('geometry')
-        blocks = blocks.drop(['index_right', 'index', 'id'], axis=1)
-        blocks = blocks.reset_index(names='id')
+        new_blocks = new_geometries.explode(index_parts=True).reset_index()[["geometry"]]
+        blocks = gpd.sjoin(new_blocks, blocks, how="inner", predicate="intersects").drop_duplicates("geometry")
+        blocks = blocks.drop(["index_right", "index", "id"], axis=1)
+        blocks = blocks.reset_index(names="id")
         return PolygonGeoJSON[BlocksCutterFeatureProperties].from_gdf(blocks)

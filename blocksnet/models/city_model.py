@@ -14,9 +14,9 @@ import matplotlib.pyplot as plt
 
 from .geojson import PolygonGeoJSON, PointGeoJSON
 
-# from masterplan_tools.preprocessing.utils import Utils
+# from blocksnet.preprocessing.utils import Utils
 
-# from masterplan_tools.method.blocks.blocks_cutter import BlocksCutter
+# from blocksnet.method.blocks.blocks_cutter import BlocksCutter
 class AccessibilityMatrix(BaseModel):
     """
     Accessibility matrix between city blocks

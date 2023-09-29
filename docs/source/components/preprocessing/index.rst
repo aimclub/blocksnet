@@ -1,7 +1,7 @@
 Preprocessing
 ==========
 
-**That is about preprocessing into BlockNet**
+**That is about preprocessing into BlocksNet**
 
 .. toctree::
    :glob:
