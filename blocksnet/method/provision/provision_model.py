@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from tqdm.auto import tqdm
 
-from masterplan_tools.models import CityModel
+from blocksnet.models import CityModel
 
 tqdm.pandas()
 

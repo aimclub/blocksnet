@@ -1,17 +1,17 @@
-# UrbanBlockNet
+# BlocksNet
 
-![Your logo](https://i.ibb.co/jTVHdkp/background-without-some.png)
+![Your logo](https://i.ibb.co/QC9XD07/blocksnet.png)
 
 [![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
-[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/masterplan_tools/)
+[![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/blocksnet/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
 
-**UrbanBlockNet** – это библиотека с открытым исходным кодом, включающая методы моделирования урбанизированных территорий для задач генерации ценностно-ориентированных требований к мастер-планированию. Библиотека предназначена для формирования универсальной информационной модели города, основанной на доступности городских кварталов. В библиотеке также представлены инструменты для работы с информационной моделью города, которые позволяют: генерировать слой городских кварталов, рассчитывать обеспеченность на основе нормативных требований, а также получить оптимальные требования к мастер-планированию территорий.
+**BlocksNet** – это библиотека с открытым исходным кодом, включающая методы моделирования урбанизированных территорий для задач генерации ценностно-ориентированных требований к мастер-планированию. Библиотека предназначена для формирования универсальной информационной модели города, основанной на доступности городских кварталов. В библиотеке также представлены инструменты для работы с информационной моделью города, которые позволяют: генерировать слой городских кварталов, рассчитывать обеспеченность на основе нормативных требований, а также получить оптимальные требования к мастер-планированию территорий.
 
-## Преимущества UrbanBlockNet
+## Преимущества BlocksNet
 
-UrbanBlockNet — это библиотека для моделирования сценариев развития города, например при создании мастер-плана, поддерживающая следующие инструменты:
+BlocksNet — это библиотека для моделирования сценариев развития города, например при создании мастер-плана, поддерживающая следующие инструменты:
 
 1. Метод генерации слоя городских кварталов - разделение территории на наименьшие элементы для анализа городской территории - кварталы. Метод генерации слоя городских кварталов основан на алгоритмах кластеризации с учетом дополнительных данных о землпепользовании.
 2. Универсальная информационная модель города используется для дальнейшей аналитики городских территорий и получения информации о доступности городских кварталов. Универсальная модель города включает агрегированную информацию о сервисах, интермодальной доступности и городских кварталах.
@@ -28,10 +28,10 @@ UrbanBlockNet — это библиотека для моделирования 
 
 ## Установка
 
-Чтобы установить библиотеку **UrbanBlockNet** необходимо использовать `pip`:
+Чтобы установить библиотеку **BlocksNet** необходимо использовать `pip`:
 
 ```
-pip install git+https://github.com/iduprojects/masterplanning
+pip install git+https://github.com/iduprojects/blocksnet
 ```
 
 ## Использование
@@ -39,7 +39,7 @@ pip install git+https://github.com/iduprojects/masterplanning
 Затем, необходимые классы импортируются из библиотеки:
 
 ```
-from masterplan_tools import CityModel
+from blocksnet import CityModel
 ```
 
 Используются необходимые функции и модули:
@@ -75,7 +75,7 @@ city_model.visualize()
 
 ## Документация
 
-Более детальная информация и описание работы с UrbanBlockNet доступны в [документации](https://blocknet.readthedocs.io/en/latest/).
+Более детальная информация и описание работы с BlocksNet доступны в [документации](https://blocknet.readthedocs.io/en/latest/).
 
 ## Структура проекта
 
@@ -83,21 +83,21 @@ city_model.visualize()
 
 Она включает следующие модули и директории:
 
-- [**masterplan_tools**](https://github.com/iduprojects/masterplanning/tree/main/masterplan_tools) - каталог с кодом фреймворка:
+- [**blocksnet**](https://github.com/iduprojects/blocksnet/tree/main/blocksnet) - каталог с кодом фреймворка:
   - preprocessing - модуль для предпроцессинга
   - models - классы моделей
   - method - методы работы инструментов библиотеки
   - utils - модуль для статических единиц изменения
-- [data](https://github.com/iduprojects/masterplanning/tree/main/data) - каталог с данными для экспериментов и тестов
-- [tests](https://github.com/iduprojects/masterplanning/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
-- [examples](https://github.com/iduprojects/masterplanning/tree/main/examples) - каталог с примерами работы методов
-- [docs](https://github.com/iduprojects/masterplanning/tree/main/docs) - каталог с RTD документацией
+- [data](https://github.com/iduprojects/blocksnet/tree/main/data) - каталог с данными для экспериментов и тестов
+- [tests](https://github.com/iduprojects/blocksnet/tree/main/tests) - каталог с единицами измерения и интеграционными тестами
+- [examples](https://github.com/iduprojects/blocksnet/tree/main/examples) - каталог с примерами работы методов
+- [docs](https://github.com/iduprojects/blocksnet/tree/main/docs) - каталог с RTD документацией
 
 ## Разработка
 
 Для начала разработки библиотеки необходимо выполнить следующие действия:
 
-1. Склонируйте репозиторий: `git clone https://github.com/iduprojects/masterplanning`.
+1. Склонируйте репозиторий: `git clone https://github.com/iduprojects/blocksnet`.
 2. Создайте виртуальную среду (опционально), поскольку библиотека требует точных версий пакетов: `python -m venv venv` и активируйте ее.
 3. Установите библиотеку в редактируемом режиме: `python -m pip install -e '.[dev]' --config-settings editable_mode=strict`.
 4. Установите pre-commit: `pre-commit install`.

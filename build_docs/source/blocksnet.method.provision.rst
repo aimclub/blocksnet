@@ -1,21 +1,21 @@
-masterplan\_tools.method.provision package
+blocksnet.method.provision package
 ==========================================
 
 Submodules
 ----------
 
-masterplan\_tools.method.provision.lp\_provision module
+blocksnet.method.provision.lp\_provision module
 -------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.provision.lp_provision
+.. automodule:: blocksnet.method.provision.lp_provision
    :members:
    :undoc-members:
    :show-inheritance:
 
-masterplan\_tools.method.provision.provision\_model module
+blocksnet.method.provision.provision\_model module
 ----------------------------------------------------------
 
-.. automodule:: masterplan_tools.method.provision.provision_model
+.. automodule:: blocksnet.method.provision.provision_model
    :members:
    :undoc-members:
    :show-inheritance:
@@ -23,7 +23,7 @@ masterplan\_tools.method.provision.provision\_model module
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.method.provision
+.. automodule:: blocksnet.method.provision
    :members:
    :undoc-members:
    :show-inheritance:

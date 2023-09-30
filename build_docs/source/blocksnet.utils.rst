@@ -1,13 +1,13 @@
-masterplan\_tools.utils package
+blocksnet.utils package
 ===============================
 
 Submodules
 ----------
 
-masterplan\_tools.utils.measurement\_units module
+blocksnet.utils.measurement\_units module
 -------------------------------------------------
 
-.. automodule:: masterplan_tools.utils.measurement_units
+.. automodule:: blocksnet.utils.measurement_units
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ masterplan\_tools.utils.measurement\_units module
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.utils
+.. automodule:: blocksnet.utils
    :members:
    :undoc-members:
    :show-inheritance:

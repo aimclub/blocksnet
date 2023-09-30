@@ -140,7 +140,7 @@ dmypy.json
 *.pkl
 *.graphml
 *.csv
-/masterplan_tools/output_data
+/blocksnet/output_data
 
 cache/
 /examples/data

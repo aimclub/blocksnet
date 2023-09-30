@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 
-from masterplan_tools.utils.measurement_units import HECTARE_IN_SQUARE_METERS
+from blocksnet.utils.measurement_units import HECTARE_IN_SQUARE_METERS
 
 
 def kindergarten_area_ranges(children_number: int) -> tuple[float, int]:
@@ -177,7 +177,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
 
     def kg_area(self, population: int) -> float:
         return kindergarten_area(self.KG_coef * population)[0]
-    
+
     def op_area(self, population: int) -> float:
         return self.OP_coef * population
 
@@ -192,7 +192,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         return population * b
 
     @staticmethod
-    def green_area(population, G): 
+    def green_area(population, G):
         return population * G
 
     def fun(self, x):
@@ -207,7 +207,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
             - self.parking2_area(x[0])
         )
 
-    def bnds_and_cons(self): 
+    def bnds_and_cons(self):
         self.cons = (
             {"type": "ineq", "fun": lambda x: self.max_population - x[0]},
             {
@@ -232,7 +232,7 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
 
         self.bnds = ((0, self.max_population), (self.b_min, self.b_max), (self.G_min, self.G_max))
 
-    def make_x0s(self): 
+    def make_x0s(self):
 
         self.x0s = [
             (0, 0, 0),
@@ -255,14 +255,12 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
             )
         self.results = pd.concat(itertools.chain([self.results], results)).reset_index(drop=True)
 
-    def select_one_optimal(self): 
+    def select_one_optimal(self):
         """Select ine optimal solution"""
 
         return self.results["x"][self.results[self.results["fun"] > 0]["fun"].idxmin()]
 
-    def recalculate_indicators(
-        self, population, b, G
-    ) -> dict:  
+    def recalculate_indicators(self, population, b, G) -> dict:
 
         population = ceil(population)
         green = self.green_area(population + self.current_unprov_green_population, G) + self.current_green_area

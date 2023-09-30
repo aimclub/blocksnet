@@ -1,18 +1,18 @@
- 
+
 Blocks
 =========
 
 BlocksClusterization
 ~~~~~~~~~~~~~~
 
-.. automodule:: masterplan_tools.method.blocks.blocks_clustering
+.. automodule:: blocksnet.method.blocks.blocks_clustering
     :undoc-members:
     :show-inheritance:
 
 BlocksCutter
 ~~~~~~~~~~~~~~
 
-.. automodule:: masterplan_tools.method.blocks.blocks_cutter
+.. automodule:: blocksnet.method.blocks.blocks_cutter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -20,7 +20,7 @@ BlocksCutter
 CutParameters
 ~~~~~~~~~~~~~~
 
-.. automodule:: masterplan_tools.method.blocks.cut_parameters
+.. automodule:: blocksnet.method.blocks.cut_parameters
     :members:
     :undoc-members:
     :show-inheritance:
@@ -28,7 +28,7 @@ CutParameters
 LandUseParameters
 ~~~~~~~~~~~~~~
 
-.. automodule:: masterplan_tools.method.blocks.land_use_parameters
+.. automodule:: blocksnet.method.blocks.land_use_parameters
     :members:
     :undoc-members:
     :show-inheritance:
@@ -36,7 +36,7 @@ LandUseParameters
 LuFilter
 ~~~~~~~~~~~~~~
 
-.. automodule:: masterplan_tools.method.blocks.landuse_filter
+.. automodule:: blocksnet.method.blocks.landuse_filter
     :members:
     :undoc-members:
     :show-inheritance:
@@ -44,7 +44,7 @@ LuFilter
 Utils
 ~~~~~~~~~~~~~~
 
-.. automodule:: masterplan_tools.method.blocks.utils
+.. automodule:: blocksnet.method.blocks.utils
     :members:
     :undoc-members:
     :show-inheritance:

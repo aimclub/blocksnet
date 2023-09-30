@@ -3,7 +3,7 @@ Class holding parameters for base blocks cut is defined here.
 """
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
-from masterplan_tools.models.geojson import PolygonGeoJSON
+from blocksnet.models.geojson import PolygonGeoJSON
 
 
 class CutFeatureProperties(BaseModel):

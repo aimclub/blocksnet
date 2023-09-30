@@ -1,7 +1,7 @@
 Components
 ==========
 
-**Here are all the modules of BlockNet**
+**Here are all the modules of BlocksNet**
 
 .. toctree::
    :glob:
