@@ -136,11 +136,11 @@ class VacantArea(BaseMethod):
         return gdf
         
     def get_vacant_area(self, block:int | Block) -> gpd.GeoDataFrame:
-        if not isinstance(block, Block):
-            block=self.city_model[block]
         blocks = self._get_blocks_gdf()
         blocks = gpd.GeoDataFrame(geometry=gpd.GeoSeries(blocks.geometry))
         if block:
+            if not isinstance(block, Block):
+                block=self.city_model[block]
             block_gdf = gpd.GeoDataFrame([blocks.iloc[block.id]], crs=blocks.crs)
             block_buffer = block_gdf['geometry'].buffer(20).to_crs(epsg=4326).iloc[0]
         else:
