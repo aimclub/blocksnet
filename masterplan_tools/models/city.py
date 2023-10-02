@@ -31,7 +31,7 @@ class ServiceType(BaseModel):
         return hash(self.name)
 
 
-class Service(BaseModel):
+class AggregatedService(BaseModel):
     """Represents service type information of a block"""
 
     service_type: InstanceOf[ServiceType]
@@ -49,20 +49,20 @@ class Block(BaseModel):
     industrial_area: float = Field(ge=0)
     green_capacity: int = Field(ge=0)
     parking_capacity: int = Field(ge=0)
-    services: list[Service] = []
+    aggregated_services: list[AggregatedService] = []
 
     def __getitem__(self, service_type_name: str) -> int:
-        items = list(filter(lambda x: x.service_type.name == service_type_name, self.services))
+        items = list(filter(lambda x: x.service_type.name == service_type_name, self.aggregated_services))
         if len(items) == 0:
             return 0
         return {"capacity": items[0].capacity, "demand": items[0].service_type.calculate_in_need(self.population)}
 
     def __contains__(self, service_type_name):
-        return service_type_name in [x.service_type.name for x in self.services]
+        return service_type_name in [x.service_type.name for x in self.aggregated_services]
 
     def add_services(self, service_type: ServiceType, gdf: gpd.GeoDataFrame):
         capacity = gdf[gdf["geometry"].apply(self.geometry.contains)].copy()["capacity"].sum()
-        self.services.append(Service(service_type=service_type, capacity=capacity))
+        self.aggregated_services.append(AggregatedService(service_type=service_type, capacity=capacity))
 
     @property
     def is_living(self):

@@ -88,7 +88,6 @@ class Provision(BaseMethod):
         """Provision assessment using certain method for the current city and service type, can be used with certain updated blocks GeoDataFrame"""
         if not isinstance(service_type, ServiceType):
             service_type = self.city_model[service_type]
-
         gdf = self._get_blocks_gdf(service_type)
         if update_df is not None:
             gdf = gdf.join(update_df)
