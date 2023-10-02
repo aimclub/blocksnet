@@ -4,20 +4,18 @@ import pandas as pd
 import geopandas as gpd
 from typing import ClassVar
 
-from pydantic import BaseModel
 from ...models import CityModel
+from ..base_method import BaseMethod
+from ...models import Block, ServiceType
 
-
-class VacantArea(BaseModel):
-
-    city_model: CityModel
+class VacantArea(BaseMethod):
  
     local_crs: ClassVar[int] = 32636
     roads_buffer: ClassVar[int] = 10
     buildings_buffer: ClassVar[int] = 10
 
     @staticmethod
-    def dwn_other(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_other(block, local_crs) -> gpd.GeoSeries:
         '''download other'''
         try:
             other = ox.features_from_polygon(block, tags={"man_made": True, "aeroway": True,"military": True })
@@ -27,7 +25,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_leisure(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_leisure(block, local_crs) -> gpd.GeoSeries:
         try:
             leisure = ox.features_from_polygon(block, tags={"leisure": True})
             leisure['geometry'] = leisure['geometry'].to_crs(local_crs)
@@ -36,7 +34,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_landuse(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_landuse(block, local_crs) -> gpd.GeoSeries:
         try:
             landuse = ox.features_from_polygon(block, tags={"landuse": True})
             if not landuse.empty:
@@ -47,7 +45,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_amenity(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_amenity(block, local_crs) -> gpd.GeoSeries:
         try:
             amenity = ox.features_from_polygon(block, tags={"amenity": True})
             amenity['geometry'] = amenity['geometry'].to_crs(local_crs)
@@ -56,7 +54,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
 
     @staticmethod
-    def dwn_buildings(block, local_crs ,buildings_buffer) -> gpd.GeoSeries:
+    def _dwn_buildings(block, local_crs ,buildings_buffer) -> gpd.GeoSeries:
         try:
             buildings = ox.features_from_polygon(block, tags={"building": True})
             if buildings_buffer:
@@ -66,7 +64,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_natural(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_natural(block, local_crs) -> gpd.GeoSeries:
         try:
             natural = ox.features_from_polygon(block, tags={"natural": True})
             if not natural.empty:
@@ -77,7 +75,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_waterway(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_waterway(block, local_crs) -> gpd.GeoSeries:
         try:
             waterway = ox.features_from_polygon(block, tags={"waterway": True})
             waterway['geometry'] = waterway['geometry'].to_crs(local_crs)
@@ -86,7 +84,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_highway(block, local_crs, roads_buffer) -> gpd.GeoSeries:
+    def _dwn_highway(block, local_crs, roads_buffer) -> gpd.GeoSeries:
         try:
             highway = ox.features_from_polygon(block, tags={"highway": True})
             condition = (highway['highway'] != 'path') & (highway['highway'] != 'footway') & (highway['highway'] != 'pedestrian')
@@ -99,7 +97,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_path(block, local_crs)-> gpd.GeoSeries:
+    def _dwn_path(block, local_crs)-> gpd.GeoSeries:
         try:
             tags = {'highway': 'path', 'highway': 'footway'}
             path = ox.features_from_polygon(block, tags=tags)
@@ -109,7 +107,7 @@ class VacantArea(BaseModel):
             return gpd.GeoSeries()
     
     @staticmethod
-    def dwn_railway(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_railway(block, local_crs) -> gpd.GeoSeries:
         try:
             railway = ox.features_from_polygon(block, tags={"railway": True})
             if not railway.empty:
@@ -118,38 +116,47 @@ class VacantArea(BaseModel):
             return railway.geometry
         except:
             return gpd.GeoSeries()
-    
+
     @staticmethod
-    def create_minimum_bounding_rectangle(polygon) -> gpd.GeoSeries:
+    def _create_minimum_bounding_rectangle(polygon) -> gpd.GeoSeries:
         return polygon.minimum_rotated_rectangle
-    
+
     @staticmethod
-    def buffer_and_union(row, buffer_distance=1) -> gpd.GeoSeries:
+    def _buffer_and_union(row, buffer_distance=1) -> gpd.GeoSeries:
         polygon = row['geometry']
         buffer_polygon = polygon.buffer(buffer_distance)
         return buffer_polygon
+
+    def _get_blocks_gdf(self) -> gpd.GeoDataFrame:
+        """Returns blocks gdf for provision assessment"""
+        data: list[dict] = []
+        for block in self.city_model.blocks:
+            data.append({"id": block.id, "geometry": block.geometry})
+        gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
+        return gdf
         
-    def get_vacant_area(self, blpck_id:int) -> gpd.GeoDataFrame:
-        
-        blocks = self.city_model.blocks.to_gdf().copy()
+    def get_vacant_area(self, block:int | Block) -> gpd.GeoDataFrame:
+        if not isinstance(block, Block):
+            block=self.city_model[block]
+        blocks = self._get_blocks_gdf()
         blocks = gpd.GeoDataFrame(geometry=gpd.GeoSeries(blocks.geometry))
-        if blpck_id:
-            block_gdf = gpd.GeoDataFrame([blocks.iloc[blpck_id]], crs=blocks.crs)
+        if block:
+            block_gdf = gpd.GeoDataFrame([blocks.iloc[block.id]], crs=blocks.crs)
             block_buffer = block_gdf['geometry'].buffer(20).to_crs(epsg=4326).iloc[0]
         else:
             block_gdf = blocks
             block_buffer = blocks.buffer(20).to_crs(epsg=4326).unary_union
 
-        leisure = self.dwn_leisure(block_buffer, self.local_crs)
-        landuse = self.dwn_landuse(block_buffer, self.local_crs)
-        other  = self.dwn_other(block_buffer, self.local_crs)
-        amenity = self.dwn_amenity(block_buffer, self.local_crs)
-        buildings = self.dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer)
-        natural = self.dwn_natural(block_buffer, self.local_crs)
-        waterway = self.dwn_waterway(block_buffer, self.local_crs)
-        highway = self.dwn_highway(block_buffer, self.local_crs, self.roads_buffer)
-        railway = self.dwn_railway(block_buffer, self.local_crs)
-        path = self.dwn_path(block_buffer, self.local_crs)
+        leisure = self._dwn_leisure(block_buffer, self.local_crs)
+        landuse = self._dwn_landuse(block_buffer, self.local_crs)
+        other  = self._dwn_other(block_buffer, self.local_crs)
+        amenity = self._dwn_amenity(block_buffer, self.local_crs)
+        buildings = self._dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer)
+        natural = self._dwn_natural(block_buffer, self.local_crs)
+        waterway = self._dwn_waterway(block_buffer, self.local_crs)
+        highway = self._dwn_highway(block_buffer, self.local_crs, self.roads_buffer)
+        railway = self._dwn_railway(block_buffer, self.local_crs)
+        path = self._dwn_path(block_buffer, self.local_crs)
 
         occupied_area = [leisure, other, landuse, amenity, buildings, natural, waterway, highway, railway, path]
         occupied_area = pd.concat(occupied_area)
@@ -167,15 +174,15 @@ class VacantArea(BaseModel):
         blocks_filtered_area = blocks_exploded[blocks_exploded['geometry'].area >= 100] #1
         if blocks_filtered_area.empty:
             print('The block has no vacant area')
-            return  None
+            return  gpd.GeoDataFrame()
         area_attitude = 1.9 # 2
         for index, row in blocks_filtered_area.iterrows():
             polygon = row['geometry']
-            mbr = self.create_minimum_bounding_rectangle(polygon)
+            mbr = self._create_minimum_bounding_rectangle(polygon)
             if polygon.area * area_attitude < mbr.area:
                 blocks_filtered_area.drop(index, inplace=True)
 
-        blocks_filtered_area['buffered_geometry'] = blocks_filtered_area.apply(self.buffer_and_union, axis=1)
+        blocks_filtered_area['buffered_geometry'] = blocks_filtered_area.apply(self._buffer_and_union, axis=1)
         unified_geometry = blocks_filtered_area['buffered_geometry'].unary_union
 
         result_gdf = gpd.GeoDataFrame(geometry=[unified_geometry], crs=blocks_filtered_area.crs)

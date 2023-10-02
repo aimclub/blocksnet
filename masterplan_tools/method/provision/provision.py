@@ -54,7 +54,7 @@ class Provision(BaseMethod):
     def _get_sorted_neighbors(self, block, capacity_blocks: list[Block]):
         return sorted(capacity_blocks, key=lambda b: self.city_model.graph[block][b]["weight"])
 
-    def _get_blocks_gdf(self, service_type: ServiceType) -> dict[Block, dict]:
+    def _get_blocks_gdf(self, service_type: ServiceType) -> gpd.GeoDataFrame:
         """Returns blocks gdf for provision assessment"""
         data: list[dict] = []
         for block in self.city_model.blocks:

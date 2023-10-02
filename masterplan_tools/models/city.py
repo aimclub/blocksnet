@@ -8,7 +8,7 @@ from functools import singledispatchmethod
 import math
 
 SERVICE_TYPES = {
-    "kindergartens": {"demand": 61, "accessibility": 10},
+    "kindergartens": {"demand": 61, "accessibility": 10, 'buffer':15},
     "schools": {"demand": 120, "accessibility": 15},
     "recreational_areas": {"demand": 6000, "accessibility": 15},
     "hospitals": {"demand": 9, "accessibility": 60},
@@ -23,6 +23,7 @@ class ServiceType(BaseModel):
     name: str
     accessibility: int = Field(gt=0)
     demand: int = Field(gt=0)
+    buffer: int = Field(ge=0, default=0)
 
     def calculate_in_need(self, population: int) -> int:
         return math.ceil(population / 1000 * self.demand)
