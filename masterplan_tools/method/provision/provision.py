@@ -32,15 +32,16 @@ class Provision(BaseMethod):
 
     def plot_provisions(self, provisions: dict[str, gpd.GeoDataFrame]):
         def show_me_chart(fig, gs, gdf, name, i, sum):
-            ax = fig.add_subplot(gs[i // 3, i % 3])
+            ax = fig.add_subplot(gs[i // 2, i % 2])
             # self.city_model.blocks.to_gdf().plot(ax=ax, color="#ddd", alpha=1)
             gdf.plot(column="provision", legend=True, ax=ax, cmap="RdYlGn", vmin=0, vmax=1)
+            gdf[gdf["demand"] == 0].plot(ax=ax, color="#ddd", alpha=1)
             ax.set_title(name + " provision: " + f"{sum: .3f}")
             ax.set_axis_off()
-            self._add_basemap(ax)
+            # self._add_basemap(ax)
 
         fig = plt.figure(figsize=(25, 15))
-        gs = GridSpec(len(provisions) // 3 + 1, 3, figure=fig)
+        gs = GridSpec(len(provisions) // 2 + 1, 2, figure=fig)
         i = 0
         for service_type, provision_gdf in provisions.items():
             show_me_chart(fig, gs, provision_gdf, service_type, i, self.total_provision(provision_gdf))
@@ -75,11 +76,11 @@ class Provision(BaseMethod):
         return gdf["provision"].mean()
 
     def calculate_provisions(
-        self, service_types: list[ServiceType | str], update_df: pd.DataFrame = None
+        self, service_types: list[ServiceType | str], update_df: pd.DataFrame = None,  method: Literal["iterative", "lp"] = "lp"
     ) -> dict[str, gpd.GeoDataFrame]:
         result = {}
         for service_type in service_types:
-            result[service_type] = self.calculate_provision(service_type, update_df)
+            result[service_type] = self.calculate_provision(service_type, update_df, method)
         return result
 
     def calculate_provision(
