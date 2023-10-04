@@ -1,42 +1,22 @@
+from __future__ import annotations
+import pickle
 import networkx as nx
 import geopandas as gpd
 import pandas as pd
-from matplotlib import pyplot as plt
 from shapely import Polygon, LineString
-from pydantic import BaseModel, Field, InstanceOf
+from matplotlib import pyplot as plt
 from functools import singledispatchmethod
-import math
+from pydantic import BaseModel, Field, InstanceOf
+from .service_type import ServiceType
 
 SERVICE_TYPES = {
-    "kindergartens": {"demand": 61, "accessibility": 10, 'buffer':15},
+    "kindergartens": {"demand": 61, "accessibility": 10, "buffer": 15},
     "schools": {"demand": 120, "accessibility": 15},
     "recreational_areas": {"demand": 6000, "accessibility": 15},
     "hospitals": {"demand": 9, "accessibility": 60},
     "pharmacies": {"demand": 50, "accessibility": 10},
     "policlinics": {"demand": 27, "accessibility": 15},
 }
-
-
-class ServiceType(BaseModel):
-    """Represents service type entity, such as schools and its parameters overall"""
-
-    name: str
-    accessibility: int = Field(gt=0)
-    demand: int = Field(gt=0)
-    buffer: int = Field(ge=0, default=0)
-
-    def calculate_in_need(self, population: int) -> int:
-        return math.ceil(population / 1000 * self.demand)
-
-    def __hash__(self):
-        return hash(self.name)
-
-
-class AggregatedService(BaseModel):
-    """Represents service type information of a block"""
-
-    service_type: InstanceOf[ServiceType]
-    capacity: int = Field(ge=0)
 
 
 class Block(BaseModel):
@@ -50,27 +30,27 @@ class Block(BaseModel):
     industrial_area: float = Field(ge=0)
     green_capacity: int = Field(ge=0)
     parking_capacity: int = Field(ge=0)
-    aggregated_services: list[AggregatedService] = []
+    capacities: dict[ServiceType, int] = {}
+    city: InstanceOf[City]
+    """Service type aggregated capacity value"""
 
     def __getitem__(self, service_type_name: str) -> int:
-        items = list(filter(lambda x: x.service_type.name == service_type_name, self.aggregated_services))
-        if len(items) == 0:
-            return 0
-        return {"capacity": items[0].capacity, "demand": items[0].service_type.calculate_in_need(self.population)}
+        result = {"capacity": 0, "demand": 0}
+        service_type = self.city[service_type_name]
+        if service_type in self.capacities:
+            result["capacities"] = self.capacities[service_type]
+            result["demand"] = service_type.calculate_in_need(self.population)
+        return result
 
-    def __contains__(self, service_type_name):
-        return service_type_name in [x.service_type.name for x in self.aggregated_services]
-
-    def add_services(self, service_type: ServiceType, gdf: gpd.GeoDataFrame):
-        capacity = gdf[gdf["geometry"].apply(self.geometry.contains)].copy()["capacity"].sum()
-        self.aggregated_services.append(AggregatedService(service_type=service_type, capacity=capacity))
+    def update_capacity(self, service_type: ServiceType, capacity):
+        self.capacities[service_type] = capacity
 
     @property
     def is_living(self):
         return self.population > 0
 
     @classmethod
-    def from_gdf(cls, gdf: gpd.GeoDataFrame) -> "list[Block]":
+    def from_gdf(cls, gdf: gpd.GeoDataFrame, city: City) -> "list[Block]":
         return (
             gdf.rename(
                 columns={
@@ -84,7 +64,7 @@ class Block(BaseModel):
                 },
                 inplace=False,
             )
-            .apply(lambda x: cls(**x.to_dict()), axis=1)
+            .apply(lambda x: cls(**x.to_dict(), city=city), axis=1)
             .to_list()
         )
 
@@ -97,25 +77,18 @@ class City:
     graph: nx.DiGraph
     service_types: list[ServiceType] = []
 
-    def plot(self) -> None:
+    def plot(self, max_weight: int = 5) -> None:
         """Plot city model blocks and relations"""
-        # blocks = self.blocks.to_gdf()
-        # centroids = blocks.copy()
-        # centroids["geometry"] = centroids["geometry"].centroid
-        # edges = []
-        # for u, v, a in self.services_graph.edges(data=True):
-        #     if a["weight"] <  and a["weight"] > 0:
-        #         edges.append(
-        #             {
-        #                 "distance": a["weight"],
-        #                 "geometry": LineString([centroids.loc[u, "geometry"], centroids.loc[v, "geometry"]]),
-        #             }
-        #         )
-        # edges = gpd.GeoDataFrame(edges).sort_values(ascending=False, by="distance")
-        # fig, ax = plt.subplots(figsize=(15, 15))
-        # blocks.plot(ax=ax, alpha=0.5, color="#ddd")
-        # edges.plot(ax=ax, alpha=0.1, column="distance", cmap="summer")
-        # plt.show()
+        blocks = self.get_blocks_gdf()
+        ax = blocks.plot(alpha=1, color="#ddd", figsize=[15, 15])
+        edges = []
+        for u, v, data in self.graph.edges(data=True):
+            a = u.geometry.representative_point()
+            b = v.geometry.representative_point()
+            if data["weight"] <= max_weight:
+                edges.append({"geometry": LineString([a, b]), "weight": data["weight"]})
+        gpd.GeoDataFrame(edges).set_crs(self.epsg).plot(ax=ax, alpha=0.2, column="weight", cmap="cool")
+        ax.set_axis_off()
 
     @property
     def blocks(self) -> list[Block]:
@@ -128,10 +101,14 @@ class City:
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
         return gdf
 
-    def update_service_type_layer(self, service_type: ServiceType, gdf: gpd.GeoDataFrame):
-        crs_gdf = gdf.to_crs(epsg=self.epsg)
-        for block in self.blocks:
-            block.add_services(service_type=service_type, gdf=crs_gdf)
+    def update_layer(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame):
+        """Updates blocks with relevant information about city services"""
+        if not isinstance(service_type, ServiceType):
+            service_type = self[service_type]
+        sjoin = gdf.to_crs(epsg=self.epsg).sjoin(self.get_blocks_gdf())
+        sjoin = sjoin.groupby("index_right").agg({"capacity": "sum"})
+        for block_id in sjoin.index:
+            self[block_id].update_capacity(service_type, sjoin.loc[block_id, "capacity"])
 
     def add_service_type(self, name: str, accessibility: int = None, demand: int = None):
         if name in self:
@@ -141,7 +118,7 @@ class City:
 
     @singledispatchmethod
     def __getitem__(self, arg):
-        raise NotImplementedError(f"Can't access block or service type with such argument type {type(arg)}")
+        raise NotImplementedError(f"Can't access object with such argument type {type(arg)}")
 
     # Make city_model subscriptable, to access block via ID like city_model[123]
     @__getitem__.register(int)
@@ -156,7 +133,7 @@ class City:
     def _(self, service_type_name):
         items = list(filter(lambda x: x.name == service_type_name, self.service_types))
         if len(items) == 0:
-            raise KeyError("Can't find service type with such name")
+            raise KeyError(f"Can't find service type with such name: {service_type_name}")
         return items[0]
 
     @singledispatchmethod
@@ -173,9 +150,24 @@ class City:
     def _(self, service_type_name):
         return service_type_name in [x.name for x in self.service_types]
 
-    def __init__(self, matrix: pd.DataFrame, blocks_gdf: gpd.GeoDataFrame) -> None:
+    @staticmethod
+    def from_pickle(file_path: str):
+        """Load city model from a .pickle file"""
+        state = None
+        with open(file_path, "rb") as f:
+            state = pickle.load(f)
+        return state
+
+    def to_pickle(self, file_path: str):
+        """Save city model to a .pickle file"""
+        with open(file_path, "wb") as f:
+            pickle.dump(self, f)
+
+    def __init__(
+        self, matrix: pd.DataFrame, blocks_gdf: gpd.GeoDataFrame, services: dict[str, gpd.GeoDataFrame] = {}
+    ) -> None:
         self.epsg = blocks_gdf.crs.to_epsg()
-        blocks = Block.from_gdf(blocks_gdf)
+        blocks = Block.from_gdf(blocks_gdf, self)
         graph = nx.DiGraph()
         for i in matrix.index:
             graph.add_edge(blocks[i], blocks[i], weight=matrix.loc[i, i])
@@ -184,3 +176,5 @@ class City:
         self.graph = graph
         for name in SERVICE_TYPES:
             self.service_types.append(ServiceType(name=name, **SERVICE_TYPES[name]))
+        for service_type, gdf in services.items():
+            self.update_layer(service_type, gdf)

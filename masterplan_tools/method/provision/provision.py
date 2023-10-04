@@ -19,7 +19,8 @@ class Provision(BaseMethod):
 
     def plot(self, gdf: gpd.GeoDataFrame):
         """Visualizes provision assessment results"""
-        ax = gdf.plot(column="provision", cmap="RdYlGn", vmin=0, vmax=1, legend=True).set_axis_off()
+        ax = gdf.plot(column="provision", cmap="RdYlGn", vmin=0, vmax=1, legend=True)
+        ax.set_axis_off()
         self._add_basemap(ax)
 
     def plot_delta(self, gdf_before: gpd.GeoDataFrame, gdf_after: gpd.GeoDataFrame):
@@ -40,7 +41,7 @@ class Provision(BaseMethod):
             ax.set_axis_off()
             # self._add_basemap(ax)
 
-        fig = plt.figure(figsize=(25, 15))
+        fig = plt.figure(figsize=(20, 20))
         gs = GridSpec(len(provisions) // 2 + 1, 2, figure=fig)
         i = 0
         for service_type, provision_gdf in provisions.items():
@@ -76,7 +77,10 @@ class Provision(BaseMethod):
         return gdf["provision"].mean()
 
     def calculate_provisions(
-        self, service_types: list[ServiceType | str], update_df: pd.DataFrame = None,  method: Literal["iterative", "lp"] = "lp"
+        self,
+        service_types: list[ServiceType | str],
+        update_df: pd.DataFrame = None,
+        method: Literal["iterative", "lp"] = "lp",
     ) -> dict[str, gpd.GeoDataFrame]:
         result = {}
         for service_type in service_types:
