@@ -31,15 +31,18 @@ class Block(BaseModel):
     green_capacity: int = Field(ge=0)
     parking_capacity: int = Field(ge=0)
     capacities: dict[ServiceType, int] = {}
-    city: InstanceOf[City]
     """Service type aggregated capacity value"""
+    city: InstanceOf[City]
+    """City instance that contains block"""
+
+    def to_dict(self) -> dict[str, int]:
+        return {"id": self.id, "geometry": self.geometry, "population": self.population}
 
     def __getitem__(self, service_type_name: str) -> int:
-        result = {"capacity": 0, "demand": 0}
         service_type = self.city[service_type_name]
+        result = {"capacity": 0, "demand": service_type.calculate_in_need(self.population)}
         if service_type in self.capacities:
-            result["capacities"] = self.capacities[service_type]
-            result["demand"] = service_type.calculate_in_need(self.population)
+            result["capacity"] = self.capacities[service_type]
         return result
 
     def update_capacity(self, service_type: ServiceType, capacity):
@@ -97,7 +100,7 @@ class City:
     def get_blocks_gdf(self) -> gpd.GeoDataFrame:
         data: list[dict] = []
         for block in self.blocks:
-            data.append({"id": block.id, "geometry": block.geometry})
+            data.append(block.to_dict())
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
         return gdf
 
@@ -174,7 +177,6 @@ class City:
             for j in matrix.columns.drop(i):
                 graph.add_edge(blocks[i], blocks[j], weight=matrix.loc[i, j])
         self.graph = graph
-        for name in SERVICE_TYPES:
-            self.service_types.append(ServiceType(name=name, **SERVICE_TYPES[name]))
+        self.service_types = list(map(lambda name: ServiceType(name=name, **SERVICE_TYPES[name]), SERVICE_TYPES))
         for service_type, gdf in services.items():
             self.update_layer(service_type, gdf)

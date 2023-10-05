@@ -15,7 +15,8 @@ class Provision(BaseMethod):
     """Class provides methods for service type provision assessment"""
 
     def _add_basemap(self, ax):
-        cx.add_basemap(ax, source=cx.providers.Stamen.TonerLite, crs=f"EPSG:{self.city_model.epsg}")
+        ...
+        # cx.add_basemap(ax, source=cx.providers.Stamen.TonerLite, crs=f"EPSG:{self.city_model.epsg}")
 
     def plot(self, gdf: gpd.GeoDataFrame):
         """Visualizes provision assessment results"""
@@ -84,10 +85,10 @@ class Provision(BaseMethod):
     ) -> dict[str, gpd.GeoDataFrame]:
         result = {}
         for service_type in service_types:
-            result[service_type] = self.calculate_provision(service_type, update_df, method)
+            result[service_type] = self.calculate(service_type, update_df, method)
         return result
 
-    def calculate_provision(
+    def calculate(
         self, service_type: ServiceType | str, update_df: pd.DataFrame = None, method: Literal["iterative", "lp"] = "lp"
     ) -> gpd.GeoDataFrame:
         """Provision assessment using certain method for the current city and service type, can be used with certain updated blocks GeoDataFrame"""
@@ -128,9 +129,7 @@ class Provision(BaseMethod):
         gdf["capacity_left"] = gdf["capacity"]
 
         def _get_weight(id1: int, id2: int):
-            if id1 == fictive_index or id1 == fictive_column:
-                return 0
-            if id2 == fictive_index or id2 == fictive_column:
+            if id1 == fictive_block_id or id2 == fictive_block_id:
                 return 0
             block1 = self.city_model[id1]
             block2 = self.city_model[id2]
@@ -151,6 +150,8 @@ class Provision(BaseMethod):
         for var in prob.variables():
             value = var.value()
             name = var.name.replace("(", "").replace(")", "").replace(",", "").split("_")
+            if name[2] == "dummy":
+                continue
             a = int(name[1])
             b = int(name[2])
             weight = _get_weight(a, b)
@@ -169,10 +170,8 @@ class Provision(BaseMethod):
                     if fictive_column != None and b != fictive_column:
                         gdf.loc[a, "demand_without"] = value
                         gdf.loc[b, "capacity_left"] = value
-        if fictive_index != None:
-            gdf.drop(labels=[fictive_index], inplace=True)
-        if fictive_column != None:
-            gdf.drop(labels=[fictive_column], inplace=True)
+        if fictive_index != None or fictive_column != None:
+            gdf.drop(labels=[fictive_block_id], inplace=True)
         return gdf
 
     def _iterative_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
