@@ -126,7 +126,7 @@ class VacantArea(BaseMethod):
         return polygon.minimum_rotated_rectangle
 
     @staticmethod
-    def _buffer_and_union(row, buffer_distance=1) -> gpd.GeoSeries:
+    def _buffer_and_union(row, buffer_distance=1.1) -> gpd.GeoSeries:
         polygon = row['geometry']
         buffer_polygon = polygon.buffer(buffer_distance)
         return buffer_polygon
