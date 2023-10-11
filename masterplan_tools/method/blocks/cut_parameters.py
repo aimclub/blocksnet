@@ -3,12 +3,12 @@ Class holding parameters for base blocks cut is defined here.
 """
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
-from masterplan_tools.models.geojson import PolygonGeoJSON
+from ...models import GeoDataFrame, BaseRow
 
 
-class CutFeatureProperties(BaseModel):
+class CutRow(BaseRow):
     """
-    Landuse features properties
+    Cut geometries columns
     """
 
     id: int | None = None
@@ -24,17 +24,17 @@ class CutParameters(BaseModel):
 
     roads_buffer: int = Field(5, ge=0)
     """roads geometry buffer in meters used to fill dead ends inside blocks, should be the same size as roads width"""
-    city: PolygonGeoJSON[CutFeatureProperties]
+    city: GeoDataFrame[CutRow]
     """city boundaries geometry"""
-    water: PolygonGeoJSON[CutFeatureProperties]
+    water: GeoDataFrame[CutRow]
     """water objects geometries"""
-    roads: PolygonGeoJSON[CutFeatureProperties]
+    roads: GeoDataFrame[CutRow]
     """road network geometries"""
-    railways: PolygonGeoJSON[CutFeatureProperties]
+    railways: GeoDataFrame[CutRow]
     """railways network geometries"""
 
     @field_validator("city", "water", "roads", "railways", mode="before")
     def validate_fields(value):
         if isinstance(value, gpd.GeoDataFrame):
-            return PolygonGeoJSON[CutFeatureProperties].from_gdf(value)
+            return GeoDataFrame[CutRow](value)
         return value

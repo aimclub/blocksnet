@@ -21,7 +21,7 @@ class BlocksClusterization:
         self.local_crs: int = blocks.crs.to_epsg()
         self.blocks: gpd.GeoDataFrame = blocks
         self.initial_blocks = blocks.copy()
-        self.buildings_geom: gpd.GeoDataFrame = params.buildings.to_gdf()
+        self.buildings_geom: gpd.GeoDataFrame = params.buildings
         self.buildings_centroids: gpd.GeoDataFrame = None
         self.cutoff_ratio: float = 0.03
         self.blocks_to_consider: list = None

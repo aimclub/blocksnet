@@ -3,12 +3,12 @@ Class holding geometries used by data getter is defined here.
 """
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
-from ..models import PointGeoJSON
+from ..models import GeoDataFrame, BaseRow
 
 
-class AggregateBuildingsFeature(BaseModel):
+class AggregateBuildingsRow(BaseRow):
     """
-    Buildings features properties
+    Buildings columns
     """
 
     population_balanced: int = Field(ge=0)
@@ -27,9 +27,9 @@ class AggregateBuildingsFeature(BaseModel):
     """Total building area (in square meters)"""
 
 
-class AggregateGreeningsFeature(BaseModel):
+class AggregateGreeningsRow(BaseRow):
     """
-    Greenings features properties
+    Greenings columns
     """
 
     current_green_area: int = Field(ge=0)
@@ -38,9 +38,9 @@ class AggregateGreeningsFeature(BaseModel):
     """Total greening capacity (in units)"""
 
 
-class AggregateParkingsFeature(BaseModel):
+class AggregateParkingsRow(BaseRow):
     """
-    Parkings features properties
+    Parkings columns
     """
 
     current_parking_capacity: int = Field(ge=0)
@@ -52,27 +52,27 @@ class AggregateParameters(BaseModel):
     Geometries used in parameters aggregation process.
     """
 
-    buildings: PointGeoJSON[AggregateBuildingsFeature]
+    buildings: GeoDataFrame[AggregateBuildingsRow]
     """Buildings geometries"""
-    greenings: PointGeoJSON[AggregateGreeningsFeature]
+    greenings: GeoDataFrame[AggregateGreeningsRow]
     """Green areas geometries"""
-    parkings: PointGeoJSON[AggregateParkingsFeature]
+    parkings: GeoDataFrame[AggregateParkingsRow]
     """Parkings geometries"""
 
     @field_validator("buildings", mode="before")
     def validate_buildings(value):
         if isinstance(value, gpd.GeoDataFrame):
-            return PointGeoJSON[AggregateBuildingsFeature].from_gdf(value)
+            return GeoDataFrame[AggregateBuildingsRow](value)
         return value
 
     @field_validator("greenings", mode="before")
     def validate_greenings(value):
         if isinstance(value, gpd.GeoDataFrame):
-            return PointGeoJSON[AggregateGreeningsFeature].from_gdf(value)
+            return GeoDataFrame[AggregateGreeningsRow](value)
         return value
 
     @field_validator("parkings", mode="before")
     def validate_parkings(value):
         if isinstance(value, gpd.GeoDataFrame):
-            return PointGeoJSON[AggregateParkingsFeature].from_gdf(value)
+            return GeoDataFrame[AggregateParkingsRow](value)
         return value

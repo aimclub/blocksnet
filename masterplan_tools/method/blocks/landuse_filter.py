@@ -90,8 +90,8 @@ class LuFilter:
         landuse_selected = self._receiving_landuse()
         self._pruning_landuse(landuse_selected)
 
-        no_dev = Utils.polygon_to_multipolygon(self.landuse_geometries.no_development.to_gdf())
-        lu = Utils.polygon_to_multipolygon(self.landuse_geometries.landuse.to_gdf())
+        no_dev = Utils.polygon_to_multipolygon(self.landuse_geometries.no_development)
+        lu = Utils.polygon_to_multipolygon(self.landuse_geometries.landuse)
 
         self._pruning_landuse(no_dev, no_dev_area=True)
         self._pruning_landuse(lu)

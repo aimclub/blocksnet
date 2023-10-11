@@ -11,7 +11,7 @@ from enum import Enum
 from pydantic import BaseModel
 from typing import Literal
 
-from masterplan_tools.models.geojson import PolygonGeoJSON
+from ...models import GeoDataFrame, BaseRow
 from .cut_parameters import CutParameters
 from .land_use_parameters import LandUseParameters
 from .landuse_filter import LuFilter
@@ -19,10 +19,9 @@ from .blocks_clustering import BlocksClusterization
 from .utils import Utils
 
 
-class BlocksCutterFeatureProperties(BaseModel):
-    id: int
+class BlocksRow(BaseRow):
+    id: int | None = None
     landuse: Literal["no_dev_area", "selected_area", "buildings"] = "selected_area"
-    # development: bool = True
 
 
 class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-many-instance-attributes
@@ -99,16 +98,16 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             city bounds splitted by railways, roads and water. Resulted polygons are city blocks
         """
         blocks = self.cut_blocks_by_polygons(
-            self.cut_parameters.city.to_gdf(), self.cut_parameters.railways.to_gdf(), self.cut_parameters.roads.to_gdf()
+            self.cut_parameters.city, self.cut_parameters.railways, self.cut_parameters.roads
         )
         blocks = self._fill_deadends(blocks)
-        blocks = self.cut_blocks_by_polygons(blocks, self.cut_parameters.water.to_gdf())
+        blocks = self.cut_blocks_by_polygons(blocks, self.cut_parameters.water)
         blocks = Utils._fix_blocks_geometries(blocks)
         blocks = self._drop_overlayed_geometries(blocks)
         blocks = blocks.explode(index_parts=True).reset_index()[["geometry"]]
         return blocks
 
-    def get_blocks(self) -> PolygonGeoJSON[BlocksCutterFeatureProperties]:
+    def get_blocks(self) -> GeoDataFrame[BlocksRow]:
         """
         Main method.
 
@@ -131,9 +130,9 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
         """
 
         blocks = self._cut_blocks()
-        if self.lu_parameters != None:
+        if self.lu_parameters is not None:
             blocks = LuFilter(blocks, landuse_geometries=self.lu_parameters).filter_lu()
-            if self.lu_parameters.buildings != None:
+            if self.lu_parameters.buildings is not None:
                 blocks = BlocksClusterization(blocks, self.lu_parameters).run()
         blocks.reset_index(inplace=True)
         blocks["id"] = blocks.index
@@ -141,8 +140,8 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             blocks["development"] = blocks["landuse"] != "no_dev_area"
         new_geometries = blocks.unary_union
         new_geometries = gpd.GeoDataFrame(geometry=[new_geometries], crs=blocks.crs.to_epsg())
-        new_blocks = new_geometries.explode(index_parts=True).reset_index()[['geometry']]
-        blocks = gpd.sjoin(new_blocks, blocks, how='inner', predicate='intersects').drop_duplicates('geometry')
-        blocks = blocks.drop(['index_right', 'index', 'id'], axis=1)
-        blocks = blocks.reset_index(names='id')
-        return PolygonGeoJSON[BlocksCutterFeatureProperties].from_gdf(blocks)
+        new_blocks = new_geometries.explode(index_parts=True).reset_index()[["geometry"]]
+        blocks = gpd.sjoin(new_blocks, blocks, how="inner", predicate="intersects").drop_duplicates("geometry")
+        blocks = blocks.drop(["index_right", "index", "id"], axis=1)
+        blocks = blocks.reset_index(names="id")
+        return GeoDataFrame[BlocksRow](blocks)

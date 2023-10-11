@@ -5,9 +5,9 @@ import osmnx as ox
 import shapely
 import matplotlib.pyplot as plt
 
-from ...models import CityModel
 from ..base_method import BaseMethod
 from ...models import Block, ServiceType
+
 
 class PublicSpaceGreedy:
     def __init__(self, vacant_area, buildings):
