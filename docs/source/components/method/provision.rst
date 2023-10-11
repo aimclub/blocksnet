@@ -4,7 +4,7 @@ Provision modules
 
 Iterative provision
 ~~~~~~~~~~~~~~
-.. automodule:: masterplan_tools.method.provision.provision_model
+.. automodule:: blocksnet.method.provision.provision_model
     :members:
     :undoc-members:
     :show-inheritance:
@@ -12,8 +12,7 @@ Iterative provision
 
 Linear programming provision
 ~~~~~~~~~~~~~~
-.. automodule:: masterplan_tools.method.provision.lp_provision
+.. automodule:: blocksnet.method.provision.lp_provision
     :members:
     :undoc-members:
     :show-inheritance:
-

@@ -1,7 +1,7 @@
-masterplan_tools
+blocksnet
 ================
 
 .. toctree::
    :maxdepth: 4
 
-   masterplan_tools
+   blocksnet

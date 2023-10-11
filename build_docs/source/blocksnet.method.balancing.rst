@@ -1,13 +1,13 @@
-masterplan\_tools.method.balancing package
+blocksnet.method.balancing package
 ==========================================
 
 Submodules
 ----------
 
-masterplan\_tools.method.balancing.balancer module
+blocksnet.method.balancing.balancer module
 --------------------------------------------------
 
-.. automodule:: masterplan_tools.method.balancing.balancer
+.. automodule:: blocksnet.method.balancing.balancer
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ masterplan\_tools.method.balancing.balancer module
 Module contents
 ---------------
 
-.. automodule:: masterplan_tools.method.balancing
+.. automodule:: blocksnet.method.balancing
    :members:
    :undoc-members:
    :show-inheritance:

@@ -2,6 +2,6 @@ FAQ
 ===
 Frequently asked questions and answers
 
-.. topic:: What is BlockNet?
+.. topic:: What is BlocksNet?
 
-    *BlockNet is an open-source library for generating master plan requirements for urban areas.*
+    *BlocksNet is an open-source library for generating master plan requirements for urban areas.*

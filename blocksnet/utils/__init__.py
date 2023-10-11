@@ -1,3 +1,3 @@
 """
-Some utulities used in masterplan_tools are located here.
+Some utulities used in blocksnet are located here.
 """

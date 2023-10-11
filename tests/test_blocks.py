@@ -3,7 +3,7 @@
 import os
 import pytest
 import geopandas as gpd
-from masterplan_tools.method.blocks import BlocksCutter, CutParameters, LandUseParameters
+from blocksnet.method.blocks import BlocksCutter, CutParameters, LandUseParameters
 
 data_path = "./tests/data/blocks"
 local_crs = 32636

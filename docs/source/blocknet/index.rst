@@ -1,14 +1,12 @@
-BlockNet
+BlocksNet
 ==========
 
-**That is about modules into BlockNet**
+**That is about modules into BlocksNet**
 
 .. toctree::
    :glob:
    :maxdepth: 2
 
-   blocknet
+   blocksnet
    installation
    quickstart
-
-   
