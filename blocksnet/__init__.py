@@ -11,8 +11,8 @@ __license__ = "BSD-3"
 
 # from masterplan_tools.method.balancing import MasterPlan
 # from masterplan_tools.method.provision import ProvisionModel
-from masterplan_tools.models import City, GeoDataFrame, BaseRow
-from masterplan_tools.method import Provision, Accessibility
-from masterplan_tools.method.balancing import MasterPlan
-from masterplan_tools.method.publicspace import PublicSpaceGreedy
-from masterplan_tools.preprocessing import GraphGenerator
+from blocksnet.models import City, GeoDataFrame, BaseRow
+from blocksnet.method import Provision, Accessibility
+from blocksnet.method.balancing import MasterPlan
+from blocksnet.method.publicspace import PublicSpaceGreedy
+from blocksnet.preprocessing import GraphGenerator
