@@ -9,8 +9,8 @@ __credits__ = []
 __license__ = "BSD-3"
 
 
-# from masterplan_tools.method.balancing import MasterPlan
-# from masterplan_tools.method.provision import ProvisionModel
+# from blocksnet.method.balancing import MasterPlan
+# from blocksnet.method.provision import ProvisionModel
 from blocksnet.models import City, GeoDataFrame, BaseRow
 from blocksnet.method import Provision, Accessibility
 from blocksnet.method.balancing import MasterPlan

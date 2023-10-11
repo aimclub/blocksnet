@@ -83,14 +83,14 @@ class City:
     def plot(self, max_weight: int = 5) -> None:
         """Plot city model blocks and relations"""
         blocks = self.get_blocks_gdf()
-        ax = blocks.plot(alpha=1, color="#ddd", figsize=[15, 15])
+        ax = blocks.plot(alpha=1, color="#ddd")
         edges = []
         for u, v, data in self.graph.edges(data=True):
             a = u.geometry.representative_point()
             b = v.geometry.representative_point()
             if data["weight"] <= max_weight:
                 edges.append({"geometry": LineString([a, b]), "weight": data["weight"]})
-        gpd.GeoDataFrame(edges).set_crs(self.epsg).plot(ax=ax, alpha=0.2, column="weight", cmap="cool")
+        gpd.GeoDataFrame(edges).set_crs(self.epsg).plot(ax=ax, alpha=0.2, column="weight", cmap="cool", legend=True)
         ax.set_axis_off()
 
     @property

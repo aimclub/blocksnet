@@ -10,7 +10,7 @@ class Accessibility(BaseMethod):
     @classmethod
     def plot(cls, gdf: gpd.GeoDataFrame, max=None):
         vmax = max if max is not None else 60
-        gdf.plot(column="distance", cmap="cool", legend=True, vmin=0, vmax=vmax, figsize=[20, 15]).set_axis_off()
+        gdf.plot(column="distance", cmap="cool", legend=True, vmin=0, vmax=vmax).set_axis_off()
 
     def calculate(self, block: Block):
         blocks_list = map(lambda b: {"id": b.id, "geometry": b.geometry}, self.city_model.blocks)
