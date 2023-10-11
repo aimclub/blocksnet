@@ -2,12 +2,9 @@
 This module is aimed to cut the geometry of the specified city into city blocks.
 Blocks are close to cadastral unit, however in the way they are calculated in this method
 they become suitable to be used in masterplanning process.
-
-TODO: add landuse devision to avoid weird cutoffs
 """
 
 import geopandas as gpd
-from enum import Enum
 from pydantic import BaseModel
 from typing import Literal
 
@@ -134,14 +131,22 @@ class BlocksCutter(BaseModel):  # pylint: disable=too-few-public-methods,too-man
             blocks = LuFilter(blocks, landuse_geometries=self.lu_parameters).filter_lu()
             if self.lu_parameters.buildings is not None:
                 blocks = BlocksClusterization(blocks, self.lu_parameters).run()
+
         blocks.reset_index(inplace=True)
         blocks["id"] = blocks.index
+
         if "landuse" in blocks:
             blocks["development"] = blocks["landuse"] != "no_dev_area"
+
         new_geometries = blocks.unary_union
         new_geometries = gpd.GeoDataFrame(geometry=[new_geometries], crs=blocks.crs.to_epsg())
         new_blocks = new_geometries.explode(index_parts=True).reset_index()[["geometry"]]
+
         blocks = gpd.sjoin(new_blocks, blocks, how="inner", predicate="intersects").drop_duplicates("geometry")
         blocks = blocks.drop(["index_right", "index", "id"], axis=1)
         blocks = blocks.reset_index(names="id")
+
+        # to avoid intersection
+        blocks.geometry = blocks.geometry.buffer(-0.01)
+
         return GeoDataFrame[BlocksRow](blocks)
