@@ -70,13 +70,19 @@ class Provision(BaseMethod):
         return gdf
 
     @classmethod
+    def stat_provision(cls, gdf: gpd.GeoDataFrame):
+        return {
+            "mean": gdf["provision"].mean(),
+            "median": gdf["provision"].median(),
+            "min": gdf["provision"].min(),
+            "max": gdf["provision"].max(),
+        }
+
+    @classmethod
     def total_provision(cls, gdf: gpd.GeoDataFrame):
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
     @classmethod
-    def mean_provision(cls, gdf: gpd.GeoDataFrame):
-        return gdf["provision"].mean()
-
     def calculate_provisions(
         self,
         service_types: list[ServiceType | str],

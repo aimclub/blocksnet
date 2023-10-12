@@ -140,7 +140,7 @@ class Accessibility:  # pylint: disable=too-few-public-methods
 
         return pd.Series(data=distances, index=target_nodes)
 
-    def get_matrix(self) -> pd.DataFrame:
+    def get_matrix(self, weight="weight") -> pd.DataFrame:
         """
         This methods runs graph to matrix calculations
 
@@ -151,7 +151,7 @@ class Accessibility:  # pylint: disable=too-few-public-methods
         """
 
         graph_nx = nx.convert_node_labels_to_integers(self.G)
-        graph_nk = self._convert_nx2nk(graph_nx, weight="time_min")
+        graph_nk = self._convert_nx2nk(graph_nx, weight=weight)
 
         graph_df = pd.DataFrame.from_dict(dict(graph_nx.nodes(data=True)), orient="index")
         graph_gdf = gpd.GeoDataFrame(

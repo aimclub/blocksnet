@@ -21,7 +21,7 @@ class GraphGenerator(BaseModel):
     """EPSG crs of the given city"""
     overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"
     """Overpass url used in OSM queries"""
-    speed: dict[str, int] = {"walk": 4, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
+    speed: dict[str, int] = {"walk": 4, "drive": 25, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
     """Average transport type speed in km/h"""
     waiting_time: dict[str, int] = {
         "subway": 5,
@@ -31,6 +31,11 @@ class GraphGenerator(BaseModel):
     }
     """Average waiting time in min"""
 
+    @classmethod
+    def plot(cls, graph: nx.MultiDiGraph):
+        _, edges = ox.graph_to_gdfs(graph)
+        edges.plot(column="transport_type", legend=True).set_axis_off()
+
     @field_validator("city_geometry", mode="after")
     def validate_fields(gdf: gpd.GeoDataFrame):
         return gdf.to_crs(OX_CRS)
@@ -39,21 +44,16 @@ class GraphGenerator(BaseModel):
         """Return transport type speed in meters per minute"""
         return METERS_IN_KILOMETER * self.speed[transport_type] / MINUTES_IN_HOUR
 
-    def _get_walk_graph(self):
-        """Returns pedestrian graph for the given geometry"""
-        speed = self._get_speed("walk")
-        G = ox.graph_from_polygon(polygon=self.city_geometry.unary_union, network_type="walk")
-        nodes, edges = ox.graph_to_gdfs(G)
-        nodes.to_crs(self.local_crs, inplace=True)
-        nodes["x"] = nodes["geometry"].apply(lambda g: g.x)
-        nodes["y"] = nodes["geometry"].apply(lambda g: g.y)
-        nodes.drop(labels=["highway", "street_count"], axis=1, inplace=True)
-        G = ox.graph_from_gdfs(nodes, edges)
+    def _get_basic_graph(self, network_type: Literal["walk", "drive"]):
+        """Returns walk or drive graph for the city geometry"""
+        speed = self._get_speed(network_type)
+        G = ox.graph_from_polygon(polygon=self.city_geometry.unary_union, network_type=network_type)
+        G = ox.project_graph(G, to_crs=self.local_crs)
         for edge in G.edges(data=True):
             _, _, data = edge
             length = data["length"]
-            data.clear()
             data["weight"] = length / speed
+            data["transport_type"] = network_type
         return G
 
     def _get_routes(
@@ -103,17 +103,17 @@ class GraphGenerator(BaseModel):
         nodes = nodes.copy()
         nodes["geometry"] = nodes["geometry"].apply(lambda x: nearest_points(linestring, x)[0])
         nodes["distance"] = nodes["geometry"].apply(lambda x: line_locate_point(linestring, x))
-        nodes = nodes.loc[nodes["geometry"].within(self.city_geometry.unary_union)]
+        nodes = nodes.loc[nodes["geometry"].within(self.city_geometry.to_crs(self.local_crs).unary_union)]
         sorted_nodes = nodes.sort_values(by="distance").reset_index()
         sorted_nodes["hash"] = sorted_nodes["geometry"].apply(lambda x: f"{transport_type}_{hash(x)}")
-        G = nx.MultiGraph()
+        G = nx.MultiDiGraph()
         for index in list(sorted_nodes.index)[:-1]:
             n1 = sorted_nodes.loc[index]
             n2 = sorted_nodes.loc[index + 1]
             d = n2["distance"] - n1["distance"]
             id1 = n1["hash"]  # hash(n1['geometry'])
             id2 = n2["hash"]  # hash(n1['geometry'])
-            speed = METERS_IN_KILOMETER * self.speed[transport_type] / MINUTES_IN_HOUR
+            speed = self._get_speed(transport_type)
             G.add_edge(id1, id2, weight=d / speed, transport_type=transport_type)
             G.nodes[id1]["x"] = n1["geometry"].x
             G.nodes[id1]["y"] = n1["geometry"].y
@@ -121,11 +121,9 @@ class GraphGenerator(BaseModel):
             G.nodes[id2]["y"] = n2["geometry"].y
         return G
 
-    def _get_transport_graphs(
-        self, transport_type: Literal["subway", "tram", "trolleybus", "bus"]
-    ) -> list[nx.MultiGraph]:
-        """Get transport routes graphs for the given transport_type"""
-        routes = self._get_routes(self.city_geometry.bounds, transport_type)
+    def _get_pt_graph(self, pt_type: Literal["subway", "tram", "trolleybus", "bus"]) -> list[nx.MultiGraph]:
+        """Get public transport routes graphs for the given transport_type"""
+        routes: pd.DataFrame = self._get_routes(self.city_geometry.bounds, pt_type)
         graphs = []
         for i in routes.index:
             df = pd.DataFrame(routes.loc[i, "members"])
@@ -133,38 +131,38 @@ class GraphGenerator(BaseModel):
             ways_df = df.loc[lambda x: x["type"] == "way"].copy().rename(columns={"geometry": "coordinates"})
             nodes_gdf = self._nodes_to_gdf(nodes_df)
             ways_gdf = self._ways_to_gdf(ways_df)
-            graphs.append(self._graph_from_route(nodes_gdf, ways_gdf, transport_type))
-        return graphs
+            graphs.append(self._graph_from_route(nodes_gdf, ways_gdf, pt_type))
+        graph = nx.compose_all(graphs)
+        graph.graph["crs"] = self.city_geometry.to_crs(self.local_crs).crs
+        return graph
 
-    def get_graph(self):
+    def get_graph(self, graph_type: Literal["intermodal", "walk", "drive"]):
         """Returns intermodal graph for the city geometry bounds"""
-        G_walk: nx.MultiDiGraph = self._get_walk_graph()
-        # transport_types = ['subway', 'tram', 'trolleybus', 'bus']
-        G_subways: list[nx.MultiGraph] = self._get_transport_graphs("subway")
-        G_trams: list[nx.MultiGraph] = self._get_transport_graphs("tram")
-        G_trolleybuses: list[nx.MultiGraph] = self._get_transport_graphs("trolleybus")
-        G_buses: list[nx.MultiGraph] = self._get_transport_graphs("bus")
+        if graph_type != "intermodal":
+            return self._get_basic_graph(graph_type)
 
-        walk_nodes, _ = ox.graph_to_gdfs(G_walk)
-        walk_nodes.set_crs(epsg=self.local_crs, allow_override=True, inplace=True)
+        crs = self.city_geometry.to_crs(self.local_crs).crs
 
-        G_transport = nx.compose_all(graphs=[*G_subways, *G_trams, *G_trolleybuses, *G_buses]).to_directed()
-        transport_nodes = gpd.GeoDataFrame(G_transport.nodes(data=True), columns=["id", "data"])
-        transport_nodes["geometry"] = transport_nodes["data"].apply(lambda d: Point(d["x"], d["y"]))
-        transport_nodes.set_geometry("geometry", inplace=True)
-        transport_nodes.set_crs(epsg=self.local_crs, inplace=True)
+        walk_graph: nx.MultiDiGraph = self._get_basic_graph("walk")
+        walk_nodes, _ = ox.graph_to_gdfs(walk_graph)
 
-        sjoin = transport_nodes.sjoin_nearest(walk_nodes, how="left", distance_col="distance")
-        intermodal_graph = nx.compose(G_walk, G_transport)
-        intermodal_graph.graph = {"epsg": self.local_crs}
-        for i in sjoin.index:
-            gs = sjoin.loc[i]
-            transport_node = gs["id"]
+        pt_types: list[str] = ["bus", "trolleybus", "tram", "subway"]
+        pt_graphs: list[nx.MultiDiGraph] = list(map(lambda t: self._get_pt_graph(t), pt_types))
+        pt_graph = nx.compose_all(pt_graphs)
+        pt_graph.crs = crs
+        pt_nodes, _ = ox.graph_to_gdfs(pt_graph)
+
+        intermodal_graph = nx.compose(walk_graph, pt_graph)
+        pt_to_walk = pt_nodes.sjoin_nearest(walk_nodes, how="left", distance_col="distance")
+        for i in pt_to_walk.index:
+            gs = pt_to_walk.loc[i]
+            transport_node = i
             walk_node = gs["index_right"]
             distance = gs["distance"]
-            speed = 1000 * 4 / 60
+            speed = self._get_speed("walk")
             weight = distance / speed
-            intermodal_graph.add_edge(transport_node, walk_node, weight=weight)
-            intermodal_graph.add_edge(walk_node, transport_node, weight=weight + 5)
+            intermodal_graph.add_edge(transport_node, walk_node, weight=weight, transport_type="walk")
+            intermodal_graph.add_edge(walk_node, transport_node, weight=weight + 5, transport_type="walk")
+        intermodal_graph.graph["crs"] = crs
 
         return intermodal_graph
