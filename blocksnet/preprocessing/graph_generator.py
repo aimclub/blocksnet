@@ -17,8 +17,6 @@ class GraphGenerator(BaseModel):
 
     city_geometry: InstanceOf[gpd.GeoDataFrame]
     """City geometry or geometries"""
-    local_crs: int
-    """EPSG crs of the given city"""
     overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"
     """Overpass url used in OSM queries"""
     speed: dict[str, int] = {"walk": 4, "drive": 25, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
@@ -31,14 +29,22 @@ class GraphGenerator(BaseModel):
     }
     """Average waiting time in min"""
 
+    @field_validator("city_geometry", mode="after")
+    def validate_fields(gdf: gpd.GeoDataFrame):
+        estimated_epsg = gdf.estimate_utm_crs().to_epsg()
+        if estimated_epsg != gdf.crs.to_epsg():
+            gdf = gdf.to_crs(estimated_epsg)
+            print(f"City geometry CRS set to EPSG:{estimated_epsg}")
+        return gdf
+
+    @property
+    def local_epsg(self):
+        return self.city_geometry.crs
+
     @classmethod
     def plot(cls, graph: nx.MultiDiGraph):
         _, edges = ox.graph_to_gdfs(graph)
         edges.plot(column="transport_type", legend=True).set_axis_off()
-
-    @field_validator("city_geometry", mode="after")
-    def validate_fields(gdf: gpd.GeoDataFrame):
-        return gdf.to_crs(OX_CRS)
 
     def _get_speed(self, transport_type: str):
         """Return transport type speed in meters per minute"""
@@ -47,13 +53,14 @@ class GraphGenerator(BaseModel):
     def _get_basic_graph(self, network_type: Literal["walk", "drive"]):
         """Returns walk or drive graph for the city geometry"""
         speed = self._get_speed(network_type)
-        G = ox.graph_from_polygon(polygon=self.city_geometry.unary_union, network_type=network_type)
-        G = ox.project_graph(G, to_crs=self.local_crs)
+        G = ox.graph_from_polygon(polygon=self.city_geometry.to_crs(OX_CRS).unary_union, network_type=network_type)
+        G = ox.project_graph(G, to_crs=self.local_epsg)
         for edge in G.edges(data=True):
             _, _, data = edge
             length = data["length"]
             data["weight"] = length / speed
             data["transport_type"] = network_type
+        print(f"Graph made for '{network_type}' network type")
         return G
 
     def _get_routes(
@@ -71,7 +78,7 @@ class GraphGenerator(BaseModel):
     """
         result = requests.get(self.overpass_url, params={"data": overpass_query})
         json_result = result.json()["elements"]
-
+        print(f"Fetched routes for '{public_transport_type}'")
         return pd.DataFrame(json_result)
 
     @staticmethod
@@ -87,14 +94,14 @@ class GraphGenerator(BaseModel):
         """Returns GeoDataFrame for the given route ways, converting way's coordinates to linestring"""
         copy = df.copy()
         copy["geometry"] = df["coordinates"].apply(lambda x: self._coordinates_to_linestring(x))
-        return gpd.GeoDataFrame(copy, geometry=copy["geometry"]).set_crs(OX_CRS).to_crs(self.local_crs)
+        return gpd.GeoDataFrame(copy, geometry=copy["geometry"]).set_crs(epsg=OX_CRS).to_crs(self.local_epsg)
 
     def _nodes_to_gdf(self, df: pd.DataFrame) -> gpd.GeoDataFrame:
         """Returns GeoDataFrame for the given route nodes, converting lon and lat columns to geometry column and local CRS"""
         return (
             gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df["lon"], df["lat"]))
             .set_crs(epsg=OX_CRS)
-            .to_crs(self.local_crs)
+            .to_crs(self.local_epsg)
         )
 
     def _graph_from_route(self, nodes: pd.DataFrame, ways: pd.DataFrame, transport_type: str) -> list[nx.MultiGraph]:
@@ -103,7 +110,7 @@ class GraphGenerator(BaseModel):
         nodes = nodes.copy()
         nodes["geometry"] = nodes["geometry"].apply(lambda x: nearest_points(linestring, x)[0])
         nodes["distance"] = nodes["geometry"].apply(lambda x: line_locate_point(linestring, x))
-        nodes = nodes.loc[nodes["geometry"].within(self.city_geometry.to_crs(self.local_crs).unary_union)]
+        nodes = nodes.loc[nodes["geometry"].within(self.city_geometry.unary_union)]
         sorted_nodes = nodes.sort_values(by="distance").reset_index()
         sorted_nodes["hash"] = sorted_nodes["geometry"].apply(lambda x: f"{transport_type}_{hash(x)}")
         G = nx.MultiDiGraph()
@@ -123,17 +130,22 @@ class GraphGenerator(BaseModel):
 
     def _get_pt_graph(self, pt_type: Literal["subway", "tram", "trolleybus", "bus"]) -> list[nx.MultiGraph]:
         """Get public transport routes graphs for the given transport_type"""
-        routes: pd.DataFrame = self._get_routes(self.city_geometry.bounds, pt_type)
+        routes: pd.DataFrame = self._get_routes(self.city_geometry.to_crs(OX_CRS).bounds, pt_type)
         graphs = []
         for i in routes.index:
             df = pd.DataFrame(routes.loc[i, "members"])
             nodes_df = df.loc[lambda x: x["type"] == "node"].copy()
             ways_df = df.loc[lambda x: x["type"] == "way"].copy().rename(columns={"geometry": "coordinates"})
+            if len(nodes_df) == 0 or len(ways_df) == 0:
+                continue
             nodes_gdf = self._nodes_to_gdf(nodes_df)
             ways_gdf = self._ways_to_gdf(ways_df)
             graphs.append(self._graph_from_route(nodes_gdf, ways_gdf, pt_type))
-        graph = nx.compose_all(graphs)
-        graph.graph["crs"] = self.city_geometry.to_crs(self.local_crs).crs
+        graph = None
+        if len(graphs) > 0:
+            graph = nx.compose_all(graphs)
+            graph.graph["crs"] = self.local_epsg
+        print(f"Graph made for '{pt_type}'")
         return graph
 
     def get_graph(self, graph_type: Literal["intermodal", "walk", "drive"]):
@@ -141,15 +153,14 @@ class GraphGenerator(BaseModel):
         if graph_type != "intermodal":
             return self._get_basic_graph(graph_type)
 
-        crs = self.city_geometry.to_crs(self.local_crs).crs
-
         walk_graph: nx.MultiDiGraph = self._get_basic_graph("walk")
         walk_nodes, _ = ox.graph_to_gdfs(walk_graph)
 
         pt_types: list[str] = ["bus", "trolleybus", "tram", "subway"]
         pt_graphs: list[nx.MultiDiGraph] = list(map(lambda t: self._get_pt_graph(t), pt_types))
+        pt_graphs = list(filter(lambda g: g is not None, pt_graphs))
         pt_graph = nx.compose_all(pt_graphs)
-        pt_graph.crs = crs
+        pt_graph.crs = self.local_epsg
         pt_nodes, _ = ox.graph_to_gdfs(pt_graph)
 
         intermodal_graph = nx.compose(walk_graph, pt_graph)
@@ -163,6 +174,6 @@ class GraphGenerator(BaseModel):
             weight = distance / speed
             intermodal_graph.add_edge(transport_node, walk_node, weight=weight, transport_type="walk")
             intermodal_graph.add_edge(walk_node, transport_node, weight=weight + 5, transport_type="walk")
-        intermodal_graph.graph["crs"] = crs
+        intermodal_graph.graph["crs"] = self.local_epsg
 
         return intermodal_graph
