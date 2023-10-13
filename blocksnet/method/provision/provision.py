@@ -19,36 +19,34 @@ class Provision(BaseMethod):
         # cx.add_basemap(ax, source=cx.providers.Stamen.TonerLite, crs=f"EPSG:{self.city_model.epsg}")
 
     def plot(self, gdf: gpd.GeoDataFrame):
-        """Visualizes provision assessment results"""
-        ax = gdf.plot(column="provision", cmap="RdYlGn", vmin=0, vmax=1, legend=True)
-        ax.set_axis_off()
-        self._add_basemap(ax)
+            """Visualizes provision assessment results"""
+            ax = gdf.plot(column="provision", cmap="RdYlGn", vmin=0, vmax=1, legend=True)
+            gdf[gdf["demand"] == 0].plot(ax=ax, color="#ddd", alpha=1)
+            ax.set_title(" provision: " + f"{self.total_provision(gdf): .3f}")
+            ax.set_axis_off()
+            self._add_basemap(ax)
 
     def plot_delta(self, gdf_before: gpd.GeoDataFrame, gdf_after: gpd.GeoDataFrame):
         gdf = gdf_after.copy()
         gdf = gdf.loc[gdf["provision"] != 0]
         gdf["provision"] -= gdf_before["provision"]
         ax = gdf.plot(column="provision", cmap="RdYlGn", vmin=-1, vmax=1, legend=True)
+        gdf[gdf["demand"] == 0].plot(ax=ax, color="#ddd", alpha=1)
         ax.set_axis_off()
         self._add_basemap(ax)
 
     def plot_provisions(self, provisions: dict[str, gpd.GeoDataFrame]):
-        def show_me_chart(fig, gs, gdf, name, i, sum):
-            ax = fig.add_subplot(gs[i // 2, i % 2])
-            # self.city_model.blocks.to_gdf().plot(ax=ax, color="#ddd", alpha=1)
-            gdf.plot(column="provision", legend=True, ax=ax, cmap="RdYlGn", vmin=0, vmax=1)
-            gdf[gdf["demand"] == 0].plot(ax=ax, color="#ddd", alpha=1)
-            ax.set_title(name + " provision: " + f"{sum: .3f}")
-            ax.set_axis_off()
-            # self._add_basemap(ax)
+            def show_me_chart(ax, gdf, name, sum):
+                gdf.plot(column="provision", legend=True, ax=ax, cmap="RdYlGn", vmin=0, vmax=1)
+                gdf[gdf["demand"] == 0].plot(ax=ax, color="#ddd", alpha=1)
+                ax.set_title(str(name.name) + " provision: " + f"{sum: .3f}")
+                ax.set_axis_off()
 
-        fig = plt.figure(figsize=(20, 20))
-        gs = GridSpec(len(provisions) // 2 + 1, 2, figure=fig)
-        i = 0
-        for service_type, provision_gdf in provisions.items():
-            show_me_chart(fig, gs, provision_gdf, service_type, i, self.total_provision(provision_gdf))
-            i = i + 1
-        plt.show()
+            n_plots = len(provisions)
+            fig, axs = plt.subplots(nrows=n_plots // 2 + n_plots % 2, ncols=2, figsize=(20, 20))
+            for i, (service_type, provision_gdf) in enumerate(provisions.items()):
+                show_me_chart(axs[i // 2][i % 2], provision_gdf, service_type, self.total_provision(provision_gdf))
+            plt.show()
 
     def _get_filtered_blocks(self, service_type: ServiceType, type: Literal["demand", "capacity"]) -> list[Block]:
         """Get blocks filtered by demand or capacity greater than 0"""
