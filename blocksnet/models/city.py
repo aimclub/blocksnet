@@ -8,6 +8,7 @@ from matplotlib import pyplot as plt
 from functools import singledispatchmethod
 from pydantic import BaseModel, Field, InstanceOf
 from .service_type import ServiceType
+from .scenario import Scenario
 
 SERVICE_TYPES = {
     "kindergartens": {"demand": 61, "accessibility": 10, "buffer": 15},
@@ -16,6 +17,11 @@ SERVICE_TYPES = {
     "hospitals": {"demand": 9, "accessibility": 60},
     "pharmacies": {"demand": 50, "accessibility": 10},
     "policlinics": {"demand": 27, "accessibility": 15},
+}
+
+SCENARIOS = {
+    "basic": {"schools": 0.5, "kindergartens": 0.5},
+    "healthy city": {"policlinics": 0.4, "pharmacies": 0.4, "hospitals": 0.2},
 }
 
 
@@ -78,7 +84,24 @@ class Block(BaseModel):
 class City:
     epsg: int
     graph: nx.DiGraph
-    service_types: list[ServiceType] = []
+    service_types: list[ServiceType]
+    scenarios: list[Scenario]
+
+    def __init__(
+        self, matrix: pd.DataFrame, blocks_gdf: gpd.GeoDataFrame, services: dict[str, gpd.GeoDataFrame] = {}
+    ) -> None:
+        self.epsg = blocks_gdf.crs.to_epsg()
+        blocks = Block.from_gdf(blocks_gdf, self)
+        graph = nx.DiGraph()
+        for i in matrix.index:
+            graph.add_edge(blocks[i], blocks[i], weight=matrix.loc[i, i])
+            for j in matrix.columns.drop(i):
+                graph.add_edge(blocks[i], blocks[j], weight=matrix.loc[i, j])
+        self.graph = graph
+        self.service_types = list(map(lambda name: ServiceType(name=name, **SERVICE_TYPES[name]), SERVICE_TYPES))
+        for service_type, gdf in services.items():
+            self.update_layer(service_type, gdf)
+        # self.scenarios = list(map(lambda name : Scenario))
 
     def plot(self, max_weight: int = 5) -> None:
         """Plot city model blocks and relations"""
@@ -165,18 +188,3 @@ class City:
         """Save city model to a .pickle file"""
         with open(file_path, "wb") as f:
             pickle.dump(self, f)
-
-    def __init__(
-        self, matrix: pd.DataFrame, blocks_gdf: gpd.GeoDataFrame, services: dict[str, gpd.GeoDataFrame] = {}
-    ) -> None:
-        self.epsg = blocks_gdf.crs.to_epsg()
-        blocks = Block.from_gdf(blocks_gdf, self)
-        graph = nx.DiGraph()
-        for i in matrix.index:
-            graph.add_edge(blocks[i], blocks[i], weight=matrix.loc[i, i])
-            for j in matrix.columns.drop(i):
-                graph.add_edge(blocks[i], blocks[j], weight=matrix.loc[i, j])
-        self.graph = graph
-        self.service_types = list(map(lambda name: ServiceType(name=name, **SERVICE_TYPES[name]), SERVICE_TYPES))
-        for service_type, gdf in services.items():
-            self.update_layer(service_type, gdf)
