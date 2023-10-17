@@ -142,6 +142,14 @@ class City:
         else:
             self.service_types.append(ServiceType(name=name, accessibility=accessibility, demand=demand))
 
+    def get_distance(self, block_a: int | Block, block_b: int | Block):
+        """Returns distance (in min) between two blocks in directed graph"""
+        if not isinstance(block_a, Block):
+            block_a = self[block_a]
+        if not isinstance(block_b, Block):
+            block_b = self[block_b]
+        return self.graph[block_a][block_b]["weight"]
+
     @singledispatchmethod
     def __getitem__(self, arg):
         raise NotImplementedError(f"Can't access object with such argument type {type(arg)}")

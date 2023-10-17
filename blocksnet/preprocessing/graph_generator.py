@@ -7,15 +7,20 @@ from pydantic import BaseModel, Field, InstanceOf, field_validator
 from typing import Literal
 from shapely import Polygon, MultiPolygon, LineString, Point, line_locate_point
 from shapely.ops import nearest_points, linemerge, split
+from ..models import GeoDataFrame, BaseRow
 
 OX_CRS = 4326
 METERS_IN_KILOMETER = 1000
 MINUTES_IN_HOUR = 60
 
 
+class CityRow(BaseRow):
+    geometry: Polygon | MultiPolygon
+
+
 class GraphGenerator(BaseModel):
 
-    city_geometry: InstanceOf[gpd.GeoDataFrame]
+    city_geometry: InstanceOf[GeoDataFrame[CityRow]]
     """City geometry or geometries"""
     overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"
     """Overpass url used in OSM queries"""
@@ -29,16 +34,14 @@ class GraphGenerator(BaseModel):
     }
     """Average waiting time in min"""
 
-    @field_validator("city_geometry", mode="after")
-    def validate_fields(gdf: gpd.GeoDataFrame):
-        estimated_epsg = gdf.estimate_utm_crs().to_epsg()
-        if estimated_epsg != gdf.crs.to_epsg():
-            gdf = gdf.to_crs(estimated_epsg)
-            print(f"City geometry CRS set to EPSG:{estimated_epsg}")
+    @field_validator("city_geometry", mode="before")
+    def validate_fields(gdf):
+        if not isinstance(gdf, GeoDataFrame[CityRow]):
+            gdf = GeoDataFrame[CityRow](gdf)
         return gdf
 
     @property
-    def local_epsg(self):
+    def local_crs(self):
         return self.city_geometry.crs
 
     @classmethod
@@ -54,12 +57,13 @@ class GraphGenerator(BaseModel):
         """Returns walk or drive graph for the city geometry"""
         speed = self._get_speed(network_type)
         G = ox.graph_from_polygon(polygon=self.city_geometry.to_crs(OX_CRS).unary_union, network_type=network_type)
-        G = ox.project_graph(G, to_crs=self.local_epsg)
+        G = ox.project_graph(G, to_crs=self.local_crs)
         for edge in G.edges(data=True):
             _, _, data = edge
             length = data["length"]
             data["weight"] = length / speed
             data["transport_type"] = network_type
+        G = ox.project_graph(G, self.local_crs)
         print(f"Graph made for '{network_type}' network type")
         return G
 
@@ -94,14 +98,14 @@ class GraphGenerator(BaseModel):
         """Returns GeoDataFrame for the given route ways, converting way's coordinates to linestring"""
         copy = df.copy()
         copy["geometry"] = df["coordinates"].apply(lambda x: self._coordinates_to_linestring(x))
-        return gpd.GeoDataFrame(copy, geometry=copy["geometry"]).set_crs(epsg=OX_CRS).to_crs(self.local_epsg)
+        return gpd.GeoDataFrame(copy, geometry=copy["geometry"]).set_crs(epsg=OX_CRS).to_crs(self.local_crs)
 
     def _nodes_to_gdf(self, df: pd.DataFrame) -> gpd.GeoDataFrame:
         """Returns GeoDataFrame for the given route nodes, converting lon and lat columns to geometry column and local CRS"""
         return (
             gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df["lon"], df["lat"]))
             .set_crs(epsg=OX_CRS)
-            .to_crs(self.local_epsg)
+            .to_crs(self.local_crs)
         )
 
     def _graph_from_route(self, nodes: pd.DataFrame, ways: pd.DataFrame, transport_type: str) -> list[nx.MultiGraph]:
@@ -144,7 +148,7 @@ class GraphGenerator(BaseModel):
         graph = None
         if len(graphs) > 0:
             graph = nx.compose_all(graphs)
-            graph.graph["crs"] = self.local_epsg
+            graph.graph["crs"] = self.local_crs
         print(f"Graph made for '{pt_type}'")
         return graph
 
@@ -160,7 +164,7 @@ class GraphGenerator(BaseModel):
         pt_graphs: list[nx.MultiDiGraph] = list(map(lambda t: self._get_pt_graph(t), pt_types))
         pt_graphs = list(filter(lambda g: g is not None, pt_graphs))
         pt_graph = nx.compose_all(pt_graphs)
-        pt_graph.crs = self.local_epsg
+        pt_graph.crs = self.local_crs
         pt_nodes, _ = ox.graph_to_gdfs(pt_graph)
 
         intermodal_graph = nx.compose(walk_graph, pt_graph)
@@ -174,6 +178,6 @@ class GraphGenerator(BaseModel):
             weight = distance / speed
             intermodal_graph.add_edge(transport_node, walk_node, weight=weight, transport_type="walk")
             intermodal_graph.add_edge(walk_node, transport_node, weight=weight + 5, transport_type="walk")
-        intermodal_graph.graph["crs"] = self.local_epsg
+        intermodal_graph.graph["crs"] = self.local_crs
 
         return intermodal_graph

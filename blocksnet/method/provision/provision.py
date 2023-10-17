@@ -55,7 +55,7 @@ class Provision(BaseMethod):
         return list(filter(lambda b: b[service_type.name][type] > 0, self.city_model.blocks))
 
     def _get_sorted_neighbors(self, block, capacity_blocks: list[Block]):
-        return sorted(capacity_blocks, key=lambda b: self.city_model.graph[block][b]["weight"])
+        return sorted(capacity_blocks, key=lambda b: self.city_model.get_distance(block, b))
 
     def _get_blocks_gdf(self, service_type: ServiceType) -> gpd.GeoDataFrame:
         """Returns blocks gdf for provision assessment"""
@@ -104,8 +104,12 @@ class Provision(BaseMethod):
         if update_df is not None:
             gdf = gdf.join(update_df)
             gdf[update_df.columns] = gdf[update_df.columns].fillna(0)
+            if not "population" in gdf:
+                gdf["population"] = 0
             gdf["demand"] += gdf["population"].apply(service_type.calculate_in_need)
             gdf["demand_left"] = gdf["demand"]
+            if not service_type.name in gdf:
+                gdf[service_type.name] = 0
             gdf["capacity"] += gdf[service_type.name]
             gdf["capacity_left"] += gdf[service_type.name]
 
@@ -139,7 +143,7 @@ class Provision(BaseMethod):
                 return 0
             block1 = self.city_model[id1]
             block2 = self.city_model[id2]
-            return int(self.city_model.graph[block1][block2]["weight"])
+            return int(self.city_model.get_distance(block1, block2))
 
         demand = gdf.loc[gdf["demand"] > 0]
         capacity = gdf.loc[gdf["capacity"] > 0]
@@ -193,7 +197,7 @@ class Provision(BaseMethod):
                     break
                 capacity_block = neighbors[0]
                 gdf.loc[demand_block.id, "demand_left"] -= 1
-                weight = self.city_model.graph[demand_block][capacity_block]["weight"]
+                weight = self.city_model.get_distance(demand_block, capacity_block)
                 if weight <= service_type.accessibility:
                     gdf.loc[demand_block.id, "demand_within"] += 1
                 else:
