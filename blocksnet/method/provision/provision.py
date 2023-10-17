@@ -82,17 +82,19 @@ class Provision(BaseMethod):
     def total_provision(cls, gdf: gpd.GeoDataFrame):
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
-    @classmethod
-    def calculate_provisions(
+    def calculate_scenario(
         self,
-        service_types: list[ServiceType | str],
+        scenario: dict[str, float],
         update_df: pd.DataFrame = None,
         method: Literal["iterative", "lp"] = "lp",
-    ) -> dict[str, gpd.GeoDataFrame]:
+    ) -> tuple[dict[str, gpd.GeoDataFrame], float]:
         result = {}
-        for service_type in service_types:
-            result[service_type] = self.calculate(service_type, update_df, method)
-        return result
+        total = 0
+        for service_type in scenario:
+            prov_gdf = self.calculate(service_type, update_df, method)
+            result[service_type] = prov_gdf
+            total += self.total_provision(prov_gdf)
+        return result, total / len(scenario)
 
     def calculate(
         self, service_type: ServiceType | str, update_df: pd.DataFrame = None, method: Literal["iterative", "lp"] = "lp"
