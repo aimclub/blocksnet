@@ -90,10 +90,10 @@ class Provision(BaseMethod):
     ) -> tuple[dict[str, gpd.GeoDataFrame], float]:
         result = {}
         total = 0
-        for service_type in scenario:
+        for service_type, weight in scenario.items():
             prov_gdf = self.calculate(service_type, update_df, method)
             result[service_type] = prov_gdf
-            total += self.total_provision(prov_gdf)
+            total += weight * self.total_provision(prov_gdf)
         return result, total / len(scenario)
 
     def calculate(
