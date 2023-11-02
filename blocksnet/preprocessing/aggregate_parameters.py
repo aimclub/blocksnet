@@ -4,6 +4,7 @@ Class holding geometries used by data getter is defined here.
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
 from ..models import GeoDataFrame, BaseRow
+from shapely import Point
 
 
 class AggregateBuildingsRow(BaseRow):
@@ -11,6 +12,7 @@ class AggregateBuildingsRow(BaseRow):
     Buildings columns
     """
 
+    geometry: Point
     population_balanced: int = Field(ge=0)
     """Total population of the building"""
     building_area: float = Field(ge=0)
@@ -32,6 +34,7 @@ class AggregateGreeningsRow(BaseRow):
     Greenings columns
     """
 
+    geometry: Point
     current_green_area: int = Field(ge=0)
     """Greening area (in square meters)"""
     current_green_capacity: int = Field(ge=0)
@@ -43,6 +46,7 @@ class AggregateParkingsRow(BaseRow):
     Parkings columns
     """
 
+    geometry: Point
     current_parking_capacity: int = Field(ge=0)
     """Total parking capacity (in units)"""
 

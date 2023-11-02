@@ -3,6 +3,7 @@ Class holding parameters for land use filter parameters is defined here.
 """
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
+from shapely import Polygon, MultiPolygon
 from ...models import GeoDataFrame, BaseRow
 
 
@@ -11,7 +12,7 @@ class LandUseRow(BaseRow):
     Landuse columns
     """
 
-    id: int | None = None
+    geometry: Polygon | MultiPolygon
     """
     Unique identifier
     """

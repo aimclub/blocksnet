@@ -13,7 +13,6 @@ class CutRow(BaseRow):
     """
 
     geometry: Polygon | MultiPolygon
-    id: int | None = None
     """
     Unique identifier
     """

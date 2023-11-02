@@ -47,7 +47,7 @@ class GeoDataFrame(gpd.GeoDataFrame, BaseModel, Generic[T]):
         self.drop(columns=["index"], inplace=True)
         # and also set crs
         self.crs = kwargs["crs"] if "crs" in kwargs else data.crs
-        estimated_epsg = self.estimate_utm_crs().to_epsg()
-        if self.crs.to_epsg() != estimated_epsg:
-            print(f"GeoDataFrame CRS set to estimated: EPSG:{estimated_epsg}")
-            self.to_crs(estimated_epsg, inplace=True)
+        # estimated_epsg = self.estimate_utm_crs().to_epsg()
+        # if self.crs.to_epsg() != estimated_epsg:
+        #     print(f"GeoDataFrame CRS set to estimated: EPSG:{estimated_epsg}")
+        #     self.to_crs(estimated_epsg, inplace=True)

@@ -14,10 +14,12 @@ from .land_use_parameters import LandUseParameters
 from .landuse_filter import LuFilter
 from .blocks_clustering import BlocksClusterization
 from .utils import Utils
+from shapely import Polygon, MultiPolygon
 
 
 class BlocksRow(BaseRow):
     id: int | None = None
+    geometry: Polygon | MultiPolygon
     landuse: Literal["no_dev_area", "selected_area", "buildings"] = "selected_area"
 
 
