@@ -1,7 +1,7 @@
 import geopandas as gpd
 from typing import Generic, TypeVar
 from abc import ABC
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from shapely import Geometry
 
 T = TypeVar("T")
@@ -29,6 +29,13 @@ class GeoDataFrame(gpd.GeoDataFrame, BaseModel, Generic[T]):
         return self.__pydantic_generic_metadata__["args"][0]
 
     def __init__(self, data, *args, **kwargs):
+        """_summary_
+
+        Parameters
+        ----------
+        data : _type_
+            _description_
+        """
         generic_class = self.generic
         assert issubclass(generic_class, BaseRow), "Generic should be inherited from BaseRow"
         # if data is not a GeoDataFrame, we create it ourselves
@@ -40,14 +47,11 @@ class GeoDataFrame(gpd.GeoDataFrame, BaseModel, Generic[T]):
             dict = data.loc[i].to_dict()
             rows.append(generic_class(index=i, **dict).__dict__)
         super().__init__(rows)
-        # and finally return index to where it belong
+        # and finally return index to where it belongs
+        if "index" in self.columns:
+            self.index = self["index"]
+            self.drop(columns=["index"], inplace=True)
         index_name = data.index.name
-        self.index = self["index"]
         self.index.name = index_name
-        self.drop(columns=["index"], inplace=True)
         # and also set crs
         self.crs = kwargs["crs"] if "crs" in kwargs else data.crs
-        # estimated_epsg = self.estimate_utm_crs().to_epsg()
-        # if self.crs.to_epsg() != estimated_epsg:
-        #     print(f"GeoDataFrame CRS set to estimated: EPSG:{estimated_epsg}")
-        #     self.to_crs(estimated_epsg, inplace=True)

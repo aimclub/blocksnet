@@ -8,10 +8,11 @@ class ServiceType(BaseModel):
     name: str
     accessibility: int = Field(gt=0)
     demand: int = Field(gt=0)
-    buffer: int = Field(ge=0, default=0)
 
     def calculate_in_need(self, population: int) -> int:
+        """Calculate how many people in the given population are in need by this service type"""
         return math.ceil(population / 1000 * self.demand)
 
     def __hash__(self):
+        """Make service type hashable to use it as a key"""
         return hash(self.name)
