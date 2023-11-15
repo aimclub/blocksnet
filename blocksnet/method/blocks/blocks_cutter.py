@@ -18,7 +18,6 @@ from shapely import Polygon, MultiPolygon
 
 
 class BlocksRow(BaseRow):
-    id: int | None = None
     geometry: Polygon | MultiPolygon
     landuse: Literal["no_dev_area", "selected_area", "buildings"] = "selected_area"
 
