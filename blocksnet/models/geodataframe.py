@@ -53,5 +53,6 @@ class GeoDataFrame(gpd.GeoDataFrame, BaseModel, Generic[T]):
             self.drop(columns=["index"], inplace=True)
         index_name = data.index.name
         self.index.name = index_name
+        self.set_geometry("geometry", inplace=True)
         # and also set crs
         self.crs = kwargs["crs"] if "crs" in kwargs else data.crs

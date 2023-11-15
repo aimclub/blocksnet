@@ -43,9 +43,9 @@ class Block(BaseModel):
     """Block geometry presented as shapely ```Polygon```"""
     landuse: str = None
     """Current city block landuse"""
-    buildings: InstanceOf[GeoDataFrame[BuildingRow]] = None
+    buildings: InstanceOf[gpd.GeoDataFrame] = None
     """Buildings ```GeoDataFrame```"""
-    services: dict[ServiceType, GeoDataFrame[ServiceRow]] = {}
+    services: InstanceOf[dict[ServiceType, gpd.GeoDataFrame]] = {}
     """Services ```GeoDataFrames```s for different ```ServiceType```s"""
     city: InstanceOf[City]
     """```City``` instance that contains the block"""
@@ -74,14 +74,17 @@ class Block(BaseModel):
 
     def update_buildings(self, gdf: GeoDataFrame[BuildingRow] = None):
         """Update buildings GeoDataFrame of the block"""
-        self.buildings = gdf
+        if gdf is None:
+            self.buildings = None
+        else:
+            self.buildings = gpd.GeoDataFrame(gdf)
 
     def update_services(self, service_type: ServiceType, gdf: GeoDataFrame[ServiceRow] = None):
         """Update services GeoDataFrame of the block"""
         if gdf is None:
             del self.services[service_type]
         else:
-            self.services[service_type] = gdf
+            self.services[service_type] = gpd.GeoDataFrame(gdf)
 
     @property
     def is_living(self) -> bool:
@@ -128,13 +131,15 @@ class City:
         """Plot city model blocks and relations"""
         blocks = self.get_blocks_gdf()
         ax = blocks.plot(alpha=1, color="#ddd")
-        edges = []
-        for u, v, data in self.graph.edges(data=True):
-            a = u.geometry.representative_point()
-            b = v.geometry.representative_point()
-            if data["weight"] <= max_weight:
-                edges.append({"geometry": LineString([a, b]), "weight": data["weight"]})
-        gpd.GeoDataFrame(edges).set_crs(self.epsg).plot(ax=ax, alpha=0.2, column="weight", cmap="cool", legend=True)
+        edges = gpd.GeoDataFrame(self.graph.edges(data=True), columns=["u", "v", "data"])
+        edges["weight"] = edges["data"].apply(lambda x: x["weight"])
+        edges = edges.loc[edges["weight"] <= max_weight]
+        edges = edges.sort_values(by="weight", ascending=False)
+        edges["geometry"] = edges.apply(
+            lambda x: LineString([x.u.geometry.representative_point(), x.v.geometry.representative_point()]), axis=1
+        )
+        edges = edges.set_geometry("geometry").set_crs(self.epsg).drop(columns=["u", "v", "data"])
+        edges.plot(ax=ax, alpha=0.2, column="weight", cmap="cool", legend=True)
         ax.set_axis_off()
 
     @property

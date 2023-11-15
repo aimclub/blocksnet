@@ -14,6 +14,17 @@ METERS_IN_KILOMETER = 1000
 MINUTES_IN_HOUR = 60
 
 
+class GraphNode(BaseModel):
+    x: float
+    y: float
+
+
+class GraphEdge(BaseModel):
+    geometry: InstanceOf[LineString] = None
+    weight: float = Field(ge=0)
+    transport_type: Literal["walk", "drive", "subway", "tram", "bus", "trolleybus"]
+
+
 class CityRow(BaseRow):
     geometry: Polygon | MultiPolygon
 
@@ -39,6 +50,16 @@ class GraphGenerator(BaseModel):
         if not isinstance(gdf, GeoDataFrame[CityRow]):
             gdf = GeoDataFrame[CityRow](gdf)
         return gdf
+
+    @staticmethod
+    def to_graphml(graph: nx.MultiDiGraph, file_path: str):
+        """Save graph as OX .graphml"""
+        ox.save_graphml(graph, file_path)
+
+    @staticmethod
+    def from_graphml(file_path: str):
+        """Load graph from OX .graphml"""
+        return ox.load_graphml(file_path)
 
     @property
     def local_crs(self):
@@ -152,10 +173,21 @@ class GraphGenerator(BaseModel):
         print(f"Graph made for '{pt_type}'")
         return graph
 
+    @staticmethod
+    def validate_graph(graph) -> nx.MultiDiGraph:
+        """Returns validated copy of the graph, according to ```GraphEdge``` and ```GraphNode``` classes"""
+        graph = graph.copy()
+        for d in map(lambda e: e[2], graph.edges(data=True)):
+            d = GraphEdge(**d).__dict__
+        for d in map(lambda n: n[1], graph.nodes(data=True)):
+            d = GraphNode(**d).__dict__
+        return graph
+
     def get_graph(self, graph_type: Literal["intermodal", "walk", "drive"]):
         """Returns intermodal graph for the city geometry bounds"""
         if graph_type != "intermodal":
-            return self._get_basic_graph(graph_type)
+            graph = self._get_basic_graph(graph_type)
+            return self.validate_graph(graph)
 
         walk_graph: nx.MultiDiGraph = self._get_basic_graph("walk")
         walk_nodes, _ = ox.graph_to_gdfs(walk_graph)
@@ -180,4 +212,4 @@ class GraphGenerator(BaseModel):
             intermodal_graph.add_edge(walk_node, transport_node, weight=weight + 5, transport_type="walk")
         intermodal_graph.graph["crs"] = self.local_crs
 
-        return intermodal_graph
+        return self.validate_graph(intermodal_graph)

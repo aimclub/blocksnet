@@ -2,16 +2,22 @@
 This module provides all necessary tools to get accesibility matrix from transport graph
 """
 
+from typing import Any
 import geopandas as gpd
 import networkit as nk
 import networkx as nx
 import pandas as pd
-from tqdm import tqdm
+from pydantic import BaseModel, InstanceOf, field_validator
+from ..models import GeoDataFrame, BaseRow
+from shapely import Polygon
+from .graph_generator import GraphGenerator
 
-tqdm.pandas()
+
+class BlockRow(BaseRow):
+    geometry: Polygon
 
 
-class Accessibility:  # pylint: disable=too-few-public-methods
+class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
     """
     Class Accessibility calculates accessibility matrix between city blocks.
     It takes a lot of RAM to calculate one since we have thousands of city blocks.
@@ -21,11 +27,23 @@ class Accessibility:  # pylint: disable=too-few-public-methods
     get_matrix
     """
 
-    def __init__(self, blocks, graph: nx.Graph = None):
-        self.blocks = blocks
-        """a dataframe with city blocks"""
-        self.G = graph  # pylint: disable=invalid-name
-        """transport graph (in networkx format). Walk, drive, bike or transport graph"""
+    blocks: GeoDataFrame[BlockRow]
+    graph: InstanceOf[nx.MultiDiGraph]
+
+    @field_validator("blocks", mode="before")
+    def validate_blocks(gdf):
+        if not isinstance(gdf, GeoDataFrame[BlockRow]):
+            gdf = GeoDataFrame[BlockRow](gdf)
+        return gdf
+
+    @field_validator("graph", mode="before")
+    def validate_graph(graph):
+        assert "crs" in graph.graph, 'Graph should contain "crs" property similar to GeoDataFrame'
+        return GraphGenerator.validate_graph(graph)
+
+    def model_post_init(self, __context: Any) -> None:
+        assert self.blocks.crs == self.graph.graph["crs"], "Blocks CRS should match graph CRS"
+        return super().model_post_init(__context)
 
     def _get_nx2nk_idmap(self, graph: nx.Graph) -> dict:  # TODO: add typing for the dict
         """
@@ -65,7 +83,7 @@ class Accessibility:  # pylint: disable=too-few-public-methods
         return attrs
 
     def _convert_nx2nk(  # pylint: disable=too-many-locals,invalid-name
-        self, graph_nx: nx.Graph, idmap: dict | None = None, weight: str = "time_min"
+        self, graph_nx: nx.Graph, idmap: dict | None = None, weight: str = "weight"
     ) -> nk.Graph:
         """
         This method converts `networkx` graph to `networkit` graph to fasten calculations.
@@ -140,7 +158,7 @@ class Accessibility:  # pylint: disable=too-few-public-methods
 
         return pd.Series(data=distances, index=target_nodes)
 
-    def get_matrix(self, weight="weight") -> pd.DataFrame:
+    def get_dataframe(self) -> pd.DataFrame:
         """
         This methods runs graph to matrix calculations
 
@@ -150,8 +168,8 @@ class Accessibility:  # pylint: disable=too-few-public-methods
             An accessibility matrix that contains time between all blocks in the city
         """
 
-        graph_nx = nx.convert_node_labels_to_integers(self.G)
-        graph_nk = self._convert_nx2nk(graph_nx, weight=weight)
+        graph_nx = nx.convert_node_labels_to_integers(self.graph)
+        graph_nk = self._convert_nx2nk(graph_nx)
 
         graph_df = pd.DataFrame.from_dict(dict(graph_nx.nodes(data=True)), orient="index")
         graph_gdf = gpd.GeoDataFrame(
