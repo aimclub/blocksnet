@@ -121,8 +121,7 @@ class City:
         blocks = Block.from_gdf(blocks_gdf, self)
         graph = nx.DiGraph()
         for i in adjacency_matrix.index:
-            graph.add_edge(blocks[i], blocks[i], weight=adjacency_matrix.loc[i, i])
-            for j in adjacency_matrix.columns.drop(i):
+            for j in adjacency_matrix.columns:
                 graph.add_edge(blocks[i], blocks[j], weight=adjacency_matrix.loc[i, j])
         self.graph = graph
         self.service_types = list(map(lambda name: ServiceType(name=name, **SERVICE_TYPES[name]), SERVICE_TYPES))

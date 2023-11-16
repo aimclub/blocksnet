@@ -27,3 +27,9 @@ update-pypi: clean build
 
 update-test-pypi: clean build
 	python3 -m twine upload --repository testpypi dist/*
+
+test:
+	pytest tests
+
+test-cov:
+	pytest tests --cov

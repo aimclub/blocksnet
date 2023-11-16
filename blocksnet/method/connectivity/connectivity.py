@@ -9,7 +9,7 @@ class Connectivity(BaseMethod):
         gdf.plot(column="median", legend=True, cmap="cool").set_axis_off()
 
     def calculate(self):
-        blocks_gdf = self.city_model.get_blocks_gdf().drop(columns=["population"])
+        blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
         blocks_gdf["median"] = 0
         graph = self.city_model.graph
         for block in graph.nodes:
