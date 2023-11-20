@@ -11,9 +11,8 @@ class Connectivity(BaseMethod):
     def calculate(self):
         blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
         blocks_gdf["median"] = 0
-        graph = self.city_model.graph
-        for block in graph.nodes:
-            out_edges = graph.out_edges(block, data="weight")
+        for block in self.city_model.blocks:
+            out_edges = self.city_model.get_out_edges(block)
             filter_edges = filter(lambda edge: block != edge[1], out_edges)
             map_edges = map(lambda edge: edge[2], filter_edges)  # only weights left
             blocks_gdf.loc[block.id, "median"] = statistics.median(map_edges)  # median value set

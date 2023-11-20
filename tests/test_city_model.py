@@ -65,14 +65,11 @@ def city_model(blocks, adjacency_matrix, services, buildings):
     return city
 
 
-def test_blocks(city_model, blocks):
+def test_coherence(city_model, blocks):
+    n = len(city_model.adjacency_matrix.index)
+    m = len(city_model.adjacency_matrix.columns)
+    assert len(city_model.blocks) == n == m
     assert len(city_model.blocks) == len(blocks.index)
-
-
-def test_graph(city_model, adjacency_matrix):
-    n = len(adjacency_matrix.index)
-    m = len(adjacency_matrix.columns)
-    assert len(city_model.graph.edges) == n * m
 
 
 def test_provision_lp(city_model, update_services, update_population):

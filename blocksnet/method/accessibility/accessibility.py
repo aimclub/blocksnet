@@ -20,7 +20,5 @@ class Accessibility(BaseMethod):
     def calculate(self, block: Block):
         blocks_list = map(lambda b: {"id": b.id, "geometry": b.geometry}, self.city_model.blocks)
         blocks_gdf = gpd.GeoDataFrame(blocks_list).set_crs(epsg=self.city_model.epsg)
-        blocks_gdf["distance"] = blocks_gdf["id"].apply(
-            lambda b: self.city_model.graph[block][self.city_model[b]]["weight"]
-        )
+        blocks_gdf["distance"] = blocks_gdf["id"].apply(lambda b: self.city_model.get_distance(block, b))
         return blocks_gdf

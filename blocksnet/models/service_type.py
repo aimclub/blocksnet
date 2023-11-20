@@ -16,3 +16,6 @@ class ServiceType(BaseModel):
     def __hash__(self):
         """Make service type hashable to use it as a key"""
         return hash(self.name)
+
+    def __str__(self):
+        return f"{self.name} : {self.accessibility} min, {self.demand}/1000 population"
