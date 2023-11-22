@@ -7,6 +7,9 @@
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 [![Readme_ru](https://img.shields.io/badge/lang-ru-yellow.svg)](README-RU.md)
 
+[![Example on Vologda city: Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Mk0Bs0s-JNn8QdYfWy1uSmyptrBG1Ch_?usp=sharing)
+
+
 **BlocksNet** is an open-source library that includes methods of modeling urbanized areas for the generation of value-oriented master planning requirements. The library is provided for generating a universal information city model based on the accessibility of urban blocks. The library also provides tools for working with the information city model, which allow: to generate a layer of urban blocks, to calculate provisioning based on regulatory requirements, to obtain optimal requirements for master planning of territories.
 
 ## BlocksNet Features
