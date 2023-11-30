@@ -21,6 +21,7 @@ from pyproj import CRS
 def verbose_print(text, verbose=True):
     if verbose: print(text)
     
+    
 class BlocksGenerator:
     
     def __init__(self, territory, roads=None, railways=None, water=None, verbose=True):
@@ -33,8 +34,7 @@ class BlocksGenerator:
             self.water = water.geometry if type(water) == gpd.GeoDataFrame else water
             self.water = self.water.map(lambda x: x.boundary if x.geom_type in ['Polygon','MultiPolygon'] else x).set_crs(4326)
         
-        # take the first polygon from territory dataframe
-        self.territory = territory.iloc[0]['geometry']
+        self.territory = territory.geometry
         
         self._set_local_crs()
 
@@ -54,7 +54,7 @@ class BlocksGenerator:
         
         # transform enclosed barriers to polygons 
         verbose_print("Setting up enclosures...", self.verbose)
-        blocks = self._get_enclosures(barriers,territory)
+        blocks = self._get_enclosures(barriers,self.territory)
 
         # fill everything within blocks' boundaries
         verbose_print("Filling holes...", self.verbose)
@@ -120,7 +120,7 @@ class BlocksGenerator:
     def _get_enclosures(barriers,limit):
         # limit should be a geodataframe or geoseries with with Polygon or MultiPolygon geometry
         
-        barriers = pd.concat([barriers,limit.boundary])
+        barriers = pd.concat([barriers,limit.boundary]).reset_index(drop=True)
 
         unioned = barriers.unary_union
         polygons = polygonize(unioned)
