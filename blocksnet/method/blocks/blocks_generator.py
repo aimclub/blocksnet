@@ -18,12 +18,6 @@ from pyproj.database import query_crs_info
 from pyproj import CRS
 
 
-territory = gpd.read_file('territory_vologda.geojson') # geodataframe with (multi)polygon
-roads = gpd.read_file('roads_vologda.geojson') # geodataframe with (multi)linestrings
-railways = gpd.read_file('railways_vologda.geojson') # geodataframe with (multi)linestrings
-water = gpd.read_file('water_vologda.geojson') # geodataframe with (multi)linestrings and (multi)polygons
-
-
 def verbose_print(text, verbose=True):
     if verbose: print(text)
     
