@@ -10,7 +10,9 @@ from sklearn.cluster import DBSCAN
 from sklearn.exceptions import ConvergenceWarning
 from sklearn.metrics import silhouette_score
 from tqdm import tqdm
+
 from .utils import Utils
+
 
 simplefilter("ignore", category=ConvergenceWarning)
 simplefilter(action="ignore", category=FutureWarning)

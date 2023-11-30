@@ -1,6 +1,8 @@
-from ..base_method import BaseMethod
 import statistics
+
 import geopandas as gpd
+
+from ..base_method import BaseMethod
 
 
 class Connectivity(BaseMethod):

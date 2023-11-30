@@ -1,8 +1,10 @@
-import geopandas as gpd
-from typing import Generic, TypeVar
 from abc import ABC
+from typing import Generic, TypeVar
+
+import geopandas as gpd
 from pydantic import BaseModel, ConfigDict
 from shapely import Geometry
+
 
 T = TypeVar("T")
 

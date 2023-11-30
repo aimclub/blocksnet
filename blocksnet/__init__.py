@@ -9,10 +9,11 @@ __credits__ = []
 __license__ = "BSD-3"
 
 
-# from blocksnet.method.balancing import MasterPlan
-# from blocksnet.method.provision import ProvisionModel
-from blocksnet.models import City, GeoDataFrame, BaseRow
-from blocksnet.method import Provision, Accessibility, Connectivity
+from blocksnet.method import Accessibility, Connectivity, Provision
 from blocksnet.method.balancing import MasterPlan
 from blocksnet.method.publicspace import PublicSpaceGreedy
-from blocksnet.preprocessing import GraphGenerator, AdjacencyCalculator
+
+# from blocksnet.method.balancing import MasterPlan
+# from blocksnet.method.provision import ProvisionModel
+from blocksnet.models import BaseRow, City, GeoDataFrame
+from blocksnet.preprocessing import AdjacencyCalculator, GraphGenerator

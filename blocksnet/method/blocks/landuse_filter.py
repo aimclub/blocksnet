@@ -1,6 +1,7 @@
 import geopandas as gpd
 import osmnx as ox  # pylint: disable=import-error
 import pandas as pd
+
 from .utils import Utils
 
 
@@ -35,7 +36,6 @@ class LuFilter:
         return landuse_selected
 
     def _pruning_landuse(self, landuse_selected: gpd.GeoDataFrame, no_dev_area: bool = False) -> None:
-
         if "landuse" in landuse_selected.columns:
             landuse_tags = landuse_selected.loc[
                 landuse_selected["landuse"].isin(["cemetery", "industrial", "park", "building", "allotments"])
@@ -92,7 +92,6 @@ class LuFilter:
         return gdf[gdf.geometry.geom_type.isin(["Polygon", "MultiPolygon"])]
 
     def filter_lu(self, osm_landuse=None) -> gpd.GeoDataFrame:
-
         if not isinstance(osm_landuse, gpd.GeoDataFrame):
             osm_landuse = self._receiving_landuse()
 

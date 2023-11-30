@@ -4,17 +4,18 @@ Blocks are close to cadastral unit, however in the way they are calculated in th
 they become suitable to be used in masterplanning process.
 """
 
-import geopandas as gpd
-from pydantic import BaseModel
 from typing import Literal
 
-from ...models import GeoDataFrame, BaseRow
+import geopandas as gpd
+from pydantic import BaseModel
+from shapely import MultiPolygon, Polygon
+
+from ...models import BaseRow, GeoDataFrame
+from .blocks_clustering import BlocksClusterization
 from .cut_parameters import CutParameters
 from .land_use_parameters import LandUseParameters
 from .landuse_filter import LuFilter
-from .blocks_clustering import BlocksClusterization
 from .utils import Utils
-from shapely import Polygon, MultiPolygon
 
 
 class BlocksRow(BaseRow):

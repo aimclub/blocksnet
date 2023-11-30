@@ -1,13 +1,16 @@
-import requests
-import osmnx as ox
-import networkx as nx
-import pandas as pd
-import geopandas as gpd
-from pydantic import BaseModel, Field, InstanceOf, field_validator
 from typing import Literal
-from shapely import Polygon, MultiPolygon, LineString, Point, line_locate_point
-from shapely.ops import nearest_points, linemerge, split
-from ..models import GeoDataFrame, BaseRow
+
+import geopandas as gpd
+import networkx as nx
+import osmnx as ox
+import pandas as pd
+import requests
+from pydantic import BaseModel, Field, InstanceOf, field_validator
+from shapely import LineString, MultiPolygon, Point, Polygon, line_locate_point
+from shapely.ops import linemerge, nearest_points, split
+
+from ..models import BaseRow, GeoDataFrame
+
 
 OX_CRS = 4326
 METERS_IN_KILOMETER = 1000
@@ -30,7 +33,6 @@ class CityRow(BaseRow):
 
 
 class GraphGenerator(BaseModel):
-
     city_geometry: InstanceOf[GeoDataFrame[CityRow]]
     """City geometry or geometries"""
     overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"

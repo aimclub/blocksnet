@@ -1,11 +1,13 @@
+import itertools
 import os
-import pandas as pd
+
 import geopandas as gpd
 import numpy as np
+import pandas as pd
+import pygad
+
 from blocksnet import CityModel
 from blocksnet.method.provision import LpProvision
-import itertools
-import pygad
 
 
 class Genetic:

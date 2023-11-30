@@ -3,8 +3,9 @@ Class holding parameters for land use filter parameters is defined here.
 """
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
-from shapely import Polygon, MultiPolygon
-from ...models import GeoDataFrame, BaseRow
+from shapely import MultiPolygon, Polygon
+
+from ...models import BaseRow, GeoDataFrame
 
 
 class LandUseRow(BaseRow):

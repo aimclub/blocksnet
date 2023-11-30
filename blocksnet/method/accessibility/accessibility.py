@@ -1,7 +1,7 @@
 import geopandas as gpd
+
+from ...models import Block, ServiceType
 from ..base_method import BaseMethod
-from ...models import Block
-from ...models import ServiceType
 
 
 class Accessibility(BaseMethod):

@@ -1,23 +1,18 @@
 from __future__ import annotations
-import pickle
-import networkx as nx
-import geopandas as gpd
-import pandas as pd
-from shapely import Polygon, LineString, Point
-from matplotlib import pyplot as plt
-from functools import singledispatchmethod
-from pydantic import BaseModel, Field, InstanceOf
-from .service_type import ServiceType
-from .geodataframe import GeoDataFrame, BaseRow
 
-SERVICE_TYPES = {
-    "kindergartens": {"demand": 61, "accessibility": 10},
-    "schools": {"demand": 120, "accessibility": 15},
-    "recreational_areas": {"demand": 6000, "accessibility": 15},
-    "hospitals": {"demand": 9, "accessibility": 60},
-    "pharmacies": {"demand": 50, "accessibility": 10},
-    "policlinics": {"demand": 27, "accessibility": 15},
-}
+import pickle
+from functools import singledispatchmethod
+
+import geopandas as gpd
+import networkx as nx
+import pandas as pd
+from matplotlib import pyplot as plt
+from pydantic import BaseModel, Field, InstanceOf
+from shapely import LineString, Point, Polygon
+
+from ..utils import SERVICE_TYPES
+from .geodataframe import BaseRow, GeoDataFrame
+from .service_type import ServiceType
 
 
 class BuildingRow(BaseRow):
@@ -127,8 +122,9 @@ class City:
         self._blocks = Block.from_gdf(blocks_gdf, self)
         self.adjacency_matrix = adjacency_matrix.copy()
         self._service_types = {}
-        for name in SERVICE_TYPES:
-            self._service_types[name] = ServiceType(name=name, **SERVICE_TYPES[name])
+        for st in SERVICE_TYPES:
+            service_type = ServiceType(**st)
+            self._service_types[service_type.name] = service_type
 
     @property
     def blocks(self) -> list[Block]:
@@ -215,11 +211,11 @@ class City:
         for block_id, services_gdf in groups:
             self[block_id].update_services(service_type, GeoDataFrame[ServiceRow](services_gdf))
 
-    def add_service_type(self, name: str, accessibility: int = None, demand: int = None):
-        if name in self:
-            raise KeyError(f"The service type with this name already exists: {name}")
+    def add_service_type(self, service_type: ServiceType):
+        if service_type.name in self:
+            raise KeyError(f"The service type with this name already exists: {service_type.name}")
         else:
-            self._service_types[name] = ServiceType(name=name, accessibility=accessibility, demand=demand)
+            self._service_types[service_type.name] = service_type
 
     def get_distance(self, block_a: int | Block, block_b: int | Block):
         """Returns distance (in min) between two blocks"""
@@ -230,11 +226,13 @@ class City:
         return self.adjacency_matrix.loc[block_a, block_b]
 
     def get_out_edges(self, block: int | Block):
+        """Get out edges for certain block"""
         if isinstance(block, Block):
             block = block.id
         return [(self[block], self[block_b], weight) for block_b, weight in self.adjacency_matrix.loc[block].items()]
 
     def get_in_edges(self, block: int | Block):
+        """Get in edges for certain block"""
         if isinstance(block, Block):
             block = block.id
         return [(self[block_b], self[block], weight) for block_b, weight in self.adjacency_matrix.loc[:, block].items()]

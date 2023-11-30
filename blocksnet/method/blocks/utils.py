@@ -1,6 +1,7 @@
+from functools import reduce
+
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
-from functools import reduce
 
 
 class Utils:

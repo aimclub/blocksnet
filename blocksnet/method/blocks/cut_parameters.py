@@ -3,8 +3,9 @@ Class holding parameters for base blocks cut is defined here.
 """
 import geopandas as gpd
 from pydantic import BaseModel, Field, field_validator
-from ...models import GeoDataFrame, BaseRow
-from shapely import Polygon, MultiPolygon
+from shapely import MultiPolygon, Polygon
+
+from ...models import BaseRow, GeoDataFrame
 
 
 class CutRow(BaseRow):

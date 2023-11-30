@@ -1,10 +1,11 @@
-import osmnx as ox
-import pandas as pd
-import geopandas as gpd
 from typing import ClassVar
 
-from ..base_method import BaseMethod
+import geopandas as gpd
+import osmnx as ox
+import pandas as pd
+
 from ...models import Block, ServiceType
+from ..base_method import BaseMethod
 
 
 class VacantArea(BaseMethod):

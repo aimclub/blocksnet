@@ -1,14 +1,16 @@
 import math
-import geopandas as gpd
-import contextily as cx
-import pandas as pd
-import matplotlib.pyplot as plt
 from itertools import product
-from pulp import LpProblem, LpMinimize, LpVariable, lpSum, PULP_CBC_CMD
-from matplotlib.gridspec import GridSpec
 from typing import Literal
-from ..base_method import BaseMethod
+
+import contextily as cx
+import geopandas as gpd
+import matplotlib.pyplot as plt
+import pandas as pd
+from matplotlib.gridspec import GridSpec
+from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum
+
 from ...models import Block, ServiceType
+from ..base_method import BaseMethod
 
 
 class Provision(BaseMethod):
