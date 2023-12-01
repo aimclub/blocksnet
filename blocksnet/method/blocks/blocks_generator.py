@@ -16,6 +16,7 @@ import pyproj
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_crs_info
 from pyproj import CRS
+import blocksnet.preprocessing.blocks_validator
 
 
 def verbose_print(text, verbose=True):
@@ -25,6 +26,9 @@ def verbose_print(text, verbose=True):
 class BlocksGenerator:
     
     def __init__(self, territory, roads=None, railways=None, water=None, verbose=True):
+        
+        self.validator = DataValidator()
+        self.validator.validate(territory, roads, railways, water)
         
         self.verbose = verbose    
         
