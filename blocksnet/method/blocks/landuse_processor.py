@@ -1,26 +1,8 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-import shapely
-from shapely import Polygon
+import utils
 
-
-def filter_bottlenecks(blocks,projected_crs,min_width=50):
-    
-    blocks_filtered = blocks.copy()
-    
-    def _filter_bottlenecks_helper(poly,min_width=40):
-        try: return poly.intersection(poly.buffer(-min_width/2).buffer(min_width/2,join_style=2))
-        except: return poly
-    
-    blocks_filtered['geometry'] = blocks_filtered.to_crs(projected_crs)['geometry'].map(
-        lambda x: _filter_bottlenecks_helper(x,min_width)).set_crs(projected_crs).to_crs(4326)
-    
-    blocks_filtered = blocks_filtered[~blocks_filtered.is_empty]
-    blocks_filtered = blocks_filtered.explode(index_parts=False)
-    blocks_filtered = blocks_filtered[blocks_filtered.geom_type == 'Polygon']
-    
-    return blocks_filtered
 
 def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id_column='block_id',min_intersection=0.3,projected_crs=3857):
     df = df.to_crs(projected_crs)
@@ -105,7 +87,7 @@ def cut_nodev(blocks,nodev,min_block_width=60,projected_crs=3857):
     nodev_roads = nodev.query('CODE_ZONE_=="ТУ"').copy()
     nodev_other = nodev.query('CODE_ZONE_!="ТУ"').copy()
     
-    nodev_other = filter_bottlenecks(nodev_other,projected_crs,min_block_width).reset_index(drop=True)
+    nodev_other = utils.filter_bottlenecks(nodev_other,projected_crs,min_block_width).reset_index(drop=True)
     nodev_other = nodev_other[np.logical_not(nodev_other.is_empty)].explode(index_parts=False)
     nodev = pd.concat([nodev_other,nodev_roads])
     
@@ -117,7 +99,7 @@ def cut_nodev(blocks,nodev,min_block_width=60,projected_crs=3857):
     blocks = reindex_blocks(blocks)
 
     # filter geometry after substracting nodev
-    blocks = filter_bottlenecks(blocks, projected_crs)
+    blocks = utils.filter_bottlenecks(blocks, projected_crs)
     #self.blocks = reindex_blocks(self.blocks)
     
     # add nodev geometry to blocks
