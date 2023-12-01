@@ -2,13 +2,31 @@ import pandas as pd
 import geopandas as gpd
 import numpy as np
 import shapely
+from shapely import Polygon
 
+
+def filter_bottlenecks(blocks,projected_crs,min_width=50):
+    
+    blocks_filtered = blocks.copy()
+    
+    def _filter_bottlenecks_helper(poly,min_width=40):
+        try: return poly.intersection(poly.buffer(-min_width/2).buffer(min_width/2,join_style=2))
+        except: return poly
+    
+    blocks_filtered['geometry'] = blocks_filtered.to_crs(projected_crs)['geometry'].map(
+        lambda x: _filter_bottlenecks_helper(x,min_width)).set_crs(projected_crs).to_crs(4326)
+    
+    blocks_filtered = blocks_filtered[~blocks_filtered.is_empty]
+    blocks_filtered = blocks_filtered.explode(index_parts=False)
+    blocks_filtered = blocks_filtered[blocks_filtered.geom_type == 'Polygon']
+    
+    return blocks_filtered
 
 def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id_column='block_id',min_intersection=0.2,projected_crs=3857):
     df = df.to_crs(projected_crs)
     df_with_attribute = df_with_attribute.to_crs(projected_crs)
     
-    df = df.drop(df_id_column,axis=1).reset_index().rename(columns={'index':df_id_column})
+    df = reindex_blocks(df,df_id_column)
     
     df_temp = gpd.overlay(df[[df_id_column, "geometry"]],df_with_attribute[[attribute_column, "geometry"]],how="intersection",keep_geom_type=False)
     df_temp["intersection_area"] = df_temp["geometry"].area
@@ -24,7 +42,7 @@ def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id
     return res
 
 
-def add_landuse(blocks,pzz,zone_attribute='zone',min_intersection=0.2):
+def add_landuse(blocks,pzz,zone_attribute='zone',min_intersection=0.5):
     
     blocks_pzz = blocks.copy()
     
@@ -60,42 +78,51 @@ def add_landuse(blocks,pzz,zone_attribute='zone',min_intersection=0.2):
     mixed_use_exceptions = ['ТД1-1','ТД1-1_1','ТД1-1_2','ТД1-2','ТД1-2_1','ТД1-2_2','Т3Ж1','Т3Ж2']
     mixed_use_mask = blocks_pzz['zone'].map(lambda x: str_contains_one_of(str(x),mixed_use_exceptions))
     
-    blocks_pzz.loc[mixed_use_mask,'landuse'] = 'mixed-use'
+    blocks_pzz.loc[mixed_use_mask,'landuse'] = 'mixed_use'
     
     return blocks_pzz
     
+def reindex_blocks(blocks,index_col='block_id'):
+    if 'block_id' in blocks.columns:
+        blocks = blocks.drop(index_col,axis=1).reset_index().rename(columns={'index':index_col})
+    return blocks
     
-# def cut_nodev(blocks, nodev, min_block_width=50):
+def cut_nodev(blocks,nodev,min_block_width=50,projected_crs=3857):
     
-#     nodev_roads = nodev.query('CODE_VID_Z=="ТУ"').copy()
-#     nodev_other = nodev.query('CODE_VID_Z!="ТУ"').copy()
+    nodev_roads = nodev.query('CODE_ZONE_=="ТУ"').copy()
+    nodev_other = nodev.query('CODE_ZONE_!="ТУ"').copy()
     
-#     nodev_other = filter_bottlenecks(nodev_other,projected_crs,min_block_width).reset_index(drop=True)
-#     nodev_other = nodev_other[np.logical_not(nodev_other.is_empty)].explode(index_parts=False)
-#     nodev = pd.concat([nodev_other,nodev_roads])
+    nodev_other = filter_bottlenecks(nodev_other,projected_crs,min_block_width).reset_index(drop=True)
+    nodev_other = nodev_other[np.logical_not(nodev_other.is_empty)].explode(index_parts=False)
+    nodev = pd.concat([nodev_other,nodev_roads])
     
-#     # substract nodev geometry from geometry of generated blocks 
-#     blocks = gpd.overlay(blocks,nodev,how="difference",keep_geom_type=False)
-#     blocks = blocks.explode(index_parts=False)
-#     blocks = blocks[blocks.type=='Polygon']
-#     blocks['geometry'] = blocks.make_valid()
-#     blocks = reindex_blocks(blocks)
+    # substract nodev geometry from the blocks 
+    blocks = gpd.overlay(blocks,nodev,how="difference",keep_geom_type=False)
+    blocks = blocks.explode(index_parts=False)
+    blocks = blocks[blocks.geom_type=='Polygon']
+    blocks['geometry'] = blocks.make_valid()
+    blocks = reindex_blocks(blocks)
 
-#     # filter geometry after substracting nodev
-#     blocks = filter_bottlenecks(blocks, local_crs)
-#     #self.blocks = reindex_blocks(self.blocks)
+    # filter geometry after substracting nodev
+    blocks = filter_bottlenecks(blocks, projected_crs)
+    #self.blocks = reindex_blocks(self.blocks)
     
-#     # add nodev geometry to blocks
-#     blocks = pd.concat([blocks, nodev[["geometry", "CODE_ZONE_"]]])
-#     blocks = blocks.rename(columns={'CODE_ZONE_':'zone'})
-#     blocks = blocks.explode(index_parts=False)
-#     blocks = blocks.drop_duplicates(subset="geometry")
-#     blocks = reindex_blocks(blocks)
+    # add nodev geometry to blocks
+    blocks = pd.concat([blocks, nodev[["geometry", "CODE_ZONE_"]]])
     
-#     # add new attribute to blocks – whether blocks are nodev or not
-#     blocks["nodev"] = blocks["CODE_ZONE_"].notna()
+    # add new attribute to blocks – whether blocks are nodev or not
+    blocks["nodev"] = blocks["CODE_ZONE_"].notna()
     
-#     blocks = reindex_blocks(blocks)
+    blocks = blocks.rename(columns={'CODE_ZONE_':'zone'})
+    blocks = blocks.explode(index_parts=False)
+    blocks = blocks.drop_duplicates(subset="geometry")
+    blocks = reindex_blocks(blocks)
+    
+    blocks = reindex_blocks(blocks)
+    
+    return blocks
+
     
 def str_contains_one_of(s,list_of_strings):
     return any([option in s for option in list_of_strings])
+
