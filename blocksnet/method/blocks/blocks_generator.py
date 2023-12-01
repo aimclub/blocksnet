@@ -16,7 +16,7 @@ import pyproj
 from pyproj.aoi import AreaOfInterest
 from pyproj.database import query_crs_info
 from pyproj import CRS
-import blocksnet.preprocessing.blocks_validator
+from blocksnet.preprocessing.blocks_validator import DataValidator
 
 
 def verbose_print(text, verbose=True):
