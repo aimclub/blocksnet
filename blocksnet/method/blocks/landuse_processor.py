@@ -22,7 +22,7 @@ def filter_bottlenecks(blocks,projected_crs,min_width=50):
     
     return blocks_filtered
 
-def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id_column='block_id',min_intersection=0.2,projected_crs=3857):
+def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id_column='block_id',min_intersection=0.3,projected_crs=3857):
     df = df.to_crs(projected_crs)
     df_with_attribute = df_with_attribute.to_crs(projected_crs)
     
@@ -35,6 +35,7 @@ def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id
     df["area"] = df["geometry"].area
     df_temp = df_temp.merge(df[[df_id_column, "area"]], how="left")
     df_temp["intersection_area"] = df_temp["intersection_area"] / df_temp["area"]
+    
     df_temp = df_temp[df_temp['intersection_area']>min_intersection]
     
     res = df_temp.groupby(df_id_column)[attribute_column].apply(list).astype(str)
@@ -42,7 +43,7 @@ def get_attributes_from_intersection(df,df_with_attribute,attribute_column,df_id
     return res
 
 
-def add_landuse(blocks,pzz,zone_attribute='zone',min_intersection=0.5):
+def add_landuse(blocks,pzz,zone_attribute='zone',min_intersection=0.3):
     
     blocks_pzz = blocks.copy()
     
@@ -71,9 +72,21 @@ def add_landuse(blocks,pzz,zone_attribute='zone',min_intersection=0.5):
     blocks_pzz['landuse'] = landuse_categories.apply(lambda x: ' | '.join(x.dropna()),axis=1)
         
     blocks_pzz['landuse'] = blocks_pzz['landuse'].replace({
-        'business | living':'mixed_use',
-        'business | industrial':'industrial',
+        'business | recreation':'business',
+        'business | special':'special',
+        'business | transport':'business',
+        'living | recreation':'mixed_use',
+        'living | transport':'living',
+        'recreation | agriculture':'recreation',
+        'recreation | transport':'recreation',
+        'recreation | transporttransport':'recreation',
+        'special | recreation':'special',
+        'transporttransport':'transport',
+        'agriculture | transport':'agriculture',
         '':np.nan})
+    
+    blocks_pzz.loc[blocks_pzz['landuse'].str.contains('industrial').fillna(False), 'landuse'] = 'industrial'
+    blocks_pzz.loc[blocks_pzz['landuse'].str.contains('business').fillna(False) & blocks_pzz['landuse'].str.contains('living').fillna(False), 'landuse'] = 'mixed_use'
     
     mixed_use_exceptions = ['ТД1-1','ТД1-1_1','ТД1-1_2','ТД1-2','ТД1-2_1','ТД1-2_2','Т3Ж1','Т3Ж2']
     mixed_use_mask = blocks_pzz['zone'].map(lambda x: str_contains_one_of(str(x),mixed_use_exceptions))
@@ -87,7 +100,7 @@ def reindex_blocks(blocks,index_col='block_id'):
         blocks = blocks.drop(index_col,axis=1).reset_index().rename(columns={'index':index_col})
     return blocks
     
-def cut_nodev(blocks,nodev,min_block_width=50,projected_crs=3857):
+def cut_nodev(blocks,nodev,min_block_width=60,projected_crs=3857):
     
     nodev_roads = nodev.query('CODE_ZONE_=="ТУ"').copy()
     nodev_other = nodev.query('CODE_ZONE_!="ТУ"').copy()
@@ -125,4 +138,3 @@ def cut_nodev(blocks,nodev,min_block_width=50,projected_crs=3857):
     
 def str_contains_one_of(s,list_of_strings):
     return any([option in s for option in list_of_strings])
-
