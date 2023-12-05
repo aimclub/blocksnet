@@ -6,7 +6,7 @@ from ..provision import Provision
 from pydantic import Field, InstanceOf
 import itertools
 import pygad
-from blocksnet.utils.measurement_units import HECTARE_IN_SQUARE_METERS
+from ...utils import SQUARE_METERS_IN_HECTARE
 
 
 class Genetic(BaseMethod):
@@ -93,7 +93,7 @@ class Genetic(BaseMethod):
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
         gdf["free_area"] = (
             gdf["area"] * 0.8 - gdf["green_area"] - gdf["industrial_area"] - gdf["living_area"]
-        ) / HECTARE_IN_SQUARE_METERS
+        ) / SQUARE_METERS_IN_HECTARE
         return gdf.reset_index()
 
     @property
