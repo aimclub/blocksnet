@@ -1,5 +1,7 @@
 from abc import ABC
+
 from pydantic import BaseModel, InstanceOf
+
 from ..models import City
 
 

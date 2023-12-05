@@ -37,17 +37,10 @@ def blocks(cut_params, lu_params):
 
 def test_intersection(blocks):
     """Check if some of blocks intersect others"""
-    assert (
-        len(
-            gpd.sjoin(blocks.to_gdf(), blocks.to_gdf(), how="inner", predicate="intersects").loc[
-                lambda x: x["id_left"] != x["id_right"]
-            ]
-        )
-        == 0
-    )
+    blocks_intersection = gpd.sjoin(blocks, blocks, how="inner", predicate="intersects")
+    assert len(blocks_intersection.loc[lambda x: x.index != x["index_right"]]) == 0
 
 
 def test_within(blocks, city_geometry):
     """Check if city blocks are inside initial city geometry with buffer"""
-    blocks_gdf = blocks.to_gdf()
-    assert blocks_gdf["geometry"].apply(lambda geom: city_geometry["geometry"].buffer(10).contains(geom))[0].all()
+    assert blocks.within(city_geometry.geometry.unary_union.buffer(10)).all()

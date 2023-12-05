@@ -1,154 +1,241 @@
 from __future__ import annotations
+
 import pickle
-import networkx as nx
-import geopandas as gpd
-import pandas as pd
-from shapely import Polygon, LineString
-from matplotlib import pyplot as plt
 from functools import singledispatchmethod
+
+import geopandas as gpd
+import networkx as nx
+import pandas as pd
+from matplotlib import pyplot as plt
 from pydantic import BaseModel, Field, InstanceOf
+from shapely import LineString, Point, Polygon
+
+from ..utils import SERVICE_TYPES
+from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
-from .scenario import Scenario
-
-SERVICE_TYPES = {
-    "kindergartens": {"demand": 61, "accessibility": 10, "buffer": 15},
-    "schools": {"demand": 120, "accessibility": 15},
-    "recreational_areas": {"demand": 6000, "accessibility": 15},
-    "hospitals": {"demand": 9, "accessibility": 60},
-    "pharmacies": {"demand": 50, "accessibility": 10},
-    "policlinics": {"demand": 27, "accessibility": 15},
-}
-
-SCENARIOS = {
-    "basic": {"schools": 0.5, "kindergartens": 0.5},
-    "healthy city": {"policlinics": 0.4, "pharmacies": 0.4, "hospitals": 0.2},
-}
 
 
-class Block(BaseModel):
-    id: int
-    geometry: InstanceOf[Polygon]
-    population: int = Field(ge=0)
+class BuildingRow(BaseRow):
+    geometry: Point
+    population: int = Field(ge=0, default=0)
     floors: float = Field(ge=0)
     area: float = Field(ge=0)
     living_area: float = Field(ge=0)
-    green_area: float = Field(ge=0)
-    industrial_area: float = Field(ge=0)
-    green_capacity: int = Field(ge=0)
-    parking_capacity: int = Field(ge=0)
-    capacities: dict[ServiceType, int] = {}
-    """Service type aggregated capacity value"""
+    is_living: bool
+
+
+class ServiceRow(BaseRow):
+    geometry: Point
+    capacity: int = Field(ge=0)
+
+
+class Block(BaseModel):
+    """Class presenting city block"""
+
+    id: int
+    """Unique block identifier across the ```city```"""
+    geometry: InstanceOf[Polygon] = Field()
+    """Block geometry presented as shapely ```Polygon```"""
+    landuse: str = None
+    """Current city block landuse"""
+    buildings: InstanceOf[gpd.GeoDataFrame] = None
+    """Buildings ```GeoDataFrame```"""
+    services: InstanceOf[dict[ServiceType, gpd.GeoDataFrame]] = {}
+    """Services ```GeoDataFrames```s for different ```ServiceType```s"""
     city: InstanceOf[City]
-    """City instance that contains block"""
+    """```City``` instance that contains the block"""
 
-    def to_dict(self) -> dict[str, int]:
-        return {"id": self.id, "geometry": self.geometry, "population": self.population}
+    def to_dict(self, simplify=True) -> dict[str, int]:
+        dict = {"id": self.id, "geometry": self.geometry}
+        if not simplify:
+            for service_type in self.services:
+                dict[service_type.name] = self[service_type.name]["capacity"]
+            dict["population"] = self.population
+            dict["is_living"] = self.is_living
+        return dict
 
-    def __getitem__(self, service_type_name: str) -> int:
+    def __contains__(self, service_type_name: str) -> bool:
+        """Returns True if service type is contained inside the block"""
+        service_type = self.city[service_type_name]
+        return service_type in self.services
+
+    def __getitem__(self, service_type_name: str) -> dict[str, int]:
+        """Get service type capacity and demand of the block"""
         service_type = self.city[service_type_name]
         result = {"capacity": 0, "demand": service_type.calculate_in_need(self.population)}
-        if service_type in self.capacities:
-            result["capacity"] = self.capacities[service_type]
+        if service_type in self.services:
+            result["capacity"] = self.services[service_type]["capacity"].sum()
         return result
 
-    def update_capacity(self, service_type: ServiceType, capacity):
-        self.capacities[service_type] = capacity
+    def update_buildings(self, gdf: GeoDataFrame[BuildingRow] = None):
+        """Update buildings GeoDataFrame of the block"""
+        if gdf is None:
+            self.buildings = None
+        else:
+            self.buildings = gpd.GeoDataFrame(gdf)
+
+    def update_services(self, service_type: ServiceType, gdf: GeoDataFrame[ServiceRow] = None):
+        """Update services GeoDataFrame of the block"""
+        if gdf is None:
+            del self.services[service_type]
+        else:
+            self.services[service_type] = gpd.GeoDataFrame(gdf)
 
     @property
-    def is_living(self):
-        return self.population > 0
+    def is_living(self) -> bool:
+        if self.buildings is not None:
+            return self.buildings.is_living.any()
+        else:
+            return False
+
+    @property
+    def population(self) -> int:
+        """Return sum population of the city block"""
+        if self.buildings is not None:
+            return self.buildings.population.sum()
+        else:
+            return 0
 
     @classmethod
-    def from_gdf(cls, gdf: gpd.GeoDataFrame, city: City) -> "list[Block]":
-        return (
-            gdf.rename(
-                columns={
-                    "block_id": "id",
-                    "current_population": "population",
-                    "current_living_area": "living_area",
-                    "current_green_capacity": "green_capacity",
-                    "current_green_area": "green_area",
-                    "current_parking_capacity": "parking_capacity",
-                    "current_industrial_area": "industrial_area",
-                },
-                inplace=False,
-            )
-            .apply(lambda x: cls(**x.to_dict(), city=city), axis=1)
-            .to_list()
-        )
+    def from_gdf(cls, gdf: gpd.GeoDataFrame, city: City) -> "dict[int, Block]":
+        """Generate blocks dict from ```GeoDataFrame```"""
+        dict = {}
+        for i in gdf.index:
+            dict[i] = cls(id=i, **gdf.loc[i].to_dict(), city=city)
+        return dict
 
     def __hash__(self):
+        """Make block hashable, so it can be used as key in dict etc."""
         return hash(self.id)
 
 
 class City:
     epsg: int
-    graph: nx.DiGraph
-    service_types: list[ServiceType]
-    scenarios: list[Scenario]
+    adjacency_matrix: pd.DataFrame
+    _blocks: dict[int, Block]
+    _service_types: dict[str, ServiceType]
 
-    def __init__(
-        self, matrix: pd.DataFrame, blocks_gdf: gpd.GeoDataFrame, services: dict[str, gpd.GeoDataFrame] = {}
-    ) -> None:
+    def __init__(self, blocks_gdf: gpd.GeoDataFrame, adjacency_matrix: pd.DataFrame) -> None:
+        assert (blocks_gdf.index == adjacency_matrix.index).all(), "Matrix and blocks index don't match"
+        assert (blocks_gdf.index == adjacency_matrix.columns).all(), "Matrix columns and blocks index don't match"
         self.epsg = blocks_gdf.crs.to_epsg()
-        blocks = Block.from_gdf(blocks_gdf, self)
-        graph = nx.DiGraph()
-        for i in matrix.index:
-            graph.add_edge(blocks[i], blocks[i], weight=matrix.loc[i, i])
-            for j in matrix.columns.drop(i):
-                graph.add_edge(blocks[i], blocks[j], weight=matrix.loc[i, j])
-        self.graph = graph
-        self.service_types = list(map(lambda name: ServiceType(name=name, **SERVICE_TYPES[name]), SERVICE_TYPES))
-        for service_type, gdf in services.items():
-            self.update_layer(service_type, gdf)
-        # self.scenarios = list(map(lambda name : Scenario))
-
-    def plot(self, max_weight: int = 5) -> None:
-        """Plot city model blocks and relations"""
-        blocks = self.get_blocks_gdf()
-        ax = blocks.plot(alpha=1, color="#ddd")
-        edges = []
-        for u, v, data in self.graph.edges(data=True):
-            a = u.geometry.representative_point()
-            b = v.geometry.representative_point()
-            if data["weight"] <= max_weight:
-                edges.append({"geometry": LineString([a, b]), "weight": data["weight"]})
-        gpd.GeoDataFrame(edges).set_crs(self.epsg).plot(ax=ax, alpha=0.2, column="weight", cmap="cool", legend=True)
-        ax.set_axis_off()
+        self._blocks = Block.from_gdf(blocks_gdf, self)
+        self.adjacency_matrix = adjacency_matrix.copy()
+        self._service_types = {}
+        for st in SERVICE_TYPES:
+            service_type = ServiceType(**st)
+            self._service_types[service_type.name] = service_type
 
     @property
     def blocks(self) -> list[Block]:
-        return list(self.graph.nodes)
+        """Return list of blocks"""
+        return [self._blocks[id] for id in self._blocks]
 
-    def get_blocks_gdf(self) -> gpd.GeoDataFrame:
+    @property
+    def service_types(self) -> list[ServiceType]:
+        """Return list of service types"""
+        return [self._service_types[name] for name in self._service_types]
+
+    def __str__(self):
+        description = ""
+        description += f"CRS:          : EPSG:{self.epsg}\n"
+        description += f"Blocks count  : {len(self.blocks)}\n"
+        description += f"Service types : \n"
+        service_types_description = "\n".join([f"    {st}" for st in self.service_types])
+        return description + service_types_description
+
+    def plot(self) -> None:
+        """Plot city model data"""
+        blocks = self.get_blocks_gdf()
+        ax = blocks.plot(alpha=1, color="#ddd", figsize=[10, 10])
+        # plot buildings
+        self.get_buildings_gdf().plot(ax=ax, markersize=1, color="#bbb")
+        # plot services
+        self.get_services_gdf().plot(
+            ax=ax,
+            markersize=5,
+            column="service_type",
+            legend=True,
+            legend_kwds={"title": "Service types", "loc": "lower left"},
+        )
+        ax.set_axis_off()
+
+    def get_service_type_gdf(self, service_type: ServiceType | str):
+        if not isinstance(service_type, ServiceType):
+            service_type = self[service_type]
+        services_blocks = map(
+            lambda b: b.services[service_type], filter(lambda b: service_type in b.services, self.blocks)
+        )
+        gdf = pd.concat(services_blocks, ignore_index=True).to_crs(self.epsg)
+        gdf["service_type"] = service_type.name
+        return gdf
+
+    def get_buildings_gdf(self) -> gpd.GeoDataFrame:
+        buildings_blocks = map(lambda b: b.buildings, filter(lambda b: b.buildings is not None, self.blocks))
+        return pd.concat(buildings_blocks).set_geometry("geometry").to_crs(self.epsg)
+
+    def get_services_gdf(self) -> gpd.GeoDataFrame:
+        gdfs = map(lambda st: self.get_service_type_gdf(st).to_crs(4326), self.service_types)
+        return pd.concat(gdfs, axis=0, ignore_index=True).to_crs(self.epsg)
+
+    def get_blocks_gdf(self, simplify=True) -> gpd.GeoDataFrame:
         data: list[dict] = []
         for block in self.blocks:
-            data.append(block.to_dict())
+            data.append(block.to_dict(simplify))
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
         return gdf
 
-    def update_layer(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame):
-        """Updates blocks with relevant information about city services"""
+    def update_buildings(self, gdf: gpd.GeoDataFrame):
+        """Update buildings in blocks"""
+        assert gdf.crs.to_epsg() == self.epsg, "Buildings GeoDataFrame CRS should match city EPSG"
+        # reset buildings of blocks
+        for block in self.blocks:
+            block.update_buildings()
+        # spatial join blocks and buildings and updated related blocks info
+        sjoin = gdf.sjoin(self.get_blocks_gdf())
+        groups = sjoin.groupby("index_right")
+        for block_id, buildings_gdf in groups:
+            self[block_id].update_buildings(GeoDataFrame[BuildingRow](buildings_gdf))
+
+    def update_services(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame):
+        """Update services in blocks of certain service_type"""
+        assert gdf.crs.to_epsg() == self.epsg, "Services GeoDataFrame CRS should match city EPSG"
         if not isinstance(service_type, ServiceType):
             service_type = self[service_type]
-        sjoin = gdf.to_crs(epsg=self.epsg).sjoin(self.get_blocks_gdf())
-        sjoin = sjoin.groupby("index_right").agg({"capacity": "sum"})
-        for block_id in sjoin.index:
-            self[block_id].update_capacity(service_type, sjoin.loc[block_id, "capacity"])
+        # reset services of blocks
+        for block in filter(lambda b: service_type.name in b, self.blocks):
+            block.update_services(service_type)
+        # spatial join blocks and services and update related blocks info
+        sjoin = gdf.sjoin(self.get_blocks_gdf())
+        groups = sjoin.groupby("index_right")
+        for block_id, services_gdf in groups:
+            self[block_id].update_services(service_type, GeoDataFrame[ServiceRow](services_gdf))
 
-    def add_service_type(self, name: str, accessibility: int = None, demand: int = None):
-        if name in self:
-            raise KeyError(f"The service type with this name already exists: {name}")
+    def add_service_type(self, service_type: ServiceType):
+        if service_type.name in self:
+            raise KeyError(f"The service type with this name already exists: {service_type.name}")
         else:
-            self.service_types.append(ServiceType(name=name, accessibility=accessibility, demand=demand))
+            self._service_types[service_type.name] = service_type
 
     def get_distance(self, block_a: int | Block, block_b: int | Block):
-        """Returns distance (in min) between two blocks in directed graph"""
-        if not isinstance(block_a, Block):
-            block_a = self[block_a]
-        if not isinstance(block_b, Block):
-            block_b = self[block_b]
-        return self.graph[block_a][block_b]["weight"]
+        """Returns distance (in min) between two blocks"""
+        if isinstance(block_a, Block):
+            block_a = block_a.id
+        if isinstance(block_b, Block):
+            block_b = block_b.id
+        return self.adjacency_matrix.loc[block_a, block_b]
+
+    def get_out_edges(self, block: int | Block):
+        """Get out edges for certain block"""
+        if isinstance(block, Block):
+            block = block.id
+        return [(self[block], self[block_b], weight) for block_b, weight in self.adjacency_matrix.loc[block].items()]
+
+    def get_in_edges(self, block: int | Block):
+        """Get in edges for certain block"""
+        if isinstance(block, Block):
+            block = block.id
+        return [(self[block_b], self[block], weight) for block_b, weight in self.adjacency_matrix.loc[:, block].items()]
 
     @singledispatchmethod
     def __getitem__(self, arg):
@@ -157,18 +244,16 @@ class City:
     # Make city_model subscriptable, to access block via ID like city_model[123]
     @__getitem__.register(int)
     def _(self, block_id):
-        items = list(filter(lambda x: x.id == block_id, self.blocks))
-        if len(items) == 0:
+        if not block_id in self._blocks:
             raise KeyError(f"Can't find block with such id: {block_id}")
-        return items[0]
+        return self._blocks[block_id]
 
     # Make city_model subscriptable, to access service type via name like city_model['schools']
     @__getitem__.register(str)
     def _(self, service_type_name):
-        items = list(filter(lambda x: x.name == service_type_name, self.service_types))
-        if len(items) == 0:
+        if not service_type_name in self._service_types:
             raise KeyError(f"Can't find service type with such name: {service_type_name}")
-        return items[0]
+        return self._service_types[service_type_name]
 
     @singledispatchmethod
     def __contains__(self, arg):
@@ -177,12 +262,12 @@ class City:
     # Make 'in' check available for blocks, to access like 123 in city_model
     @__contains__.register(int)
     def _(self, block_id):
-        return block_id in [x.id for x in self.blocks]
+        return block_id in self._blocks
 
     # Make 'in' check available for service types, to access like 'schools' in city_model
     @__contains__.register(str)
     def _(self, service_type_name):
-        return service_type_name in [x.name for x in self.service_types]
+        return service_type_name in self._service_types
 
     @staticmethod
     def from_pickle(file_path: str):

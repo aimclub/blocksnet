@@ -1,17 +1,16 @@
 import folium
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx as ox
 import shapely
-import matplotlib.pyplot as plt
 
-from ..base_method import BaseMethod
 from ...models import Block, ServiceType
+from ..base_method import BaseMethod
 
 
 class PublicSpaceGreedy:
     def __init__(self, vacant_area, buildings):
-
         # iso: изохроны в формате geojson с разным временем
         # OPM: файл с потенциальными общественными пространствами
         # house: дома
@@ -156,7 +155,6 @@ class PublicSpaceGreedy:
 
     def create_graph(self):
         if self.is_graph_exist == False:
-
             nodes = self.nodes_list(self.iso_20)
             g = nx.Graph(nodes)
 

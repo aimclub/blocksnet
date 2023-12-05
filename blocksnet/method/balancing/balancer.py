@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 
-from blocksnet.utils.measurement_units import HECTARE_IN_SQUARE_METERS
+from blocksnet.utils import SQUARE_METERS_IN_HECTARE
 
 
 def kindergarten_area_ranges(children_number: int) -> tuple[float, int]:
@@ -93,10 +93,10 @@ def balance_data(gdf, polygon, services_prov):  # pylint: disable=too-many-argum
         )
     gdf_ = gdf_.drop(columns=["id_x", "id_y"])
 
-    gdf_["area"] = gdf_["area"] / HECTARE_IN_SQUARE_METERS
-    gdf_["current_living_area"] = gdf_["current_living_area"] / HECTARE_IN_SQUARE_METERS
-    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / HECTARE_IN_SQUARE_METERS
-    gdf_["current_green_area"] = gdf_["current_green_area"] / HECTARE_IN_SQUARE_METERS
+    gdf_["area"] = gdf_["area"] / SQUARE_METERS_IN_HECTAR
+    gdf_["current_living_area"] = gdf_["current_living_area"] / SQUARE_METERS_IN_HECTAR
+    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / SQUARE_METERS_IN_HECTAR
+    gdf_["current_green_area"] = gdf_["current_green_area"] / SQUARE_METERS_IN_HECTAR
 
     df_sum = gdf_.sum()
     df_sum["floors"] = gdf_["floors"].mean()
@@ -153,12 +153,12 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         self.IA_coef = 0.3
 
         self.F_max = 9
-        self.b_min, self.b_max = 18 / HECTARE_IN_SQUARE_METERS, 30 / HECTARE_IN_SQUARE_METERS
-        self.G_min, self.G_max = 6 / HECTARE_IN_SQUARE_METERS, 12 / HECTARE_IN_SQUARE_METERS
+        self.b_min, self.b_max = 18 / SQUARE_METERS_IN_HECTAR, 30 / SQUARE_METERS_IN_HECTAR
+        self.G_min, self.G_max = 6 / SQUARE_METERS_IN_HECTAR, 12 / SQUARE_METERS_IN_HECTAR
 
         self.SC_coef = 0.12
         self.KG_coef = 0.061
-        self.OP_coef = 0.03 / HECTARE_IN_SQUARE_METERS
+        self.OP_coef = 0.03 / SQUARE_METERS_IN_HECTAR
 
         self.P1_coef = 0.42 * 0.15 * 0.012
         self.P2_coef = 0.42 * 0.35 * 0.005
@@ -233,7 +233,6 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         self.bnds = ((0, self.max_population), (self.b_min, self.b_max), (self.G_min, self.G_max))
 
     def make_x0s(self):
-
         self.x0s = [
             (0, 0, 0),
             (1 / self.max_population, self.b_min, self.G_min),
@@ -261,7 +260,6 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         return self.results["x"][self.results[self.results["fun"] > 0]["fun"].idxmin()]
 
     def recalculate_indicators(self, population, b, G) -> dict:
-
         population = ceil(population)
         green = self.green_area(population + self.current_unprov_green_population, G) + self.current_green_area
         sc = school_area(self.SC_coef * (population + self.current_unprov_schoolkids))
@@ -270,8 +268,8 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         return {
             "area": self.area,
             "population": population + self.current_population,
-            "b": b * HECTARE_IN_SQUARE_METERS,
-            "green_coef_G": G * HECTARE_IN_SQUARE_METERS,
+            "b": b * SQUARE_METERS_IN_HECTAR,
+            "green_coef_G": G * SQUARE_METERS_IN_HECTAR,
             "living_area": self.living_area(population, b) + self.current_living_area,
             "schools_area": sc[0],
             "schools_capacity": sc[1],
