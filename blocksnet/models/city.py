@@ -101,7 +101,7 @@ class Block(BaseModel):
         """Generate blocks dict from ```GeoDataFrame```"""
         dict = {}
         for i in gdf.index:
-            dict[i] = cls(id=i, **gdf.loc[i].to_dict(), city=city)
+            dict[i] = cls(id=i, geometry=gdf.loc[i].geometry, city=city)
         return dict
 
     def __hash__(self):
@@ -163,16 +163,23 @@ class City:
     def get_service_type_gdf(self, service_type: ServiceType | str):
         if not isinstance(service_type, ServiceType):
             service_type = self[service_type]
-        services_blocks = map(
-            lambda b: b.services[service_type], filter(lambda b: service_type in b.services, self.blocks)
+        services_blocks = filter(lambda b: service_type in b.services, self.blocks)
+        services_gdfs = list(map(lambda b: b.services[service_type], services_blocks))
+        gdf = (
+            gpd.GeoDataFrame(columns=["geometry", "capacity", "service_type"])
+            .set_geometry("geometry")
+            .set_crs(self.epsg)
         )
-        gdf = pd.concat(services_blocks, ignore_index=True).to_crs(self.epsg)
+        gdf = pd.concat([gdf, *services_gdfs], ignore_index=True)
         gdf["service_type"] = service_type.name
         return gdf
 
     def get_buildings_gdf(self) -> gpd.GeoDataFrame:
-        buildings_blocks = map(lambda b: b.buildings, filter(lambda b: b.buildings is not None, self.blocks))
-        return pd.concat(buildings_blocks).set_geometry("geometry").to_crs(self.epsg)
+        buildings_blocks = filter(lambda b: b.buildings is not None, self.blocks)
+        buildings_gdfs = list(map(lambda b: b.buildings, buildings_blocks))
+        gdf = gpd.GeoDataFrame(columns=["geometry"]).set_geometry("geometry").set_crs(self.epsg)
+        gdf = pd.concat([gdf, *buildings_gdfs], ignore_index=True)
+        return gdf
 
     def get_services_gdf(self) -> gpd.GeoDataFrame:
         gdfs = map(lambda st: self.get_service_type_gdf(st).to_crs(4326), self.service_types)

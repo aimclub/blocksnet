@@ -47,7 +47,8 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         assert self.blocks.crs == self.graph.graph["crs"], "Blocks CRS should match graph CRS"
         return super().model_post_init(__context)
 
-    def _get_nx2nk_idmap(self, graph: nx.Graph) -> dict:  # TODO: add typing for the dict
+    @staticmethod
+    def _get_nx2nk_idmap(graph: nx.Graph) -> dict:  # TODO: add typing for the dict
         """
         This method gets ids from nx graph to place as attribute in nk graph
 
@@ -64,7 +65,8 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         idmap = dict((id, u) for (id, u) in zip(graph.nodes(), range(graph.number_of_nodes())))
         return idmap
 
-    def _get_nk_attrs(self, graph: nx.Graph) -> dict:  # TODO: add typing for the dict
+    @staticmethod
+    def _get_nk_attrs(graph: nx.Graph) -> dict:  # TODO: add typing for the dict
         """
         This method gets attributes from nx graph to set as attributes in nk graph
 
@@ -84,8 +86,9 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         )
         return attrs
 
+    @classmethod
     def _convert_nx2nk(  # pylint: disable=too-many-locals,invalid-name
-        self, graph_nx: nx.Graph, idmap: dict | None = None, weight: str = "weight"
+        cls, graph_nx: nx.MultiDiGraph, idmap: dict | None = None, weight: str = "weight"
     ) -> nk.Graph:
         """
         This method converts `networkx` graph to `networkit` graph to fasten calculations.
@@ -106,32 +109,26 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         """
 
         if not idmap:
-            idmap = self._get_nx2nk_idmap(graph_nx)
+            idmap = cls._get_nx2nk_idmap(graph_nx)
         n = max(idmap.values()) + 1
         edges = list(graph_nx.edges())
 
-        if weight:
-            graph_nk = nk.Graph(n, directed=graph_nx.is_directed(), weighted=True)
-            for u_, v_ in edges:
-                u, v = idmap[u_], idmap[v_]
-                d = dict(graph_nx[u_][v_])
-                if len(d) > 1:
-                    for d_ in d.values():
-                        v__ = graph_nk.addNodes(2)
-                        u__ = v__ - 1
-                        w = round(d[weight], 1) if weight in d else 1
-                        graph_nk.addEdge(u, v, w)
-                        graph_nk.addEdge(u_, u__, 0)
-                        graph_nk.addEdge(v_, v__, 0)
-                else:
-                    d_ = list(d.values())[0]
-                    w = round(d_[weight], 1) if weight in d_ else 1
+        graph_nk = nk.Graph(n, directed=graph_nx.is_directed(), weighted=True)
+        for u_, v_ in edges:
+            u, v = idmap[u_], idmap[v_]
+            d = dict(graph_nx[u_][v_])
+            if len(d) > 1:
+                for d_ in d.values():
+                    v__ = graph_nk.addNodes(2)
+                    u__ = v__ - 1
+                    w = round(d[weight], 1) if weight in d else 1
                     graph_nk.addEdge(u, v, w)
-        else:
-            graph_nk = nk.Graph(n, directed=graph_nx.is_directed())
-            for u_, v_ in edges:
-                u, v = idmap[u_], idmap[v_]
-                graph_nk.addEdge(u, v)
+                    graph_nk.addEdge(u_, u__, 0)
+                    graph_nk.addEdge(v_, v__, 0)
+            else:
+                d_ = list(d.values())[0]
+                w = round(d_[weight], 1) if weight in d_ else 1
+                graph_nk.addEdge(u, v, w)
 
         return graph_nk
 
@@ -178,16 +175,9 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
             graph_df, geometry=gpd.points_from_xy(graph_df["x"], graph_df["y"]), crs=self.blocks.crs.to_epsg()
         )
 
-        self.blocks = self.blocks[["geometry"]]
-        self.blocks.reset_index(inplace=True)
-        self.blocks.rename(columns={"index": "id"}, inplace=True)
-        self.blocks["centroids"] = self.blocks["geometry"].representative_point()
-        self.blocks.drop(columns=["geometry"], inplace=True)
-        self.blocks.rename(columns={"centroids": "geometry"}, inplace=True)
-
-        from_blocks = graph_gdf["geometry"].sindex.nearest(
-            self.blocks["geometry"], return_distance=False, return_all=False
-        )
+        blocks = self.blocks.copy()
+        blocks.geometry = blocks.geometry.representative_point()
+        from_blocks = graph_gdf["geometry"].sindex.nearest(blocks["geometry"], return_distance=False, return_all=False)
 
         accs_matrix = pd.DataFrame(0, index=from_blocks[1], columns=from_blocks[1])
         nk_dists = nk.distance.SPSP(  # pylint: disable=c-extension-no-member
@@ -195,8 +185,8 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         ).run()
 
         accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x), axis=1)
-        accs_matrix.index = self.blocks["id"]
-        accs_matrix.columns = self.blocks["id"]
+        accs_matrix.index = blocks.index
+        accs_matrix.columns = blocks.index
 
         # bug fix in city block's closest node is no connecte to actual transport infrastructure
         accs_matrix[accs_matrix > 500] = accs_matrix[accs_matrix < 500].max().max()

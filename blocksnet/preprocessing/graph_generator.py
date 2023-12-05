@@ -48,10 +48,14 @@ class GraphGenerator(BaseModel):
     """Average waiting time in min"""
 
     @field_validator("city_geometry", mode="before")
-    def validate_fields(gdf):
+    def cast_city_geometry(gdf):
         if not isinstance(gdf, GeoDataFrame[CityRow]):
             gdf = GeoDataFrame[CityRow](gdf)
         return gdf
+
+    @field_validator("city_geometry", mode="after")
+    def validate_fields(gdf):
+        return GeoDataFrame[CityRow]([{"geometry": gdf.geometry.unary_union.convex_hull}]).set_crs(gdf.crs)
 
     @staticmethod
     def to_graphml(graph: nx.MultiDiGraph, file_path: str):
