@@ -89,14 +89,17 @@ class Genetic(BaseMethod):
         return fitness
 
     def get_blocks(self, selected_blocks: list[Block]):
-        data = []
-        for block in selected_blocks:
-            data.append({k: v for k, v in block})
+        data = [
+            {
+                "id": b.id,
+                "geometry": b.geometry,
+                "free_area": (b.area * FREE_SPACE_COEFFICIENT - b.industrial_area - b.living_area)
+                / SQUARE_METERS_IN_HECTARE,
+            }
+            for b in selected_blocks
+        ]
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
-        gdf["free_area"] = (
-            gdf["area"] * FREE_SPACE_COEFFICIENT - gdf["green_area"] - gdf["industrial_area"] - gdf["living_area"]
-        ) / SQUARE_METERS_IN_HECTARE
-        return gdf
+        return gdf.reset_index()
 
     @property
     def ga_params(self):
@@ -108,15 +111,22 @@ class Genetic(BaseMethod):
             **self.GA_PARAMS,
         }
 
-    def calculate(
-        self, services: dict, comb_len: int, selected_blocks: list[Block] | list[int] = None
-    ) -> gpd.GeoDataFrame:
+    @property
+    def bricks_dict(self):
+        bricks = {}
+        for service_type_name in self.SCENARIO:
+            bricks[service_type_name] = {}
+            for brick in self.city_model[service_type_name].bricks:
+                bricks[service_type_name][brick.capacity] = brick.area
+        return bricks
+
+    def calculate(self, comb_len: int, selected_blocks: list[Block] | list[int] = None) -> gpd.GeoDataFrame:
         """Calculation of the optimal development option by services for blocks"""
         if selected_blocks is not None:
             selected_blocks = map(lambda b: b if isinstance(b, Block) else self.city_model[b], selected_blocks)
         self.BLOCKS = self.get_blocks(selected_blocks if selected_blocks is not None else self.city_model.blocks)
         self.PROVISION = Provision(city_model=self.city_model)
-        services_dict, services_df = self.flatten_dict(services)
+        services_dict, services_df = self.flatten_dict(self.bricks_dict)
         combinations = self.get_combinations(services_dict, comb_len)
         combinations_area = self.get_combinations_area(combinations, services_df)
         self.updating_blocks_combinations(combinations_area)

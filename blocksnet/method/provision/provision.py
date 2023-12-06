@@ -96,7 +96,7 @@ class Provision(BaseMethod):
             prov_gdf = self.calculate(service_type, update_df, method)
             result[service_type] = prov_gdf
             total += weight * self.total_provision(prov_gdf)
-        return result, total / len(scenario)
+        return result, total
 
     def calculate(
         self, service_type: ServiceType | str, update_df: pd.DataFrame = None, method: Literal["iterative", "lp"] = "lp"

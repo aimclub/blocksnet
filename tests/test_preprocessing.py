@@ -17,7 +17,7 @@ def blocks():
 
 @pytest.fixture
 def graph_generator(blocks):
-    return GraphGenerator(city_geometry=blocks)
+    return GraphGenerator(territory=blocks)
 
 
 @pytest.fixture

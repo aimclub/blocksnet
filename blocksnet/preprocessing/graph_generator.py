@@ -33,8 +33,8 @@ class CityRow(BaseRow):
 
 
 class GraphGenerator(BaseModel):
-    city_geometry: InstanceOf[GeoDataFrame[CityRow]]
-    """City geometry or geometries"""
+    territory: InstanceOf[GeoDataFrame[CityRow]]
+    """City geometry or geometries, may contain blocks or boundaries of the city"""
     overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"
     """Overpass url used in OSM queries"""
     speed: dict[str, int] = {"walk": 4, "drive": 25, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
@@ -47,14 +47,14 @@ class GraphGenerator(BaseModel):
     }
     """Average waiting time in min"""
 
-    @field_validator("city_geometry", mode="before")
-    def cast_city_geometry(gdf):
+    @field_validator("territory", mode="before")
+    def cast_territory(gdf):
         if not isinstance(gdf, GeoDataFrame[CityRow]):
             gdf = GeoDataFrame[CityRow](gdf)
         return gdf
 
-    @field_validator("city_geometry", mode="after")
-    def union_city_geometry(gdf):
+    @field_validator("territory", mode="after")
+    def union_territory(gdf):
         return GeoDataFrame[CityRow]([{"geometry": gdf.geometry.unary_union.convex_hull}]).set_crs(gdf.crs)
 
     @staticmethod
@@ -69,7 +69,7 @@ class GraphGenerator(BaseModel):
 
     @property
     def local_crs(self):
-        return self.city_geometry.crs
+        return self.territory.crs
 
     @classmethod
     def plot(cls, graph: nx.MultiDiGraph):
@@ -83,7 +83,7 @@ class GraphGenerator(BaseModel):
     def _get_basic_graph(self, network_type: Literal["walk", "drive"]):
         """Returns walk or drive graph for the city geometry"""
         speed = self._get_speed(network_type)
-        G = ox.graph_from_polygon(polygon=self.city_geometry.to_crs(OX_CRS).unary_union, network_type=network_type)
+        G = ox.graph_from_polygon(polygon=self.territory.to_crs(OX_CRS).unary_union, network_type=network_type)
         G = ox.project_graph(G, to_crs=self.local_crs)
         for edge in G.edges(data=True):
             _, _, data = edge
@@ -109,7 +109,6 @@ class GraphGenerator(BaseModel):
     """
         result = requests.get(self.overpass_url, params={"data": overpass_query})
         json_result = result.json()["elements"]
-        print(f"Fetched routes for '{public_transport_type}'")
         return pd.DataFrame(json_result)
 
     @staticmethod
@@ -141,7 +140,7 @@ class GraphGenerator(BaseModel):
         nodes = nodes.copy()
         nodes["geometry"] = nodes["geometry"].apply(lambda x: nearest_points(linestring, x)[0])
         nodes["distance"] = nodes["geometry"].apply(lambda x: line_locate_point(linestring, x))
-        nodes = nodes.loc[nodes["geometry"].within(self.city_geometry.unary_union)]
+        nodes = nodes.loc[nodes["geometry"].within(self.territory.unary_union)]
         sorted_nodes = nodes.sort_values(by="distance").reset_index()
         sorted_nodes["hash"] = sorted_nodes["geometry"].apply(lambda x: f"{transport_type}_{hash(x)}")
         G = nx.MultiDiGraph()
@@ -161,7 +160,7 @@ class GraphGenerator(BaseModel):
 
     def _get_pt_graph(self, pt_type: Literal["subway", "tram", "trolleybus", "bus"]) -> list[nx.MultiGraph]:
         """Get public transport routes graphs for the given transport_type"""
-        routes: pd.DataFrame = self._get_routes(self.city_geometry.to_crs(OX_CRS).bounds, pt_type)
+        routes: pd.DataFrame = self._get_routes(self.territory.to_crs(OX_CRS).bounds, pt_type)
         graphs = []
         for i in routes.index:
             df = pd.DataFrame(routes.loc[i, "members"])

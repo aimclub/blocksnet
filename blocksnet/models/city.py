@@ -45,6 +45,24 @@ class Block(BaseModel):
     city: InstanceOf[City]
     """```City``` instance that contains the block"""
 
+    @property
+    def area(self):
+        return self.geometry.area
+
+    @property
+    def industrial_area(self):
+        if self.buildings is not None:
+            return self.buildings.area.sum()
+        else:
+            return 0
+
+    @property
+    def living_area(self):
+        if self.buildings is not None:
+            return self.buildings.living_area.sum()
+        else:
+            return 0
+
     def to_dict(self, simplify=True) -> dict[str, int]:
         dict = {"id": self.id, "geometry": self.geometry}
         if not simplify:
@@ -164,21 +182,17 @@ class City:
         if not isinstance(service_type, ServiceType):
             service_type = self[service_type]
         services_blocks = filter(lambda b: service_type in b.services, self.blocks)
-        services_gdfs = list(map(lambda b: b.services[service_type], services_blocks))
-        gdf = (
-            gpd.GeoDataFrame(columns=["geometry", "capacity", "service_type"])
-            .set_geometry("geometry")
-            .set_crs(self.epsg)
-        )
+        services_gdfs = list(map(lambda b: b.services[service_type].to_crs(4326), services_blocks))
+        gdf = gpd.GeoDataFrame(columns=["geometry", "capacity", "service_type"]).set_geometry("geometry").set_crs(4326)
         gdf = pd.concat([gdf, *services_gdfs], ignore_index=True)
         gdf["service_type"] = service_type.name
         return gdf
 
     def get_buildings_gdf(self) -> gpd.GeoDataFrame:
         buildings_blocks = filter(lambda b: b.buildings is not None, self.blocks)
-        buildings_gdfs = list(map(lambda b: b.buildings, buildings_blocks))
-        gdf = gpd.GeoDataFrame(columns=["geometry"]).set_geometry("geometry").set_crs(self.epsg)
-        gdf = pd.concat([gdf, *buildings_gdfs], ignore_index=True)
+        buildings_gdfs = list(map(lambda b: b.buildings.to_crs(4326), buildings_blocks))
+        gdf = gpd.GeoDataFrame(columns=["geometry"]).set_geometry("geometry").set_crs(4326)
+        gdf = pd.concat([gdf, *buildings_gdfs], ignore_index=True).to_crs(self.epsg)
         return gdf
 
     def get_services_gdf(self) -> gpd.GeoDataFrame:
