@@ -9,7 +9,7 @@ __credits__ = []
 __license__ = "BSD-3"
 
 
-from blocksnet.method import Accessibility, Connectivity, Provision
+from blocksnet.method import Accessibility, Connectivity, Provision, Genetic
 from blocksnet.method.balancing import MasterPlan
 from blocksnet.method.publicspace import PublicSpaceGreedy
 

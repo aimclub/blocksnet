@@ -5,7 +5,7 @@ import pytest
 import geopandas as gpd
 import pandas as pd
 import statistics
-from blocksnet import City, Provision, Accessibility, Connectivity
+from blocksnet import City, Provision, Accessibility, Connectivity, Genetic
 
 data_path = "./tests/data/city_model"
 local_crs = 32636
@@ -36,12 +36,14 @@ def buildings():
     )
 
 
-# @pytest.fixture
-# def scenario():
-#     return {
-#         "schools": 0.25,
-#         "kindergartens": 0.75,
-#     }
+@pytest.fixture
+def scenario():
+    return {"school": 0.6, "kindergarten": 0.4}
+
+
+@pytest.fixture
+def selected_blocks():
+    return [82, 83, 84]
 
 
 @pytest.fixture
@@ -94,6 +96,16 @@ def test_provision_iterative(city_model, update_services, update_population):
     total_population = provision.total_provision(calc_population)
     assert total <= total_services
     assert total >= total_population
+
+
+def test_genetic(city_model, scenario, selected_blocks):
+    provision = Provision(city_model=city_model)
+    genetic = Genetic(city_model=city_model, SCENARIO=scenario)
+    _, total_before = provision.calculate_scenario(scenario)
+    res = genetic.calculate(3, selected_blocks=selected_blocks)
+    update_df = pd.DataFrame.from_dict(res, orient="index")
+    _, total_after = provision.calculate_scenario(scenario, update_df)
+    assert total_after >= total_before
 
 
 def test_spatial(city_model):
