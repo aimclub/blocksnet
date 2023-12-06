@@ -54,7 +54,7 @@ class GraphGenerator(BaseModel):
         return gdf
 
     @field_validator("city_geometry", mode="after")
-    def validate_fields(gdf):
+    def union_city_geometry(gdf):
         return GeoDataFrame[CityRow]([{"geometry": gdf.geometry.unary_union.convex_hull}]).set_crs(gdf.crs)
 
     @staticmethod
