@@ -8,6 +8,8 @@ import itertools
 import pygad
 from ...utils import SQUARE_METERS_IN_HECTARE
 
+FREE_SPACE_COEFFICIENT = 0.8
+
 
 class Genetic(BaseMethod):
     BLOCKS: InstanceOf[pd.DataFrame] = pd.DataFrame()
@@ -92,9 +94,9 @@ class Genetic(BaseMethod):
             data.append({k: v for k, v in block})
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
         gdf["free_area"] = (
-            gdf["area"] * 0.8 - gdf["green_area"] - gdf["industrial_area"] - gdf["living_area"]
+            gdf["area"] * FREE_SPACE_COEFFICIENT - gdf["green_area"] - gdf["industrial_area"] - gdf["living_area"]
         ) / SQUARE_METERS_IN_HECTARE
-        return gdf.reset_index()
+        return gdf
 
     @property
     def ga_params(self):

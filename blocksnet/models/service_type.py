@@ -31,7 +31,8 @@ class ServiceType(BaseModel):
 
     @field_validator("bricks", mode="before")
     def validate_bricks(value):
-        return [ServiceBrick(**sb) for sb in value]
+        bricks = map(sb if isinstance(sb, ServiceBrick) else ServiceBrick(**sb) for sb in value)
+        return list(bricks)
 
     def calculate_in_need(self, population: int) -> int:
         """Calculate how many people in the given population are in need by this service type"""
