@@ -33,7 +33,7 @@ def adjacency_matrix(blocks, intermodal_graph):
 def test_within(intermodal_graph, graph_generator):
     """Check if graph nodes are within the initial geometry"""
     nodes, _ = ox.graph_to_gdfs(intermodal_graph)
-    assert nodes.within(graph_generator.city_geometry.geometry.unary_union).all()
+    assert nodes.within(graph_generator.territory.geometry.unary_union).all()
 
 
 def test_index(blocks, adjacency_matrix):
