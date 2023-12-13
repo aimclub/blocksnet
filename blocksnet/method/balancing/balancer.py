@@ -93,10 +93,10 @@ def balance_data(gdf, polygon, services_prov):  # pylint: disable=too-many-argum
         )
     gdf_ = gdf_.drop(columns=["id_x", "id_y"])
 
-    gdf_["area"] = gdf_["area"] / SQUARE_METERS_IN_HECTAR
-    gdf_["current_living_area"] = gdf_["current_living_area"] / SQUARE_METERS_IN_HECTAR
-    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / SQUARE_METERS_IN_HECTAR
-    gdf_["current_green_area"] = gdf_["current_green_area"] / SQUARE_METERS_IN_HECTAR
+    gdf_["area"] = gdf_["area"] / SQUARE_METERS_IN_HECTARE
+    gdf_["current_living_area"] = gdf_["current_living_area"] / SQUARE_METERS_IN_HECTARE
+    gdf_["current_industrial_area"] = gdf_["current_industrial_area"] / SQUARE_METERS_IN_HECTARE
+    gdf_["current_green_area"] = gdf_["current_green_area"] / SQUARE_METERS_IN_HECTARE
 
     df_sum = gdf_.sum()
     df_sum["floors"] = gdf_["floors"].mean()
@@ -153,12 +153,12 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         self.IA_coef = 0.3
 
         self.F_max = 9
-        self.b_min, self.b_max = 18 / SQUARE_METERS_IN_HECTAR, 30 / SQUARE_METERS_IN_HECTAR
-        self.G_min, self.G_max = 6 / SQUARE_METERS_IN_HECTAR, 12 / SQUARE_METERS_IN_HECTAR
+        self.b_min, self.b_max = 18 / SQUARE_METERS_IN_HECTARE, 30 / SQUARE_METERS_IN_HECTARE
+        self.G_min, self.G_max = 6 / SQUARE_METERS_IN_HECTARE, 12 / SQUARE_METERS_IN_HECTARE
 
         self.SC_coef = 0.12
         self.KG_coef = 0.061
-        self.OP_coef = 0.03 / SQUARE_METERS_IN_HECTAR
+        self.OP_coef = 0.03 / SQUARE_METERS_IN_HECTARE
 
         self.P1_coef = 0.42 * 0.15 * 0.012
         self.P2_coef = 0.42 * 0.35 * 0.005
@@ -268,8 +268,8 @@ class MasterPlan:  # pylint: disable=too-many-instance-attributes,invalid-name
         return {
             "area": self.area,
             "population": population + self.current_population,
-            "b": b * SQUARE_METERS_IN_HECTAR,
-            "green_coef_G": G * SQUARE_METERS_IN_HECTAR,
+            "b": b * SQUARE_METERS_IN_HECTARE,
+            "green_coef_G": G * SQUARE_METERS_IN_HECTARE,
             "living_area": self.living_area(population, b) + self.current_living_area,
             "schools_area": sc[0],
             "schools_capacity": sc[1],
