@@ -10,8 +10,11 @@ format:
 install:
 	pip install .
 
+venv: #then source .venv/bin/activate
+	python3 -m venv .venv
+
 install-dev:
-	python3 -m pip install -e '.[dev]' --config-settings editable_mode=strict
+	pip install -e '.[dev]'
 
 build:
 	python3 -m build .
@@ -19,8 +22,14 @@ build:
 clean:
 	rm -rf ./build ./dist ./blocksnet.egg-info
 
-udpate-pypi: clean build
+update-pypi: clean build
 	python3 -m twine upload dist/*
 
-install-from-build:
-	python3 -m wheel install dist/blocksnet-*.whl
+update-test-pypi: clean build
+	python3 -m twine upload --repository testpypi dist/*
+
+test:
+	pytest tests
+
+test-cov:
+	pytest tests --cov

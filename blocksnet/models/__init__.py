@@ -1,5 +1,6 @@
 """
 Models classes are located here.
 """
-from .city_model import CityModel
-from .geojson import GeoJSON, PointGeoJSON, PolygonGeoJSON
+from .city import Block, City
+from .geodataframe import BaseRow, GeoDataFrame
+from .service_type import ServiceBrick, ServiceType

@@ -1,14 +1,16 @@
 import folium
 import geopandas as gpd
+import matplotlib.pyplot as plt
 import networkx as nx
 import osmnx as ox
 import shapely
-import matplotlib.pyplot as plt
+
+from ...models import Block, ServiceType
+from ..base_method import BaseMethod
 
 
 class PublicSpaceGreedy:
-    def __init__(self, OPM_path, house_path):
-
+    def __init__(self, vacant_area, buildings):
         # iso: изохроны в формате geojson с разным временем
         # OPM: файл с потенциальными общественными пространствами
         # house: дома
@@ -16,15 +18,14 @@ class PublicSpaceGreedy:
         self.iso_10 = None
         self.iso_20 = None
         self.iso_5 = None
-        self.OPM = gpd.read_file(OPM_path)
+        self.OPM = vacant_area
         for index, row in self.OPM.iterrows():
             self.OPM.loc[index, "functional_type"] = ""
             self.OPM.loc[index, "exists"] = "потенциальное"
 
-        house = gpd.read_file(house_path)
-        h = house.to_crs(4326)
-        house = h
-        house["house_id"] = [15000 + i for i in range(1141)]
+        house = buildings
+        house = house.to_crs(4326)
+        house["house_id"] = house.index
         self.house = house
 
         self.is_graph_exist = False
@@ -119,9 +120,6 @@ class PublicSpaceGreedy:
 
         zones_iso_time = zones_points
         zones_iso_time.geometry = zones_iso_time.node.apply(lambda x: isochrones_generator_time(street_graph, x, time))
-        """
-        Необходимо построить изохроны для разных временных радиусов - 5, 10,  20,  минут.
-        """
         zones_iso_time = zones_iso_time.to_crs(4326)
 
         return zones_iso_time
@@ -157,7 +155,6 @@ class PublicSpaceGreedy:
 
     def create_graph(self):
         if self.is_graph_exist == False:
-
             nodes = self.nodes_list(self.iso_20)
             g = nx.Graph(nodes)
 
