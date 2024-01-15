@@ -1,4 +1,4 @@
-Contribution
+Contributing
 ============
 
 We welcome you to `check the existing
@@ -18,42 +18,47 @@ How to contribute
 1. Clone the repository:
    ::
 
-       git clone https://github.com/iduprojects/blocksnet
+       $ git clone https://github.com/aimclub/blocksnet
 
 2. (Optional) Create a virtual environment as the library demands exact package versions:
    ::
 
-       python -m venv venv
+       $ python -m venv venv
 
    Activate the virtual environment if you created one.
 
 3. Install the library in editable mode with development dependencies:
    ::
 
-       python -m pip install -e '.[dev]' --config-settings editable_mode=strict
+       $ make install-dev
 
 4. Install pre-commit hooks:
    ::
 
-       pre-commit install
+       $ pre-commit install
 
 5. Create a new branch based on **develop**:
    ::
 
-       git checkout -b develop <new_branch_name>
+       $ git checkout -b develop <new_branch_name>
 
 6. Start making changes on your newly created branch, remembering to
    never work on the ``masters`` branch! Work on this copy on your
    computer using Git to do the version control.
 
-7.  To check your changes haven't broken any existing tests and to check
-   new tests you've added pass run the following (note, you must have
-   the ``nose`` package installed within your dev environment for this
-   to work):
+7. Update
+   `tests <https://github.com/aimclub/blocksnet/tree/main/tests>`__
+   according to your changes and run the following command:
 
    ::
 
-         $ pytest -s
+         $ make test
+
+   Make sure that all tests pass.
+
+8. Update the
+   `documentation <https://github.com/aimclub/blocksnet/tree/main/docs>`__
+   and README files according to your changes.
 
 11. When you're done editing and local testing, run:
 
@@ -84,11 +89,11 @@ necessary so we can efficiently review and accept your changes.
 If your contribution changes BlocksNet in any way:
 
 -  Update the
-   `documentation <https://github.com/iduprojects/blocksnet/docs>`__
+   `documentation <https://github.com/aimclub/blocksnet/tree/main/docs>`__
    so all of your changes are reflected there.
 
 -  Update the
-   `README <https://github.com/iduprojects/blocksnet/blob/master/README.rst>`__
+   `README <https://github.com/aimclub/blocksnet/blob/main/README.md>`__
    if anything there has changed.
 
 If your contribution involves any code changes:
@@ -118,7 +123,7 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new package with several scripts:
 
-   1. Go to `docs/source/BlocksNet <https://github.com/iduprojects/blocksnet/tree/master/docs>`__ and create new your_name_for_file.rst file.
+   1. Go to `docs/source/BlocksNet <https://github.com/aimclub/blocksnet/tree/master/docs>`__ and create new  ``your_name_for_file.rst`` file.
 
    2. Add a Header underlined with “=” sign. It’s crucial.
 
@@ -139,7 +144,7 @@ automodule:: <module_name> section which describes all the code in the module.
 
 -  If a new module to the existed package:
 
-    Most of the sections are already described in `docs/source/BlocksNet <https://github.com/iduprojects/blocksnet/tree/master/docs>`__ , so you can:
+    Most of the sections are already described in `docs/source/BlocksNet <https://github.com/aimclub/blocksnet/tree/master/docs>`__ , so you can:
 
    -  choose the most appropriate and repeat 3-d step from the previous section.
    -  or create a new one and repeat 2-3 steps from the previous section.
