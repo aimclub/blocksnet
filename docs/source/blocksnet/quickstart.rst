@@ -9,7 +9,7 @@ How to install
 --------------
 .. code::
 
-   pip install git+https://github.com/iduprojects/blocksnet
+   pip install blocksnet
 
 Easy start with prepared data
 -----------------------------
