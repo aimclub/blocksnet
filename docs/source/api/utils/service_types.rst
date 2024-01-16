@@ -1,5 +1,5 @@
 Default service types
-=========
+=====================
 
 Service types used in the ``City`` by default
 

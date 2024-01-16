@@ -1,7 +1,11 @@
 Utils
-==========
+=====
 
-.. automodule:: blocksnet.utils
-    :members:
-    :undoc-members:
-    :show-inheritance:
+todo
+
+.. toctree::
+   :glob:
+   :maxdepth: 2
+
+   const
+   service_types
