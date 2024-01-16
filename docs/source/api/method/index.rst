@@ -5,7 +5,7 @@ todo
 
 .. toctree::
    :glob:
-   :maxdepth: 2
+   :maxdepth: 1
 
    base_method
    accessibility

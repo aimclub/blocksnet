@@ -93,10 +93,11 @@ napoleon_attr_annotations = False
 
 autodoc_default_options = {
     "members": True,
-    "undoc-members": False,
+    "undoc-members": True,
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
+    "exclude-members": "model_config, model_fields",
 }
 autoclass_content = "class"
 autodoc_typehints = "signature"

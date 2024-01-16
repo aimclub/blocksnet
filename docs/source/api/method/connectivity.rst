@@ -3,6 +3,4 @@ Connectivity
 
 todo
 
-.. automodule:: blocksnet.method.connectivity
-    :members:
-    :undoc-members:
+.. automodule:: blocksnet.method.connectivity.connectivity

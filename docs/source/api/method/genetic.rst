@@ -3,6 +3,4 @@ Genetic
 
 todo
 
-.. automodule:: blocksnet.method.genetic
-    :members:
-    :undoc-members:
+.. automodule:: blocksnet.method.genetic.genetic

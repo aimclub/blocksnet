@@ -10,4 +10,3 @@ The modules of BlocksNet are listed below:
    preprocessing/index
    models/index
    method/index
-   utils/index
