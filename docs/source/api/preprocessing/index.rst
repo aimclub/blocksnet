@@ -11,3 +11,4 @@ todo
    landuse_processor
    graph_generator
    adjacency_calculator
+   utils
