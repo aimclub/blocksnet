@@ -97,7 +97,7 @@ autodoc_default_options = {
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
-    "exclude-members": "model_config, model_fields",
+    "exclude-members": "model_config, model_fields, model_post_init",
 }
 autoclass_content = "class"
 autodoc_typehints = "signature"
