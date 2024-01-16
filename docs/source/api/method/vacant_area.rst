@@ -3,6 +3,4 @@ VacantArea
 
 todo
 
-.. automodule:: blocksnet.method.vacant_area
-    :members:
-    :undoc-members:
+.. automodule:: blocksnet.method.vacant_area.vacant_area

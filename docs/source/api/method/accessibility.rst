@@ -3,6 +3,4 @@ Accessibility
 
 todo
 
-.. automodule:: blocksnet.method.accessibility
-    :members:
-    :undoc-members:
+.. automodule:: blocksnet.method.accessibility.accessibility
