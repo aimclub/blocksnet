@@ -1,12 +1,7 @@
 Models
 ==========
 
-todo
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-
-   geodataframe
-   city
-   service_type
+.. automodule:: blocksnet.models
+    :members:
+    :undoc-members:
+    :show-inheritance:

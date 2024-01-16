@@ -1,15 +1,7 @@
 Method
 ==========
 
-todo
-
-.. toctree::
-   :glob:
-   :maxdepth: 2
-
-   base_method
-   accessibility
-   connectivity
-   provision
-   genetic
-   vacant_area
+.. automodule:: blocksnet.method
+    :members:
+    :undoc-members:
+    :show-inheritance:
