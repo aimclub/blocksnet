@@ -1,8 +1,8 @@
-Genetic
+Const
 =========
 
 todo
 
-.. automodule:: blocksnet.method.genetic
+.. automodule:: blocksnet.utils.const
     :members:
     :undoc-members:
