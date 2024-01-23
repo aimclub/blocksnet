@@ -8,5 +8,6 @@ todo
    :maxdepth: 1
 
    quickstart
+   pipeline
    contributing
    faq
