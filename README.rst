@@ -1,12 +1,16 @@
 BlocksNet
 =========
 
+.. logo-start
+
 .. figure:: https://i.ibb.co/QC9XD07/blocksnet.png
    :alt: BlocksNet logo
 
+.. logo-end
+
 |Documentation Status| |PythonVersion| |Black| |Readme_ru|
 
-.. documentation-intro-start
+.. description-start
 
 **BlocksNet** is an open-source library that includes methods of
 modeling urbanized areas for the generation of value-oriented master
@@ -17,12 +21,12 @@ city model, which allow: to generate a layer of urban blocks, to
 calculate provisioning based on regulatory requirements, to obtain
 optimal requirements for master planning of territories.
 
-.. documentation-intro-end
+.. description-end
 
-.. documentation-main-start
-
-BlocksNet Features
+Features
 ------------------
+
+.. features-start
 
 BlocksNet — a library for modeling urban development scenarios
 (e.g. creating a master plan), supporting the following tools:
@@ -62,8 +66,12 @@ Main differences from existing solutions:
    user-defined **scenarios**.
 -  Support for different regulatory requirements.
 
+.. features-end
+
 Installation
 ------------
+
+.. installation-start
 
 **BlocksNet** can be installed with ``pip``:
 
@@ -71,27 +79,32 @@ Installation
 
    pip install git+https://github.com/iduprojects/blocksnet
 
+.. installation-end
+
 How to use
 ----------
+
+.. use-start
 
 Then use the library by importing classes from ``blocksnet``:
 
 ::
 
-   from blocksnet import CityModel
+   from blocksnet import City
 
 Next, use the necessary functions and modules:
 
 ::
 
-   city_model = CityModel(
-     blocks=aggregated_blocks,
-     accessibility_matrix=accessibility_matrix,
-     services=services
+   city = City(
+      blocks_gdf=blocks,
+      adjacency_matrix=adj_mx
    )
-   city_model.visualize()
+   city.plot()
 
-For more detailed use case see our `examples <#examples>`__ below.
+For more detailed use case see our `examples <#examples>`__.
+
+.. use-end
 
 Data
 ----
@@ -100,7 +113,7 @@ Before running the examples, you must download the `input
 data <https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP>`__
 and place it in the ``examples/data`` directory. You can use your own
 data, but it must follow the structure described in the
-`specification <https://blocknet.readthedocs.io/en/latest/index.html>`__.
+`API documentation <https://blocknet.readthedocs.io/en/latest/index.html>`__.
 
 Examples
 --------
@@ -154,22 +167,22 @@ The repository includes the following directories and modules:
 -  `blocksnet <https://github.com/iduprojects/blocksnet/tree/main/blocksnet>`__
    - directory with the framework code:
 
-   -  preprocessing - preprocessing module
-   -  models - model classes
-   -  method - library tool methods
-   -  utils - module for static units of measure
+   -  preprocessing - data preprocessing module
+   -  models - entities' classes used in library
+   -  method - library tool methods on ``City`` model
+   -  utils - module for helping functions and consts
 
--  `data <https://github.com/iduprojects/blocksnet/tree/main/data>`__ -
-   directory with data for experiments and tests
 -  `tests <https://github.com/iduprojects/blocksnet/tree/main/tests>`__
-   - directory with units of measurement and integration tests
+   ``pytest`` testing
 -  `examples <https://github.com/iduprojects/blocksnet/tree/main/examples>`__
-   - directory with examples of how the methods work
+   examples of how methods work
 -  `docs <https://github.com/iduprojects/blocksnet/tree/main/docs>`__ -
-   directory with RTD documentation
+   ReadTheDocs documentation
 
 Developing
 ----------
+
+.. developing-start
 
 To start developing the library, one must perform following actions:
 
@@ -190,6 +203,10 @@ Editable installation allows to keep the number of re-installs to the
 minimum. A developer will need to repeat step 3 in case of adding new
 files to the library.
 
+Check out the Contributing on ReadTheDocs.
+
+.. developing-end
+
 License
 -------
 
@@ -206,6 +223,8 @@ planning”**
 Contacts
 --------
 
+.. contacts-start
+
 You can contact us:
 
 -  `NCCR <https://actcognitive.org/o-tsentre/kontakty>`__ - National
@@ -213,9 +232,14 @@ You can contact us:
 -  `IDU <https://idu.itmo.ru/en/contacts/contacts.htm>`__ - Institute of
    Design and Urban Studies
 -  `Tatiana Churiakova <https://t.me/tanya_chk>`__ - project manager
+-  `Vasilii Starikov <https://t.me/vasilstar>`__ - lead software engineer
 
-Publications on library tools
+.. contacts-end
+
+Publications
 -----------------------------
+
+.. publications-start
 
 Published:
 
@@ -249,7 +273,7 @@ Accepted:
    S. Urban blocks modelling method // 12th International Young
    Scientists Conference in Computational Science – YSC 2023
 
-.. documentation-main-end
+.. publications-end
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/blocknet/badge/?version=latest
    :target: https://blocknet.readthedocs.io/en/latest/?badge=latest

@@ -1,16 +1,17 @@
 Welcome to BlocksNet documentation!
 ===================================
 
-.. container::
-
-   | |logo|
+.. include:: ../../README.rst
+   :start-after: .. logo-start
+   :end-before: .. logo-end
 
 .. include:: ../../README.rst
-   :start-after: .. documentation-intro-start
-   :end-before: .. documentation-intro-end
+   :start-after: .. description-start
+   :end-before: .. description-end
 
-Content:
-========
+Documentation:
+--------------
+
 .. toctree::
    :maxdepth: 2
 
@@ -18,8 +19,9 @@ Content:
    api/index
    about_us
 
-.. include:: ../../README.rst
-   :start-after: .. documentation-main-start
-   :end-before: .. documentation-main-end
+Features:
+---------
 
-.. |logo| image:: ./../img/blocksnet.png
+.. include:: ../../README.rst
+   :start-after: .. features-start
+   :end-before: .. features-end

@@ -4,6 +4,19 @@ BlocksNet quick start guide
 
 .. |network_model| image:: https://i.ibb.co/khQDKLq/output.png
 
+Installation
+------------
+
+.. include:: ../../../README.rst
+   :start-after: .. installation-start
+   :end-before: .. installation-end
+
+How to use
+----------
+
+.. include:: ../../../README.rst
+   :start-after: .. use-start
+   :end-before: .. use-end
 
 How to install
 --------------

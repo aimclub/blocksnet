@@ -5,7 +5,7 @@
 [![Documentation Status](https://readthedocs.org/projects/blocknet/badge/?version=latest)](https://blocknet.readthedocs.io/en/latest/?badge=latest)
 [![PythonVersion](https://img.shields.io/badge/python-3.10-blue)](https://pypi.org/project/blocksnet/)
 [![Black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
-[![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README.md)
+[![Readme_en](https://img.shields.io/badge/lang-en-red.svg)](README.rst)
 
 **BlocksNet** – это библиотека с открытым исходным кодом, включающая методы моделирования урбанизированных территорий для задач генерации ценностно-ориентированных требований к мастер-планированию. Библиотека предназначена для формирования универсальной информационной модели города, основанной на доступности городских кварталов. В библиотеке также представлены инструменты для работы с информационной моделью города, которые позволяют: генерировать слой городских кварталов, рассчитывать обеспеченность на основе нормативных требований, а также получить оптимальные требования к мастер-планированию территорий.
 

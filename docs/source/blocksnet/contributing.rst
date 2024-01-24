@@ -11,6 +11,10 @@ discuss it.
 Make sure to familiarize yourself with the project layout before making
 any major contributions.
 
+.. include:: ../../../README.rst
+   :start-after: .. developing-start
+   :end-before: .. developing-end
+
 How to contribute
 -----------------
 
