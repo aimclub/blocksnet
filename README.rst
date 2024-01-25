@@ -291,33 +291,33 @@ Publications
 
 Published:
 
-1. `Morozov A. S. et al. Assessing the transport connectivity of urban
+1. `Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S.
+   Digital Master Plan as a tool for generating territory development
+   requirements // International Conference on Advanced Research in
+   Technologies, Information, Innovation and Sustainability 2023 –
+   ARTIIS 2023 <https://link.springer.com/chapter/10.1007/978-3-031-48855-9_4>`__
+2. `Morozov A. S. et al. Assessing the transport connectivity of urban
    territories, based on intermodal transport accessibility // Frontiers
    in Built Environment. – 2023. – Т. 9. – С.
    1148708. <https://www.frontiersin.org/articles/10.3389/fbuil.2023.1148708/full>`__
-2. `Morozov A. et al. Assessment of Spatial Inequality Through the
+3. `Morozov A. et al. Assessment of Spatial Inequality Through the
    Accessibility of Urban Services // International Conference on
    Computational Science and Its Applications. – Cham : Springer Nature
    Switzerland, 2023. – С.
    270-286. <https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18>`__
-
-Accepted:
-
-1. Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S.
-   Digital Master Plan as a tool for generating territory development
-   requirements // International Conference on Advanced Research in
-   Technologies, Information, Innovation and Sustainability 2023 –
-   ARTIIS 2023
-2. Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison
+4. `Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for
+   automatically identifying vacant area in the current urban
+   environment based on open source data // 12th International Young
+   Scientists Conference in Computational Science – YSC 2023. <https://www.sciencedirect.com/science/article/pii/S1877050923020306>`__
+5. `Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison
    of solution methods the maximal covering location problem of public
    spaces for teenagers in the urban environment // International
    Conference on Advanced Research in Technologies, Information,
-   Innovation and Sustainability 2023 – ARTIIS 2023
-3. Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for
-   automatically identifying vacant area in the current urban
-   environment based on open source data // 12th International Young
-   Scientists Conference in Computational Science – YSC 2023
-4. Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin
+   Innovation and Sustainability 2023 – ARTIIS 2023. <https://link.springer.com/chapter/10.1007/978-3-031-48858-0_35>`__
+
+Accepted:
+
+1. Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin
    S. Urban blocks modelling method // 12th International Young
    Scientists Conference in Computational Science – YSC 2023
 
