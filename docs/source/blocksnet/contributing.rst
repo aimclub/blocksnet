@@ -2,83 +2,21 @@ Contributing
 ============
 
 We welcome you to `check the existing
-issues <https://github.com/iduprojects/blocksnet/issues>`__ for bugs or
+issues <https://github.com/aimclub/blocksnet/issues>`__ for bugs or
 enhancements to work on. If you have an idea for an extension to BlocksNet,
 please `file a new
-issue <https://github.com/iduprojects/blocksnet/issues/new>`__ so we can
+issue <https://github.com/aimclub/blocksnet/issues/new>`__ so we can
 discuss it.
 
 Make sure to familiarize yourself with the project layout before making
 any major contributions.
 
+How to contribute
+----------
+
 .. include:: ../../../README.rst
    :start-after: .. developing-start
    :end-before: .. developing-end
-
-How to contribute
------------------
-
-
-1. Clone the repository:
-   ::
-
-       $ git clone https://github.com/aimclub/blocksnet
-
-2. (Optional) Create a virtual environment as the library demands exact package versions:
-   ::
-
-       $ python -m venv venv
-
-   Activate the virtual environment if you created one.
-
-3. Install the library in editable mode with development dependencies:
-   ::
-
-       $ make install-dev
-
-4. Install pre-commit hooks:
-   ::
-
-       $ pre-commit install
-
-5. Create a new branch based on **develop**:
-   ::
-
-       $ git checkout -b develop <new_branch_name>
-
-6. Start making changes on your newly created branch, remembering to
-   never work on the ``masters`` branch! Work on this copy on your
-   computer using Git to do the version control.
-
-7. Update
-   `tests <https://github.com/aimclub/blocksnet/tree/main/tests>`__
-   according to your changes and run the following command:
-
-   ::
-
-         $ make test
-
-   Make sure that all tests pass.
-
-8. Update the
-   `documentation <https://github.com/aimclub/blocksnet/tree/main/docs>`__
-   and README files according to your changes.
-
-11. When you're done editing and local testing, run:
-
-   ::
-
-         $ git add modified_files
-         $ git commit
-
-to record your changes in Git, then push them to GitHub with:
-
-::
-
-          $ git push -u origin my-contribution
-
-Finally, go to the web page of your fork of the BlocksNet repo, and click
-'Pull Request' (PR) to send your changes to the maintainers for review.
 
 (If it looks confusing to you, then look up the `Git
 documentation <http://git-scm.com/documentation>`__ on the web.)
@@ -133,18 +71,12 @@ automodule:: <module_name> section which describes all the code in the module.
 
    3. Add automodule description for each of your scripts. ::
 
-       .. automodule:: BlocksNet.your.first.script.path
-          :members:
-          :undoc-members:
-          :show-inheritance:
+       .. automodule:: blocksnet.your.first.script.path
 
-       .. automodule:: BlocksNet.your.second.script.path
-          :members:
-          :undoc-members:
-          :show-inheritance:
+       .. automodule:: blocksnet.your.second.script.path
        ...
 
-   4. Add your_name_for_file to the toctree at docs/source/BlocksNet/index.rst
+   4. Add your_name_for_file to the toctree at ``docs/source/blocksnet/api/index.rst``
 
 -  If a new module to the existed package:
 

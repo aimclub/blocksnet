@@ -25,3 +25,10 @@ Features:
 .. include:: ../../README.rst
    :start-after: .. features-start
    :end-before: .. features-end
+
+Acknowledgements
+----------------
+
+.. include:: ../../README.rst
+   :start-after: .. acknowledgments-start
+   :end-before: .. acknowledgments-end

@@ -61,7 +61,7 @@ Main differences from existing solutions:
    the smallest spatial unit for analysis is a block, which makes it
    possible to analyze on a city scale.
 -  Not only normative documents are taken into account when assessing
-   **provisioning**, but also the value attitudes of the population.
+   **provision**, but also the value attitudes of the population.
 -  Genetic algorithm for optimization of development supports
    user-defined **scenarios**.
 -  Support for different regulatory requirements.
@@ -102,9 +102,9 @@ Next, use the necessary functions and modules:
    )
    city.plot()
 
-For more detailed use case see our `examples <#examples>`__.
-
 .. use-end
+
+For more detailed use case see our `examples <#examples>`__.
 
 Data
 ----
@@ -186,26 +186,70 @@ Developing
 
 To start developing the library, one must perform following actions:
 
-1. Clone repository
-   (``git clone https://github.com/iduprojects/blocksnet``)
-2. (optionally) create a virtual environment as the library demands
-   exact packages versions: ``python -m venv venv`` and activate it.
-3. Install the library in editable mode:
-   ``python -m pip install -e '.[dev]' --config-settings editable_mode=strict``
-4. Install pre-commit hooks: ``pre-commit install``
-5. Create a new branch based on **develop**:
-   ``git checkout -b develop <new_branch_name>``
-6. Add changes to the code
-7. Make a commit, push the new branch and create a pull-request into
-   **develop**
+1. Clone the repository:
+   ::
 
-Editable installation allows to keep the number of re-installs to the
-minimum. A developer will need to repeat step 3 in case of adding new
-files to the library.
+       $ git clone https://github.com/aimclub/blocksnet
 
-Check out the Contributing on ReadTheDocs.
+2. (Optional) Create a virtual environment as the library demands exact package versions:
+   ::
+
+       $ python -m venv venv
+
+   Activate the virtual environment if you created one.
+
+3. Install the library in editable mode with development dependencies:
+   ::
+
+       $ make install-dev
+
+4. Install pre-commit hooks:
+   ::
+
+       $ pre-commit install
+
+5. Create a new branch based on ``develop``:
+   ::
+
+       $ git checkout -b develop <new_branch_name>
+
+6. Start making changes on your newly created branch, remembering to
+   never work on the ``master`` branch! Work on this copy on your
+   computer using Git to do the version control.
+
+7. Update
+   `tests <https://github.com/aimclub/blocksnet/tree/main/tests>`__
+   according to your changes and run the following command:
+
+   ::
+
+         $ make test
+
+   Make sure that all tests pass.
+
+8. Update the
+   `documentation <https://github.com/aimclub/blocksnet/tree/main/docs>`__
+   and README files according to your changes.
+
+11. When you're done editing and local testing, run:
+
+   ::
+
+         $ git add modified_files
+         $ git commit
+
+to record your changes in Git, then push them to GitHub with:
+
+::
+
+          $ git push -u origin my-contribution
+
+Finally, go to the web page of your fork of the BlocksNet repo, and click
+'Pull Request' (PR) to send your changes to the maintainers for review.
 
 .. developing-end
+
+Check out the Contributing on ReadTheDocs for more information.
 
 License
 -------
@@ -215,10 +259,14 @@ The project has `BSD-3-Clause license <./LICENSE>`__
 Acknowledgments
 ---------------
 
+.. acknowledgments-start
+
 The library was developed as the main part of the ITMO University
 project #622280 **“Machine learning algorithms library for the tasks of
 generating value-oriented requirements for urban areas master
 planning”**
+
+.. acknowledgments-end
 
 Contacts
 --------

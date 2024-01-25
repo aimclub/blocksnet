@@ -1,6 +1,8 @@
 About us
 ========
 
+.. image:: ../../img/idu.jpg
+
 The BlocksNet is developed and maintained by the `IDU <https://idu.itmo.ru/>`__ team.
 
 The Institute of Design and Urban Studies (IDU) is an educational and project-research

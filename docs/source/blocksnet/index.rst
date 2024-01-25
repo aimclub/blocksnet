@@ -8,6 +8,8 @@ todo
    :maxdepth: 1
 
    quickstart
-   pipeline
    contributing
+   pipeline
+   city
+   validation
    faq
