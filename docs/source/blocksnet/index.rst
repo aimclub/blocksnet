@@ -9,4 +9,7 @@ todo
 
    quickstart
    contributing
+   pipeline
+   city
+   validation
    faq

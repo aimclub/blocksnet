@@ -1,21 +1,17 @@
 Welcome to BlocksNet documentation!
 ===================================
 
-.. container::
+.. include:: ../../README.rst
+   :start-after: .. logo-start
+   :end-before: .. logo-end
 
-   | |logo|
-   | There is contained main documentation for the `BlocksNet <https://github.com/iduprojects/blocksnet>`__.
+.. include:: ../../README.rst
+   :start-after: .. description-start
+   :end-before: .. description-end
 
-**BlocksNet** is an open-source library for generating master plan requirements for urban areas. While achieving the main goal of generating requirements, the library provides more than that:
+Documentation:
+--------------
 
-- Simple yet detailed **city information model** based on city blocks accessibility in  graph.
-- A **city blocks** generating method.
-- Optimized **master plan** generating method provided by **genetic algorithm** according to certain city development **scenario**.
-- Fast **provision assessment** method based on normative requirements and linear optimization algorithm.
-- Urban territory **parameters balance** based on city development **scenario**.
-
-Content:
-========
 .. toctree::
    :maxdepth: 2
 
@@ -23,4 +19,16 @@ Content:
    api/index
    about_us
 
-.. |logo| image:: ./../img/blocksnet.png
+Features:
+---------
+
+.. include:: ../../README.rst
+   :start-after: .. features-start
+   :end-before: .. features-end
+
+Acknowledgements
+----------------
+
+.. include:: ../../README.rst
+   :start-after: .. acknowledgments-start
+   :end-before: .. acknowledgments-end
