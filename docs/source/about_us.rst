@@ -1,7 +1,7 @@
 About us
 ========
 
-.. figure:: https://i.ibb.co/k6HMCP6/idu.jpg
+.. image:: ../img/idu.jpg
    :alt: IDU team
 
 The BlocksNet is developed and maintained by the `IDU <https://idu.itmo.ru/>`__ team.
