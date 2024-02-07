@@ -36,14 +36,14 @@ BlocksNet — a library for modeling urban development scenarios
    urban area - blocks. The method of generating a layer of urban blocks
    is based on clustering algorithms taking into account additional data
    on land use.
-2. A method for generating an intermodal city graph based on open-data. The 
-   intermodal graph includes the information about public transport and 
-   pedestrian routes to better analyze city mobility. 
+2. A method for generating an intermodal city graph based on open-data. The
+   intermodal graph includes the information about public transport and
+   pedestrian routes to better analyze city mobility.
 3. The Universal Information City Model is used to further analyze urban
    areas and to obtain information on the accessibility of urban blocks.
    The City Model includes aggregated information on services and buildings,
    intermodal accessibility, service types hierarchy, and urban blocks.
-4. Method for accessing the connectivity of the blocks based on intermodal 
+4. Method for accessing the connectivity of the blocks based on intermodal
    accessibility.
 5. Methods for assessing urban provision of different types of services
    with regard to normative requirements and value attitudes of the
