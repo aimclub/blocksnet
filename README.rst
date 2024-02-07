@@ -31,26 +31,32 @@ Features
 BlocksNet — a library for modeling urban development scenarios
 (e.g. creating a master plan), supporting the following tools:
 
-1. The method of generating a layer of urban blocks is the division of
+1. A method for generating a layer of urban blocks is the division of
    the territory into the smallest elements for the analysis of the
    urban area - blocks. The method of generating a layer of urban blocks
    is based on clustering algorithms taking into account additional data
    on land use.
-2. The Universal Information City Model is used to further analyze urban
+2. A method for generating an intermodal city graph based on open-data. The 
+   intermodal graph includes the information about public transport and 
+   pedestrian routes to better analyze city mobility. 
+3. The Universal Information City Model is used to further analyze urban
    areas and to obtain information on the accessibility of urban blocks.
-   The City Model includes aggregated information on services,
-   intermodal accessibility and urban blocks.
-3. Methods for assessing urban provision of different types of services
+   The City Model includes aggregated information on services and buildings,
+   intermodal accessibility, service types hierarchy, and urban blocks.
+4. Method for accessing the connectivity of the blocks based on intermodal 
+   accessibility.
+5. Methods for assessing urban provision of different types of services
    with regard to normative requirements and value attitudes of the
    population. The estimation of provisioning is performed by iterative
    algorithm on graphs, as well as by solving linear optimization
    problem.
-4. A method for computing the function for evaluating the optimality of
+6. A method for computing the function for evaluating the optimality of
    master planning projects based on the value attitudes of the
    population and systems of external limitations. The method is based
    on solving an optimization problem: it is necessary to find an
    optimal development to increase the provision. The problem is solved
    with the help of genetic algorithm, user scenarios support is added.
+7. A method for identifying vacant areas based on open-data.
 
 Main differences from existing solutions:
 
@@ -291,35 +297,32 @@ Publications
 
 Published:
 
-1. `Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S.
+- `Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S.
    Digital Master Plan as a tool for generating territory development
    requirements // International Conference on Advanced Research in
    Technologies, Information, Innovation and Sustainability 2023 –
    ARTIIS 2023 <https://link.springer.com/chapter/10.1007/978-3-031-48855-9_4>`__
-2. `Morozov A. S. et al. Assessing the transport connectivity of urban
+- `Morozov A. S. et al. Assessing the transport connectivity of urban
    territories, based on intermodal transport accessibility // Frontiers
    in Built Environment. – 2023. – Т. 9. – С.
    1148708. <https://www.frontiersin.org/articles/10.3389/fbuil.2023.1148708/full>`__
-3. `Morozov A. et al. Assessment of Spatial Inequality Through the
+- `Morozov A. et al. Assessment of Spatial Inequality Through the
    Accessibility of Urban Services // International Conference on
    Computational Science and Its Applications. – Cham : Springer Nature
    Switzerland, 2023. – С.
    270-286. <https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18>`__
-4. `Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for
+- `Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for
    automatically identifying vacant area in the current urban
    environment based on open source data // 12th International Young
    Scientists Conference in Computational Science – YSC 2023. <https://www.sciencedirect.com/science/article/pii/S1877050923020306>`__
-5. `Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison
+- `Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison
    of solution methods the maximal covering location problem of public
    spaces for teenagers in the urban environment // International
    Conference on Advanced Research in Technologies, Information,
    Innovation and Sustainability 2023 – ARTIIS 2023. <https://link.springer.com/chapter/10.1007/978-3-031-48858-0_35>`__
-
-Accepted:
-
-1. Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin
+-  `Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin
    S. Urban blocks modelling method // 12th International Young
-   Scientists Conference in Computational Science – YSC 2023
+   Scientists Conference in Computational Science – YSC 2023 <https://www.sciencedirect.com/science/article/pii/S1877050923020033>`
 
 .. publications-end
 
