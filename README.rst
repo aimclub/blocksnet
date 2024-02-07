@@ -31,12 +31,12 @@ Features
 BlocksNet — a library for modeling urban development scenarios
 (e.g. creating a master plan), supporting the following tools:
 
-1. A method for generating a layer of urban blocks is the division of
+1. Method for generating a layer of urban blocks is the division of
    the territory into the smallest elements for the analysis of the
    urban area - blocks. The method of generating a layer of urban blocks
    is based on clustering algorithms taking into account additional data
    on land use.
-2. A method for generating an intermodal city graph based on open-data. The
+2. Method for generating an intermodal city graph based on open-data. The
    intermodal graph includes the information about public transport and
    pedestrian routes to better analyze city mobility.
 3. The Universal Information City Model is used to further analyze urban
@@ -50,13 +50,13 @@ BlocksNet — a library for modeling urban development scenarios
    population. The estimation of provisioning is performed by iterative
    algorithm on graphs, as well as by solving linear optimization
    problem.
-6. A method for computing the function for evaluating the optimality of
+6. Method for computing the function for evaluating the optimality of
    master planning projects based on the value attitudes of the
    population and systems of external limitations. The method is based
    on solving an optimization problem: it is necessary to find an
    optimal development to increase the provision. The problem is solved
    with the help of genetic algorithm, user scenarios support is added.
-7. A method for identifying vacant areas based on open-data.
+7. Method for identifying vacant areas based on open-data.
 
 Main differences from existing solutions:
 
@@ -126,30 +126,22 @@ Examples
 
 Next examples will help to get used to the library:
 
-1. `City blocks generating <examples/1%20blocks_cutter.ipynb>`__ - city
-   blocks generating according to landuse and buildings clustering.
-2. `Aggregating city blocks
-   information <examples/2%20data_getter.ipynb>`__ - how to fill blocks
-   with aggregated information and also generate the accessibility
-   matrix between blocks.
-3. `City model creation <examples/3%20city_model.ipynb>`__ - how to
-   create the **city model** and visualize it (to make sure it is real
-   and correct).
-4. `Linear optimization provision
+1. Main `Pipeline <examples/pipeline>`__ of the library. Includes full ``City`` model initialization
+   and ``Genetic`` optimization.
+2. `City blocks generating <examples/1%20blocks_generator.ipynb>`__ using ``BlocksGenerator`` class
+   based on city geometries data.
+3. `Intermodal graph generating <examples/2%20graph_generator.ipynb>`__ - using ``GraphGenerator`` class.
+   Includes adjacency matrix calculating using ``AdjacencyCalculator`` for given city blocks.
+4. `City model initialization <examples/city.ipynb>`__ and its methods usage.
+   The example explains, how to work with ``City`` model, access ``ServiceType`` or
+   ``Block`` information etc. Extremely helpful if you want to participate in developing.
+5. `Linear optimization provision
    assessment <examples/3a%20city_model%20lp_provision.ipynb>`__ - how
-   to assess provision of certain city service type.
-5. `Iterative algorithm provision
-   assessment <examples/3b%20city_model%20iterative_provision.ipynb>`__
-   - another example of how to assess provision, but using different
-   iterative method.
-6. `Genetic algorithm master plan
-   optimization <examples/3d%20city_model%20genetic.ipynb>`__ - how to
-   optimize the search for master planning requirements for a specific
-   area or the entire city in a specific scenario.
-7. `Balancing territory
-   parameters <examples/3c%20city_model%20balancer.ipynb>`__ - how to
-   increase certain territory population without decreasing the quality
-   of life of the city.
+   to assess provision of certain city ``ServiceType``,
+6. `Development optimization method <examples/4%20city_model%20genetic.ipynb>`__ based on genetic
+   algorithm. The goal of the method is to optimize the search for master planning
+   requirements for a specific ``Block`` or the entire ``City`` in a specific scenario.
+7. `Vacant area identifying <examples/5c%20vacant_area.ipynb>`__ for a certain city ``Block``.
 
 We advice to start with `city model
 creation <examples/3%20city_model.ipynb>`__ example, if you downloaded
