@@ -25,7 +25,7 @@ copyright = "2023-{}, IDU".format(datetime.datetime.now().year)
 author = "IDU"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.1"
+release = "0.0.5"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -42,6 +42,8 @@ extensions = [
     "sphinx.ext.autosummary",
     "sphinx.ext.autodoc.typehints",
     "sphinx.ext.graphviz",
+    "nbsphinx",
+    "nbsphinx_link",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -93,10 +95,11 @@ napoleon_attr_annotations = False
 
 autodoc_default_options = {
     "members": True,
-    "undoc-members": False,
+    "undoc-members": True,
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
+    "exclude-members": "model_config, model_fields, model_post_init",
 }
 autoclass_content = "class"
 autodoc_typehints = "signature"

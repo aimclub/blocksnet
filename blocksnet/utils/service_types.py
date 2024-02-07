@@ -1,3 +1,7 @@
+"""
+Default service types used in ``City`` model
+"""
+
 SERVICE_TYPES = [
     {
         "code": "3.5.1",

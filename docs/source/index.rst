@@ -1,20 +1,35 @@
 Welcome to BlocksNet documentation!
-==================================
+===================================
 
-.. container::
+.. include:: ../../README.rst
+   :start-after: .. logo-start
+   :end-before: .. logo-end
 
-   | |logo|
-   | There is contained main documentation for the `BlocksNet <https://github.com/iduprojects/blocksnet>`__.
+.. include:: ../../README.rst
+   :start-after: .. description-start
+   :end-before: .. description-end
 
-Content:
-========
+Documentation:
+--------------
+
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    blocksnet/index
-   components/index
-   contribution
-   faq
-   about
+   examples/index
+   api/index
+   about_us
 
-.. |logo| image:: https://i.ibb.co/QC9XD07/blocksnet.png
+Features:
+---------
+
+.. include:: ../../README.rst
+   :start-after: .. features-start
+   :end-before: .. features-end
+
+Acknowledgements
+----------------
+
+.. include:: ../../README.rst
+   :start-after: .. acknowledgments-start
+   :end-before: .. acknowledgments-end
