@@ -212,11 +212,11 @@ BlocksNet — это библиотека для моделирования сц
          $ git add modified_files
          $ git commit
 
-   чтобы записать ваши изменения в Git, затем отправьте их на GitHub с помощью:
+чтобы записать ваши изменения в Git, затем отправьте их на GitHub с помощью:
 
-   ::
+::
 
-          $ git push -u origin my-contribution
+      $ git push -u origin my-contribution
 
 И, наконец, перейдите на веб-страницу вашего форка репозитория BlocksNet и нажмите 'Pull Request' (PR), чтобы отправить свои изменения на ревью разработчикам.
 
