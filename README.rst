@@ -92,13 +92,13 @@ How to use
 
 .. use-start
 
-Then use the library by importing classes from ``blocksnet``:
+Use the library by importing classes from ``blocksnet``:
 
 ::
 
    from blocksnet import City
 
-Next, use the necessary functions and modules:
+Next, use the necessary classes and modules:
 
 ::
 
@@ -126,7 +126,7 @@ Examples
 
 Next examples will help to get used to the library:
 
-1. Main `Pipeline <examples/pipeline>`__ of the library. Includes full ``City`` model initialization
+1. Main `pipeline <examples/pipeline>`__ of the library. Includes full ``City`` model initialization
    and ``Genetic`` optimization.
 2. `City blocks generating <examples/1%20blocks_generator.ipynb>`__ using ``BlocksGenerator`` class
    based on city geometries data.
@@ -135,19 +135,12 @@ Next examples will help to get used to the library:
 4. `City model initialization <examples/city.ipynb>`__ and its methods usage.
    The example explains, how to work with ``City`` model, access ``ServiceType`` or
    ``Block`` information etc. Extremely helpful if you want to participate in developing.
-5. `Linear optimization provision
-   assessment <examples/3a%20city_model%20lp_provision.ipynb>`__ - how
+5. `Provision assessment <examples/3%20provision.ipynb>`__ - how
    to assess provision of certain city ``ServiceType``,
-6. `Development optimization method <examples/4%20city_model%20genetic.ipynb>`__ based on genetic
+6. `Development optimization method <examples/4%20genetic.ipynb>`__ based on genetic
    algorithm. The goal of the method is to optimize the search for master planning
    requirements for a specific ``Block`` or the entire ``City`` in a specific scenario.
-7. `Vacant area identifying <examples/5c%20vacant_area.ipynb>`__ for a certain city ``Block``.
-
-We advice to start with `city model
-creation <examples/3%20city_model.ipynb>`__ example, if you downloaded
-the `input
-data <https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP>`__
-we prepared.
+7. `Vacant area identifying <examples/5%20vacant_area.ipynb>`__ for a certain city ``Block``.
 
 Documentation
 -------------
@@ -158,12 +151,12 @@ Detailed information and description of BlocksNet is available in
 Project Structure
 -----------------
 
-The latest version of the library is available in the main branch.
+The latest version of the library is available in the ``main`` branch.
 
 The repository includes the following directories and modules:
 
 -  `blocksnet <https://github.com/iduprojects/blocksnet/tree/main/blocksnet>`__
-   - directory with the framework code:
+   - directory with the library code:
 
    -  preprocessing - data preprocessing module
    -  models - entities' classes used in library
@@ -325,4 +318,4 @@ Published:
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 .. |Readme_ru| image:: https://img.shields.io/badge/lang-ru-yellow.svg
-   :target: README-RU.md
+   :target: README-RU.rst
