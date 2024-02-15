@@ -206,7 +206,7 @@ class City:
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
         return gdf
 
-    def update_buildings(self, gdf: gpd.GeoDataFrame):
+    def update_buildings(self, gdf: GeoDataFrame[BuildingRow]):
         """Update buildings in blocks"""
         assert gdf.crs.to_epsg() == self.epsg, "Buildings GeoDataFrame CRS should match city EPSG"
         # reset buildings of blocks
@@ -218,7 +218,7 @@ class City:
         for block_id, buildings_gdf in groups:
             self[block_id].update_buildings(GeoDataFrame[BuildingRow](buildings_gdf))
 
-    def update_services(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame):
+    def update_services(self, service_type: ServiceType | str, gdf: GeoDataFrame[ServiceRow]):
         """Update services in blocks of certain service_type"""
         assert gdf.crs.to_epsg() == self.epsg, "Services GeoDataFrame CRS should match city EPSG"
         if not isinstance(service_type, ServiceType):

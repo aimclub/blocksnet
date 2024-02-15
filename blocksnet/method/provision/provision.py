@@ -1,6 +1,7 @@
 import math
 from itertools import product
 from typing import Literal
+from shapely import LineString
 
 import contextily as cx
 import geopandas as gpd
@@ -27,6 +28,7 @@ class Provision(BaseMethod):
         ax.set_title("Provision: " + f"{self.total_provision(gdf): .3f}")
         ax.set_axis_off()
         self._add_basemap(ax)
+        return ax
 
     def plot_delta(self, gdf_before: gpd.GeoDataFrame, gdf_after: gpd.GeoDataFrame):
         gdf = gdf_after.copy()
@@ -84,6 +86,21 @@ class Provision(BaseMethod):
     def total_provision(cls, gdf: gpd.GeoDataFrame):
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
+    def weights_to_gdf(self, weights_df):
+        weights = []
+        for a in weights_df.index:
+            block_a = self.city_model[a]
+            for b in weights_df.columns:
+                block_b = self.city_model[int(b)]
+                value = weights_df.loc[a, b]
+                if value > 0:
+                    point_a = block_a.geometry.representative_point()
+                    point_b = block_b.geometry.representative_point()
+                    weights.append(
+                        {"geometry": LineString([point_a, point_b]), "from": a, "to": int(b), "weight": value}
+                    )
+        return gpd.GeoDataFrame(weights, crs=self.city_model.epsg)
+
     def calculate_scenario(
         self,
         scenario: dict[str, float],
@@ -93,7 +110,7 @@ class Provision(BaseMethod):
         result = {}
         total = 0
         for service_type, weight in scenario.items():
-            prov_gdf = self.calculate(service_type, update_df, method)
+            prov_gdf, _ = self.calculate(service_type, update_df, method)
             result[service_type] = prov_gdf
             total += weight * self.total_provision(prov_gdf)
         return result, total
@@ -105,6 +122,7 @@ class Provision(BaseMethod):
         if not isinstance(service_type, ServiceType):
             service_type = self.city_model[service_type]
         gdf = self._get_blocks_gdf(service_type)
+        df = pd.DataFrame(0, index=gdf.index, columns=gdf.index)
         if update_df is not None:
             gdf = gdf.join(update_df)
             gdf[update_df.columns] = gdf[update_df.columns].fillna(0)
@@ -119,14 +137,13 @@ class Provision(BaseMethod):
 
         match method:
             case "lp":
-                gdf = self._lp_provision(gdf, service_type)
+                gdf, df = self._lp_provision(gdf, df, service_type)
             case "iterative":
-                gdf = self._iterative_provision(gdf, service_type)
+                gdf, df = self._iterative_provision(gdf, df, service_type)
         gdf["provision"] = gdf["demand_within"] / gdf["demand"]
+        return gdf, df
 
-        return gdf
-
-    def _lp_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
+    def _lp_provision(self, gdf: gpd.GeoDataFrame, df: pd.DataFrame, service_type: ServiceType):
         """Linear programming assessment method"""
         gdf = gdf.copy()
 
@@ -147,7 +164,7 @@ class Provision(BaseMethod):
                 return 0
             block1 = self.city_model[id1]
             block2 = self.city_model[id2]
-            return int(self.city_model.get_distance(block1, block2))
+            return self.city_model.get_distance(block1, block2)
 
         demand = gdf.loc[gdf["demand"] > 0]
         capacity = gdf.loc[gdf["capacity"] > 0]
@@ -170,25 +187,31 @@ class Provision(BaseMethod):
             b = int(name[2])
             weight = _get_weight(a, b)
             if value > 0:
+                df.loc[a, b] = value
                 if weight <= service_type.accessibility:
                     if fictive_index != None and a != fictive_index:
-                        gdf.loc[a, "demand_within"] = value
-                        gdf.loc[b, "capacity_left"] = value
+                        gdf.loc[a, "demand_within"] += value
+                        gdf.loc[b, "capacity_left"] -= value
                     if fictive_column != None and b != fictive_column:
-                        gdf.loc[a, "demand_within"] = value
-                        gdf.loc[b, "capacity_left"] = value
+                        gdf.loc[a, "demand_within"] += value
+                        gdf.loc[b, "capacity_left"] -= value
                 else:
                     if fictive_index != None and a != fictive_index:
-                        gdf.loc[a, "demand_without"] = value
-                        gdf.loc[b, "capacity_left"] = value
+                        gdf.loc[a, "demand_without"] += value
+                        gdf.loc[b, "capacity_left"] -= value
                     if fictive_column != None and b != fictive_column:
-                        gdf.loc[a, "demand_without"] = value
-                        gdf.loc[b, "capacity_left"] = value
+                        gdf.loc[a, "demand_without"] += value
+                        gdf.loc[b, "capacity_left"] -= value
         if fictive_index != None or fictive_column != None:
             gdf.drop(labels=[fictive_block_id], inplace=True)
-        return gdf
+            if fictive_index != None:
+                df.drop(labels=[fictive_index], inplace=True)
+            if fictive_column != None:
+                df.drop(columns=[fictive_column], inplace=True)
+        gdf["demand_left"] = gdf["demand"] - gdf["demand_within"] - gdf["demand_without"]
+        return gdf, df
 
-    def _iterative_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
+    def _iterative_provision(self, gdf: gpd.GeoDataFrame, df: pd.DataFrame, service_type: ServiceType):
         """Iterative provision assessment method"""
 
         demand_blocks = self._get_filtered_blocks(service_type, "demand")
@@ -201,6 +224,7 @@ class Provision(BaseMethod):
                     break
                 capacity_block = neighbors[0]
                 gdf.loc[demand_block.id, "demand_left"] -= 1
+                df.loc[demand_block.id, capacity_block.id] += 1
                 weight = self.city_model.get_distance(demand_block, capacity_block)
                 if weight <= service_type.accessibility:
                     gdf.loc[demand_block.id, "demand_within"] += 1
@@ -212,4 +236,4 @@ class Provision(BaseMethod):
                 if gdf.loc[capacity_block.id, "capacity_left"] == 0:
                     capacity_blocks.remove(capacity_block)
 
-        return gdf
+        return gdf, df
