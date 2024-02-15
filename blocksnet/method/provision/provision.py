@@ -177,9 +177,18 @@ class Provision(BaseMethod):
                 return distance
             demand = gdf.loc[id1, "demand"]
             capacity = gdf.loc[id1, "capacity"]
-            if demand * capacity == 0:
+            return distance * distance
+            # if capacity * demand == 0:
+            #     return 0
+            # return distance * distance / (capacity * demand)
+
+        def _get_distance(id1: int, id2: int):
+            if id1 == fictive_block_id or id2 == fictive_block_id:
                 return 0
-            return distance * distance / (capacity * demand)
+            block1 = self.city_model[id1]
+            block2 = self.city_model[id2]
+            distance = self.city_model.get_distance(block1, block2)
+            return distance
 
         demand = gdf.loc[gdf["demand"] > 0]
         capacity = gdf.loc[gdf["capacity"] > 0]
@@ -200,7 +209,7 @@ class Provision(BaseMethod):
                 continue
             a = int(name[1])
             b = int(name[2])
-            weight = _get_weight(a, b)
+            weight = _get_distance(a, b)
             if value > 0:
                 df.loc[a, b] = value
                 if weight <= service_type.accessibility:
