@@ -116,7 +116,10 @@ class Provision(BaseMethod):
         return result, total
 
     def calculate(
-        self, service_type: ServiceType | str, update_df: pd.DataFrame = None, method: Literal["iterative", "lp"] = "lp"
+        self,
+        service_type: ServiceType | str,
+        update_df: pd.DataFrame = None,
+        method: Literal["iterative", "lp", "gravity"] = "lp",
     ) -> gpd.GeoDataFrame:
         """Provision assessment using certain method for the current city and service type, can be used with certain updated blocks GeoDataFrame"""
         if not isinstance(service_type, ServiceType):
@@ -137,13 +140,17 @@ class Provision(BaseMethod):
 
         match method:
             case "lp":
-                gdf, df = self._lp_provision(gdf, df, service_type)
+                gdf, df = self._lp_provision(gdf, df, service_type, "lp")
+            case "gravity":
+                gdf, df = self._lp_provision(gdf, df, service_type, "gravity")
             case "iterative":
                 gdf, df = self._iterative_provision(gdf, df, service_type)
         gdf["provision"] = gdf["demand_within"] / gdf["demand"]
         return gdf, df
 
-    def _lp_provision(self, gdf: gpd.GeoDataFrame, df: pd.DataFrame, service_type: ServiceType):
+    def _lp_provision(
+        self, gdf: gpd.GeoDataFrame, df: pd.DataFrame, service_type: ServiceType, type: Literal["lp", "gravity"]
+    ):
         """Linear programming assessment method"""
         gdf = gdf.copy()
 
@@ -164,7 +171,15 @@ class Provision(BaseMethod):
                 return 0
             block1 = self.city_model[id1]
             block2 = self.city_model[id2]
-            return self.city_model.get_distance(block1, block2)
+            self.city_model.get_distance(block1, block2)
+            distance = self.city_model.get_distance(block1, block2)
+            if type == "lp":
+                return distance
+            demand = gdf.loc[id1, "demand"]
+            capacity = gdf.loc[id1, "capacity"]
+            if demand * capacity == 0:
+                return 0
+            return distance * distance / (capacity * demand)
 
         demand = gdf.loc[gdf["demand"] > 0]
         capacity = gdf.loc[gdf["capacity"] > 0]
