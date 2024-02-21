@@ -13,6 +13,7 @@ from shapely import LineString, Point, Polygon
 from ..utils import SERVICE_TYPES
 from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
+from .land_use import LandUse
 
 
 class BuildingRow(BaseRow):
@@ -34,9 +35,9 @@ class Block(BaseModel):
 
     id: int
     """Unique block identifier across the ```city```"""
-    geometry: InstanceOf[Polygon] = Field()
+    geometry: InstanceOf[Polygon]
     """Block geometry presented as shapely ```Polygon```"""
-    landuse: str = None
+    landuse: LandUse | None = None
     """Current city block landuse"""
     buildings: InstanceOf[gpd.GeoDataFrame] = None
     """Buildings ```GeoDataFrame```"""
@@ -275,6 +276,13 @@ class City:
         if not service_type_name in self._service_types:
             raise KeyError(f"Can't find service type with such name: {service_type_name}")
         return self._service_types[service_type_name]
+
+    @__getitem__.register(tuple)
+    def _(self, blocks):
+        (block_a_id, block_b_id) = blocks
+        block_a = self[block_a_id]
+        block_b = self[block_b_id]
+        return self.adjacency_matrix.loc[block_a.id, block_b.id]
 
     @singledispatchmethod
     def __contains__(self, arg):
