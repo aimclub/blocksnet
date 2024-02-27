@@ -39,7 +39,7 @@ class ServiceType(BaseModel):
 
     @field_validator("land_uses", mode="before")
     def validate_land_uses(value):
-        land_uses = [lu if isinstance(lu, LandUse) else LandUse[lu] for lu in value]
+        land_uses = [lu if isinstance(lu, LandUse) else LandUse[lu.upper()] for lu in value]
         return land_uses
 
     def calculate_in_need(self, population: int) -> int:
