@@ -10,10 +10,14 @@ from sklearn.preprocessing import MinMaxScaler
 from ...models import Block, ServiceType
 from ..base_method import BaseMethod
 from ..connectivity import Connectivity
- 
+
 
 
 class CentralPlace(BaseMethod):
+    """
+    This class allows us to analyse the distribution and diversity of points of interest in urban areas,
+    measure connectivity and compute centrality indices based on various geometric and network properties.
+    """
 
     def count_points_in_polygon(self, polygon, points) -> int:
         """

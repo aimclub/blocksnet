@@ -22,12 +22,15 @@ class VacantArea(BaseMethod):
     - area_attitude (ClassVar[int]): The ratio used to filter areas based on their minimum bounding rectangle.
     """
     local_crs: ClassVar[int] = 32636
+
+    min_lenght: ClassVar[int] = 4
+    min_area: ClassVar[int] = 100
+    area_attitude: ClassVar[int] = 2
+
     roads_buffer: ClassVar[int] = 10
     buildings_buffer: ClassVar[int] = 10
-
-    min_lenght: ClassVar[int] = 3
-    min_area: ClassVar[int] = 100
-    area_attitude: ClassVar[int] = 1.9
+    buffer_min: ClassVar[int] = 20
+    buffer_max: ClassVar[int] = 40
 
     @staticmethod
     def _dwn_other(block, local_crs) -> gpd.GeoSeries:
@@ -275,20 +278,9 @@ class VacantArea(BaseMethod):
         buffer_polygon = polygon.buffer(buffer_distance)
         return buffer_polygon
 
-    def _get_blocks_gdf(self) -> gpd.GeoDataFrame:
-        """
-        Retrieve a GeoDataFrame of blocks for analysis.
 
-        Returns:
-        - A GeoDataFrame containing block geometries and their identifiers.
-        """
-        data: list[dict] = []
-        for block in self.city_model.blocks:
-            data.append({"id": block.id, "geometry": block.geometry})
-        gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
-        return gdf
 
-    def get_vacant_area(self, block: int | Block) -> gpd.GeoDataFrame:
+    def get_vacant_area(self, block_id: int | Block) -> gpd.GeoDataFrame:
         """
         Calculate the vacant area within a given block or blocks.
 
@@ -298,65 +290,59 @@ class VacantArea(BaseMethod):
         Returns:
         - A GeoDataFrame containing the vacant areas within the specified block(s), along with their area and length.
         """
-        blocks = self._get_blocks_gdf()
-        blocks = gpd.GeoDataFrame(geometry=gpd.GeoSeries(blocks.geometry))
-        if block:
-            if not isinstance(block, Block):
-                block = self.city_model[block]
-            block_gdf = gpd.GeoDataFrame([blocks.iloc[block.id]], crs=blocks.crs)
-            block_buffer = block_gdf["geometry"].buffer(20).to_crs(epsg=4326).iloc[0]
-        else:
-            block_gdf = blocks
-            block_buffer = blocks.buffer(20).to_crs(epsg=4326).unary_union
 
-        leisure = self._dwn_leisure(block_buffer, self.local_crs)
-        landuse = self._dwn_landuse(block_buffer, self.local_crs)
-        other = self._dwn_other(block_buffer, self.local_crs)
-        amenity = self._dwn_amenity(block_buffer, self.local_crs)
-        buildings = self._dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer)
-        natural = self._dwn_natural(block_buffer, self.local_crs)
-        waterway = self._dwn_waterway(block_buffer, self.local_crs)
-        highway = self._dwn_highway(block_buffer, self.local_crs, self.roads_buffer)
-        railway = self._dwn_railway(block_buffer, self.local_crs)
-        path = self._dwn_path(block_buffer, self.local_crs)
+        blocks_gdf = self.city_model.get_blocks_gdf()
+        if block_id:
+            blocks_gdf = blocks_gdf.iloc[[block_id]]
+        block_buffer = blocks_gdf.buffer(self.buffer_min).to_crs(epsg=4326).unary_union
 
-        occupied_area = [leisure, other, landuse, amenity, buildings, natural, waterway, highway, railway, path]
-        occupied_area = pd.concat(occupied_area)
-        occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area))
+        # Define a list of functions to download data. Functions that require additional arguments
+        # are included as lambda functions to defer their execution until later.
+        occupied_area_sources = [
+            lambda: self._dwn_leisure(block_buffer, self.local_crs),
+            lambda: self._dwn_landuse(block_buffer, self.local_crs),
+            lambda: self._dwn_other(block_buffer, self.local_crs),
+            lambda: self._dwn_amenity(block_buffer, self.local_crs),
+            lambda: self._dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer),
+            lambda: self._dwn_natural(block_buffer, self.local_crs),
+            lambda: self._dwn_waterway(block_buffer, self.local_crs),
+            lambda: self._dwn_highway(block_buffer, self.local_crs, self.roads_buffer),
+            lambda: self._dwn_railway(block_buffer, self.local_crs),
+            lambda: self._dwn_path(block_buffer, self.local_crs)
+        ]
 
-        block_buffer2 = gpd.GeoDataFrame(geometry=block_gdf.buffer(60))
-        polygon = occupied_area.geometry.geom_type == "Polygon"
-        multipolygon = occupied_area.geometry.geom_type == "MultiPolygon"
-        blocks_new = gpd.overlay(block_buffer2, occupied_area[polygon], how="difference")
-        blocks_new = gpd.overlay(blocks_new, occupied_area[multipolygon], how="difference")
-        blocks_new = gpd.overlay(block_gdf, blocks_new, how="intersection")
-        blocks_exploded = blocks_new.explode(index_parts=True)
-        blocks_exploded.reset_index(drop=True, inplace=True)
+        # Execute each function in the list to obtain the GeoDataFrames and concatenate them
+        occupied_area = pd.concat([func() for func in occupied_area_sources])
+        
+        occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area), crs=self.local_crs)
+        occupied_area = occupied_area[(occupied_area.geometry.geom_type == "Polygon") |
+                                    (occupied_area.geometry.geom_type == "MultiPolygon")]
+        
+        block_buffer2 = gpd.GeoDataFrame(geometry=blocks_gdf.buffer(self.buffer_max))
+        blocks_new = gpd.overlay(block_buffer2, occupied_area, how="difference")
+        blocks_new = gpd.overlay(blocks_gdf, blocks_new, how="intersection").explode(index_parts=True)
 
-        blocks_exploded["buffered_geometry"] = blocks_exploded.apply(self._buffer_and_union, axis=1)
-        unified_geometry = blocks_exploded["buffered_geometry"].unary_union
+        blocks_new.reset_index(drop=True, inplace=True)
+        blocks_new["buffered_geometry"] = blocks_new.apply(self._buffer_and_union, axis=1)
+        unified_geometry = blocks_new["buffered_geometry"].unary_union
+        result_gdf = gpd.GeoDataFrame(geometry=[unified_geometry], crs=self.local_crs).explode(index_parts=True)
+        result_gdf["area"] = result_gdf.geometry.area
+        result_gdf.reset_index(drop=True, inplace=True)
 
-        result_gdf = gpd.GeoDataFrame(geometry=[unified_geometry], crs=blocks_exploded.crs)
-        result_gdf_exploded = result_gdf.explode(index_parts=True)
-        result_gdf_exploded["area"] = result_gdf_exploded["geometry"].area
-        result_gdf_exploded.reset_index(drop=True, inplace=True)
-
-        blocks_filtered_area = result_gdf_exploded[result_gdf_exploded["geometry"].area >= self.min_area]
+        blocks_filtered_area = result_gdf[result_gdf["area"] >= self.min_area]
         if blocks_filtered_area.empty:
             print("The block has no vacant area")
             return gpd.GeoDataFrame()
 
-        for index, row in blocks_filtered_area.iterrows():
-            polygon = row["geometry"]
-            mbr = self._create_minimum_bounding_rectangle(polygon)
-            if polygon.area * self.area_attitude < mbr.area:
-                blocks_filtered_area.drop(index, inplace=True)
+        # # Filtering based on minimum bounding rectangle condition
+        blocks_filtered_area = blocks_filtered_area[
+            blocks_filtered_area.apply(
+                lambda row: row["geometry"].area * self.area_attitude > self._create_minimum_bounding_rectangle(row["geometry"]).area, axis=1
+            )
+        ]
+        # # Vectorized operation for filtering based on area and length
+        blocks_filtered_area["length"] = blocks_filtered_area.geometry.length
+        blocks_filtered_area = blocks_filtered_area[(blocks_filtered_area["area"] / blocks_filtered_area["length"] >= self.min_lenght)]
 
-        gdf = blocks_filtered_area
-        gdf["length"] = gdf.geometry.length
-        threshold_ratio = self.min_lenght  # Задайте ваш пороговый параметр
-        filtered_gdf = gdf[(gdf["area"] / gdf["length"] <= threshold_ratio)]
-        indices_to_remove = filtered_gdf.index
-        result_gdf = gdf.drop(indices_to_remove)
-        result_gdf.reset_index(drop=True, inplace=True)
-        return result_gdf
+        blocks_filtered_area.reset_index(drop=True, inplace=True)
+        return blocks_filtered_area
