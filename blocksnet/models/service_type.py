@@ -30,15 +30,15 @@ class ServiceType(BaseModel):
     accessibility: int = Field(gt=0)
     demand: int = Field(gt=0)
     bricks: list[ServiceBrick] = []
-    land_uses: list[LandUse] = []
+    land_use: list[LandUse] = []
 
     @field_validator("bricks", mode="before")
     def validate_bricks(value):
         bricks = [sb if isinstance(sb, ServiceBrick) else ServiceBrick(**sb) for sb in value]
         return bricks
 
-    @field_validator("land_uses", mode="before")
-    def validate_land_uses(value):
+    @field_validator("land_use", mode="before")
+    def validate_land_use(value):
         land_uses = [lu if isinstance(lu, LandUse) else LandUse[lu.upper()] for lu in value]
         return land_uses
 
