@@ -7,13 +7,15 @@ import geopandas as gpd
 import networkx as nx
 import pandas as pd
 from matplotlib import pyplot as plt
-from pydantic import BaseModel, Field, InstanceOf
-from shapely import LineString, Point, Polygon
+from pydantic import BaseModel, Field, InstanceOf, field_validator
+from shapely import Point, Polygon
+from shapely.geometry.base import BaseGeometry
 
 from ..utils import SERVICE_TYPES
 from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
 from .land_use import LandUse
+from blocksnet.models import land_use
 
 
 class BuildingRow(BaseRow):
@@ -30,6 +32,22 @@ class ServiceRow(BaseRow):
     capacity: int = Field(ge=0)
 
 
+class LandUseRow(BaseRow):
+    geometry: Point
+    land_use: LandUse
+
+    @field_validator("geometry", mode="before")
+    def validate_geometry(value: BaseGeometry):
+        return value.representative_point()
+
+    @field_validator("land_use", mode="before")
+    def validate_land_use(value):
+        assert isinstance(value, str), "land_use should be str"
+        value = value.lower()
+        value = value.replace("-", "_")
+        return value
+
+
 class Block(BaseModel):
     """Class presenting city block"""
 
@@ -37,7 +55,7 @@ class Block(BaseModel):
     """Unique block identifier across the ```city```"""
     geometry: InstanceOf[Polygon]
     """Block geometry presented as shapely ```Polygon```"""
-    landuse: LandUse | None = None
+    land_use: LandUse | None = None
     """Current city block landuse"""
     buildings: InstanceOf[gpd.GeoDataFrame] = None
     """Buildings ```GeoDataFrame```"""
@@ -64,6 +82,13 @@ class Block(BaseModel):
         else:
             return 0
 
+    @property
+    def land_use_service_types(self) -> list[ServiceType]:
+        assert self.land_use != None, "Block land use is unknown (None)"
+        service_types = self.city.service_types
+        filtered = filter(lambda st: self.land_use in st.land_use, service_types)
+        return list(filtered)
+
     def to_dict(self, simplify=True) -> dict[str, int]:
         dict = {"id": self.id, "geometry": self.geometry}
         if not simplify:
@@ -71,6 +96,10 @@ class Block(BaseModel):
                 dict[service_type.name] = self[service_type.name]["capacity"]
             dict["population"] = self.population
             dict["is_living"] = self.is_living
+            if isinstance(self.land_use, LandUse):
+                dict["land_use"] = self.land_use.value
+            else:
+                dict["land_use"] = None
         return dict
 
     def __contains__(self, service_type_name: str) -> bool:
@@ -165,18 +194,29 @@ class City:
 
     def plot(self) -> None:
         """Plot city model data"""
-        blocks = self.get_blocks_gdf()
-        ax = blocks.plot(alpha=1, color="#ddd", figsize=[10, 10])
-        # plot buildings
-        self.get_buildings_gdf().plot(ax=ax, markersize=1, color="#bbb")
-        # plot services
-        self.get_services_gdf().plot(
-            ax=ax,
-            markersize=5,
-            column="service_type",
-            legend=True,
-            legend_kwds={"title": "Service types", "loc": "lower left"},
-        )
+        blocks = self.get_blocks_gdf(simplify=False)
+        # get gdfs
+        no_lu_blocks = blocks.loc[~blocks.land_use.notna()]
+        lu_blocks = blocks.loc[blocks.land_use.notna()]
+        buildings_gdf = self.get_buildings_gdf()
+        services_gdf = self.get_services_gdf()
+
+        # plot
+        _, ax = plt.subplots(figsize=(10, 10))
+        if len(no_lu_blocks) > 0:
+            no_lu_blocks.plot(ax=ax, alpha=1, color="#ddd")
+        if len(lu_blocks) > 0:
+            lu_blocks.plot(ax=ax, column="land_use", legend=True)
+        if len(buildings_gdf) > 0:
+            buildings_gdf.plot(ax=ax, markersize=1, color="#bbb")
+        if len(services_gdf) > 0:
+            services_gdf.plot(
+                ax=ax,
+                markersize=5,
+                column="service_type",
+                legend=True,
+                legend_kwds={"title": "Service types", "loc": "lower left"},
+            )
         ax.set_axis_off()
 
     def get_service_type_gdf(self, service_type: ServiceType | str):
@@ -206,6 +246,15 @@ class City:
             data.append(block.to_dict(simplify))
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
         return gdf
+
+    def update_land_use(self, gdf: GeoDataFrame[LandUseRow]):
+        gdf = GeoDataFrame[LandUseRow](gdf)
+        blocks_gdf = self.get_blocks_gdf()
+        sjoin = blocks_gdf.sjoin(gdf, how="left")
+        for i in sjoin.index:
+            self[i].land_use = sjoin.loc[i, "land_use"]
+        # for block in self.blocks:
+        #     block.land_use = gdf.loc[block.id, 'land_use']
 
     def update_buildings(self, gdf: GeoDataFrame[BuildingRow]):
         """Update buildings in blocks"""

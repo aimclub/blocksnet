@@ -389,7 +389,7 @@ SERVICE_TYPES = [
         "name": "park",
         "demand": 150,
         "accessibility": 30,
-        "land_use": [],
+        "land_use": ["recreation"],
         "bricks": [
             {"capacity": 270, "area": 12, "is_integrated": False, "parking_area": 0},
             {"capacity": 2100, "area": 68, "is_integrated": False, "parking_area": 0},
