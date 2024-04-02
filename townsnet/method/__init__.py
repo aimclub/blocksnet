@@ -1,5 +1,5 @@
 """
-Methods provided by blocksnet are located here.
+Methods provided by townsnet are located here.
 """
 
 from .accessibility import Accessibility

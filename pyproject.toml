@@ -48,7 +48,7 @@ classifiers = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["blocksnet*"]
+include = ["townsnet*"]
 
 
 [project.optional-dependencies]

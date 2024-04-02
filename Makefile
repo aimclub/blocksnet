@@ -1,4 +1,4 @@
-SOURCE_DIR = blocksnet
+SOURCE_DIR = townsnet
 
 lint:
 	pylint ${SOURCE_DIR}
@@ -20,7 +20,7 @@ build:
 	python3 -m build .
 
 clean:
-	rm -rf ./build ./dist ./blocksnet.egg-info
+	rm -rf ./build ./dist ./townsnet.egg-info
 
 update-pypi: clean build
 	python3 -m twine upload dist/*

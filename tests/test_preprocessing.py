@@ -4,7 +4,7 @@ import os
 import pytest
 import geopandas as gpd
 import osmnx as ox
-from blocksnet.preprocessing import GraphGenerator, AdjacencyCalculator
+from townsnet.preprocessing import GraphGenerator, AdjacencyCalculator
 
 data_path = "./tests/data/preprocessing"
 local_crs = 32636
