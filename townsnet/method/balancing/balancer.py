@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 
-from blocksnet.utils import SQUARE_METERS_IN_HECTARE
+from townsnet.utils import SQUARE_METERS_IN_HECTARE
 
 
 def kindergarten_area_ranges(children_number: int) -> tuple[float, int]:

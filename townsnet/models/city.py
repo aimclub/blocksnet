@@ -15,7 +15,7 @@ from ..utils import SERVICE_TYPES
 from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
 from .land_use import LandUse
-from blocksnet.models import land_use
+from townsnet.models import land_use
 
 
 class BuildingRow(BaseRow):
