@@ -7,8 +7,3 @@ __author__ = ""
 __email__ = ""
 __credits__ = []
 __license__ = "BSD-3"
-
-
-from townsnet.method import Accessibility, Connectivity, Provision, Genetic
-from townsnet.models import City, BaseRow, GeoDataFrame, ServiceType, ServiceBrick, LandUse
-from townsnet.preprocessing import AdjacencyCalculator, GraphGenerator, BlocksGenerator

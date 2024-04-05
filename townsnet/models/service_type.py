@@ -2,7 +2,6 @@ import math
 
 from pydantic import BaseModel, Field, field_validator
 from ..utils import SQUARE_METERS_IN_HECTARE
-from .land_use import LandUse
 
 
 class ServiceBrick(BaseModel):
@@ -30,17 +29,11 @@ class ServiceType(BaseModel):
     accessibility: int = Field(gt=0)
     demand: int = Field(gt=0)
     bricks: list[ServiceBrick] = []
-    land_use: list[LandUse] = []
 
     @field_validator("bricks", mode="before")
     def validate_bricks(value):
         bricks = [sb if isinstance(sb, ServiceBrick) else ServiceBrick(**sb) for sb in value]
         return bricks
-
-    @field_validator("land_use", mode="before")
-    def validate_land_use(value):
-        land_uses = [lu if isinstance(lu, LandUse) else LandUse[lu.upper()] for lu in value]
-        return land_uses
 
     def calculate_in_need(self, population: int) -> int:
         """Calculate how many people in the given population are in need by this service type"""

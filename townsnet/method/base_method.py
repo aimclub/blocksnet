@@ -2,13 +2,13 @@ from abc import ABC
 
 from pydantic import BaseModel, InstanceOf
 
-from ..models import City
+from ..models.region import Region
 
 
 class BaseMethod(ABC, BaseModel):
     """BaseMethod class required for methods implementation"""
 
-    city_model: InstanceOf[City]
+    region: InstanceOf[Region]
 
     def calculate(self, *args, **kwargs) -> any:
         """Main calculation method that should be overrided in child class"""

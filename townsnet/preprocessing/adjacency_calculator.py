@@ -10,6 +10,7 @@ import networkx as nx
 import pandas as pd
 from pydantic import BaseModel, InstanceOf, field_validator
 from shapely import Polygon
+import math
 
 from ..models import BaseRow, GeoDataFrame
 from .graph_generator import GraphGenerator
@@ -38,10 +39,10 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
             gdf = GeoDataFrame[BlockRow](gdf)
         return gdf
 
-    @field_validator("graph", mode="before")
-    def validate_graph(graph):
-        assert "crs" in graph.graph, 'Graph should contain "crs" property similar to GeoDataFrame'
-        return GraphGenerator.validate_graph(graph)
+    # @field_validator("graph", mode="before")
+    # def validate_graph(graph):
+    #     assert "crs" in graph.graph, 'Graph should contain "crs" property similar to GeoDataFrame'
+    #     return GraphGenerator.validate_graph(graph)
 
     def model_post_init(self, __context: Any) -> None:
         assert self.blocks.crs == self.graph.graph["crs"], "Blocks CRS should match graph CRS"
@@ -88,7 +89,7 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
 
     @classmethod
     def _convert_nx2nk(  # pylint: disable=too-many-locals,invalid-name
-        cls, graph_nx: nx.MultiDiGraph, idmap: dict | None = None, weight: str = "weight"
+        cls, graph_nx: nx.MultiDiGraph, idmap: dict | None = None, weight: str = "time_min"
     ) -> nk.Graph:
         """
         This method converts `networkx` graph to `networkit` graph to fasten calculations.
@@ -133,7 +134,7 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         return graph_nk
 
     def _get_nk_distances(
-        self, nk_dists: nk.base.Algorithm, loc: pd.Series  # pylint: disable=c-extension-no-member
+        self, nk_dists: nk.base.Algorithm, loc: pd.Series, from_blocks  # pylint: disable=c-extension-no-member
     ) -> pd.Series:
         """
         This method calculates distances between blocks using nk SPSP algorithm.
@@ -151,11 +152,13 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         pd.Series with computed distances
         """
 
-        target_nodes = loc.index
-        source_node = loc.name
+        target_blocks = loc.index
+        source_block = loc.name
+        target_nodes = [from_blocks.loc[i,'index_left'] for i in target_blocks]
+        source_node = from_blocks.loc[source_block, 'index_left']
         distances = [nk_dists.getDistance(source_node, node) for node in target_nodes]
 
-        return pd.Series(data=distances, index=target_nodes)
+        return pd.Series(data=distances, index=target_blocks)
 
     def get_dataframe(self) -> pd.DataFrame:
         """
@@ -177,18 +180,18 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
 
         blocks = self.blocks.copy()
         blocks.geometry = blocks.geometry.representative_point()
-        from_blocks = graph_gdf["geometry"].sindex.nearest(blocks["geometry"], return_distance=False, return_all=False)
-
-        accs_matrix = pd.DataFrame(0, index=from_blocks[1], columns=from_blocks[1])
+        from_blocks = graph_gdf.sjoin_nearest(blocks, how='right')
+        
+        accs_matrix = pd.DataFrame(0, index=from_blocks.index, columns=from_blocks.index)
         nk_dists = nk.distance.SPSP(  # pylint: disable=c-extension-no-member
-            graph_nk, sources=accs_matrix.index.values
+            graph_nk, sources=list(from_blocks['index_left'])
         ).run()
 
-        accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x), axis=1)
-        accs_matrix.index = blocks.index
-        accs_matrix.columns = blocks.index
+        accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x, from_blocks), axis=1)
+        # accs_matrix.index = blocks.index
+        # accs_matrix.columns = blocks.index
 
         # bug fix in city block's closest node is no connecte to actual transport infrastructure
-        accs_matrix[accs_matrix > 500] = accs_matrix[accs_matrix < 500].max().max()
+        accs_matrix[accs_matrix>10000] = accs_matrix[accs_matrix < 10000].max().max()
 
         return accs_matrix
