@@ -4,10 +4,15 @@ Identify vacant areas within specified blocks.
 import geopandas as gpd
 import osmnx as ox
 import pandas as pd
+import asyncio
+import nest_asyncio
 from pydantic import Field
 
 from ..models import Block
 from .base_method import BaseMethod
+
+# For the async work
+nest_asyncio.apply()
 
 
 class VacantArea(BaseMethod):
@@ -48,7 +53,7 @@ class VacantArea(BaseMethod):
     blocks_buffer_min: float = Field(ge=0, default=20)
     blocks_buffer_max: float = Field(ge=0, default=40)
 
-    def _dwn_other(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_other(self, geometry) -> gpd.GeoDataFrame:
         """
         Download non-standard areas within a block.
 
@@ -70,7 +75,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_leisure(self, geometry) -> gpd.GeoSeries:
+    async def _dwn_leisure(self, geometry) -> gpd.GeoSeries:
         """
         Download leisure areas within a block.
 
@@ -92,7 +97,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_landuse(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_landuse(self, geometry) -> gpd.GeoDataFrame:
         """
         Download land use areas within a block, excluding residential areas.
 
@@ -116,7 +121,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_amenity(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_amenity(self, geometry) -> gpd.GeoDataFrame:
         """
         Download amenity areas within a block.
 
@@ -138,7 +143,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoSeries()
 
-    def _dwn_buildings(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_buildings(self, geometry) -> gpd.GeoDataFrame:
         """
         Download building areas within a block and apply a buffer.
 
@@ -161,7 +166,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoSeries()
 
-    def _dwn_natural(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_natural(self, geometry) -> gpd.GeoDataFrame:
         """
         Download natural feature areas within a block, excluding bays.
 
@@ -185,7 +190,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_waterway(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_waterway(self, geometry) -> gpd.GeoDataFrame:
         """
         Download waterway areas within a block.
 
@@ -207,7 +212,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_highway(self, block) -> gpd.GeoDataFrame:
+    async def _dwn_highway(self, block) -> gpd.GeoDataFrame:
         """
         Download highway areas within a block, applying a buffer and excluding certain types of highways.
 
@@ -236,7 +241,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_path(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_path(self, geometry) -> gpd.GeoDataFrame:
         """
         Download path and footway areas within a block and apply a buffer.
 
@@ -260,7 +265,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def _dwn_railway(self, geometry) -> gpd.GeoDataFrame:
+    async def _dwn_railway(self, geometry) -> gpd.GeoDataFrame:
         """
         Download railway areas within a block, excluding subways.
 
@@ -284,7 +289,7 @@ class VacantArea(BaseMethod):
             print(f"Error encountered: {exc}")
             return gpd.GeoDataFrame()
 
-    def calculate(self, blocks: list[int] | list[Block] = []) -> gpd.GeoDataFrame:
+    async def _calculate(self, blocks: list[int] | list[Block] = []) -> gpd.GeoDataFrame:
         """
         Calculate vacant areas within specified blocks.
 
@@ -315,20 +320,19 @@ class VacantArea(BaseMethod):
 
         # setting occupied area with all the buffers possible
         occupied_areas = [
-            buildings_gdf,
-            services_gdf,
-            self._dwn_other(blocks_buffer),
-            self._dwn_landuse(blocks_buffer),
-            self._dwn_natural(blocks_buffer),
-            self._dwn_waterway(blocks_buffer),
-            self._dwn_highway(blocks_buffer),
-            self._dwn_railway(blocks_buffer),
-            self._dwn_path(blocks_buffer),
-            self._dwn_leisure(blocks_buffer),
-            self._dwn_amenity(blocks_buffer),
-            self._dwn_buildings(blocks_buffer),
+            asyncio.create_task(self._dwn_other(blocks_buffer)),
+            asyncio.create_task(self._dwn_landuse(blocks_buffer)),
+            asyncio.create_task(self._dwn_natural(blocks_buffer)),
+            asyncio.create_task(self._dwn_waterway(blocks_buffer)),
+            asyncio.create_task(self._dwn_highway(blocks_buffer)),
+            asyncio.create_task(self._dwn_railway(blocks_buffer)),
+            asyncio.create_task(self._dwn_path(blocks_buffer)),
+            asyncio.create_task(self._dwn_leisure(blocks_buffer)),
+            asyncio.create_task(self._dwn_amenity(blocks_buffer)),
+            asyncio.create_task(self._dwn_buildings(blocks_buffer)),
         ]
-        occupied_area = pd.concat(occupied_areas)[["geometry"]]
+        occupied_areas = await asyncio.gather(*occupied_areas)
+        occupied_area = pd.concat([buildings_gdf, services_gdf, *occupied_areas])[["geometry"]]
         occupied_area = occupied_area.loc[occupied_area.geom_type.isin(["Polygon", "MultiPolygon"])]
         buffered_blocks_gdf = blocks_gdf.copy()
         buffered_blocks_gdf["geometry"] = buffered_blocks_gdf["geometry"].buffer(self.blocks_buffer_max)
@@ -354,3 +358,20 @@ class VacantArea(BaseMethod):
         result_gdf = result_gdf.rename(columns={"index_right": "block_id"})
 
         return result_gdf.reset_index(drop=True)
+
+    def calculate(self, blocks: list[int] | list[Block] = []) -> gpd.GeoDataFrame:
+        """
+        Calculate vacant areas within specified blocks.
+
+        Parameters
+        ----------
+        blocks : list[int] | list[Block]
+            List of block identifiers or `Block` objects representing the areas to analyze. If not provided, the calculation will be done for the whole city.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame containing the vacant areas within the specified blocks, including their area and length.
+        """
+
+        return asyncio.run(self._calculate(blocks))
