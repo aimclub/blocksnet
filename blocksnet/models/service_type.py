@@ -32,6 +32,10 @@ class ServiceType(BaseModel):
     bricks: list[ServiceBrick] = []
     land_use: list[LandUse] = []
 
+    def get_bricks(self, is_integrated=False):
+        filtered_bricks = filter(lambda b: b.is_integrated == is_integrated, self.bricks)
+        return list(filtered_bricks)
+
     @field_validator("bricks", mode="before")
     def validate_bricks(value):
         bricks = [sb if isinstance(sb, ServiceBrick) else ServiceBrick(**sb) for sb in value]
