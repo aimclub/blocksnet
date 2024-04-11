@@ -225,7 +225,7 @@ SERVICE_TYPES = [
     },
     {
         "code": "4.3",
-        "name": "marketplace",
+        "name": "market",
         "demand": 800,
         "accessibility": 30,
         "land_use": ["mixed_use", "business", "industrial", "agriculture"],
@@ -392,11 +392,11 @@ SERVICE_TYPES = [
         ],
     },
     {
-        "code": "3.22",
+        "code": "3.2.2",
         "name": "multifunctional_center",
         "demand": 408,
         "accessibility": 15,
-        "land_use": [],
+        "land_use": ["residential", "mixed_use", "business", "recreation"],
         "bricks": [
             {"capacity": 80, "area": 0.07, "is_integrated": True, "parking_area": 0.04},
             {"capacity": 100, "area": 0.1, "is_integrated": True, "parking_area": 0.06},
@@ -437,7 +437,7 @@ SERVICE_TYPES = [
     },
     {
         "code": "4.6",
-        "name": "bar_pub",
+        "name": "bar",
         "demand": 25,
         "accessibility": 15,
         "land_use": ["residential", "mixed_use", "business"],

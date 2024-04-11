@@ -155,11 +155,6 @@ class Block(BaseModel):
 
 
 class City:
-    epsg: int
-    adjacency_matrix: pd.DataFrame
-    _blocks: dict[int, Block]
-    _service_types: dict[str, ServiceType]
-
     def __init__(self, blocks_gdf: gpd.GeoDataFrame, adjacency_matrix: pd.DataFrame) -> None:
         assert (blocks_gdf.index == adjacency_matrix.index).all(), "Matrix and blocks index don't match"
         assert (blocks_gdf.index == adjacency_matrix.columns).all(), "Matrix columns and blocks index don't match"
