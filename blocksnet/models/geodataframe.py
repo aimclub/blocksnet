@@ -3,7 +3,7 @@ from typing import Generic, TypeVar
 
 import geopandas as gpd
 from pydantic import BaseModel, ConfigDict
-from shapely import Geometry
+from shapely.geometry.base import BaseGeometry
 
 
 T = TypeVar("T")
@@ -16,7 +16,7 @@ class BaseRow(BaseModel, ABC):
     The inherited class also can be configured to provide default column values to avoid None and NaN"""
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
-    geometry: Geometry
+    geometry: BaseGeometry
     index: int
     """Index can be override but should not be set by default"""
 

@@ -7,12 +7,15 @@ import geopandas as gpd
 import networkx as nx
 import pandas as pd
 from matplotlib import pyplot as plt
-from pydantic import BaseModel, Field, InstanceOf
-from shapely import LineString, Point, Polygon
+from pydantic import BaseModel, Field, InstanceOf, field_validator
+from shapely import Point, Polygon, intersection
+from shapely.geometry.base import BaseGeometry
 
 from ..utils import SERVICE_TYPES
 from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
+from .land_use import LandUse
+from blocksnet.models import land_use
 
 
 class BuildingRow(BaseRow):
@@ -29,14 +32,30 @@ class ServiceRow(BaseRow):
     capacity: int = Field(ge=0)
 
 
+class LandUseRow(BaseRow):
+    geometry: Polygon
+    land_use: LandUse | None
+
+    # @field_validator("geometry", mode="before")
+    # def validate_geometry(value: BaseGeometry):
+    #     return value.representative_point()
+
+    @field_validator("land_use", mode="before")
+    def validate_land_use(value):
+        if isinstance(value, str):
+            value = value.lower()
+            value = value.replace("-", "_")
+        return value
+
+
 class Block(BaseModel):
     """Class presenting city block"""
 
     id: int
     """Unique block identifier across the ```city```"""
-    geometry: InstanceOf[Polygon] = Field()
+    geometry: InstanceOf[Polygon]
     """Block geometry presented as shapely ```Polygon```"""
-    landuse: str = None
+    land_use: LandUse | None = None
     """Current city block landuse"""
     buildings: InstanceOf[gpd.GeoDataFrame] = None
     """Buildings ```GeoDataFrame```"""
@@ -63,6 +82,10 @@ class Block(BaseModel):
         else:
             return 0
 
+    @property
+    def land_use_service_types(self) -> list[ServiceType]:
+        return self.city.get_land_use_service_types(self.land_use)
+
     def to_dict(self, simplify=True) -> dict[str, int]:
         dict = {"id": self.id, "geometry": self.geometry}
         if not simplify:
@@ -70,6 +93,10 @@ class Block(BaseModel):
                 dict[service_type.name] = self[service_type.name]["capacity"]
             dict["population"] = self.population
             dict["is_living"] = self.is_living
+            if isinstance(self.land_use, LandUse):
+                dict["land_use"] = self.land_use.value
+            else:
+                dict["land_use"] = None
         return dict
 
     def __contains__(self, service_type_name: str) -> bool:
@@ -128,21 +155,20 @@ class Block(BaseModel):
 
 
 class City:
-    epsg: int
-    adjacency_matrix: pd.DataFrame
-    _blocks: dict[int, Block]
-    _service_types: dict[str, ServiceType]
-
     def __init__(self, blocks_gdf: gpd.GeoDataFrame, adjacency_matrix: pd.DataFrame) -> None:
         assert (blocks_gdf.index == adjacency_matrix.index).all(), "Matrix and blocks index don't match"
         assert (blocks_gdf.index == adjacency_matrix.columns).all(), "Matrix columns and blocks index don't match"
-        self.epsg = blocks_gdf.crs.to_epsg()
+        self.crs = blocks_gdf.crs
         self._blocks = Block.from_gdf(blocks_gdf, self)
         self.adjacency_matrix = adjacency_matrix.copy()
         self._service_types = {}
         for st in SERVICE_TYPES:
             service_type = ServiceType(**st)
             self._service_types[service_type.name] = service_type
+
+    @property
+    def epsg(self):
+        return self.crs.to_epsg()
 
     @property
     def blocks(self) -> list[Block]:
@@ -164,19 +190,34 @@ class City:
 
     def plot(self) -> None:
         """Plot city model data"""
-        blocks = self.get_blocks_gdf()
-        ax = blocks.plot(alpha=1, color="#ddd", figsize=[10, 10])
-        # plot buildings
-        self.get_buildings_gdf().plot(ax=ax, markersize=1, color="#bbb")
-        # plot services
-        self.get_services_gdf().plot(
-            ax=ax,
-            markersize=5,
-            column="service_type",
-            legend=True,
-            legend_kwds={"title": "Service types", "loc": "lower left"},
-        )
+        blocks = self.get_blocks_gdf(simplify=False)
+        # get gdfs
+        no_lu_blocks = blocks.loc[~blocks.land_use.notna()]
+        lu_blocks = blocks.loc[blocks.land_use.notna()]
+        buildings_gdf = self.get_buildings_gdf()
+        services_gdf = self.get_services_gdf()
+
+        # plot
+        _, ax = plt.subplots(figsize=(10, 10))
+        if len(no_lu_blocks) > 0:
+            no_lu_blocks.plot(ax=ax, alpha=1, color="#ddd")
+        if len(lu_blocks) > 0:
+            lu_blocks.plot(ax=ax, column="land_use", legend=True)
+        if len(buildings_gdf) > 0:
+            buildings_gdf.plot(ax=ax, markersize=1, color="#bbb")
+        if len(services_gdf) > 0:
+            services_gdf.plot(
+                ax=ax,
+                markersize=5,
+                column="service_type",
+                # legend=True,
+                # legend_kwds={"title": "Service types", "loc": "lower left"},
+            )
         ax.set_axis_off()
+
+    def get_land_use_service_types(self, land_use: LandUse):
+        filtered_stypes = filter(lambda st: land_use in st.land_use, self.service_types)
+        return list(filtered_stypes)
 
     def get_service_type_gdf(self, service_type: ServiceType | str):
         if not isinstance(service_type, ServiceType):
@@ -205,6 +246,29 @@ class City:
             data.append(block.to_dict(simplify))
         gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.epsg)
         return gdf
+
+    def update_land_use(self, gdf: GeoDataFrame[LandUseRow]):
+        gdf = GeoDataFrame[LandUseRow](gdf)
+        blocks_gdf = self.get_blocks_gdf()
+        sjoin = blocks_gdf.sjoin(gdf, how="left", predicate="intersects")
+        for block_id in sjoin.index:
+            block_loc = sjoin.loc[block_id]
+            selected_lu = None
+            if isinstance(block_loc, gpd.GeoDataFrame):
+                block_geom = block_loc.iloc[0].loc["geometry"]
+                max_intersection_area = 0
+                selected_lu = None
+                lu_loc = block_loc.set_index("index_right")
+                for lu_id in lu_loc.index:
+                    lu_geom = gdf.loc[int(lu_id), "geometry"]
+                    intersection_geom = intersection(block_geom, lu_geom)
+                    intersection_area = intersection_geom.area
+                    if intersection_area > max_intersection_area:
+                        max_intersection_area = intersection_area
+                        selected_lu = lu_loc.loc[lu_id, "land_use"]
+            else:
+                selected_lu = block_loc["land_use"]
+            self[block_id].land_use = selected_lu
 
     def update_buildings(self, gdf: GeoDataFrame[BuildingRow]):
         """Update buildings in blocks"""
@@ -262,6 +326,10 @@ class City:
     def __getitem__(self, arg):
         raise NotImplementedError(f"Can't access object with such argument type {type(arg)}")
 
+    @__getitem__.register(Block)
+    def _(self, block):
+        return block
+
     # Make city_model subscriptable, to access block via ID like city_model[123]
     @__getitem__.register(int)
     def _(self, block_id):
@@ -269,12 +337,23 @@ class City:
             raise KeyError(f"Can't find block with such id: {block_id}")
         return self._blocks[block_id]
 
+    @__getitem__.register(ServiceType)
+    def _(self, service_type):
+        return service_type
+
     # Make city_model subscriptable, to access service type via name like city_model['schools']
     @__getitem__.register(str)
     def _(self, service_type_name):
         if not service_type_name in self._service_types:
             raise KeyError(f"Can't find service type with such name: {service_type_name}")
         return self._service_types[service_type_name]
+
+    @__getitem__.register(tuple)
+    def _(self, blocks):
+        (block_a_id, block_b_id) = blocks
+        block_a = self[block_a_id]
+        block_b = self[block_b_id]
+        return self.adjacency_matrix.loc[block_a.id, block_b.id]
 
     @singledispatchmethod
     def __contains__(self, arg):
