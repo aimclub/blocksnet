@@ -8,7 +8,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.gridspec import GridSpec
-from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum
+from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum, LpInteger
 
 from ...models import Block, ServiceType
 from ..base_method import BaseMethod
@@ -86,21 +86,6 @@ class Provision(BaseMethod):
     def total_provision(cls, gdf: gpd.GeoDataFrame):
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
-    def weights_to_gdf(self, weights_df):
-        weights = []
-        for a in weights_df.index:
-            block_a = self.city_model[a]
-            for b in weights_df.columns:
-                block_b = self.city_model[int(b)]
-                value = weights_df.loc[a, b]
-                if value > 0:
-                    point_a = block_a.geometry.representative_point()
-                    point_b = block_b.geometry.representative_point()
-                    weights.append(
-                        {"geometry": LineString([point_a, point_b]), "from": a, "to": int(b), "weight": value}
-                    )
-        return gpd.GeoDataFrame(weights, crs=self.city_model.epsg)
-
     def calculate_scenario(
         self,
         scenario: dict[str, float],
@@ -125,7 +110,6 @@ class Provision(BaseMethod):
         if not isinstance(service_type, ServiceType):
             service_type = self.city_model[service_type]
         gdf = self._get_blocks_gdf(service_type)
-        df = pd.DataFrame(0, index=gdf.index, columns=gdf.index)
         if update_df is not None:
             gdf = gdf.join(update_df)
             gdf[update_df.columns] = gdf[update_df.columns].fillna(0)
@@ -140,17 +124,15 @@ class Provision(BaseMethod):
 
         match method:
             case "lp":
-                gdf, df = self._lp_provision(gdf, df, service_type, "lp")
+                gdf = self._lp_provision(gdf, service_type, "lp")
             case "gravity":
-                gdf, df = self._lp_provision(gdf, df, service_type, "gravity")
+                gdf = self._lp_provision(gdf, service_type, "gravity")
             case "iterative":
-                gdf, df = self._iterative_provision(gdf, df, service_type)
+                gdf = self._iterative_provision(gdf, service_type)
         gdf["provision"] = gdf["demand_within"] / gdf["demand"]
-        return gdf, df
+        return gdf
 
-    def _lp_provision(
-        self, gdf: gpd.GeoDataFrame, df: pd.DataFrame, service_type: ServiceType, type: Literal["lp", "gravity"]
-    ):
+    def _lp_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType, type: Literal["lp", "gravity"]):
         """Linear programming assessment method"""
         gdf = gdf.copy()
 
@@ -171,16 +153,10 @@ class Provision(BaseMethod):
                 return 0
             block1 = self.city_model[id1]
             block2 = self.city_model[id2]
-            self.city_model.get_distance(block1, block2)
             distance = self.city_model.get_distance(block1, block2)
             if type == "lp":
                 return distance
-            demand = gdf.loc[id1, "demand"]
-            capacity = gdf.loc[id1, "capacity"]
             return distance * distance
-            # if capacity * demand == 0:
-            #     return 0
-            # return distance * distance / (capacity * demand)
 
         def _get_distance(id1: int, id2: int):
             if id1 == fictive_block_id or id2 == fictive_block_id:
@@ -194,14 +170,24 @@ class Provision(BaseMethod):
         capacity = gdf.loc[gdf["capacity"] > 0]
 
         prob = LpProblem("Transportation", LpMinimize)
-        x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None)
-        prob += lpSum(_get_weight(n, m) * x[n, m] for n in demand.index for m in capacity.index)
+        x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None, cat=LpInteger)
+        weights = {(n, m): _get_weight(n, m) for n in demand.index for m in capacity.index}
+        prob += lpSum(weights[n, m] * x[n, m] for n, m in product(demand.index, capacity.index))
         for n in demand.index:
             prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, "demand"]
         for m in capacity.index:
             prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, "capacity"]
         prob.solve(PULP_CBC_CMD(msg=False))
         # make the output
+
+        def var_to_names(name):
+            name = name.replace("(", "").replace(")", "").replace(",", "").split("_")
+            return name[1], name[2]
+
+        df = pd.DataFrame([var.to_dict() for var in vars]).rename(columns={"varValue": "value"})
+        df["from"] = df["name"].apply(lambda x: int(var_to_names(x)[0]))
+        df["to"] = df["name"].apply(lambda x: int(var_to_names(x)[1]))
+
         for var in prob.variables():
             value = var.value()
             name = var.name.replace("(", "").replace(")", "").replace(",", "").split("_")
@@ -209,10 +195,9 @@ class Provision(BaseMethod):
                 continue
             a = int(name[1])
             b = int(name[2])
-            weight = _get_distance(a, b)
+            distance = _get_distance(a, b)
             if value > 0:
-                df.loc[a, b] = value
-                if weight <= service_type.accessibility:
+                if distance <= service_type.accessibility:
                     if fictive_index != None and a != fictive_index:
                         gdf.loc[a, "demand_within"] += value
                         gdf.loc[b, "capacity_left"] -= value
@@ -228,14 +213,10 @@ class Provision(BaseMethod):
                         gdf.loc[b, "capacity_left"] -= value
         if fictive_index != None or fictive_column != None:
             gdf.drop(labels=[fictive_block_id], inplace=True)
-            if fictive_index != None:
-                df.drop(labels=[fictive_index], inplace=True)
-            if fictive_column != None:
-                df.drop(columns=[fictive_column], inplace=True)
         gdf["demand_left"] = gdf["demand"] - gdf["demand_within"] - gdf["demand_without"]
-        return gdf, df
+        return gdf
 
-    def _iterative_provision(self, gdf: gpd.GeoDataFrame, df: pd.DataFrame, service_type: ServiceType):
+    def _iterative_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType):
         """Iterative provision assessment method"""
 
         demand_blocks = self._get_filtered_blocks(service_type, "demand")
@@ -248,7 +229,6 @@ class Provision(BaseMethod):
                     break
                 capacity_block = neighbors[0]
                 gdf.loc[demand_block.id, "demand_left"] -= 1
-                df.loc[demand_block.id, capacity_block.id] += 1
                 weight = self.city_model.get_distance(demand_block, capacity_block)
                 if weight <= service_type.accessibility:
                     gdf.loc[demand_block.id, "demand_within"] += 1
@@ -260,4 +240,4 @@ class Provision(BaseMethod):
                 if gdf.loc[capacity_block.id, "capacity_left"] == 0:
                     capacity_blocks.remove(capacity_block)
 
-        return gdf, df
+        return gdf
