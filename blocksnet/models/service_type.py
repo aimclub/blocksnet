@@ -11,15 +11,11 @@ class ServiceBrick(BaseModel):
     capacity: int
     """How many people in need can be supported by a service"""
     area: float
-    """Area in hectares"""
+    """Area in square meters"""
     is_integrated: bool
     """Is integrated within the building"""
     parking_area: float
-
-    @property
-    def sq_m_area(self):
-        """Self area in square meters"""
-        return self.area * SQUARE_METERS_IN_HECTARE
+    """Required parking area in square meters"""
 
 
 class ServiceType(BaseModel):
@@ -27,8 +23,8 @@ class ServiceType(BaseModel):
 
     code: str
     name: str
-    accessibility: int = Field(gt=0)
-    demand: int = Field(gt=0)
+    accessibility: int = Field(ge=0)
+    demand: int = Field(ge=0)
     bricks: list[ServiceBrick] = []
     land_use: list[LandUse] = []
 
