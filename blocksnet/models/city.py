@@ -18,10 +18,11 @@ from ..utils import SERVICE_TYPES
 from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
 from .land_use import LandUse
+from blocksnet.models import land_use
 
 
 class Service(ABC, BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
+    model_config = ConfigDict(arbitrary_types_allowed=True, allow_inf_nan=False)
     service_type: ServiceType
     capacity: int = Field(gt=0)
     area: float = Field(gt=0)
@@ -39,6 +40,20 @@ class BlockService(Service):
     block: Block
     geometry: Polygon | MultiPolygon
 
+    @model_validator(mode="before")
+    @classmethod
+    def validate_model(cls, data):
+        # set service area as geometry's area
+        area = data["geometry"].area
+        data["area"] = area
+        # if there is no data about capacity in service
+        if not "capacity" in data:
+            service_type = data["service_type"]
+            bricks = service_type.get_bricks(is_integrated=False)
+            brick = min(bricks, key=lambda x: abs(x.area - area))
+            data["capacity"] = brick.capacity
+        return data
+
     def to_dict(self) -> dict:
         return {"geometry": self.geometry, "block_id": self.block.id, **super().to_dict()}
 
@@ -50,9 +65,11 @@ class BuildingService(Service):
     @model_validator(mode="before")
     @classmethod
     def validate_model(cls, data):
-        service_type = data["service_type"]
+        # set service's geometry as building's representative point (centroid)
+        data["geometry"] = data["building"].geometry.representative_point()
         # if there is no data about area in service
         if not "area" in data:
+            service_type = data["service_type"]
             bricks = service_type.get_bricks(is_integrated=True)
             # we try to find similar to our capacity
             if "capacity" in data:
@@ -61,16 +78,10 @@ class BuildingService(Service):
                 data["area"] = brick.area
             # or we try find the smallest possible capacity and area
             else:
-                brick = min(bricks, key=lambda x: x.capacity)
+                brick = min(bricks, key=lambda x: x.area)
                 data["capacity"] = brick.capacity
                 data["area"] = brick.area
         return data
-
-    @field_validator("geometry", mode="before")
-    def validate_geometry(value):
-        if not isinstance(value, Point):
-            value = value.representative_point()
-        return value
 
     def to_dict(self) -> dict:
         return {
@@ -99,6 +110,8 @@ class Building(BaseModel):
     """Building's area dedicated for non-living activities in square meters"""
     footprint_area: float = Field(ge=0)
     """Building's ground floor area in square meters """
+    number_of_floors: int = Field(ge=1)
+    """Number of floors (storeys) in the building"""
     population: int = Field(ge=0)
     """Total population of the building"""
 
@@ -125,6 +138,7 @@ class Building(BaseModel):
             "build_floor_area": self.build_floor_area,
             "living_area": self.living_area,
             "business_area": self.business_area,
+            "number_of_floors": self.number_of_floors,
             "is_living": self.is_living,
         }
 
@@ -132,9 +146,10 @@ class Building(BaseModel):
 class Block(BaseModel):
     """Class representing city block"""
 
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     id: int
     """Unique block identifier across the ``City``"""
-    geometry: InstanceOf[Polygon]
+    geometry: Polygon
     """Block geometry presented as shapely ``Polygon``"""
     land_use: LandUse | None = None
     """Current city block landuse"""
@@ -142,7 +157,7 @@ class Block(BaseModel):
     """Buildings list inside of the block"""
     services: list[BlockService] = []
     """Services that take some area of the block"""
-    city: InstanceOf[City]
+    city: City
     """``City`` instance that contains the block"""
 
     @field_validator("land_use", mode="before")
@@ -150,7 +165,10 @@ class Block(BaseModel):
         if isinstance(value, str):
             value = value.lower()
             value = value.replace("-", "_")
-        return value
+            return value
+        if isinstance(value, LandUse):
+            return value
+        return None
 
     @property
     def all_services(self) -> list[Service]:
@@ -189,7 +207,92 @@ class Block(BaseModel):
 
     @property
     def is_living(self):
+        """Does a block contain any living building"""
         return any([b.is_living for b in self.buildings])
+
+    @property
+    def living_demand(self):
+        """Square meters of living area per person"""
+        try:
+            return self.living_area / self.population
+        except ZeroDivisionError:
+            return None
+
+    @property
+    def fsi(self):
+        """Floor space index (build floor area per site area)"""
+        return self.build_floor_area / self.site_area
+
+    @property
+    def gsi(self):
+        """Ground space index (footprint area per site area)"""
+        return self.footprint_area / self.site_area
+
+    @property
+    def l(self):
+        """Mean number of floors"""
+        try:
+            return self.fsi / self.gsi
+        except ZeroDivisionError:
+            return None
+
+    @property
+    def osr(self):
+        """Open space ratio"""
+        try:
+            return (1 - self.gsi) / self.fsi
+        except ZeroDivisionError:
+            return None
+
+    @property
+    def share_living(self):
+        """Living area share"""
+        try:
+            return self.living_area / self.footprint_area
+        except ZeroDivisionError:
+            return None
+
+    @property
+    def share_business(self):
+        """Business area share"""
+        try:
+            return self.business_area / self.footprint_area
+        except ZeroDivisionError:
+            return None
+
+    @property
+    def buildings_indicators(self):
+        return {
+            "build_floor_area": self.build_floor_area,
+            "living_demand": self.living_demand,
+            "living_area": self.living_area,
+            "share_living": self.share_living,
+            "business_area": self.business_area,
+            "share_business": self.share_business,
+        }
+
+    @property
+    def territory_indicators(self):
+        return {
+            "site_area": self.site_area,
+            "population": self.population,
+            "footprint_area": self.footprint_area,
+            "fsi": self.fsi,
+            "gsi": self.gsi,
+            "l": self.l,
+            "osr": self.osr,
+        }
+
+    @property
+    def services_indicators(self):
+        service_types = dict.fromkeys([service.service_type for service in self.all_services], 0)
+
+        return {
+            f"capacity_{st.name}": sum(
+                map(lambda s: s.capacity, filter(lambda s: s.service_type == st, self.all_services))
+            )
+            for st in service_types
+        }
 
     @property
     def land_use_service_types(self) -> list[ServiceType]:
@@ -207,14 +310,11 @@ class Block(BaseModel):
         return {
             "id": self.id,
             "geometry": self.geometry,
-            "site_area": self.site_area,
-            "land_use": self.land_use,
-            "population": self.population,
-            "footprint_area": self.footprint_area,
-            "build_floor_area": self.build_floor_area,
-            "living_area": self.living_area,
-            "business_area": self.business_area,
+            "land_use": None if self.land_use is None else self.land_use.value,
             "is_living": self.is_living,
+            **self.buildings_indicators,
+            **self.territory_indicators,
+            **self.services_indicators,
         }
 
     def update_buildings(self, gdf: gpd.GeoDataFrame | None = None):
@@ -253,7 +353,7 @@ class Block(BaseModel):
         return result
 
     @singledispatchmethod
-    def __getitem__(self, arg) -> any:
+    def __getitem__(self, arg):
         raise NotImplementedError(f"Can't access object with such argument type {type(arg)}")
 
     @__getitem__.register(int)
@@ -346,7 +446,7 @@ class City:
             )
         ax.set_axis_off()
 
-    def get_land_use_service_types(self, land_use: LandUse):
+    def get_land_use_service_types(self, land_use: LandUse | None):
         filtered_service_types = filter(lambda st: land_use in st.land_use, self.service_types)
         return list(filtered_service_types)
 
