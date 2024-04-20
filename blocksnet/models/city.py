@@ -229,6 +229,14 @@ class Block(BaseModel):
         return self.footprint_area / self.site_area
 
     @property
+    def mxi(self):
+        """Mixed use index (living area per build floor area)"""
+        try:
+            return self.living_area / self.build_floor_area
+        except ZeroDivisionError:
+            return None
+
+    @property
     def l(self):
         """Mean number of floors"""
         try:
@@ -281,6 +289,7 @@ class Block(BaseModel):
             "gsi": self.gsi,
             "l": self.l,
             "osr": self.osr,
+            "mxi": self.mxi,
         }
 
     @property
