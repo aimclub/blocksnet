@@ -93,7 +93,7 @@ class Genetic(BaseMethod):
             {
                 "id": b.id,
                 "geometry": b.geometry,
-                "free_area": (b.area * FREE_SPACE_COEFFICIENT - b.industrial_area - b.living_area)
+                "free_area": (b.site_area * FREE_SPACE_COEFFICIENT - b.industrial_area - b.living_area)
                 / SQUARE_METERS_IN_HECTARE,
             }
             for b in selected_blocks
