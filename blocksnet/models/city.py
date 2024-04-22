@@ -376,15 +376,6 @@ class Block(BaseModel):
         except:
             raise KeyError(f"Can't find building with such id: {building_id}")
 
-    @__getitem__.register(str)
-    def _(self, service_type_name: str) -> dict[str, int]:
-        """Get service type capacity and demand of the block"""
-        service_type = self.city[service_type_name]
-        result = {"capacity": 0, "demand": service_type.calculate_in_need(self.population)}
-        if service_type in self.services:
-            result["capacity"] = self.services[service_type]["capacity"].sum()
-        return result
-
     def __hash__(self):
         """Make block hashable, so it can be used as key in dict etc."""
         return hash(self.id)
@@ -459,7 +450,7 @@ class City:
         filtered_service_types = filter(lambda st: land_use in st.land_use, self.service_types)
         return list(filtered_service_types)
 
-    def get_buildings_gdf(self) -> gpd.GeoDataFrame:
+    def get_buildings_gdf(self) -> gpd.GeoDataFrame | None:
         buildings = [b.to_dict() for b in self.buildings]
         return gpd.GeoDataFrame(buildings, crs=self.crs).set_index("id")
 
@@ -468,10 +459,8 @@ class City:
         return gpd.GeoDataFrame(services, crs=self.crs)
 
     def get_blocks_gdf(self) -> gpd.GeoDataFrame:
-        data: list[dict] = []
-        for block in self.blocks:
-            data.append(block.to_dict())
-        return gpd.GeoDataFrame(data, crs=self.crs).set_index("id")
+        blocks = [b.to_dict() for b in self.blocks]
+        return gpd.GeoDataFrame(blocks, crs=self.crs).set_index("id")
 
     def update_buildings(self, gdf: gpd.GeoDataFrame):
         """Update buildings in blocks"""

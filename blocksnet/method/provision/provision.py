@@ -63,15 +63,10 @@ class Provision(BaseMethod):
 
     def _get_blocks_gdf(self, service_type: ServiceType) -> gpd.GeoDataFrame:
         """Returns blocks gdf for provision assessment"""
-        data: list[dict] = []
-        for block in self.city_model.blocks:
-            data.append({"id": block.id, "geometry": block.geometry, **block[service_type.name]})
-        gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
-        gdf["demand_left"] = gdf["demand"]
-        gdf["demand_within"] = 0
-        gdf["demand_without"] = 0
-        gdf["capacity_left"] = gdf["capacity"]
-        return gdf
+        capacity_column = f"capacity_{service_type.name}"
+        gdf = self.city_model.get_blocks_gdf()[["geometry", "population", capacity_column]].fillna(0)
+        gdf["population"] = gdf["population"].apply(lambda p: service_type.calculate_in_need(p))
+        return gdf.rename(columns={"population": "demand", capacity_column: "capacity"})
 
     @classmethod
     def stat_provision(cls, gdf: gpd.GeoDataFrame):
@@ -99,6 +94,26 @@ class Provision(BaseMethod):
             result[service_type] = prov_gdf
             total += weight * self.total_provision(prov_gdf)
         return result, total
+
+    @staticmethod
+    def _get_lower_bound(gdf):
+        gdf = gdf.copy()
+        gdf["demand_within"] = gdf.apply(lambda x: min(x["capacity"], x["demand"]), axis=1)
+        return gdf["demand_within"].sum() / gdf["demand"].sum()
+
+    @staticmethod
+    def _get_upper_bound(gdf):
+        gdf = gdf.copy()
+        capacity = gdf["capacity"].sum()
+        demand = gdf["demand"].sum()
+        return min(capacity / demand, 1)
+
+    def get_bounds(self, service_type: ServiceType | str):
+        service_type = self.city_model[service_type]
+        gdf = self._get_blocks_gdf(service_type)
+        lower_bound = self._get_lower_bound(gdf)
+        upper_bound = self._get_upper_bound(gdf)
+        return lower_bound, upper_bound
 
     def calculate(
         self,
