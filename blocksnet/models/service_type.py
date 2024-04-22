@@ -2,12 +2,14 @@ import math
 
 from pydantic import BaseModel, Field, field_validator
 from ..utils import SQUARE_METERS_IN_HECTARE
+from .land_use import LandUse
 
 
 class ServiceBrick(BaseModel):
     """Typical service type brick or chunk, that is used in development"""
 
     capacity: int
+    """How many people in need can be supported by a service"""
     area: float
     """Area in hectares"""
     is_integrated: bool
@@ -27,12 +29,22 @@ class ServiceType(BaseModel):
     name: str
     accessibility: int = Field(gt=0)
     demand: int = Field(gt=0)
-    bricks: list[ServiceBrick]
+    bricks: list[ServiceBrick] = []
+    land_use: list[LandUse] = []
+
+    def get_bricks(self, is_integrated=False):
+        filtered_bricks = filter(lambda b: b.is_integrated == is_integrated, self.bricks)
+        return list(filtered_bricks)
 
     @field_validator("bricks", mode="before")
     def validate_bricks(value):
         bricks = [sb if isinstance(sb, ServiceBrick) else ServiceBrick(**sb) for sb in value]
         return bricks
+
+    @field_validator("land_use", mode="before")
+    def validate_land_use(value):
+        land_uses = [lu if isinstance(lu, LandUse) else LandUse[lu.upper()] for lu in value]
+        return land_uses
 
     def calculate_in_need(self, population: int) -> int:
         """Calculate how many people in the given population are in need by this service type"""

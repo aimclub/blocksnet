@@ -1,7 +1,7 @@
 BlocksNet
 =========
 
-todo
+Some important information about BlocksNet is presented below.
 
 .. toctree::
    :glob:
@@ -9,7 +9,4 @@ todo
 
    quickstart
    contributing
-   pipeline
-   city
-   validation
    faq

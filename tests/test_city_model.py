@@ -76,9 +76,9 @@ def test_coherence(city_model, blocks):
 
 def test_provision_lp(city_model, update_services, update_population):
     provision = Provision(city_model=city_model)
-    calc = provision.calculate("school")
-    calc_services = provision.calculate("school", update_services)
-    calc_population = provision.calculate("school", update_population)
+    calc, _ = provision.calculate("school")
+    calc_services, _ = provision.calculate("school", update_services)
+    calc_population, _ = provision.calculate("school", update_population)
     total = provision.total_provision(calc)
     total_services = provision.total_provision(calc_services)
     total_population = provision.total_provision(calc_population)
@@ -88,9 +88,9 @@ def test_provision_lp(city_model, update_services, update_population):
 
 def test_provision_iterative(city_model, update_services, update_population):
     provision = Provision(city_model=city_model)
-    calc = provision.calculate("kindergarten", method="iterative")
-    calc_services = provision.calculate("kindergarten", update_services, method="iterative")
-    calc_population = provision.calculate("kindergarten", update_population, method="iterative")
+    calc, _ = provision.calculate("kindergarten", method="iterative")
+    calc_services, _ = provision.calculate("kindergarten", update_services, method="iterative")
+    calc_population, _ = provision.calculate("kindergarten", update_population, method="iterative")
     total = provision.total_provision(calc)
     total_services = provision.total_provision(calc_services)
     total_population = provision.total_provision(calc_population)

@@ -16,6 +16,7 @@ Documentation:
    :maxdepth: 2
 
    blocksnet/index
+   examples/index
    api/index
    about_us
 
