@@ -280,7 +280,7 @@ class VacantArea(BaseMethod):
 
 
 
-    def get_vacant_area(self, block_id: int | Block) -> gpd.GeoDataFrame:
+    def get_vacant_area(self, block_id: int | Block, occupied_area) -> gpd.GeoDataFrame:
         """
         Calculate the vacant area within a given block or blocks.
 
@@ -298,23 +298,26 @@ class VacantArea(BaseMethod):
 
         # Define a list of functions to download data. Functions that require additional arguments
         # are included as lambda functions to defer their execution until later.
-        occupied_area_sources = [
-            lambda: self._dwn_leisure(block_buffer, self.local_crs),
-            lambda: self._dwn_landuse(block_buffer, self.local_crs),
-            lambda: self._dwn_other(block_buffer, self.local_crs),
-            lambda: self._dwn_amenity(block_buffer, self.local_crs),
-            lambda: self._dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer),
-            lambda: self._dwn_natural(block_buffer, self.local_crs),
-            lambda: self._dwn_waterway(block_buffer, self.local_crs),
-            lambda: self._dwn_highway(block_buffer, self.local_crs, self.roads_buffer),
-            lambda: self._dwn_railway(block_buffer, self.local_crs),
-            lambda: self._dwn_path(block_buffer, self.local_crs)
-        ]
+        if occupied_area is None:
+            occupied_area_sources = [
+                lambda: self._dwn_leisure(block_buffer, self.local_crs),
+                lambda: self._dwn_landuse(block_buffer, self.local_crs),
+                lambda: self._dwn_other(block_buffer, self.local_crs),
+                lambda: self._dwn_amenity(block_buffer, self.local_crs),
+                lambda: self._dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer),
+                lambda: self._dwn_natural(block_buffer, self.local_crs),
+                lambda: self._dwn_waterway(block_buffer, self.local_crs),
+                lambda: self._dwn_highway(block_buffer, self.local_crs, self.roads_buffer),
+                lambda: self._dwn_railway(block_buffer, self.local_crs),
+                lambda: self._dwn_path(block_buffer, self.local_crs)
+            ]
 
-        # Execute each function in the list to obtain the GeoDataFrames and concatenate them
-        occupied_area = pd.concat([func() for func in occupied_area_sources])
-        
-        occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area), crs=self.local_crs)
+            # Execute each function in the list to obtain the GeoDataFrames and concatenate them
+            occupied_area = pd.concat([func() for func in occupied_area_sources])
+            
+            occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area), crs=self.local_crs)
+            # occupied_area.to_file("occupied_area.geojson", driver='GeoJSON')
+
         occupied_area = occupied_area[(occupied_area.geometry.geom_type == "Polygon") |
                                     (occupied_area.geometry.geom_type == "MultiPolygon")]
         
