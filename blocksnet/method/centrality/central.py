@@ -58,7 +58,7 @@ class CentralPlace(BaseMethod):
         - A GeoDataFrame of polygons with an additional 'shannon' column representing the Shannon diversity index.
         """
         joined_gdf = gpd.sjoin(points, polygons, how="inner", op="within")
-        counts_per_polygon = joined_gdf.groupby(['index_right', 'city_service_type']).size().unstack(fill_value=0)
+        counts_per_polygon = joined_gdf.groupby(['index_right', 'service_type']).size().unstack(fill_value=0)
         shannon_indexes = counts_per_polygon.apply(self._shannon_diversity_index, axis=1)
         polygons['shannon'] = polygons.index.map(shannon_indexes)
         return polygons
@@ -72,7 +72,7 @@ class CentralPlace(BaseMethod):
         """
         return Connectivity(city_model=self.city_model).calculate()
 
-    def centrality(self, points) -> gpd.GeoDataFrame:
+    def centrality(self) -> gpd.GeoDataFrame:
         """
         Calculate centrality metrics for polygons based on point data and connectivity.
 
@@ -82,16 +82,17 @@ class CentralPlace(BaseMethod):
         Returns:
         - A GeoDataFrame of polygons with added centrality metrics.
         """
+        points = self.city_model.get_services_gdf()
         polygons = self.connectivity()
         polygons['density'] = polygons['geometry'].apply(lambda x: self.count_points_in_polygon(x, points['geometry']))
         polygons = polygons.loc[polygons.density > 0]
         polygons = self.calculate_shannon_diversity(points, polygons)
         scaler = MinMaxScaler()
         df_normalized = polygons.copy()
-        df_normalized[['median', 'density', 'shannon']] = scaler.fit_transform(polygons[['median', 'density', 'shannon']])
-        weights = {'median': 1, 'density': 1, 'shannon': 2}
+        df_normalized[['connectivity', 'density', 'shannon']] = scaler.fit_transform(polygons[['connectivity', 'density', 'shannon']])
+        weights = {'connectivity': 1, 'density': 1, 'shannon': 1}
         polygons['centrality'] = (
             weights['density'] * df_normalized['density'] +
             weights['shannon'] * df_normalized['shannon'] -
-            weights['median'] * df_normalized['median'])
+            weights['connectivity'] * df_normalized['connectivity'])
         return polygons
