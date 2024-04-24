@@ -290,7 +290,7 @@ class VacantArea(BaseMethod):
         # vacant_gdf = blocks_gdf.overlay(vacant_gdf, how="intersection")
         unified_geometry = vacant_gdf["geometry"].buffer(1.1).unary_union
         vacant_gdf = gpd.GeoDataFrame(geometry=[unified_geometry], crs=self.city_model.crs)
-        vacant_gdf = vacant_gdf.explode().reset_index(drop=True)
+        vacant_gdf = vacant_gdf.explode(index_parts=True).reset_index(drop=True)
 
         # calculate filtering indicators
         vacant_gdf["area"] = vacant_gdf["geometry"].area
