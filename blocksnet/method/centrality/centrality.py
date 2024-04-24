@@ -8,7 +8,7 @@ from ..diversity import Diversity, DIVERSITY_COLUMN
 CENTRALITY_COLUMN = "centrality"
 DENSITY_COLUMN = "density"
 
-PLOT_KWARGS = {"column": CENTRALITY_COLUMN, "legend": True, "cmap": "coolwarm"}
+PLOT_KWARGS = {"column": CENTRALITY_COLUMN, "legend": True, "cmap": "coolwarm", "vmin": -1, "vmax": 1}
 
 
 class Centrality(BaseMethod):
@@ -58,7 +58,7 @@ class Centrality(BaseMethod):
 
         # calculate density as amount of services in each block
         services = self.city_model.get_services_gdf()
-        blocks[DENSITY_COLUMN] = services.groupby("block_id").size()
+        blocks[DENSITY_COLUMN] = services.groupby("block_id").size() / blocks["site_area"]
 
         # normalize indices and calculate centrality index
         scaler = MinMaxScaler()
