@@ -7,3 +7,4 @@ from .balancing import MasterPlan, balance_data
 from .connectivity import Connectivity
 from .provision import Provision
 from .genetic import Genetic
+from .centrality import CentralPlace
