@@ -132,6 +132,7 @@ class Building(BaseModel):
     def to_dict(self):
         return {
             "id": self.id,
+            "block_id": self.block.id,
             "geometry": self.geometry,
             "population": self.population,
             "footprint_area": self.footprint_area,

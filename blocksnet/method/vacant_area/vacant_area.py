@@ -3,6 +3,7 @@ from typing import ClassVar
 import geopandas as gpd
 import osmnx as ox
 import pandas as pd
+from pydantic import Field
 
 from ...models import Block, ServiceType
 from ..base_method import BaseMethod
@@ -21,19 +22,18 @@ class VacantArea(BaseMethod):
     - min_area (ClassVar[int]): The minimum area threshold for considered vacant areas.
     - area_attitude (ClassVar[int]): The ratio used to filter areas based on their minimum bounding rectangle.
     """
-    local_crs: ClassVar[int] = 32636
 
-    min_lenght: ClassVar[int] = 4
-    min_area: ClassVar[int] = 100
-    area_attitude: ClassVar[int] = 2
+    area_to_length_min: float = Field(ge=0, default=4)
+    area_min: float = Field(ge=0, default=100)
+    area_to_mrr_area_min: float = Field(ge=0, default=0.5)
 
-    roads_buffer: ClassVar[int] = 10
-    buildings_buffer: ClassVar[int] = 10
-    buffer_min: ClassVar[int] = 20
-    buffer_max: ClassVar[int] = 40
+    path_buffer: float = Field(ge=0, default=1)
+    roads_buffer: float = Field(ge=0, default=10)
+    buildings_buffer: float = Field(ge=0, default=10)
+    blocks_buffer_min: float = Field(ge=0, default=20)
+    blocks_buffer_max: float = Field(ge=0, default=40)
 
-    @staticmethod
-    def _dwn_other(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_other(self, geometry) -> gpd.GeoDataFrame:
         """
         Download other non-standard areas within a block.
 
@@ -45,15 +45,14 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing other non-standard areas.
         """
         try:
-            other = ox.features_from_polygon(block, tags={"man_made": True, "aeroway": True, "military": True})
-            other["geometry"] = other["geometry"].to_crs(local_crs)
-            return other.geometry
+            other = ox.features_from_polygon(geometry, tags={"man_made": True, "aeroway": True, "military": True})
+            other = other.to_crs(self.city_model.crs)
+            return other[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_leisure(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_leisure(self, geometry) -> gpd.GeoSeries:
         """
         Download leisure areas within a block.
 
@@ -65,15 +64,14 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing leisure areas.
         """
         try:
-            leisure = ox.features_from_polygon(block, tags={"leisure": True})
-            leisure["geometry"] = leisure["geometry"].to_crs(local_crs)
-            return leisure.geometry
+            leisure = ox.features_from_polygon(geometry, tags={"leisure": True})
+            leisure = leisure.to_crs(self.city_model.crs)
+            return leisure[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_landuse(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_landuse(self, geometry) -> gpd.GeoDataFrame:
         """
         Download land use areas within a block, excluding residential.
 
@@ -85,17 +83,16 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing non-residential land use areas.
         """
         try:
-            landuse = ox.features_from_polygon(block, tags={"landuse": True})
+            landuse = ox.features_from_polygon(geometry, tags={"landuse": True})
             if not landuse.empty:
                 landuse = landuse[landuse["landuse"] != "residential"]
-            landuse["geometry"] = landuse["geometry"].to_crs(local_crs)
-            return landuse.geometry
+            landuse = landuse.to_crs(self.city_model.crs)
+            return landuse[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_amenity(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_amenity(self, geometry) -> gpd.GeoDataFrame:
         """
         Download amenity areas within a block.
 
@@ -107,15 +104,14 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing amenity areas.
         """
         try:
-            amenity = ox.features_from_polygon(block, tags={"amenity": True})
-            amenity["geometry"] = amenity["geometry"].to_crs(local_crs)
-            return amenity.geometry
+            amenity = ox.features_from_polygon(geometry, tags={"amenity": True})
+            amenity = amenity.to_crs(self.city_model.crs)
+            return amenity[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
             return gpd.GeoSeries()
 
-    @staticmethod
-    def _dwn_buildings(block, local_crs, buildings_buffer) -> gpd.GeoSeries:
+    def _dwn_buildings(self, geometry) -> gpd.GeoDataFrame:
         """
         Download building areas within a block and apply a buffer.
 
@@ -128,16 +124,15 @@ class VacantArea(BaseMethod):
         - A GeoSeries of buffered building geometries.
         """
         try:
-            buildings = ox.features_from_polygon(block, tags={"building": True})
-            if buildings_buffer:
-                buildings["geometry"] = buildings["geometry"].to_crs(local_crs).buffer(buildings_buffer)
-            return buildings.geometry
+            buildings = ox.features_from_polygon(geometry, tags={"building": True})
+            buildings = buildings.to_crs(self.city_model.crs)
+            buildings["geometry"] = buildings["geometry"].buffer(self.buildings_buffer)
+            return buildings[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
             return gpd.GeoSeries()
 
-    @staticmethod
-    def _dwn_natural(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_natural(self, geometry) -> gpd.GeoDataFrame:
         """
         Download natural feature areas within a block, excluding bays.
 
@@ -149,17 +144,16 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing natural feature areas.
         """
         try:
-            natural = ox.features_from_polygon(block, tags={"natural": True})
+            natural = ox.features_from_polygon(geometry, tags={"natural": True})
             if not natural.empty:
                 natural = natural[natural["natural"] != "bay"]
-            natural["geometry"] = natural["geometry"].to_crs(local_crs)
-            return natural.geometry
+            natural = natural.to_crs(self.city_model.crs)
+            return natural[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_waterway(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_waterway(self, geometry) -> gpd.GeoDataFrame:
         """
         Download waterway areas within a block.
 
@@ -171,15 +165,14 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing waterway areas.
         """
         try:
-            waterway = ox.features_from_polygon(block, tags={"waterway": True})
-            waterway["geometry"] = waterway["geometry"].to_crs(local_crs)
-            return waterway.geometry
+            waterway = ox.features_from_polygon(geometry, tags={"waterway": True})
+            waterway = waterway.to_crs(self.city_model.crs)
+            return waterway[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_highway(block, local_crs, roads_buffer) -> gpd.GeoSeries:
+    def _dwn_highway(self, block) -> gpd.GeoDataFrame:
         """
         Download highway areas within a block, excluding paths, footways, and pedestrian areas, and apply a buffer.
 
@@ -199,15 +192,14 @@ class VacantArea(BaseMethod):
                 & (highway["highway"] != "pedestrian")
             )
             filtered_highway = highway[condition]
-            if roads_buffer:
-                filtered_highway["geometry"] = filtered_highway["geometry"].to_crs(local_crs).buffer(roads_buffer)
-            return filtered_highway.geometry
+            filtered_highway = filtered_highway.to_crs(self.city_model.crs)
+            filtered_highway["geometry"] = filtered_highway["geometry"].buffer(self.roads_buffer)
+            return filtered_highway[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_path(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_path(self, geometry) -> gpd.GeoDataFrame:
         """
         Download path and footway areas within a block and apply a buffer.
 
@@ -220,15 +212,15 @@ class VacantArea(BaseMethod):
         """
         try:
             tags = {"highway": "path", "highway": "footway"}
-            path = ox.features_from_polygon(block, tags=tags)
-            path["geometry"] = path["geometry"].to_crs(local_crs).buffer(1)
-            return path.geometry
+            path = ox.features_from_polygon(geometry, tags=tags)
+            path = path.to_crs(self.city_model.crs)
+            path["geometry"] = path["geometry"].buffer(self.path_buffer)
+            return path[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _dwn_railway(block, local_crs) -> gpd.GeoSeries:
+    def _dwn_railway(self, geometry) -> gpd.GeoDataFrame:
         """
         Download railway areas within a block, excluding subways.
 
@@ -240,47 +232,16 @@ class VacantArea(BaseMethod):
         - A GeoSeries of geometries representing railway areas.
         """
         try:
-            railway = ox.features_from_polygon(block, tags={"railway": True})
+            railway = ox.features_from_polygon(geometry, tags={"railway": True})
             if not railway.empty:
                 railway = railway[railway["railway"] != "subway"]
-            railway["geometry"] = railway["geometry"].to_crs(local_crs)
-            return railway.geometry
+            railway = railway.to_crs(self.city_model.crs)
+            return railway[["geometry"]]
         except (ValueError, AttributeError) as exc:
             print(f"Error encountered: {exc}")
-            return gpd.GeoSeries()
+            return gpd.GeoDataFrame()
 
-    @staticmethod
-    def _create_minimum_bounding_rectangle(polygon) -> gpd.GeoSeries:
-        """
-        Create a minimum bounding rectangle for a given polygon.
-
-        Parameters:
-        - polygon: A polygon geometry for which to create the bounding rectangle.
-
-        Returns:
-        - A GeoSeries containing the minimum bounding rectangle of the input polygon.
-        """
-        return polygon.minimum_rotated_rectangle
-
-    @staticmethod
-    def _buffer_and_union(row, buffer_distance=1.1) -> gpd.GeoSeries:
-        """
-        Apply a buffer to a geometry and return the buffered geometry.
-
-        Parameters:
-        - row: A DataFrame row containing a geometry.
-        - buffer_distance: The distance by which to buffer the geometry.
-
-        Returns:
-        - A GeoSeries containing the buffered geometry.
-        """
-        polygon = row["geometry"]
-        buffer_polygon = polygon.buffer(buffer_distance)
-        return buffer_polygon
-
-
-
-    def get_vacant_area(self, block_id: int | Block, occupied_area) -> gpd.GeoDataFrame:
+    def calculate(self, blocks: list[int] | list[Block] = []) -> gpd.GeoDataFrame:
         """
         Calculate the vacant area within a given block or blocks.
 
@@ -291,61 +252,58 @@ class VacantArea(BaseMethod):
         - A GeoDataFrame containing the vacant areas within the specified block(s), along with their area and length.
         """
 
-        blocks_gdf = self.city_model.get_blocks_gdf()
-        if block_id:
-            blocks_gdf = blocks_gdf.iloc[[block_id]]
-        block_buffer = blocks_gdf.buffer(self.buffer_min).to_crs(epsg=4326).unary_union
+        blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
+        buildings_gdf = self.city_model.get_buildings_gdf()
+        services_gdf = self.city_model.get_services_gdf()
 
-        # Define a list of functions to download data. Functions that require additional arguments
-        # are included as lambda functions to defer their execution until later.
-        if occupied_area is None:
-            occupied_area_sources = [
-                lambda: self._dwn_leisure(block_buffer, self.local_crs),
-                lambda: self._dwn_landuse(block_buffer, self.local_crs),
-                lambda: self._dwn_other(block_buffer, self.local_crs),
-                lambda: self._dwn_amenity(block_buffer, self.local_crs),
-                lambda: self._dwn_buildings(block_buffer, self.local_crs, self.buildings_buffer),
-                lambda: self._dwn_natural(block_buffer, self.local_crs),
-                lambda: self._dwn_waterway(block_buffer, self.local_crs),
-                lambda: self._dwn_highway(block_buffer, self.local_crs, self.roads_buffer),
-                lambda: self._dwn_railway(block_buffer, self.local_crs),
-                lambda: self._dwn_path(block_buffer, self.local_crs)
-            ]
+        # filter gdf if blocks are provided
+        if len(blocks) > 0:
+            blocks = [b.id if isinstance(b, Block) else b for b in blocks]
+            blocks_gdf = blocks_gdf.loc[blocks]
+            buildings_gdf = buildings_gdf.loc[buildings_gdf["block_id"].isin(blocks)]
+            services_gdf = services_gdf.loc[services_gdf["block_id"].isin(blocks)]
 
-            # Execute each function in the list to obtain the GeoDataFrames and concatenate them
-            occupied_area = pd.concat([func() for func in occupied_area_sources])
-            
-            occupied_area = gpd.GeoDataFrame(geometry=gpd.GeoSeries(occupied_area), crs=self.local_crs)
-            # occupied_area.to_file("occupied_area.geojson", driver='GeoJSON')
+        buildings_gdf["geometry"] = buildings_gdf["geometry"].buffer(self.buildings_buffer)
+        blocks_buffer = blocks_gdf.buffer(self.blocks_buffer_min).to_crs(epsg=4326).unary_union
 
-        occupied_area = occupied_area[(occupied_area.geometry.geom_type == "Polygon") |
-                                    (occupied_area.geometry.geom_type == "MultiPolygon")]
-        
-        block_buffer2 = gpd.GeoDataFrame(geometry=blocks_gdf.buffer(self.buffer_max))
-        blocks_new = gpd.overlay(block_buffer2, occupied_area, how="difference")
-        blocks_new = gpd.overlay(blocks_gdf, blocks_new, how="intersection").explode(index_parts=True)
-
-        blocks_new.reset_index(drop=True, inplace=True)
-        blocks_new["buffered_geometry"] = blocks_new.apply(self._buffer_and_union, axis=1)
-        unified_geometry = blocks_new["buffered_geometry"].unary_union
-        result_gdf = gpd.GeoDataFrame(geometry=[unified_geometry], crs=self.local_crs).explode(index_parts=True)
-        result_gdf["area"] = result_gdf.geometry.area
-        result_gdf.reset_index(drop=True, inplace=True)
-
-        blocks_filtered_area = result_gdf[result_gdf["area"] >= self.min_area]
-        if blocks_filtered_area.empty:
-            print("The block has no vacant area")
-            return gpd.GeoDataFrame()
-
-        # # Filtering based on minimum bounding rectangle condition
-        blocks_filtered_area = blocks_filtered_area[
-            blocks_filtered_area.apply(
-                lambda row: row["geometry"].area * self.area_attitude > self._create_minimum_bounding_rectangle(row["geometry"]).area, axis=1
-            )
+        # setting occupied area with all the buffers possible
+        occupied_areas = [
+            buildings_gdf,
+            services_gdf,
+            self._dwn_other(blocks_buffer),
+            self._dwn_landuse(blocks_buffer),
+            self._dwn_natural(blocks_buffer),
+            self._dwn_waterway(blocks_buffer),
+            self._dwn_highway(blocks_buffer),
+            self._dwn_railway(blocks_buffer),
+            self._dwn_path(blocks_buffer)
+            # self._dwn_leisure(blocks_buffer),
+            # self._dwn_amenity(blocks_buffer),
+            # self._dwn_buildings(blocks_buffer),
         ]
-        # # Vectorized operation for filtering based on area and length
-        blocks_filtered_area["length"] = blocks_filtered_area.geometry.length
-        blocks_filtered_area = blocks_filtered_area[(blocks_filtered_area["area"] / blocks_filtered_area["length"] >= self.min_lenght)]
+        occupied_area = pd.concat(occupied_areas)[["geometry"]]
+        occupied_area = occupied_area.loc[occupied_area.geom_type.isin(["Polygon", "MultiPolygon"])]
+        buffered_blocks_gdf = blocks_gdf.copy()
+        buffered_blocks_gdf["geometry"] = buffered_blocks_gdf["geometry"].buffer(self.blocks_buffer_max)
 
-        blocks_filtered_area.reset_index(drop=True, inplace=True)
-        return blocks_filtered_area
+        vacant_gdf = blocks_gdf.overlay(occupied_area, how="difference")
+        # vacant_gdf = blocks_gdf.overlay(vacant_gdf, how="intersection")
+        unified_geometry = vacant_gdf["geometry"].buffer(1.1).unary_union
+        vacant_gdf = gpd.GeoDataFrame(geometry=[unified_geometry], crs=self.city_model.crs)
+        vacant_gdf = vacant_gdf.explode().reset_index(drop=True)
+
+        # calculate filtering indicators
+        vacant_gdf["area"] = vacant_gdf["geometry"].area
+        vacant_gdf["mrr_area"] = vacant_gdf["geometry"].apply(lambda g: g.minimum_rotated_rectangle.area)
+        vacant_gdf["length"] = vacant_gdf["geometry"].apply(lambda g: g.length)
+        vacant_gdf["area_to_length"] = vacant_gdf["area"] / vacant_gdf["length"]
+        vacant_gdf["area_to_mrr_area"] = vacant_gdf["area"] / vacant_gdf["mrr_area"]
+
+        result_gdf = vacant_gdf.loc[vacant_gdf["area"] >= self.area_min]
+        result_gdf = result_gdf.loc[vacant_gdf["area_to_mrr_area"] >= self.area_to_mrr_area_min]
+        result_gdf = result_gdf.loc[vacant_gdf["area_to_length"] >= self.area_to_length_min]
+
+        result_gdf = result_gdf.sjoin(blocks_gdf, how="left", predicate="within")
+        result_gdf = result_gdf.rename(columns={"index_right": "block_id"})
+
+        return result_gdf.reset_index(drop=True)
