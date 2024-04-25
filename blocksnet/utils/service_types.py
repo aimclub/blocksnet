@@ -8,7 +8,7 @@ SERVICE_TYPES = [
         "name": "school",
         "demand": 120,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 250, "area": 12000, "is_integrated": False, "parking_area": 0},
             {"capacity": 300, "area": 11000, "is_integrated": False, "parking_area": 0},
@@ -25,7 +25,7 @@ SERVICE_TYPES = [
         "name": "kindergarten",
         "demand": 61,
         "accessibility": 7,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 180, "area": 7200, "is_integrated": False, "parking_area": 0},
             {"capacity": 250, "area": 14400, "is_integrated": False, "parking_area": 0},
@@ -40,7 +40,7 @@ SERVICE_TYPES = [
         "name": "hospital",
         "demand": 9,
         "accessibility": 60,
-        "land_use": ["mixed_use", "business", "special"],
+        "land_use": ["residential", "business", "special"],
         "bricks": [
             {"capacity": 110, "area": 3000, "is_integrated": False, "parking_area": 0},
             {"capacity": 400, "area": 25000, "is_integrated": False, "parking_area": 0},
@@ -53,7 +53,7 @@ SERVICE_TYPES = [
         "name": "polyclinic",
         "demand": 13,
         "accessibility": 10,
-        "land_use": ["residential", "mixed_use", "business", "special", "industrial"],
+        "land_use": ["residential", "business", "special", "industrial"],
         "bricks": [
             {"capacity": 100, "area": 1500, "is_integrated": False, "parking_area": 0},
             {"capacity": 150, "area": 2100, "is_integrated": False, "parking_area": 0},
@@ -70,7 +70,7 @@ SERVICE_TYPES = [
         "name": "pitch",
         "demand": 10,
         "accessibility": 60,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 10, "area": 150, "is_integrated": False, "parking_area": 0},
             {"capacity": 32, "area": 6000, "is_integrated": False, "parking_area": 0},
@@ -85,7 +85,7 @@ SERVICE_TYPES = [
         "name": "swimming_pool",
         "demand": 8,
         "accessibility": 30,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 50, "area": 7000, "is_integrated": False, "parking_area": 0},
             {"capacity": 100, "area": 12000, "is_integrated": False, "parking_area": 0},
@@ -100,7 +100,7 @@ SERVICE_TYPES = [
         "name": "stadium",
         "demand": 10,
         "accessibility": 30,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 2000, "area": 127500, "is_integrated": False, "parking_area": 0},
             {"capacity": 21000, "area": 283000, "is_integrated": False, "parking_area": 0},
@@ -112,7 +112,7 @@ SERVICE_TYPES = [
         "name": "theatre",
         "demand": 6,
         "accessibility": 60,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 800, "area": 5000, "is_integrated": False, "parking_area": 0},
             {"capacity": 1200, "area": 7000, "is_integrated": False, "parking_area": 0},
@@ -127,7 +127,7 @@ SERVICE_TYPES = [
         "name": "museum",
         "demand": 3,
         "accessibility": 60,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 1000, "area": 12000, "is_integrated": False, "parking_area": 0},
             {"capacity": 3500, "area": 132000, "is_integrated": False, "parking_area": 0},
@@ -142,7 +142,7 @@ SERVICE_TYPES = [
         "name": "cinema",
         "demand": 9,
         "accessibility": 60,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 680, "area": 2500, "is_integrated": False, "parking_area": 0},
             {"capacity": 560, "area": 2000, "is_integrated": False, "parking_area": 0},
@@ -156,7 +156,7 @@ SERVICE_TYPES = [
         "name": "mall",
         "demand": 8,
         "accessibility": 30,
-        "land_use": ["mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 7000, "area": 17000, "is_integrated": False, "parking_area": 0},
             {"capacity": 10000, "area": 22000, "is_integrated": False, "parking_area": 0},
@@ -171,7 +171,7 @@ SERVICE_TYPES = [
         "name": "convenience",
         "demand": 180,
         "accessibility": 5,
-        "land_use": ["residential", "mixed_use", "business", "industrial"],
+        "land_use": ["residential", "business", "industrial"],
         "bricks": [
             {"capacity": 50, "area": 30, "is_integrated": False, "parking_area": 0},
             {"capacity": 100, "area": 65, "is_integrated": False, "parking_area": 0},
@@ -186,7 +186,7 @@ SERVICE_TYPES = [
         "name": "supermarket",
         "demand": 900,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business", "industrial"],
+        "land_use": ["residential", "business", "industrial"],
         "bricks": [
             {"capacity": 200, "area": 150, "is_integrated": False, "parking_area": 0},
             {"capacity": 1500, "area": 300, "is_integrated": False, "parking_area": 0},
@@ -215,7 +215,7 @@ SERVICE_TYPES = [
         "name": "religion",
         "demand": 10,
         "accessibility": 30,
-        "land_use": ["mixed_use", "business", "special"],
+        "land_use": ["residential", "business", "special"],
         "bricks": [
             {"capacity": 1300, "area": 18000, "is_integrated": False, "parking_area": 0},
             {"capacity": 2700, "area": 46500, "is_integrated": False, "parking_area": 0},
@@ -228,7 +228,7 @@ SERVICE_TYPES = [
         "name": "market",
         "demand": 800,
         "accessibility": 30,
-        "land_use": ["mixed_use", "business", "industrial", "agriculture"],
+        "land_use": ["residential", "business", "industrial", "agriculture"],
         "bricks": [
             {"capacity": 15000, "area": 11000, "is_integrated": False, "parking_area": 0},
             {"capacity": 21000, "area": 30000, "is_integrated": False, "parking_area": 0},
@@ -244,7 +244,7 @@ SERVICE_TYPES = [
         "name": "bowling_alley",
         "demand": 9,
         "accessibility": 60,
-        "land_use": ["mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 80, "area": 700, "is_integrated": False, "parking_area": 0},
             {"capacity": 250, "area": 2000, "is_integrated": False, "parking_area": 0},
@@ -259,7 +259,7 @@ SERVICE_TYPES = [
         "name": "university",
         "demand": 13,
         "accessibility": 60,
-        "land_use": ["mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 500, "area": 14000, "is_integrated": False, "parking_area": 0},
             {"capacity": 1000, "area": 25000, "is_integrated": False, "parking_area": 0},
@@ -274,7 +274,7 @@ SERVICE_TYPES = [
         "name": "playground",
         "demand": 2,
         "accessibility": 4,
-        "land_use": ["residential", "mixed_use"],
+        "land_use": ["residential"],
         "bricks": [
             {"capacity": 20, "area": 50, "is_integrated": False, "parking_area": 0},
             {"capacity": 28, "area": 70, "is_integrated": False, "parking_area": 0},
@@ -286,7 +286,7 @@ SERVICE_TYPES = [
         "name": "pharmacy",
         "demand": 15,
         "accessibility": 15,
-        "land_use": ["mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 30, "area": 40, "is_integrated": False, "parking_area": 0},
             {"capacity": 50, "area": 63, "is_integrated": False, "parking_area": 0},
@@ -301,7 +301,7 @@ SERVICE_TYPES = [
         "name": "fuel",
         "demand": 33,
         "accessibility": 60,
-        "land_use": ["residential", "mixed_use", "business", "special", "industrial", "agriculture", "transport"],
+        "land_use": ["residential", "business", "special", "industrial", "agriculture", "transport"],
         "bricks": [
             {"capacity": 30, "area": 40, "is_integrated": False, "parking_area": 0},
             {"capacity": 50, "area": 63, "is_integrated": False, "parking_area": 0},
@@ -338,7 +338,7 @@ SERVICE_TYPES = [
         "name": "bank",
         "demand": 20,
         "accessibility": 30,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 250, "area": 450, "is_integrated": False, "parking_area": 0},
             {"capacity": 500, "area": 800, "is_integrated": False, "parking_area": 0},
@@ -351,7 +351,7 @@ SERVICE_TYPES = [
         "name": "lawyer",
         "demand": 14,
         "accessibility": 30,
-        "land_use": ["mixed_use", "business", "industrial"],
+        "land_use": ["residential", "business", "industrial"],
         "bricks": [
             {"capacity": 250, "area": 450, "is_integrated": False, "parking_area": 0},
             {"capacity": 500, "area": 800, "is_integrated": False, "parking_area": 0},
@@ -364,7 +364,7 @@ SERVICE_TYPES = [
         "name": "cafe",
         "demand": 25,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 25, "area": 1500, "is_integrated": False, "parking_area": 200},
             {"capacity": 45, "area": 750, "is_integrated": False, "parking_area": 375},
@@ -381,7 +381,7 @@ SERVICE_TYPES = [
         "name": "subway_entrance",
         "demand": 408,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business", "recreation", "industrial", "agriculture", "transport"],
+        "land_use": ["residential", "business", "recreation", "industrial", "agriculture", "transport"],
         "bricks": [
             {"capacity": 30000, "area": 14000, "is_integrated": False, "parking_area": 0},
             {"capacity": 50000, "area": 15000, "is_integrated": False, "parking_area": 0},
@@ -396,7 +396,7 @@ SERVICE_TYPES = [
         "name": "multifunctional_center",
         "demand": 408,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 80, "area": 700, "is_integrated": True, "parking_area": 400},
             {"capacity": 100, "area": 1000, "is_integrated": True, "parking_area": 600},
@@ -408,7 +408,7 @@ SERVICE_TYPES = [
         "name": "hairdresser",
         "demand": 10,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 20, "area": 600, "is_integrated": False, "parking_area": 0},
             {"capacity": 40, "area": 1000, "is_integrated": False, "parking_area": 0},
@@ -423,7 +423,7 @@ SERVICE_TYPES = [
         "name": "restaurant",
         "demand": 71,
         "accessibility": 30,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 45, "area": 200, "is_integrated": False, "parking_area": 0},
             {"capacity": 65, "area": 270, "is_integrated": False, "parking_area": 0},
@@ -440,7 +440,7 @@ SERVICE_TYPES = [
         "name": "bar",
         "demand": 25,
         "accessibility": 15,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 30, "area": 600, "is_integrated": False, "parking_area": 0},
             {"capacity": 50, "area": 100, "is_integrated": False, "parking_area": 0},
@@ -469,7 +469,7 @@ SERVICE_TYPES = [
         "name": "government",
         "demand": 1,
         "accessibility": 60,
-        "land_use": ["mixed_use", "business", "residential"],
+        "land_use": ["business", "residential"],
         "bricks": [
             {"capacity": 100, "area": 800, "is_integrated": False, "parking_area": 0},
             {"capacity": 150, "area": 1350, "is_integrated": False, "parking_area": 0},
@@ -481,7 +481,7 @@ SERVICE_TYPES = [
         "name": "recruitment",
         "demand": 15,
         "accessibility": 30,
-        "land_use": ["mixed_use", "business", "industrial"],
+        "land_use": ["residential", "business", "industrial"],
         "bricks": [
             {"capacity": 460, "area": 2300, "is_integrated": True, "parking_area": 125},
             {"capacity": 540, "area": 3100, "is_integrated": True, "parking_area": 168},
@@ -493,7 +493,7 @@ SERVICE_TYPES = [
         "name": "hotel",
         "demand": 9,
         "accessibility": 60,
-        "land_use": ["mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 300, "area": 24000, "is_integrated": False, "parking_area": 0},
             {"capacity": 500, "area": 27000, "is_integrated": False, "parking_area": 0},
@@ -522,7 +522,7 @@ SERVICE_TYPES = [
         "name": "circus",
         "demand": 1,
         "accessibility": 60,
-        "land_use": ["residential", "mixed_use", "business", "recreation", "special"],
+        "land_use": ["residential", "business", "recreation", "special"],
         "bricks": [
             {"capacity": 400, "area": 50, "is_integrated": True, "parking_area": 50},
             {"capacity": 480, "area": 60, "is_integrated": True, "parking_area": 600},
@@ -534,7 +534,7 @@ SERVICE_TYPES = [
         "name": "post",
         "demand": 933,
         "accessibility": 10,
-        "land_use": ["residential", "mixed_use", "business", "recreation", "special"],
+        "land_use": ["residential", "business", "recreation", "special"],
         "bricks": [
             {"capacity": 400, "area": 50, "is_integrated": True, "parking_area": 50},
             {"capacity": 480, "area": 60, "is_integrated": True, "parking_area": 600},
@@ -548,7 +548,6 @@ SERVICE_TYPES = [
         "accessibility": 10,
         "land_use": [
             "residential",
-            "mixed_use",
             "business",
             "recreation",
             "special",
@@ -569,7 +568,6 @@ SERVICE_TYPES = [
         "accessibility": 15,
         "land_use": [
             "residential",
-            "mixed_use",
             "business",
             "recreation",
             "special",
@@ -588,7 +586,7 @@ SERVICE_TYPES = [
         "name": "hostel",
         "demand": 9,
         "accessibility": 60,
-        "land_use": ["mixed_use", "business", "recreation"],
+        "land_use": ["residential", "business", "recreation"],
         "bricks": [
             {"capacity": 200, "area": 1600, "is_integrated": False, "parking_area": 0},
             {"capacity": 20, "area": 100, "is_integrated": True, "parking_area": 125},
@@ -601,7 +599,7 @@ SERVICE_TYPES = [
         "name": "bakery",
         "demand": 8,
         "accessibility": 10,
-        "land_use": ["residential", "mixed_use", "business"],
+        "land_use": ["residential", "business"],
         "bricks": [
             {"capacity": 150, "area": 70, "is_integrated": True, "parking_area": 50},
             {"capacity": 200, "area": 90, "is_integrated": True, "parking_area": 60},
@@ -613,7 +611,7 @@ SERVICE_TYPES = [
         "name": "parking",
         "demand": 378,
         "accessibility": 7,
-        "land_use": ["residential", "mixed_use"],
+        "land_use": ["residential"],
         "bricks": [
             {"capacity": 50, "area": 1250, "is_integrated": False, "parking_area": 0},
             {"capacity": 190, "area": 4750, "is_integrated": False, "parking_area": 0},
