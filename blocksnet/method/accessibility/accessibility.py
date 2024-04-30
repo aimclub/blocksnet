@@ -17,7 +17,7 @@ class Accessibility(BaseMethod):
         else:
             gdf.plot(column="distance", cmap="cool", legend=True, vmin=0, vmax=60).set_axis_off()
 
-    def calculate(self, block: Block):
+    def calculate(self, block: Block | int):
         blocks_list = map(lambda b: {"id": b.id, "geometry": b.geometry}, self.city_model.blocks)
         blocks_gdf = gpd.GeoDataFrame(blocks_list).set_crs(epsg=self.city_model.epsg)
         blocks_gdf["distance"] = blocks_gdf["id"].apply(lambda b: self.city_model.get_distance(block, b))

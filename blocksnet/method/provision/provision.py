@@ -12,7 +12,9 @@ from ...models import Block, ServiceType
 from ..base_method import BaseMethod
 from enum import Enum
 
-PLOT_KWARGS = {"column": "provision", "cmap": "RdYlGn", "vmin": 0, "vmax": 1, "legend": True}
+PROVISION_COLUMN = "provision"
+
+PLOT_KWARGS = {"column": PROVISION_COLUMN, "cmap": "RdYlGn", "vmin": 0, "vmax": 1, "legend": True}
 
 
 class ProvisionMethod(Enum):
@@ -54,18 +56,22 @@ class Provision(BaseMethod):
         prov_delta = self.total_provision(gdf_after) - self.total_provision(gdf_before)
         axes["delta"].set_title("Provision delta: " + f"{prov_delta: .3f}")
 
-    def plot_provisions(self, provisions: dict[str, gpd.GeoDataFrame]):
-        def show_me_chart(ax, gdf, name, sum):
-            gdf.plot(column="provision", legend=True, ax=ax, cmap="RdYlGn", vmin=0, vmax=1)
-            gdf[gdf["demand"] == 0].plot(ax=ax, color="#ddd", alpha=1)
-            ax.set_title(str(name.name) + " provision: " + f"{sum: .3f}")
-            ax.set_axis_off()
+    def plot_provisions(self, provisions: dict[str, gpd.GeoDataFrame], figsize=(20, 20)):
 
         n_plots = len(provisions)
-        _, axs = plt.subplots(nrows=n_plots // 2 + n_plots % 2, ncols=2, figsize=(20, 20))
-        for i, (service_type, provision_gdf) in enumerate(provisions.items()):
-            show_me_chart(axs[i // 2][i % 2], provision_gdf, service_type, self.total_provision(provision_gdf))
-        plt.show()
+        n_cols = 2
+        n_rows = n_plots // n_cols + n_plots % n_cols
+
+        fig = plt.figure(figsize=figsize)
+        grid = GridSpec(n_rows, n_cols)
+
+        for i, (service_type_name, provision_gdf) in enumerate(provisions.items()):
+            ax = fig.add_subplot(grid[i // n_cols, i % n_cols])
+            provision_gdf.plot(ax=ax, color="#ddd")
+            provision_gdf.plot(ax=ax, **PLOT_KWARGS)
+            total = self.total_provision(provision_gdf)
+            ax.set_title(f"{service_type_name} provision: {total: .3f}")
+            ax.set_axis_off()
 
     def _get_blocks_gdf(self, service_type: ServiceType) -> gpd.GeoDataFrame:
         """Returns blocks gdf for provision assessment"""

@@ -6,7 +6,6 @@ from ..provision import Provision
 from pydantic import Field, InstanceOf
 import itertools
 import pygad
-from ...utils import SQUARE_METERS_IN_HECTARE
 
 FREE_SPACE_COEFFICIENT = 0.8
 
@@ -88,17 +87,16 @@ class Genetic(BaseMethod):
         _, fitness = self.PROVISION.calculate_scenario(self.SCENARIO, updated_blocks)
         return fitness
 
-    def get_blocks(self, selected_blocks: list[Block]):
+    def get_blocks_gdf(self, selected_blocks: list[Block]):
         data = [
             {
                 "id": b.id,
                 "geometry": b.geometry,
-                "free_area": (b.site_area * FREE_SPACE_COEFFICIENT - b.industrial_area - b.living_area)
-                / SQUARE_METERS_IN_HECTARE,
+                "free_area": (b.site_area * FREE_SPACE_COEFFICIENT - b.footprint_area),
             }
             for b in selected_blocks
         ]
-        gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(epsg=self.city_model.epsg)
+        gdf = gpd.GeoDataFrame(data).set_index("id").set_crs(self.city_model.crs)
         return gdf.reset_index()
 
     @property
@@ -124,7 +122,7 @@ class Genetic(BaseMethod):
         """Calculation of the optimal development option by services for blocks"""
         if selected_blocks is not None:
             selected_blocks = map(lambda b: b if isinstance(b, Block) else self.city_model[b], selected_blocks)
-        self.BLOCKS = self.get_blocks(selected_blocks if selected_blocks is not None else self.city_model.blocks)
+        self.BLOCKS = self.get_blocks_gdf(selected_blocks if selected_blocks is not None else self.city_model.blocks)
         self.PROVISION = Provision(city_model=self.city_model)
         services_dict, services_df = self.flatten_dict(self.bricks_dict)
         combinations = self.get_combinations(services_dict, comb_len)

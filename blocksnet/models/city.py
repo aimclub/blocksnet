@@ -7,6 +7,7 @@ from functools import singledispatchmethod
 import statistics
 import warnings
 
+from attr import field
 import geopandas as gpd
 import networkx as nx
 import pandas as pd
@@ -44,12 +45,25 @@ class BlockService(Service):
     @classmethod
     def validate_model(cls, data):
         # set service area as geometry's area
-        area = data["geometry"].area
+        geometry = data["geometry"]
+        # if not (isinstance(geometry, Polygon) or isinstance(geometry, MultiPolygon)):
+        #     service_type = data["service_type"]
+        #     bricks = service_type.get_bricks(is_integrated=False)
+        #     if len(bricks) == 0:
+        #         bricks = service_type.get_bricks(is_integrated=True)
+        #     brick = min(bricks, key=lambda x: abs(x.area))
+        #     brick_area = brick.area
+        #     radius = math.sqrt(brick_area/math.pi)
+        #     geometry = geometry.buffer(radius)
+        #     data['geometry'] = geometry
+        area = geometry.area
         data["area"] = area
         # if there is no data about capacity in service
-        if not "capacity" in data:
+        if not "capacity" in data or math.isnan(data["capacity"]):
             service_type = data["service_type"]
             bricks = service_type.get_bricks(is_integrated=False)
+            if len(bricks) == 0:
+                bricks = service_type.get_bricks(is_integrated=True)
             brick = min(bricks, key=lambda x: abs(x.area - area))
             data["capacity"] = brick.capacity
         return data
@@ -68,11 +82,13 @@ class BuildingService(Service):
         # set service's geometry as building's representative point (centroid)
         data["geometry"] = data["building"].geometry.representative_point()
         # if there is no data about area in service
-        if not "area" in data:
+        if not "area" in data or math.isnan(data["area"]):
             service_type = data["service_type"]
             bricks = service_type.get_bricks(is_integrated=True)
+            if len(bricks) == 0:
+                bricks = service_type.get_bricks(is_integrated=False)
             # we try to find similar to our capacity
-            if "capacity" in data:
+            if "capacity" in data and not math.isnan(data["capacity"]):
                 capacity = data["capacity"]
                 brick = min(bricks, key=lambda x: abs(x.capacity - capacity))
                 data["area"] = brick.area
@@ -120,7 +136,7 @@ class Building(BaseModel):
         return self.living_area > 0
 
     def update_services(self, service_type: ServiceType, gdf: gpd.GeoDataFrame | None = None):
-        """Update services of the building"""
+        """Update integrated services of the building"""
         if gdf is None:
             self.services = list(filter(lambda s: s.service_type != service_type, self.services))
         else:
@@ -316,16 +332,18 @@ class Block(BaseModel):
         data = [building.to_dict() for building in self.buildings]
         return gpd.GeoDataFrame(data, crs=self.city.crs).set_index("id")
 
-    def to_dict(self) -> dict:
-        return {
+    def to_dict(self, simplify=False) -> dict:
+        res = {
             "id": self.id,
             "geometry": self.geometry,
             "land_use": None if self.land_use is None else self.land_use.value,
             "is_living": self.is_living,
             **self.buildings_indicators,
             **self.territory_indicators,
-            **self.services_indicators,
         }
+        if not simplify:
+            res = {**res, **self.services_indicators}
+        return res
 
     def update_buildings(self, gdf: gpd.GeoDataFrame | None = None):
         """Update buildings GeoDataFrame of the block"""
@@ -335,24 +353,12 @@ class Block(BaseModel):
             self.buildings = [Building(id=i, **gdf.loc[i].to_dict(), block=self) for i in gdf.index]
 
     def update_services(self, service_type: ServiceType, gdf: gpd.GeoDataFrame | None = None):
-        """Update services of the block"""
+        """Update non-integrated services of the block"""
         if gdf is None:
             self.services = list(filter(lambda s: s.service_type != service_type, self.services))
-            for building in self.buildings:
-                building.update_services(service_type)
         else:
-            sjoin = gdf.sjoin(self.get_buildings_gdf()[["geometry"]], how="left")
-            # for each building that has some services intersection we update it
-            groups = sjoin.groupby("index_right")
-            for building_id, services_gdf in groups:
-                self[int(building_id)].update_services(service_type, services_gdf.drop(columns=["index_right"]))
-            # for services that do not intersect anything we just update block services
-            block_services_gdf = sjoin.loc[sjoin["index_right"].isna()]
-            block_services = [
-                BlockService(service_type=service_type, block=self, **block_services_gdf.loc[i].to_dict())
-                for i in block_services_gdf.index
-            ]
-            self.services = [*self.services, *block_services]
+            services = [BlockService(service_type=service_type, block=self, **gdf.loc[i].to_dict()) for i in gdf.index]
+            self.services = [*self.services, *services]
 
     @classmethod
     def from_gdf(cls, gdf: gpd.GeoDataFrame, city: City) -> dict[int, Block]:
@@ -459,8 +465,8 @@ class City:
         services = [s.to_dict() for s in self.services]
         return gpd.GeoDataFrame(services, crs=self.crs)
 
-    def get_blocks_gdf(self) -> gpd.GeoDataFrame:
-        blocks = [b.to_dict() for b in self.blocks]
+    def get_blocks_gdf(self, simplify=False) -> gpd.GeoDataFrame:
+        blocks = [b.to_dict(simplify) for b in self.blocks]
         return gpd.GeoDataFrame(blocks, crs=self.crs).set_index("id")
 
     def update_buildings(self, gdf: gpd.GeoDataFrame):
@@ -479,14 +485,25 @@ class City:
         """Update services in blocks of certain service_type"""
         assert gdf.crs == self.crs, "Services GeoDataFrame CRS should match city CRS"
         service_type = self[service_type]
-        # reset services of blocks
+        # reset services of blocks and buildings
         for block in self.blocks:
             block.update_services(service_type)
-        # spatial join blocks and services and update related blocks info
-        sjoin = gdf.sjoin(self.get_blocks_gdf()[["geometry"]], how="left")
-        groups = sjoin.groupby("index_right")
-        for block_id, services_gdf in groups:
-            self[int(block_id)].update_services(service_type, services_gdf.drop(columns=["index_right"]))
+        for building in self.buildings:
+            building.update_services(service_type)
+        # spatial join buildings and services and update related blocks info
+        buildings_gdf = self.get_buildings_gdf()
+        building_services = gdf.sjoin(buildings_gdf[["geometry", "block_id"]])
+        for building_info, services_gdf in building_services.groupby(["index_right", "block_id"]):
+            building_id, block_id = building_info
+            building = self[int(block_id)][int(building_id)]
+            building.update_services(service_type, services_gdf)
+        # spatial join block and rest of services
+        blocks_gdf = self.get_blocks_gdf()
+        block_services = gdf.loc[~gdf.index.isin(building_services.index)]
+        block_services = block_services.sjoin(blocks_gdf[["geometry"]])
+        for block_id, gdf in block_services.groupby(["index_right"]):
+            block = self[int(block_id)]
+            block.update_services(service_type, gdf)
 
     def add_service_type(self, service_type: ServiceType):
         if service_type.name in self:
