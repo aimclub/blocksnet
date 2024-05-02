@@ -62,8 +62,10 @@ class Provision(BaseMethod):
     def _aggregate_unit(self, groupby):
         res = groupby.agg({
             'capacity':'sum',
+            'capacity_left':'sum',
             'demand': 'sum',
-            'demand_within': 'sum'
+            'demand_within': 'sum',
+            'demand_without': 'sum',
         })
         res['provision'] = res['demand_within']/res['demand']
         return res
@@ -117,6 +119,13 @@ class Provision(BaseMethod):
         gdf["demand_left"] = gdf["demand"]
         gdf["demand_within"] = 0
         gdf["demand_without"] = 0
+
+        #test block
+        gdf['demand_within'] = gdf.apply(lambda x : min(x['capacity'], x['demand']), axis=1)
+        gdf['demand_left'] = gdf['demand'] - gdf['demand_within']
+        gdf['capacity_left'] = gdf['capacity'] - gdf['demand_within']
+        #test block
+
         return gdf
 
     @classmethod
@@ -172,18 +181,18 @@ class Provision(BaseMethod):
         """Transport problem assessment method"""
         gdf = gdf.copy()
 
-        delta = gdf["demand"].sum() - gdf["capacity"].sum()
+        delta = gdf["demand_left"].sum() - gdf["capacity_left"].sum()
         fictive_index = None
         fictive_column = None
         fictive_town_id = gdf.index.max() + 1
         if delta > 0:
             fictive_column = fictive_town_id
             gdf.loc[fictive_column, "capacity"] = delta
+            gdf.loc[fictive_column, "capacity_left"] = delta
         if delta < 0:
             fictive_index = fictive_town_id
             gdf.loc[fictive_index, "demand"] = -delta
-        gdf["capacity_left"] = gdf["capacity"]
-        gdf['demand_left'] = gdf['demand']
+            gdf.loc[fictive_index, "demand_left"] = -delta
 
         def _get_weight(town_a_id: int, town_b_id: int):
             if town_a_id == fictive_town_id or town_b_id == fictive_town_id:
@@ -203,16 +212,16 @@ class Provision(BaseMethod):
             distance = self.region[town_a, town_b]
             return distance
 
-        demand = gdf.loc[gdf["demand"] > 0]
-        capacity = gdf.loc[gdf["capacity"] > 0]
+        demand = gdf.loc[gdf["demand_left"] > 0]
+        capacity = gdf.loc[gdf["capacity_left"] > 0]
 
         prob = LpProblem("Transportation", LpMinimize)
         x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None)
         prob += lpSum(_get_weight(n, m) * x[n, m] for n in demand.index for m in capacity.index)
         for n in demand.index:
-            prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, "demand"]
+            prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, "demand_left"]
         for m in capacity.index:
-            prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, "capacity"]
+            prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, "capacity_left"]
         prob.solve(PULP_CBC_CMD(msg=False))
         edges = []
         # make the output
