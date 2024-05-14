@@ -11,4 +11,4 @@ __license__ = "BSD-3"
 
 from blocksnet.method import Accessibility, Connectivity, Provision, Genetic
 from blocksnet.models import City, BaseRow, GeoDataFrame, ServiceType, ServiceBrick, LandUse
-from blocksnet.preprocessing import AdjacencyCalculator, GraphGenerator, BlocksGenerator
+from blocksnet.preprocessing import AdjacencyCalculator, GraphGenerator, BlocksGenerator, LandUseProcessor
