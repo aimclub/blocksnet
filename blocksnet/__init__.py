@@ -9,6 +9,6 @@ __credits__ = []
 __license__ = "BSD-3"
 
 
-from blocksnet.method import Accessibility, Connectivity, Provision, Genetic
-from blocksnet.models import City, BaseRow, GeoDataFrame, ServiceType, ServiceBrick, LandUse
-from blocksnet.preprocessing import AdjacencyCalculator, GraphGenerator, BlocksGenerator, LandUseProcessor
+from blocksnet.method import *
+from blocksnet.models import *
+from blocksnet.preprocessing import *

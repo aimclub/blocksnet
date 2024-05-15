@@ -44,10 +44,7 @@ class GeoDataFrame(gpd.GeoDataFrame, BaseModel, Generic[T]):
         if not isinstance(data, gpd.GeoDataFrame):
             data = gpd.GeoDataFrame(data, *args, **kwargs)
         # next we create list of dicts from BaseRow inherited class
-        rows: list[dict] = []
-        for i in data.index:
-            dict = data.loc[i].to_dict()
-            rows.append(generic_class(index=i, **dict).__dict__)
+        rows: list[dict] = [generic_class(index=i, **data.loc[i].to_dict()).__dict__ for i in data.index]
         super().__init__(rows)
         # and finally return index to where it belongs
         if "index" in self.columns:

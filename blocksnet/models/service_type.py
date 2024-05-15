@@ -1,7 +1,6 @@
 import math
 
 from pydantic import BaseModel, Field, field_validator
-from ..utils import SQUARE_METERS_IN_HECTARE
 from .land_use import LandUse
 
 
