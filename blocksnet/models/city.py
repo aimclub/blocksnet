@@ -467,7 +467,16 @@ class City:
 
     def get_blocks_gdf(self, simplify=False) -> gpd.GeoDataFrame:
         blocks = [b.to_dict(simplify) for b in self.blocks]
-        return gpd.GeoDataFrame(blocks, crs=self.crs).set_index("id")
+        gdf = gpd.GeoDataFrame(blocks, crs=self.crs).set_index("id")
+        if not simplify:
+            for service_type in self.service_types:
+                ...
+                capacity_column = f"capacity_{service_type.name}"
+                if not capacity_column in gdf.columns:
+                    gdf[capacity_column] = 0
+                else:
+                    gdf[capacity_column] = gdf[capacity_column].fillna(0)
+        return gdf
 
     def update_buildings(self, gdf: gpd.GeoDataFrame):
         """Update buildings in blocks"""
