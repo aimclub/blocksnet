@@ -12,8 +12,7 @@ from pydantic import BaseModel, InstanceOf, field_validator
 from shapely import Polygon
 import math
 
-from ..models import BaseRow, GeoDataFrame
-from .graph_generator import GraphGenerator
+from ..models.geodataframe import BaseRow, GeoDataFrame
 
 
 class BlockRow(BaseRow):

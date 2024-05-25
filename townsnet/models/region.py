@@ -2,127 +2,136 @@ from functools import singledispatchmethod
 from pydantic import BaseModel, InstanceOf, field_validator, Field
 from typing import Optional
 import dill as pickle
+import pyproj
 import shapely
 import geopandas as gpd
 import pandas as pd
-from .geodataframe import GeoDataFrame, BaseRow
-from ..utils import SERVICE_TYPES
-from .service_type import ServiceType
-
-class RayonRow(BaseRow):
-    name : str
-    geometry : shapely.Polygon | shapely.MultiPolygon
-
-class OkrugRow(BaseRow):
-    name : str
-    geometry : shapely.Polygon | shapely.MultiPolygon
-
-class TownRow(BaseRow):
-    name : str
-    geometry : shapely.Point
-    population : int
-
-class ServiceRow(BaseRow):
-    geometry : shapely.Point
-    capacity : int = Field(gt=0)
-
-class Town(BaseModel):
-    id : int
-    name : str
-    population : int
-    geometry : InstanceOf[shapely.Point]
-    _capacities : dict[ServiceType, int] = {}
-
-    def __contains__(self, service_type: ServiceType) -> bool:
-        """Returns True if service type is contained in town"""
-        return service_type in self._capacities
-
-    def __getitem__(self, service_type: ServiceType) -> dict[str, int]:
-        """Get service type capacity and demand of the town"""
-        result = {"capacity": 0, "demand": service_type.calculate_in_need(self.population)}
-        if service_type in self._capacities:
-            result["capacity"] = self._capacities[service_type]
-        return result
-
-    def to_dict(self):
-        res = {
-            'id': self.id,
-            'name': self.name,
-            'population': self.population,
-            'geometry': self.geometry
-        }
-        for service_type in self._capacities.keys():
-            st_dict = self[service_type]
-            for key, value in st_dict.items():
-                res[f'{service_type.name}_{key}'] = value
-        return res
-
-    @classmethod
-    def from_gdf(cls, gdf):
-        res = {}
-        for i in gdf.index:
-            res[i] = cls(id=i, **gdf.loc[i].to_dict())
-        return res 
-
-    def update_capacity(self, service_type : ServiceType, value : int = 0):
-        self._capacities[service_type] = value
+from ..utils.basic_service_types import BASIC_SERVICE_TYPES
+from .service_type import ServiceType, ServiceCategory
+from .town import Town, Service
 
 class Region():
+    
+    def __init__(self, districts : gpd.GeoDataFrame, settlements : gpd.GeoDataFrame, towns : gpd.GeoDataFrame, accessibility_matrix : pd.DataFrame):
+        
+        districts = self.validate_districts(districts)
+        settlements = self.validate_settlements(settlements)
+        towns = self.validate_towns(towns)
+        accessibility_matrix = self.validate_accessibility_matrix(accessibility_matrix)
 
-    def __init__(self, rayons : GeoDataFrame[RayonRow] | gpd.GeoDataFrame, okrugs : GeoDataFrame[OkrugRow] | gpd.GeoDataFrame, towns : GeoDataFrame[TownRow] | gpd.GeoDataFrame, adjacency_matrix : pd.DataFrame):
-        if not isinstance(rayons, GeoDataFrame[RayonRow]):
-            rayons = GeoDataFrame[RayonRow](rayons)
-        if not isinstance(okrugs, GeoDataFrame[OkrugRow]):
-            okrugs = GeoDataFrame[OkrugRow](okrugs)
-        if not isinstance(towns, GeoDataFrame[TownRow]):
-            towns = GeoDataFrame[TownRow](towns)
-        assert (adjacency_matrix.index == adjacency_matrix.columns).all(), "Adjacency matrix indices and columns don't match"
-        assert (adjacency_matrix.index == towns.index).all(), "Adjacency matrix indices and towns indices don't match"
-        assert(rayons.crs == okrugs.crs and okrugs.crs == towns.crs), 'CRS should march everywhere'
+        assert (accessibility_matrix.index == towns.index).all(), "Accessibility matrix indices and towns indices don't match"
+        assert(districts.crs == settlements.crs == towns.crs), 'CRS should match everywhere'
+
         self.crs = towns.crs
-        self.rayons = rayons
-        self.okrugs = okrugs
-        self.adjacency_matrix = adjacency_matrix
+        self.districts = districts
+        self.settlements = settlements
         self._towns = Town.from_gdf(towns)
-        self._service_types = {}
-        for st in SERVICE_TYPES:
-            service_type = ServiceType(**st)
-            self._service_types[service_type.name] = service_type
+        self.accessibility_matrix = accessibility_matrix
 
-    def update_capacities(self, service_type: ServiceType | str, gdf: GeoDataFrame[ServiceRow]):
+        service_types = {}
+        for infrastructure, service_types_dicts in BASIC_SERVICE_TYPES.items():
+            for service_type_dict in service_types_dicts:
+                service_types[service_type_dict['name']] = ServiceType(category=ServiceCategory.BASIC, infrastructure=infrastructure, **service_type_dict)
+        self._service_types = service_types
+
+    @staticmethod
+    def validate_districts(gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        assert isinstance(gdf, gpd.GeoDataFrame), 'Districts should be instance of gpd.GeoDataFrame'
+        assert gdf.geom_type.isin(['Polygon', 'MultiPolygon']).all(), 'District geometry should be Polygon or MultiPolygon'
+        assert pd.api.types.is_string_dtype(gdf['name']), 'District name should be str'
+        return gdf[['geometry', 'name']]
+
+    @staticmethod
+    def validate_settlements(gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        assert isinstance(gdf, gpd.GeoDataFrame), 'Settlements should be instance of gpd.GeoDataFrame'
+        assert gdf.geom_type.isin(['Polygon', 'MultiPolygon']).all(), 'Settlement geometry should be Polygon or MultiPolygon'
+        assert pd.api.types.is_string_dtype(gdf['name']), 'Settlement name should be str'
+        return gdf[['geometry', 'name']]
+    
+    @staticmethod
+    def validate_towns(gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        assert isinstance(gdf, gpd.GeoDataFrame), 'Towns should be instance of gpd.GeoDataFrame'
+        return gdf[['geometry', 'name', 'population']]
+    
+    @staticmethod
+    def validate_accessibility_matrix(df : pd.DataFrame) -> pd.DataFrame:
+        assert pd.api.types.is_float_dtype(df.values), 'Accessibility matrix values should be float'
+        assert (df.values>=0).all(), 'Accessibility matrix values should be greater or equal 0'
+        assert (df.index == df.columns).all(), "Accessibility matrix indices and columns don't match"
+        return df
+    
+    @staticmethod
+    def validate_services(gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        assert isinstance(gdf, gpd.GeoDataFrame), 'Services should be instance of gpd.GeoDataFrame'
+        return gdf[['geometry', 'town_id', 'capacity']]
+
+    @property
+    def towns(self) -> list[Town]:
+        return self._towns.values()
+
+    @property
+    def service_types(self) -> list[ServiceType]:
+        return self._service_types.values()
+    
+    @property
+    def geometry(self) -> shapely.Polygon | shapely.MultiPolygon:
+        return self.districts.to_crs(4326).unary_union
+    
+    def match_services_towns(self, gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        assert gdf.crs == self.crs, 'Services GeoDataFrame CRS should match region CRS'
+        gdf = gdf.copy()
+        towns_gdf = self.get_towns_gdf()[['geometry', 'population']]
+        
+        def get_closest_city(service_i):
+            service_gdf = gdf[gdf.index == service_i]
+            sjoin = towns_gdf.sjoin_nearest(service_gdf, distance_col='distance')
+            sjoin['weight'] = sjoin['population'] / sjoin['distance'] / sjoin['distance']
+            return sjoin['weight'].idxmax()
+        
+        gdf['town_id'] = gdf.apply(lambda s : get_closest_city(s.name), axis=1)
+        return gdf
+
+
+    def update_services(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame):
         """Update capacities in towns of certain service_type"""
+        gdf = self.validate_services(gdf)
         assert gdf.crs == self.crs, "Services GeoDataFrame CRS should match region CRS"
         if not isinstance(service_type, ServiceType):
             service_type = self[service_type]
         # reset services of towns
         for town in self.towns:
-            town.update_capacity(service_type)
+            town.update_services(service_type)
         # spatial join blocks and services and update related blocks info
-        sjoin = gdf.sjoin_nearest(self.get_towns_gdf())
-        groups = sjoin.groupby("index_right")
+        groups = gdf.groupby("town_id")
         for town_id, services_gdf in groups:
-            self[town_id].update_capacity(service_type, services_gdf['capacity'].sum())
+            self[town_id].update_services(service_type, services_gdf)
 
-    def get_towns_gdf(self):
-        towns = [town.to_dict() for town in self.towns]
-        return gpd.GeoDataFrame(towns).set_index('id').set_crs(self.crs).fillna(0)
+    def get_services_gdf(self) -> gpd.GeoDataFrame:
+        data = [{'town':town.name, **service.to_dict()} for town in self.towns for service in town.services]
+        return gpd.GeoDataFrame(data, crs=self.crs)
 
-    def to_gdf(self):
-        gdf = self.get_towns_gdf().sjoin(
-            self.okrugs[['geometry', 'name']].rename(columns={'name': 'okrug_name'}), 
-            how='left', 
-            predicate='within',
-            lsuffix='_town', 
-            rsuffix='_okrug'
-        )
+    def get_towns_gdf(self) -> gpd.GeoDataFrame:
+        data = [town.to_dict() for town in self.towns]
+        gdf = gpd.GeoDataFrame(data, crs=self.crs).rename(columns={'name': 'town_name'}).set_index('id', drop=True)
         gdf = gdf.sjoin(
-            self.rayons[['geometry', 'name']].rename(columns={'name':'rayon_name'}),
+            self.settlements[['geometry', 'name']].rename(columns={'name': 'settlement_name'}), 
             how='left',
             predicate='within',
-            lsuffix='_town',
-            rsuffix='_rayon'
+            lsuffix='town',
+            rsuffix='settlement'
         )
-        return gdf.drop(columns=['index__okrug', 'index__rayon'])
+        gdf = gdf.sjoin(
+            self.districts[['geometry', 'name']].rename(columns={'name':'district_name'}),
+            how='left',
+            predicate='within',
+            lsuffix='town',
+            rsuffix='district'
+        )
+        return gdf.drop(columns=['index_settlement', 'index_district']).fillna(0)
+    
+    def get_service_types_df(self) -> pd.DataFrame:
+        data = [service_type.to_dict() for service_type in self.service_types]
+        return pd.DataFrame(data)
 
     @singledispatchmethod
     def __getitem__(self, arg):
@@ -149,12 +158,17 @@ class Region():
             town_a = town_a.id
         if isinstance(town_b, Town):
             town_b = town_b.id
-        return self.adjacency_matrix.loc[town_a, town_b]
+        return self.accessibility_matrix.loc[town_a, town_b]
+    
+    @staticmethod
+    def from_pickle(file_path: str):
+        """Load region model from a .pickle file"""
+        state = None
+        with open(file_path, "rb") as f:
+            state = pickle.load(f)
+        return state
 
-    @property
-    def towns(self):
-        return self._towns.values()
-
-    @property
-    def service_types(self):
-        return self._service_types.values()
+    def to_pickle(self, file_path: str):
+        """Save region model to a .pickle file"""
+        with open(file_path, "wb") as f:
+            pickle.dump(self, f)
