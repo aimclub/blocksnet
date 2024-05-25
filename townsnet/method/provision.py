@@ -7,14 +7,24 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.gridspec import GridSpec
-from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum
+from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum, LpInteger
 
 from ..models.region import Town
 from ..models.service_type import ServiceType
 from .base_method import BaseMethod
 
+PROVISION_COLUMN = 'provision'
+DEMAND_COLUMN = 'demand'
+DEMAND_WITHIN_COLUMN = 'demand_within'
+DEMAND_WITHOUT_COLUMN = 'demand_without'
+DEMAND_LEFT_COLUMN = 'demand_left'
+CAPACITY_COLUMN = 'capacity'
+CAPACITY_LEFT_COLUMN = 'capacity_left'
+
+DRIVE_SPEED = 283.33
+
 PLOT_KWARGS = {
-  'column' : 'provision',
+  'column' : PROVISION_COLUMN,
   'cmap': 'RdYlGn',
   'vmin':0,
   'vmax':1,
@@ -22,62 +32,61 @@ PLOT_KWARGS = {
 }
 
 class ProvisionMethod(Enum):
-    ITERATIVE = 'iterative',
-    LINEAR = 'linear',
-    GRAVITATIONAL = 'gravitational'
+    GRAVITATIONAL = "gravitational"
+    LINEAR = "linear"
 
 class Provision(BaseMethod):
     """Class provides methods for service type provision assessment"""
 
     @staticmethod
     def _plot_provision(ax, gdf):
-        gdf.sort_values(by='provision').plot(
+        gdf.sort_values(by=PROVISION_COLUMN).plot(
             ax=ax,
             zorder=1,
             **PLOT_KWARGS
-        )  
+        )
 
-    def _plot_rayons(self, ax, gdf):
+    def _plot_districts(self, ax, gdf):
         self._plot_provision(ax,gdf)
-        ax.set_title('Rayons')
+        ax.set_title('Districts')
 
-    def _plot_okrugs(self, ax, gdf):
+    def _plot_settlements(self, ax, gdf):
         self._plot_provision(ax,gdf)
-        ax.set_title('Okrugs')   
+        ax.set_title('Settlements') 
 
-    def _plot_towns(self, ax, service_type, prov_gdf, weights_gdf):
+    def _plot_towns(self, ax, service_type, prov_gdf, links_gdf):
         service_type_name = service_type.name
         total_provision = self.total_provision(prov_gdf)
-        weights_gdf.sort_values(by='demand').plot(
-            ax=ax, 
+        links_gdf.sort_values(by=DEMAND_COLUMN).plot(
+            ax=ax,
             zorder=0,
-            column='demand', 
-            cmap='cool', 
-            alpha=1, 
-            vmax=200, 
+            column=DEMAND_COLUMN,
+            cmap='cool',
+            alpha=1,
+            vmax=200,
         )
         self._plot_provision(ax, prov_gdf)
         ax.set_title(f'Provision {service_type_name}: {total_provision: .3f}')
 
     def _aggregate_unit(self, groupby):
         res = groupby.agg({
-            'capacity':'sum',
-            'capacity_left':'sum',
-            'demand': 'sum',
-            'demand_within': 'sum',
-            'demand_without': 'sum',
+            CAPACITY_COLUMN:'sum',
+            CAPACITY_LEFT_COLUMN:'sum',
+            DEMAND_COLUMN: 'sum',
+            DEMAND_WITHIN_COLUMN: 'sum',
+            DEMAND_WITHOUT_COLUMN: 'sum',
         })
-        res['provision'] = res['demand_within']/res['demand']
+        res[PROVISION_COLUMN] = res[DEMAND_WITHIN_COLUMN]/res[DEMAND_COLUMN]
         return res
 
     def aggregate_units(self, prov_gdf):
-        okrugs_gdf = self._aggregate_unit(prov_gdf.groupby('okrug_name'))
-        rayons_gdf = self._aggregate_unit(prov_gdf.groupby('rayon_name'))
-        okrugs_gdf = self.region.okrugs.merge(okrugs_gdf, left_on='name', right_index=True)
-        rayons_gdf = self.region.rayons.merge(rayons_gdf, left_on='name', right_index=True)
-        return okrugs_gdf, rayons_gdf
+        settlements_gdf = self._aggregate_unit(prov_gdf.groupby('settlement_name'))
+        districts_gdf = self._aggregate_unit(prov_gdf.groupby('district_name'))
+        settlements_gdf = self.region.settlements.merge(settlements_gdf, left_on='name', right_index=True)
+        districts_gdf = self.region.districts.merge(districts_gdf, left_on='name', right_index=True)
+        return settlements_gdf, districts_gdf
 
-    def plot(self, service_type, prov_gdf: gpd.GeoDataFrame, weights_gdf : gpd.GeoDataFrame, figsize=(15,15)):
+    def plot(self, service_type, prov_gdf: gpd.GeoDataFrame, links_gdf : gpd.GeoDataFrame, figsize=(15,15)):
         """Visualizes provision assessment results"""
         if not isinstance(service_type, ServiceType):
             service_type = self.region[service_type]
@@ -85,146 +94,142 @@ class Provision(BaseMethod):
         grid = GridSpec(3,2)
         axes = {
             'towns': fig.add_subplot(grid[0:2,0:2]),
-            'okrugs': fig.add_subplot(grid[2,0]),
-            'rayons': fig.add_subplot(grid[2,1]) 
+            'settlements': fig.add_subplot(grid[2,0]),
+            'districts': fig.add_subplot(grid[2,1]) 
         }
         for ax in axes.values():
             ax.set_axis_off()
-        okrugs_gdf, rayons_gdf = self.aggregate_units(prov_gdf)
-        self._plot_towns(axes['towns'], service_type, prov_gdf, weights_gdf)
-        self._plot_okrugs(axes['okrugs'], okrugs_gdf)
-        self._plot_rayons(axes['rayons'], rayons_gdf)      
-
-    def _get_filtered_blocks(self, service_type: ServiceType, type: Literal["demand", "capacity"]) -> list[Town]:
-        """Get blocks filtered by demand or capacity greater than 0"""
-        return list(filter(lambda b: b[service_type][type] > 0, self.region.towns))
-
-    def _get_sorted_neighbors(self, block, capacity_blocks: list[Town]):
-        return sorted(capacity_blocks, key=lambda b: self.region[block, b])
+        settlements_gdf, districts_gdf = self.aggregate_units(prov_gdf)
+        self._plot_towns(axes['towns'], service_type, prov_gdf, links_gdf)
+        self._plot_settlements(axes['settlements'], settlements_gdf)
+        self._plot_districts(axes['districts'], districts_gdf)   
 
     def _get_towns_gdf(self, service_type: ServiceType) -> gpd.GeoDataFrame:
-        """Returns blocks gdf for provision assessment"""
-        gdf = self.region.to_gdf()[[
-            'name',
-            'okrug_name',
-            'rayon_name',
-            'geometry',
-            f'{service_type.name}_demand',
-            f'{service_type.name}_capacity',
-        ]].rename(columns={
-            f'{service_type.name}_demand':'demand',
-            f'{service_type.name}_capacity':'capacity'
-        })
-        gdf["capacity_left"] = gdf["capacity"]
-        gdf["demand_left"] = gdf["demand"]
-        gdf["demand_within"] = 0
-        gdf["demand_without"] = 0
-
-        #test block
-        gdf['demand_within'] = gdf.apply(lambda x : min(x['capacity'], x['demand']), axis=1)
-        gdf['demand_left'] = gdf['demand'] - gdf['demand_within']
-        gdf['capacity_left'] = gdf['capacity'] - gdf['demand_within']
-        #test block
-
+        """Returns towns gdf for provision assessment"""
+        capacity_column = f"capacity_{service_type.name}"
+        gdf = self.region.get_towns_gdf()[["geometry", 'town_name', 'settlement_name', 'district_name', "population", capacity_column]].fillna(0)
+        gdf["population"] = gdf["population"].apply(service_type.calculate_in_need)
+        gdf = gdf.rename(columns={"population": DEMAND_COLUMN, capacity_column: CAPACITY_COLUMN})
+        gdf[CAPACITY_LEFT_COLUMN] = gdf[CAPACITY_COLUMN]
+        gdf[DEMAND_LEFT_COLUMN] = gdf[DEMAND_COLUMN]
+        gdf[DEMAND_WITHIN_COLUMN] = 0
+        gdf[DEMAND_WITHOUT_COLUMN] = 0
         return gdf
 
     @classmethod
     def total_provision(cls, gdf: gpd.GeoDataFrame):
-        return gdf["demand_within"].sum() / gdf["demand"].sum()
+        return gdf[DEMAND_WITHIN_COLUMN].sum() / gdf[DEMAND_COLUMN].sum()
 
-    def _series_to_linestring(self, series):
-            town_from = self.region[series.name[0]]
-            town_to = self.region[series.name[1]]
-            return LineString([town_from.geometry, town_to.geometry])
+    def _link_to_linestring(self, dict):
+        town_from = self.region[int(dict['from'])]
+        town_to = self.region[int(dict['to'])]
+        return LineString([town_from.geometry, town_to.geometry])
+    
+    def plot_territory(self, service_type, prov_gdf: gpd.GeoDataFrame, links_gdf : gpd.GeoDataFrame, figsize=(15,15)):
+        ...
+    
+    def territory_provision(self, service_type : str | ServiceType, terr_gdf : gpd.GeoDataFrame, prov_gdf : gpd.GeoDataFrame) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+        if not isinstance(service_type, ServiceType):
+            service_type: ServiceType = self.region[service_type]
+            
+        buffer_meters = service_type.accessibility * DRIVE_SPEED
+        terr_prov = prov_gdf.sjoin_nearest(terr_gdf[['geometry']], distance_col='distance')
+        terr_prov = terr_prov.loc[terr_prov['distance']<=buffer_meters]
+        terr_prov = terr_prov.rename(columns={'index_right': 'town_id'})
+
+        terr_gdf = terr_gdf.copy()[['geometry']]
+        terr_gdf[DEMAND_COLUMN] = terr_prov[DEMAND_COLUMN].sum()
+        terr_gdf[DEMAND_WITHIN_COLUMN] = terr_prov[DEMAND_WITHIN_COLUMN].sum()
+        terr_gdf[DEMAND_WITHOUT_COLUMN] = terr_prov[DEMAND_WITHOUT_COLUMN].sum()
+        terr_gdf[CAPACITY_COLUMN] = terr_prov[CAPACITY_COLUMN].sum()
+        terr_gdf[CAPACITY_LEFT_COLUMN] = terr_prov[CAPACITY_LEFT_COLUMN].sum()
+        terr_gdf[PROVISION_COLUMN] = terr_gdf[DEMAND_WITHIN_COLUMN] / terr_gdf[DEMAND_COLUMN]
+        terr_gdf['buffer_meters'] = buffer_meters
+        return terr_gdf, terr_prov
 
     def calculate(
         self,
         service_type: ServiceType | str,
-        # update_df: pd.DataFrame = None,
+        update_df: pd.DataFrame | None = None,
         method: ProvisionMethod = ProvisionMethod.GRAVITATIONAL,
+        self_supply: bool = False,
     ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
-        """
-        Provision assessment using certain method for the current region and service type, 
-        can be used with certain updated blocks GeoDataFrame
-        """
-        if not isinstance(service_type, ServiceType):
-            service_type = self.region[service_type]
-        gdf = self._get_towns_gdf(service_type)
-        # if update_df is not None:
-        #     gdf = gdf.join(update_df)
-        #     gdf[update_df.columns] = gdf[update_df.columns].fillna(0)
-        #     if not "population" in gdf:
-        #         gdf["population"] = 0
-        #     gdf["demand"] += gdf["population"].apply(service_type.calculate_in_need)
-        #     gdf["demand_left"] = gdf["demand"]
-        #     if not service_type.name in gdf:
-        #         gdf[service_type.name] = 0
-        #     gdf["capacity"] += gdf[service_type.name]
-        #     gdf["capacity_left"] += gdf[service_type.name]
-        match method:
-            case ProvisionMethod.LINEAR:
-                gdf, df = self._tp_provision(gdf, service_type, "lp")
-            case ProvisionMethod.GRAVITATIONAL:
-                gdf, df = self._tp_provision(gdf, service_type, "gravity")
-            case ProvisionMethod.ITERATIVE:
-                gdf, df = self._iterative_provision(gdf, service_type)
+        """Provision assessment using certain method for the region and
+        service type, can be used with certain updated capacity and population info df"""
         
-        gdf["provision"] = gdf["demand_within"] / gdf["demand"]
-        df['geometry'] = df.apply(self._series_to_linestring,axis=1)
-        df = gpd.GeoDataFrame(df).set_geometry('geometry').set_crs(self.region.crs)
+        if not isinstance(service_type, ServiceType):
+            service_type: ServiceType = self.region[service_type]
+        prov_gdf = self._get_towns_gdf(service_type)
 
-        return gdf, df
+        if update_df is not None:
+            prov_gdf = prov_gdf.join(update_df)
+            prov_gdf[update_df.columns] = prov_gdf[update_df.columns].fillna(0)
+            if not "population" in prov_gdf:
+                prov_gdf["population"] = 0
+            prov_gdf[DEMAND_COLUMN] += prov_gdf["population"].apply(service_type.calculate_in_need)
+            prov_gdf[DEMAND_LEFT_COLUMN] = prov_gdf[DEMAND_COLUMN]
+            if not service_type.name in prov_gdf:
+                prov_gdf[service_type.name] = 0
+            prov_gdf[CAPACITY_COLUMN] += prov_gdf[service_type.name]
+            prov_gdf[CAPACITY_LEFT_COLUMN] += prov_gdf[service_type.name]
 
-    def _tp_provision(
-        self, gdf: gpd.GeoDataFrame, service_type: ServiceType, type: Literal["lp", "gravity"]
-    ):
+        if self_supply:
+            supply: pd.Series = prov_gdf.apply(lambda x: min(x[DEMAND_COLUMN], x[CAPACITY_COLUMN]), axis=1)
+            prov_gdf[DEMAND_WITHIN_COLUMN] += supply
+            prov_gdf[DEMAND_LEFT_COLUMN] -= supply
+            prov_gdf[CAPACITY_LEFT_COLUMN] -= supply
+
+        prov_gdf, links = self._tp_provision(prov_gdf, service_type, method)
+
+        for link in links:
+            link['geometry'] = self._link_to_linestring(link)
+        links_gdf = gpd.GeoDataFrame(links).set_crs(self.region.crs)
+
+        prov_gdf[PROVISION_COLUMN] = prov_gdf[DEMAND_WITHIN_COLUMN] / prov_gdf[DEMAND_COLUMN]
+        return prov_gdf, links_gdf
+
+    def _tp_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType, method: ProvisionMethod) -> tuple[gpd.GeoDataFrame, list[dict]]:
         """Transport problem assessment method"""
-        gdf = gdf.copy()
 
-        delta = gdf["demand_left"].sum() - gdf["capacity_left"].sum()
-        fictive_index = None
-        fictive_column = None
+        links = []
+        # if delta is not 0, we add a dummy city block
+        delta = gdf[DEMAND_COLUMN].sum() - gdf[CAPACITY_COLUMN].sum()
+        fictive_demand = None
+        fictive_capacity = None
         fictive_town_id = gdf.index.max() + 1
         if delta > 0:
-            fictive_column = fictive_town_id
-            gdf.loc[fictive_column, "capacity"] = delta
-            gdf.loc[fictive_column, "capacity_left"] = delta
+            fictive_capacity = fictive_town_id
+            gdf.loc[fictive_capacity, CAPACITY_COLUMN] = delta
+            gdf.loc[fictive_capacity, CAPACITY_LEFT_COLUMN] = delta
         if delta < 0:
-            fictive_index = fictive_town_id
-            gdf.loc[fictive_index, "demand"] = -delta
-            gdf.loc[fictive_index, "demand_left"] = -delta
+            fictive_demand = fictive_town_id
+            gdf.loc[fictive_demand, DEMAND_COLUMN] = -delta
+            gdf.loc[fictive_demand, DEMAND_LEFT_COLUMN] = -delta
 
-        def _get_weight(town_a_id: int, town_b_id: int):
-            if town_a_id == fictive_town_id or town_b_id == fictive_town_id:
+        def _get_distance(id1: int, id2: int):
+            if id1 == fictive_town_id or id2 == fictive_town_id:
                 return 0
-            town_a_id = self.region[town_a_id]
-            town_b = self.region[town_b_id]
-            distance = self.region[town_a_id, town_b]
-            if type == "lp":
-                return distance
-            return distance * distance
-
-        def _get_distance(town_a_id: int, town_b_id: int):
-            if town_a_id == fictive_town_id or town_b_id == fictive_town_id:
-                return 0
-            town_a = self.region[town_a_id]
-            town_b = self.region[town_b_id]
-            distance = self.region[town_a, town_b]
+            distance = self.region[id1, id2]
             return distance
 
-        demand = gdf.loc[gdf["demand_left"] > 0]
-        capacity = gdf.loc[gdf["capacity_left"] > 0]
+        def _get_weight(id1: int, id2: int):
+            distance = _get_distance(id1, id2)
+            if method == ProvisionMethod.GRAVITATIONAL:
+                return distance * distance
+            return distance
+
+        demand = gdf.loc[gdf[DEMAND_LEFT_COLUMN] > 0]
+        capacity = gdf.loc[gdf[CAPACITY_LEFT_COLUMN] > 0]
 
         prob = LpProblem("Transportation", LpMinimize)
-        x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None)
-        prob += lpSum(_get_weight(n, m) * x[n, m] for n in demand.index for m in capacity.index)
+        x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None, cat=LpInteger)
+        prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in product(demand.index, capacity.index))
         for n in demand.index:
-            prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, "demand_left"]
+            prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, DEMAND_LEFT_COLUMN]
         for m in capacity.index:
-            prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, "capacity_left"]
+            prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, CAPACITY_LEFT_COLUMN]
         prob.solve(PULP_CBC_CMD(msg=False))
-        edges = []
-        # make the output
+
         for var in prob.variables():
             value = var.value()
             name = var.name.replace("(", "").replace(")", "").replace(",", "").split("_")
@@ -232,58 +237,23 @@ class Provision(BaseMethod):
                 continue
             a = int(name[1])
             b = int(name[2])
-            weight = _get_distance(a, b)
+            distance = _get_distance(a, b)
             if value > 0:
-                if a!=fictive_town_id and b!=fictive_town_id:
-                    edges.append({
+                if a != fictive_demand and b != fictive_capacity:
+                    if distance <= service_type.accessibility:
+                        gdf.loc[a, DEMAND_WITHIN_COLUMN] += value
+                    else:
+                        gdf.loc[a, DEMAND_WITHOUT_COLUMN] += value
+                    gdf.loc[a, DEMAND_LEFT_COLUMN] -= value
+                    gdf.loc[b, CAPACITY_LEFT_COLUMN] -= value
+                    links.append({
                         'from': a,
                         'to': b,
-                        'demand': value
+                        'demand': value,
+                        'within': distance <= service_type.accessibility
                     })
-                if weight <= service_type.accessibility:
-                    if fictive_index != None and a != fictive_index:
-                        gdf.loc[a, "demand_within"] += value
-                        gdf.loc[b, "capacity_left"] -= value
-                    if fictive_column != None and b != fictive_column:
-                        gdf.loc[a, "demand_within"] += value
-                        gdf.loc[b, "capacity_left"] -= value
-                else:
-                    if fictive_index != None and a != fictive_index:
-                        gdf.loc[a, "demand_without"] += value
-                        gdf.loc[b, "capacity_left"] -= value
-                    if fictive_column != None and b != fictive_column:
-                        gdf.loc[a, "demand_without"] += value
-                        gdf.loc[b, "capacity_left"] -= value
-        if fictive_index != None or fictive_column != None:
-            gdf.drop(labels=[fictive_town_id], inplace=True)
-        gdf["demand_left"] = gdf["demand"] - gdf["demand_within"] - gdf["demand_without"]
-        return gdf, pd.DataFrame(edges).set_index(['from', 'to'])
 
-    def _iterative_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType):
-        """Iterative provision assessment method"""
+        if fictive_town_id is not None:
+            gdf = gdf.drop(labels=[fictive_town_id])
 
-        demand_blocks = self._get_filtered_blocks(service_type, "demand")
-        capacity_blocks = self._get_filtered_blocks(service_type, "capacity")
-
-        edges = []
-
-        while len(demand_blocks) > 0 and len(capacity_blocks) > 0:
-            for demand_block in demand_blocks:
-                neighbors = self._get_sorted_neighbors(demand_block, capacity_blocks)
-                if len(neighbors) == 0:
-                    break
-                capacity_block = neighbors[0]
-                gdf.loc[demand_block.id, "demand_left"] -= 1
-                # df.loc[demand_block.id, capacity_block.id] += 1
-                weight = self.region[demand_block, capacity_block]
-                if weight <= service_type.accessibility:
-                    gdf.loc[demand_block.id, "demand_within"] += 1
-                else:
-                    gdf.loc[demand_block.id, "demand_without"] += 1
-                if gdf.loc[demand_block.id, "demand_left"] == 0:
-                    demand_blocks.remove(demand_block)
-                gdf.loc[capacity_block.id, "capacity_left"] -= 1
-                if gdf.loc[capacity_block.id, "capacity_left"] == 0:
-                    capacity_blocks.remove(capacity_block)
-
-        return gdf, pd.DataFrame(edges)
+        return gdf, links
