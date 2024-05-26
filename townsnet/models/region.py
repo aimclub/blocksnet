@@ -1,6 +1,4 @@
 from functools import singledispatchmethod
-from pydantic import BaseModel, InstanceOf, field_validator, Field
-from typing import Optional
 import dill as pickle
 import pyproj
 import shapely
@@ -8,11 +6,25 @@ import geopandas as gpd
 import pandas as pd
 from ..utils.basic_service_types import BASIC_SERVICE_TYPES
 from .service_type import ServiceType, ServiceCategory
-from .town import Town, Service
+from .town import Town
+from .territory import Territory
+
+DISTRICTS_PLOT_COLOR = '#e40e37'
+SETTLEMENTS_PLOT_COLOR = '#ddd'
+TOWNS_PLOT_COLOR = '#777'
+SERVICES_PLOT_COLOR = '#aaa'
+TERRITORIES_PLOT_COLOR = '#29392C'
 
 class Region():
     
-    def __init__(self, districts : gpd.GeoDataFrame, settlements : gpd.GeoDataFrame, towns : gpd.GeoDataFrame, accessibility_matrix : pd.DataFrame):
+    def __init__(
+            self, 
+            districts : gpd.GeoDataFrame, 
+            settlements : gpd.GeoDataFrame, 
+            towns : gpd.GeoDataFrame, 
+            accessibility_matrix : pd.DataFrame, 
+            territories : gpd.GeoDataFrame | None = None
+        ):
         
         districts = self.validate_districts(districts)
         settlements = self.validate_settlements(settlements)
@@ -20,13 +32,18 @@ class Region():
         accessibility_matrix = self.validate_accessibility_matrix(accessibility_matrix)
 
         assert (accessibility_matrix.index == towns.index).all(), "Accessibility matrix indices and towns indices don't match"
-        assert(districts.crs == settlements.crs == towns.crs), 'CRS should match everywhere'
+        assert districts.crs == settlements.crs == towns.crs, 'CRS should match everywhere'
 
         self.crs = towns.crs
         self.districts = districts
         self.settlements = settlements
         self._towns = Town.from_gdf(towns)
         self.accessibility_matrix = accessibility_matrix
+        if territories is None:
+            self._territories = {}
+        else:
+            assert territories.crs == towns.crs, 'Territories CRS should match towns CRS'
+            self._territories = Territory.from_gdf(territories)
 
         service_types = {}
         for infrastructure, service_types_dicts in BASIC_SERVICE_TYPES.items():
@@ -51,7 +68,7 @@ class Region():
     @staticmethod
     def validate_towns(gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         assert isinstance(gdf, gpd.GeoDataFrame), 'Towns should be instance of gpd.GeoDataFrame'
-        return gdf[['geometry', 'name', 'population']]
+        return gdf
     
     @staticmethod
     def validate_accessibility_matrix(df : pd.DataFrame) -> pd.DataFrame:
@@ -64,10 +81,37 @@ class Region():
     def validate_services(gdf : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         assert isinstance(gdf, gpd.GeoDataFrame), 'Services should be instance of gpd.GeoDataFrame'
         return gdf[['geometry', 'town_id', 'capacity']]
+    
+    def plot(self, figsize=(15,15)):
+        sett_to_dist = self.settlements.copy()
+        sett_to_dist.geometry = sett_to_dist.representative_point()
+        sett_to_dist = sett_to_dist.sjoin(self.districts).rename(columns={
+        'name_right':'district_name',
+        'index_right': 'district_id',
+        'name_left': 'settlement_name'
+        })
+        sett_to_dist.geometry = self.settlements.geometry
+        ax = sett_to_dist.plot(facecolor='none', edgecolor=SETTLEMENTS_PLOT_COLOR, figsize=figsize)
+        self.get_services_gdf().plot(ax=ax, markersize=1, color=SERVICES_PLOT_COLOR)
+        self.get_towns_gdf().plot(ax=ax, markersize=2, color=TOWNS_PLOT_COLOR)
+        self.districts.plot(ax=ax, facecolor='none', edgecolor=DISTRICTS_PLOT_COLOR)
+        territories_gdf = self.get_territories_gdf()
+        territories_gdf.geometry = territories_gdf.representative_point()
+        territories_gdf.plot(ax=ax, marker="*", markersize=60, color=TERRITORIES_PLOT_COLOR)
+        ax.set_axis_off()
+    
+    def get_territory(self, territory_id : int):
+        if not territory_id in self._territories:
+            raise KeyError(f"Can't find territory with such id: {territory_id}")
+        return self._territories[territory_id]
 
     @property
     def towns(self) -> list[Town]:
         return self._towns.values()
+    
+    @property
+    def territories(self) -> list[Territory]:
+        return self._territories.values()
 
     @property
     def service_types(self) -> list[ServiceType]:
@@ -105,6 +149,10 @@ class Region():
         groups = gdf.groupby("town_id")
         for town_id, services_gdf in groups:
             self[town_id].update_services(service_type, services_gdf)
+
+    def get_territories_gdf(self) -> gpd.GeoDataFrame:
+        data = [territory.to_dict() for territory in self.territories]
+        return gpd.GeoDataFrame(data, crs=self.crs).set_index('id', drop=True)
 
     def get_services_gdf(self) -> gpd.GeoDataFrame:
         data = [{'town':town.name, **service.to_dict()} for town in self.towns for service in town.services]
