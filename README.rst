@@ -1,4 +1,4 @@
-BlocksNet
+TownsNet
 =========
 
 .. logo-start
