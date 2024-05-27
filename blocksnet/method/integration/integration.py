@@ -5,6 +5,7 @@ import geopandas as gpd
 import osmnx as ox
 import networkx as nx
 from sklearn.impute import SimpleImputer
+from typing import Literal
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from typing import Optional
@@ -14,6 +15,10 @@ from ..base_method import BaseMethod
 
 BLOCKS_GRAPH_FETCH_BUFFER = 1000
 BLOCKS_INTERSECTION_BUFFER = -5
+
+INTEGRATION_COLUMN = "integration"
+CLUSTER_COLUMN = "cluster"
+FSI_COLUMN = "fsi"
 
 
 class IntegrationType(Enum):
@@ -55,16 +60,22 @@ class Integration(BaseMethod):
             assert graph.graph["crs"] == city.crs, "Graph CRS should match city CRS"
         return model
 
-    @property
-    def blocks(self):
-        return self.city_model.get_blocks_gdf()[["geometry", "fsi"]]
+    @staticmethod
+    def plot(gdf: gpd.GeoDataFrame, column: str, figsize=(10, 10)):
+        gdf.plot(
+            column=column, categorical=True if column == CLUSTER_COLUMN else False, legend=True, figsize=figsize
+        ).set_axis_off()
 
     @property
-    def edges(self):
+    def blocks(self) -> gpd.GeoDataFrame:
+        return self.city_model.get_blocks_gdf()[["geometry", FSI_COLUMN]]
+
+    @property
+    def edges(self) -> gpd.GeoDataFrame:
         _, edges = ox.graph_to_gdfs(self.graph)
         return edges
 
-    def _get_dual_graph(self):
+    def _get_dual_graph(self) -> nx.Graph:
         gdf_blocks = self.blocks.copy()
         gdf_blocks.geometry = gdf_blocks.buffer(-5)
         warnings.filterwarnings("ignore", category=FutureWarning)
@@ -74,7 +85,9 @@ class Integration(BaseMethod):
         dual_graph = momepy.gdf_to_nx(graph, approach="dual")
         return dual_graph
 
-    def clusterize(self, integration_blocks: gpd.GeoDataFrame, columns=["fsi", "integration"], n_clusters=4):
+    def clusterize(
+        self, integration_blocks: gpd.GeoDataFrame, columns=[FSI_COLUMN, INTEGRATION_COLUMN], n_clusters=4
+    ) -> gpd.GeoDataFrame:
 
         features = integration_blocks[columns].copy()
 
@@ -89,7 +102,7 @@ class Integration(BaseMethod):
         kmeans.fit(features_imputed)
 
         blocks = integration_blocks.copy()
-        blocks["cluster"] = kmeans.labels_
+        blocks[CLUSTER_COLUMN] = kmeans.labels_
 
         return blocks
 
@@ -98,25 +111,24 @@ class Integration(BaseMethod):
         integration_type: IntegrationType | None = None,
         weight_type: WeightType = WeightType.ANGULAR,
         local_radius: int = 5,
-        use_networkit=True,
-    ):
+    ) -> gpd.GeoDataFrame:
         blocks = self.blocks.copy()
         dual_graph = self._get_dual_graph()
 
         if integration_type == IntegrationType.LOCAL:
             integration = momepy.closeness_centrality(
-                dual_graph, radius=local_radius, name="integration", weight=weight_type.value
+                dual_graph, radius=local_radius, name=INTEGRATION_COLUMN, weight=weight_type.value
             )
         if integration_type == IntegrationType.GLOBAL:
             integration = momepy.closeness_centrality(
-                dual_graph, name="integration", verbose=True, weight=weight_type.value
+                dual_graph, name=INTEGRATION_COLUMN, verbose=True, weight=weight_type.value
             )
 
         integration_gdf = momepy.nx_to_gdf(integration, points=False)
         integration_gdf.geometry = integration_gdf.geometry.centroid  # .buffer(5)
 
         merged = gpd.sjoin_nearest(blocks, integration_gdf, how="left")
-        avg_local_integration = merged.groupby("id").agg({"integration": "mean"})
-        blocks["integration"] = avg_local_integration["integration"]
+        avg_local_integration = merged.groupby("id").agg({INTEGRATION_COLUMN: "mean"})
+        blocks[INTEGRATION_COLUMN] = avg_local_integration[INTEGRATION_COLUMN]
 
         return blocks
