@@ -5,7 +5,7 @@ import pytest
 import geopandas as gpd
 import pandas as pd
 import statistics
-from blocksnet import City, Provision, Accessibility, Connectivity, Genetic
+from townsnet import City, Provision, Accessibility, Connectivity, Genetic
 
 data_path = "./tests/data/city_model"
 local_crs = 32636

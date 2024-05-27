@@ -3,12 +3,12 @@ requires = ["setuptools>=64.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "blocksnet"
-version = "0.0.5"
+name = "townsnet"
+version = "0.0.1"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
-description = "Package provides methods of master plan requirements automated generation for urban areas"
+description = "Provision assessment for cities of an urban region"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { file = "LICENCE.md" }
@@ -48,7 +48,7 @@ classifiers = [
 ]
 
 [tool.setuptools.packages.find]
-include = ["blocksnet*"]
+include = ["townsnet*"]
 
 
 [project.optional-dependencies]
@@ -66,8 +66,8 @@ dev = [
 
 
 [project.urls]
-"Repository" = "https://github.com/iduprojects/blocksnet"
-"Bug Tracker" = "https://github.com/iduprojects/blocksnet/issues"
+"Repository" = "https://github.com/vasilstar97/townsnet"
+"Bug Tracker" = "https://github.com/vasilstar97/townsnet/issues"
 
 
 [tool.black]
