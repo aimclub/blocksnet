@@ -3,7 +3,7 @@ BlocksNet
 
 .. logo-start
 
-.. figure:: https://i.ibb.co/QC9XD07/blocksnet.png
+.. figure:: https://i.ibb.co/HHFSbqy/townsnet.png
    :alt: BlocksNet logo
 
 .. logo-end
