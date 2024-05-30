@@ -23,7 +23,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'healthcare': [
     {
-      'name': 'health_center',
+      'name': 'health_center/dispensary',
       'name_ru': 'ФАП / амбулатория',
       'weight': 0.2,
       'accessibility': 10,
@@ -67,7 +67,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'catering': [
     {
-      'name': 'cafe',
+      'name': 'cafe/coffee',
       'name_ru': 'кафе / кофейня',
       'weight': 0.15,
       'accessibility': 15,
@@ -79,7 +79,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'leisure': [
     {
-      'name': 'sports_hall',
+      'name': 'universal_hall',
       'name_ru': 'универсальный зал',
       'weight': 0.1,
       'accessibility': 15,
@@ -101,7 +101,7 @@ BASIC_SERVICE_TYPES = {
       }
     },
     {
-      'name': 'park',
+      'name': 'square/boulevard/forest_park',
       'name_ru': 'сквер / бульвар / лесопарк',
       'weight': 0.2,
       'accessibility': 30,
@@ -113,7 +113,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'sport': [
     {
-      'name': 'fitness',
+      'name': 'workout/school_gym',
       'name_ru': 'воркаут / школьный спортзал',
       'weight': 0.15,
       'accessibility': 45,
@@ -125,7 +125,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'service': [
     {
-      'name': 'delivery',
+      'name': 'delivery_point',
       'name_ru': 'пункт доставки',
       'weight': 0.1,
       'accessibility': 15,
@@ -135,7 +135,7 @@ BASIC_SERVICE_TYPES = {
       }
     },
     {
-      'name': 'beauty',
+      'name': 'hairdresser/beauty',
       'name_ru': 'парикмахерская / салон красоты',
       'weight': 0.1,
       'accessibility': 15,
@@ -148,7 +148,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'transport': [
     {
-      'name': 'bus_stop',
+      'name': 'public_transport_stop',
       'name_ru': 'остановка ОТ',
       'weight': 0.2,
       'accessibility': 10,
@@ -170,7 +170,7 @@ BASIC_SERVICE_TYPES = {
   ],
   'safeness': [
     {
-      'name': 'police',
+      'name': 'local_police',
       'name_ru': 'участковый пункт полиции',
       'weight': 0.4,
       'accessibility': 10,
