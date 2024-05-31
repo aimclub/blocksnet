@@ -1,9 +1,9 @@
 
-import pyproj
 import shapely
 import geopandas as gpd
-from .service_type import ServiceType
+import pandas as pd
 from pydantic import BaseModel, InstanceOf
+from .service_type import ServiceType
 
 class Territory(BaseModel):
   id : int
@@ -17,7 +17,7 @@ class Territory(BaseModel):
       result['provision'] = result['demand_within'] / result['demand']
       return result
 
-  def context_provision(self, service_type : ServiceType, towns_gdf : gpd.GeoDataFrame, speed : float = 283.33) -> tuple[gpd.GeoDataFrame, dict[str, float]]:
+  def get_context_provision(self, service_type : ServiceType, towns_gdf : gpd.GeoDataFrame, speed : float = 283.33) -> tuple[gpd.GeoDataFrame, dict[str, float]]:
         
     buffer_meters = service_type.accessibility * speed
     
@@ -28,8 +28,27 @@ class Territory(BaseModel):
 
     territory_dict = self._aggregate_provision(towns_gdf)
     territory_dict['buffer_meters'] = buffer_meters
-    territory_dict['service_type'] = service_type.name
     return towns_gdf, territory_dict
+  
+  def get_indicators(self, provs : dict[ServiceType, tuple]):
+    dicts = []
+    for service_type, prov_tuple in provs.items():
+        _, _, towns_gdf, _ = prov_tuple
+        _, territory_dict = self.get_context_provision(service_type, towns_gdf)
+        dicts.append({
+           'category': service_type.category.name,
+           'infrastructure': service_type.infrastructure.name,
+           'service_type':service_type.name,
+           'weight': service_type.weight,
+           **territory_dict
+        })
+    indicators = pd.DataFrame(dicts).set_index('service_type', drop=True)
+    indicators['assessment'] = indicators.apply(lambda s : s['weight'] if s['provision']>=0.9 else 0,axis=1)
+    basic, basic_plus, comfort = indicators.groupby('category').agg({'assessment':'sum'})['assessment']
+    value = basic
+    if value==3:
+       value += basic_plus + comfort
+    return indicators, value
 
   def to_dict(self):
     return {

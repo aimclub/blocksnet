@@ -4,7 +4,7 @@ import pyproj
 import shapely
 import geopandas as gpd
 import pandas as pd
-from ..utils.basic_service_types import BASIC_SERVICE_TYPES
+from ..utils import SERVICE_TYPES
 from .service_type import ServiceType, ServiceCategory
 from .town import Town
 from .territory import Territory
@@ -46,9 +46,8 @@ class Region():
             self._territories = Territory.from_gdf(territories)
 
         service_types = {}
-        for infrastructure, service_types_dicts in BASIC_SERVICE_TYPES.items():
-            for service_type_dict in service_types_dicts:
-                service_types[service_type_dict['name']] = ServiceType(category=ServiceCategory.BASIC, infrastructure=infrastructure, **service_type_dict)
+        for service_type_dict in SERVICE_TYPES:
+            service_types[service_type_dict['name']] = ServiceType(**service_type_dict)
         self._service_types = service_types
 
     @staticmethod
@@ -161,6 +160,13 @@ class Region():
     def get_towns_gdf(self) -> gpd.GeoDataFrame:
         data = [town.to_dict() for town in self.towns]
         gdf = gpd.GeoDataFrame(data, crs=self.crs).rename(columns={'name': 'town_name'}).set_index('id', drop=True)
+        for service_type in self.service_types:
+            capacity_column = f'capacity_{service_type.name}'
+            count_column = f'count_{service_type.name}'
+            if not capacity_column in gdf.columns:
+                gdf[capacity_column] = 0
+            if not count_column in gdf.columns:
+                gdf[count_column] = 0
         gdf = gdf.sjoin(
             self.settlements[['geometry', 'name']].rename(columns={'name': 'settlement_name'}), 
             how='left',

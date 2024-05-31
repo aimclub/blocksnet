@@ -7,7 +7,7 @@ import geopandas as gpd
 import matplotlib.pyplot as plt
 import pandas as pd
 from matplotlib.gridspec import GridSpec
-from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum, LpInteger
+from pulp import PULP_CBC_CMD, LpMinimize, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 
 from ..models.region import Town
 from ..models.service_type import ServiceType
@@ -169,41 +169,48 @@ class Provision(BaseMethod):
 
         links = []
         # if delta is not 0, we add a dummy city block
-        delta = gdf[DEMAND_COLUMN].sum() - gdf[CAPACITY_COLUMN].sum()
-        fictive_demand = None
-        fictive_capacity = None
-        fictive_town_id = gdf.index.max() + 1
-        if delta > 0:
-            fictive_capacity = fictive_town_id
-            gdf.loc[fictive_capacity, CAPACITY_COLUMN] = delta
-            gdf.loc[fictive_capacity, CAPACITY_LEFT_COLUMN] = delta
-        if delta < 0:
-            fictive_demand = fictive_town_id
-            gdf.loc[fictive_demand, DEMAND_COLUMN] = -delta
-            gdf.loc[fictive_demand, DEMAND_LEFT_COLUMN] = -delta
+        # delta = gdf[DEMAND_COLUMN].sum() - gdf[CAPACITY_COLUMN].sum()
+        # fictive_demand = None
+        # fictive_capacity = None
+        # fictive_town_id = gdf.index.max() + 1
+        # if delta > 0:
+        #     fictive_capacity = fictive_town_id
+        #     gdf.loc[fictive_capacity, CAPACITY_COLUMN] = delta
+        #     gdf.loc[fictive_capacity, CAPACITY_LEFT_COLUMN] = delta
+        # if delta < 0:
+        #     fictive_demand = fictive_town_id
+        #     gdf.loc[fictive_demand, DEMAND_COLUMN] = -delta
+        #     gdf.loc[fictive_demand, DEMAND_LEFT_COLUMN] = -delta
 
         def _get_distance(id1: int, id2: int):
-            if id1 == fictive_town_id or id2 == fictive_town_id:
-                return 0
+            # if id1 == fictive_town_id or id2 == fictive_town_id:
+                # return 0
             distance = self.region[id1, id2]
-            return distance
+            return distance if distance>1 else 1
 
         def _get_weight(id1: int, id2: int):
             distance = _get_distance(id1, id2)
             if method == ProvisionMethod.GRAVITATIONAL:
-                return distance * distance
-            return distance
+                return 1 / (distance * distance)
+            return 1/distance
 
         demand = gdf.loc[gdf[DEMAND_LEFT_COLUMN] > 0]
         capacity = gdf.loc[gdf[CAPACITY_LEFT_COLUMN] > 0]
 
-        prob = LpProblem("Transportation", LpMinimize)
-        x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None, cat=LpInteger)
-        prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in product(demand.index, capacity.index))
+        prob = LpProblem("Provision", LpMaximize)
+        products = []
+        for i in demand.index:
+            for j in capacity.index:
+                if _get_distance(i,j)<=service_type.accessibility*2:
+                    products.append((i,j))
+        x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)
+        prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in products)
         for n in demand.index:
-            prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, DEMAND_LEFT_COLUMN]
+            capacity_products = [tpl[1] for tpl in filter(lambda tpl : tpl[0] == n,products)]
+            prob += lpSum(x[n, m] for m in capacity_products) <= demand.loc[n, DEMAND_LEFT_COLUMN]
         for m in capacity.index:
-            prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, CAPACITY_LEFT_COLUMN]
+            demand_products = [tpl[0] for tpl in filter(lambda tpl : tpl[1] == m,products)]
+            prob += lpSum(x[n, m] for n in demand_products) <= capacity.loc[m, CAPACITY_LEFT_COLUMN]
         prob.solve(PULP_CBC_CMD(msg=False))
 
         for var in prob.variables():
@@ -215,21 +222,21 @@ class Provision(BaseMethod):
             b = int(name[2])
             distance = _get_distance(a, b)
             if value > 0:
-                if a != fictive_demand and b != fictive_capacity:
-                    if distance <= service_type.accessibility:
-                        gdf.loc[a, DEMAND_WITHIN_COLUMN] += value
-                    else:
-                        gdf.loc[a, DEMAND_WITHOUT_COLUMN] += value
-                    gdf.loc[a, DEMAND_LEFT_COLUMN] -= value
-                    gdf.loc[b, CAPACITY_LEFT_COLUMN] -= value
-                    links.append({
-                        'from': a,
-                        'to': b,
-                        'demand': value,
-                        'within': distance <= service_type.accessibility
-                    })
+                # if a != fictive_demand and b != fictive_capacity:
+                if distance <= service_type.accessibility:
+                    gdf.loc[a, DEMAND_WITHIN_COLUMN] += value
+                else:
+                    gdf.loc[a, DEMAND_WITHOUT_COLUMN] += value
+                gdf.loc[a, DEMAND_LEFT_COLUMN] -= value
+                gdf.loc[b, CAPACITY_LEFT_COLUMN] -= value
+                links.append({
+                    'from': a,
+                    'to': b,
+                    'demand': value,
+                    'within': distance <= service_type.accessibility
+                })
 
-        if fictive_town_id is not None:
-            gdf = gdf.drop(labels=[fictive_town_id])
+        # if fictive_town_id is not None:
+        #     gdf = gdf.drop(labels=[fictive_town_id])
 
         return gdf, links

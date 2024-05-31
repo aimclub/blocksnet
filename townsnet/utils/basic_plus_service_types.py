@@ -1,4 +1,4 @@
-ADVANCED_SERVICE_TYPES = {
+BASIC_PLUS_SERVICE_TYPES = {
   'education': [
     {
       'name': 'community_center',
@@ -23,7 +23,7 @@ ADVANCED_SERVICE_TYPES = {
       }
     },
     {
-      'name': 'hospital',
+      'name': 'local_hospital',
       'name_ru': 'участковая больница',
       'weight': 0.3,
       'accessibility': 60,

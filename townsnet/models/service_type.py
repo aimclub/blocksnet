@@ -2,7 +2,6 @@ import math
 from enum import Enum
 import pandas as pd
 from pydantic import BaseModel, Field, field_validator
-from ..utils import SQUARE_METERS_IN_HECTARE
 
 class ServiceInfrastructure(Enum):
     EDUCATION='education'
@@ -18,24 +17,8 @@ class ServiceInfrastructure(Enum):
 
 class ServiceCategory(Enum):
     BASIC='basic'
-    ADVANCED='advanced'
+    BASIC_PLUS='basic_plus'
     COMFORT='comfort'
-
-# class ServiceBrick(BaseModel):
-#     """Typical service type brick or chunk, that is used in development"""
-
-#     capacity: int
-#     """How many people in need can be supported by a service"""
-#     area: float
-#     """Area in hectares"""
-#     is_integrated: bool
-#     """Is integrated within the building"""
-#     parking_area: float
-
-#     @property
-#     def sq_m_area(self):
-#         """Self area in square meters"""
-#         return self.area * SQUARE_METERS_IN_HECTARE
 
 
 class ServiceType(BaseModel):
