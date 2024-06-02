@@ -65,6 +65,7 @@ class Provision(BaseMethod):
                 CAPACITY_COLUMN: "sum",
                 CAPACITY_LEFT_COLUMN: "sum",
                 DEMAND_COLUMN: "sum",
+                DEMAND_LEFT_COLUMN: "sum",
                 DEMAND_WITHIN_COLUMN: "sum",
                 DEMAND_WITHOUT_COLUMN: "sum",
             }

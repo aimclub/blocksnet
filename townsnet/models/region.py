@@ -134,8 +134,9 @@ class Region:
         towns_gdf = self.get_towns_gdf()[["geometry", "population"]]
 
         def get_closest_city(service_i):
-            service_gdf = gdf[gdf.index == service_i]
-            sjoin = towns_gdf.sjoin_nearest(service_gdf, distance_col="distance")
+            # service_gdf = gdf[gdf.index == service_i]
+            sjoin = towns_gdf.copy()
+            sjoin['distance'] = towns_gdf.geometry.apply(lambda g : shapely.distance(g, gdf.loc[service_i, 'geometry']))
             sjoin["weight"] = sjoin["population"] / sjoin["distance"] / sjoin["distance"]
             return sjoin["weight"].idxmax()
 
