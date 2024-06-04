@@ -1,1 +1,1 @@
-from .vacant_area import VacantArea
+from .vacant_area import *

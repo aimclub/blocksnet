@@ -2,10 +2,14 @@
 Methods provided by blocksnet are located here.
 """
 
-from .accessibility import Accessibility
-from .balancing import MasterPlan, balance_data
-from .connectivity import Connectivity
-from .provision import Provision
-from .genetic import Genetic
-from .centrality import Centrality
-from .diversity import Diversity
+from .accessibility import *
+from .balancing import *
+from .centrality import *
+from .connectivity import *
+from .diversity import *
+from .genetic import *
+from .integration import *
+from .land_use_prediction import *
+from .provision import *
+from .spacematrix import *
+from .vacant_area import *

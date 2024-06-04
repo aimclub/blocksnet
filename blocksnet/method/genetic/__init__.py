@@ -1,1 +1,1 @@
-from .genetic import Genetic
+from .genetic import *
