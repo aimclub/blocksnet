@@ -28,7 +28,7 @@ SERVICE_TYPES = [
         "bricks": [
             {"capacity": 80, "area": 230.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 180, "area": 400.0, "is_integrated": False, "parking_area": 0},
-            {"capacity": 320, "area": 700.0000000000001, "is_integrated": False, "parking_area": 0},
+            {"capacity": 320, "area": 700.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 80, "area": 180.0, "is_integrated": True, "parking_area": 250.0},
             {"capacity": 180, "area": 320.0, "is_integrated": True, "parking_area": 300.0},
             {"capacity": 320, "area": 600.0, "is_integrated": True, "parking_area": 320.0},
@@ -54,12 +54,12 @@ SERVICE_TYPES = [
         "accessibility": 10,
         "land_use": ["residential", "business", "special", "industrial"],
         "bricks": [
-            {"capacity": 100, "area": 850.0000000000001, "is_integrated": False, "parking_area": 0},
-            {"capacity": 150, "area": 1400.0000000000002, "is_integrated": False, "parking_area": 0},
+            {"capacity": 100, "area": 850.0, "is_integrated": False, "parking_area": 0},
+            {"capacity": 150, "area": 1400.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 250, "area": 2000.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 500, "area": 4000.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 50, "area": 400.0, "is_integrated": True, "parking_area": 125.0},
-            {"capacity": 100, "area": 700.0000000000001, "is_integrated": True, "parking_area": 150.0},
+            {"capacity": 100, "area": 700.0, "is_integrated": True, "parking_area": 150.0},
         ],
     },
     {
@@ -81,7 +81,7 @@ SERVICE_TYPES = [
         "accessibility": 30,
         "land_use": ["residential", "business", "recreation"],
         "bricks": [
-            {"capacity": 50, "area": 700.0000000000001, "is_integrated": False, "parking_area": 0},
+            {"capacity": 50, "area": 700.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 100, "area": 1000.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 300, "area": 3000.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 30, "area": 300.0, "is_integrated": True, "parking_area": 125.0},
@@ -108,7 +108,7 @@ SERVICE_TYPES = [
         "accessibility": 60,
         "land_use": ["residential", "business", "recreation"],
         "bricks": [
-            {"capacity": 800, "area": 2800.0000000000005, "is_integrated": False, "parking_area": 0},
+            {"capacity": 800, "area": 2800.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 1200, "area": 4300.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 1600, "area": 8000.0, "is_integrated": False, "parking_area": 0},
         ],
@@ -137,8 +137,8 @@ SERVICE_TYPES = [
         "bricks": [
             {"capacity": 350, "area": 1000.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 680, "area": 2000.0, "is_integrated": False, "parking_area": 0},
-            {"capacity": 350, "area": 700.0000000000001, "is_integrated": True, "parking_area": 1300.0},
-            {"capacity": 760, "area": 1700.0000000000002, "is_integrated": True, "parking_area": 2000.0},
+            {"capacity": 350, "area": 700.0, "is_integrated": True, "parking_area": 1300.0},
+            {"capacity": 760, "area": 1700.0, "is_integrated": True, "parking_area": 2000.0},
         ],
     },
     {
@@ -181,7 +181,7 @@ SERVICE_TYPES = [
             {"capacity": 2500, "area": 2500.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 200, "area": 100.0, "is_integrated": True, "parking_area": 75.0},
             {"capacity": 500, "area": 300.0, "is_integrated": True, "parking_area": 125.0},
-            {"capacity": 1000, "area": 700.0000000000001, "is_integrated": True, "parking_area": 250.0},
+            {"capacity": 1000, "area": 700.0, "is_integrated": True, "parking_area": 250.0},
         ],
     },
     {
@@ -230,7 +230,7 @@ SERVICE_TYPES = [
         "accessibility": 60,
         "land_use": ["residential", "business", "recreation"],
         "bricks": [
-            {"capacity": 80, "area": 700.0000000000001, "is_integrated": False, "parking_area": 0},
+            {"capacity": 80, "area": 700.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 250, "area": 1200.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 300, "area": 2000.0, "is_integrated": False, "parking_area": 0},
         ],
@@ -334,7 +334,7 @@ SERVICE_TYPES = [
             {"capacity": 250, "area": 450.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 500, "area": 800.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 250, "area": 400.0, "is_integrated": True, "parking_area": 125.0},
-            {"capacity": 500, "area": 700.0000000000001, "is_integrated": True, "parking_area": 250.0},
+            {"capacity": 500, "area": 700.0, "is_integrated": True, "parking_area": 250.0},
         ],
     },
     {
@@ -373,9 +373,9 @@ SERVICE_TYPES = [
         "accessibility": 15,
         "land_use": ["residential", "business", "recreation"],
         "bricks": [
-            {"capacity": 80, "area": 700.0000000000001, "is_integrated": True, "parking_area": 400.0},
+            {"capacity": 80, "area": 700.0, "is_integrated": True, "parking_area": 400.0},
             {"capacity": 100, "area": 1000.0, "is_integrated": True, "parking_area": 600.0},
-            {"capacity": 200, "area": 1200.0, "is_integrated": True, "parking_area": 700.0000000000001},
+            {"capacity": 200, "area": 1200.0, "is_integrated": True, "parking_area": 700.0},
         ],
     },
     {
@@ -419,7 +419,7 @@ SERVICE_TYPES = [
         "bricks": [
             {"capacity": 30, "area": 600.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 50, "area": 100.0, "is_integrated": False, "parking_area": 0},
-            {"capacity": 100, "area": 350.00000000000006, "is_integrated": False, "parking_area": 0},
+            {"capacity": 100, "area": 350.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 30, "area": 400.0, "is_integrated": True, "parking_area": 150.0},
             {"capacity": 50, "area": 90.0, "is_integrated": True, "parking_area": 25.0},
             {"capacity": 100, "area": 250.0, "is_integrated": True, "parking_area": 90.0},
@@ -518,7 +518,7 @@ SERVICE_TYPES = [
         "accessibility": 10,
         "land_use": ["residential", "business", "recreation", "special", "industrial", "agriculture", "transport"],
         "bricks": [
-            {"capacity": 60, "area": 700.0000000000001, "is_integrated": False, "parking_area": 0},
+            {"capacity": 60, "area": 700.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 90, "area": 1100.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 450, "area": 5500.0, "is_integrated": False, "parking_area": 0},
         ],
@@ -547,7 +547,7 @@ SERVICE_TYPES = [
             {"capacity": 200, "area": 1600.0, "is_integrated": False, "parking_area": 0},
             {"capacity": 20, "area": 100.0, "is_integrated": True, "parking_area": 125.0},
             {"capacity": 40, "area": 200.0, "is_integrated": True, "parking_area": 250.0},
-            {"capacity": 60, "area": 350.00000000000006, "is_integrated": True, "parking_area": 400.0},
+            {"capacity": 60, "area": 350.0, "is_integrated": True, "parking_area": 400.0},
         ],
     },
     {
