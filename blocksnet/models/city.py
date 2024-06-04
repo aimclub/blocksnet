@@ -5,21 +5,22 @@ import math
 import pickle
 from functools import singledispatchmethod
 import statistics
+from typing import Literal
 import warnings
+from tqdm import tqdm
 
 from attr import field
 import geopandas as gpd
 import networkx as nx
+from numpy import number
 import pandas as pd
 from matplotlib import pyplot as plt
-from pydantic import BaseModel, Field, InstanceOf, field_validator, ConfigDict, model_validator
+from pydantic import BaseModel, Field, InstanceOf, field_validator, ConfigDict, model_validator, ValidationError
 from shapely import Point, Polygon, MultiPolygon, intersection
 
 from ..utils import SERVICE_TYPES
-from .geodataframe import BaseRow, GeoDataFrame
 from .service_type import ServiceType
 from .land_use import LandUse
-from blocksnet.models import land_use
 
 
 class Service(ABC, BaseModel):
@@ -28,44 +29,59 @@ class Service(ABC, BaseModel):
     capacity: int = Field(gt=0)
     area: float = Field(gt=0)
     """Service area in square meters"""
+    is_integrated: bool
+
+    @classmethod
+    def _get_min_brick(cls, service_type: ServiceType, is_integrated: bool, key: Literal["area", "capacity"], value):
+        bricks = service_type.get_bricks(is_integrated)
+        if len(bricks) == 0:
+            bricks = service_type.get_bricks(not is_integrated)
+        brick = min(bricks, key=lambda br: abs((br.area if field == "area" else br.capacity) - value))
+        return brick
+
+    @classmethod
+    def _fill_capacity_and_area(cls, data: dict):
+        data = data.copy()
+        service_type = data["service_type"]
+        is_integrated = data["is_integrated"]
+
+        if "area" in data and not math.isnan(data["area"]):
+            area = data["area"]
+        else:
+            area = data["geometry"].area
+
+        if "capacity" in data and not math.isnan(data["capacity"]):
+            capacity = data["capacity"]
+            if area == 0:
+                brick = cls._get_min_brick(service_type, is_integrated, "capacity", capacity)
+                area = brick.area
+        else:
+            brick = cls._get_min_brick(service_type, is_integrated, "area", area)
+            capacity = brick.capacity
+            if area == 0:
+                area = brick.area
+
+        data.update({"area": area, "capacity": capacity})
+        return data
 
     def to_dict(self) -> dict:
         return {
             "service_type": self.service_type.name,
             "capacity": self.capacity,
             "area": self.area,
+            "is_integrated": self.is_integrated,
         }
 
 
 class BlockService(Service):
     block: Block
-    geometry: Polygon | MultiPolygon
+    geometry: Point | Polygon | MultiPolygon
 
     @model_validator(mode="before")
     @classmethod
     def validate_model(cls, data):
-        # set service area as geometry's area
-        geometry = data["geometry"]
-        # if not (isinstance(geometry, Polygon) or isinstance(geometry, MultiPolygon)):
-        #     service_type = data["service_type"]
-        #     bricks = service_type.get_bricks(is_integrated=False)
-        #     if len(bricks) == 0:
-        #         bricks = service_type.get_bricks(is_integrated=True)
-        #     brick = min(bricks, key=lambda x: abs(x.area))
-        #     brick_area = brick.area
-        #     radius = math.sqrt(brick_area/math.pi)
-        #     geometry = geometry.buffer(radius)
-        #     data['geometry'] = geometry
-        area = geometry.area
-        data["area"] = area
-        # if there is no data about capacity in service
-        if not "capacity" in data or math.isnan(data["capacity"]):
-            service_type = data["service_type"]
-            bricks = service_type.get_bricks(is_integrated=False)
-            if len(bricks) == 0:
-                bricks = service_type.get_bricks(is_integrated=True)
-            brick = min(bricks, key=lambda x: abs(x.area - area))
-            data["capacity"] = brick.capacity
+        data["is_integrated"] = False
+        data = cls._fill_capacity_and_area(data)
         return data
 
     def to_dict(self) -> dict:
@@ -79,25 +95,15 @@ class BuildingService(Service):
     @model_validator(mode="before")
     @classmethod
     def validate_model(cls, data):
-        # set service's geometry as building's representative point (centroid)
-        data["geometry"] = data["building"].geometry.representative_point()
-        # if there is no data about area in service
-        if not "area" in data or math.isnan(data["area"]):
-            service_type = data["service_type"]
-            bricks = service_type.get_bricks(is_integrated=True)
-            if len(bricks) == 0:
-                bricks = service_type.get_bricks(is_integrated=False)
-            # we try to find similar to our capacity
-            if "capacity" in data and not math.isnan(data["capacity"]):
-                capacity = data["capacity"]
-                brick = min(bricks, key=lambda x: abs(x.capacity - capacity))
-                data["area"] = brick.area
-            # or we try find the smallest possible capacity and area
-            else:
-                brick = min(bricks, key=lambda x: x.area)
-                data["capacity"] = brick.capacity
-                data["area"] = brick.area
+        data["is_integrated"] = data["building"].is_living
+        data = cls._fill_capacity_and_area(data)
         return data
+
+    @model_validator(mode="after")
+    @classmethod
+    def attach_geometry(cls, self):
+        self.geometry = self.building.geometry.representative_point()
+        return self
 
     def to_dict(self) -> dict:
         return {
@@ -122,7 +128,7 @@ class Building(BaseModel):
     """Total area of the building in square meters"""
     living_area: float = Field(ge=0)
     """Building's area dedicated for living in square meters """
-    business_area: float = Field(ge=0)
+    non_living_area: float = Field(ge=0)
     """Building's area dedicated for non-living activities in square meters"""
     footprint_area: float = Field(ge=0)
     """Building's ground floor area in square meters """
@@ -130,6 +136,35 @@ class Building(BaseModel):
     """Number of floors (storeys) in the building"""
     population: int = Field(ge=0)
     """Total population of the building"""
+
+    @model_validator(mode="before")
+    @classmethod
+    def validate_model(cls, data):
+        footprint_area = data["geometry"].area
+        living_area = data["living_area"]
+
+        if "build_floor_area" in data and not math.isnan(data["build_floor_area"]):
+            build_floor_area = data["build_floor_area"]
+            if "number_of_floors" in data and not math.isnan(data["number_of_floors"]):
+                number_of_floors = data["number_of_floors"]
+            else:
+                number_of_floors = math.ceil(build_floor_area / footprint_area)
+        else:
+            if "number_of_floors" in data and not math.isnan(data["number_of_floors"]):
+                number_of_floors = data["number_of_floors"]
+                build_floor_area = number_of_floors * footprint_area
+            else:
+                raise ValueError("Either number_of_floors or build_floor_area should be defined")
+
+        if "non_living_area" in data and not math.isnan(data["non_living_area"]):
+            non_living_area = data["non_living_area"]
+        else:
+            non_living_area = build_floor_area - living_area
+
+        data.update(
+            {"footprint_area": footprint_area, "non_living_area": non_living_area, "build_floor_area": build_floor_area}
+        )
+        return data
 
     @property
     def is_living(self) -> bool:
@@ -140,9 +175,11 @@ class Building(BaseModel):
         if gdf is None:
             self.services = list(filter(lambda s: s.service_type != service_type, self.services))
         else:
-            services = [
-                BuildingService(service_type=service_type, building=self, **gdf.loc[i].to_dict()) for i in gdf.index
-            ]
+            services = []
+            for i in gdf.index:
+                service = BuildingService(service_type=service_type, building=self, **gdf.loc[i].to_dict())
+                services.append(service)
+                # print(f'Problem with {i} service in {self.id} building ({self.block.id} block)')
             self.services = [*self.services, *services]
 
     def to_dict(self):
@@ -154,7 +191,7 @@ class Building(BaseModel):
             "footprint_area": self.footprint_area,
             "build_floor_area": self.build_floor_area,
             "living_area": self.living_area,
-            "business_area": self.business_area,
+            "non_living_area": self.non_living_area,
             "number_of_floors": self.number_of_floors,
             "is_living": self.is_living,
         }
@@ -178,6 +215,7 @@ class Block(BaseModel):
     """``City`` instance that contains the block"""
 
     @field_validator("land_use", mode="before")
+    @staticmethod
     def validate_land_use(value):
         if isinstance(value, str):
             value = value.lower()
@@ -218,9 +256,9 @@ class Block(BaseModel):
         return sum([b.living_area for b in self.buildings], 0)
 
     @property
-    def business_area(self):
+    def non_living_area(self):
         """Block total non-living area of the buildings"""
-        return sum([b.business_area for b in self.buildings], 0)
+        return sum([b.non_living_area for b in self.buildings], 0)
 
     @property
     def is_living(self):
@@ -276,6 +314,11 @@ class Block(BaseModel):
             return self.living_area / self.footprint_area
         except ZeroDivisionError:
             return None
+
+    @property
+    def business_area(self):
+        # filter(s, self.all_services)
+        return 0
 
     @property
     def share_business(self):
@@ -353,11 +396,15 @@ class Block(BaseModel):
             self.buildings = [Building(id=i, **gdf.loc[i].to_dict(), block=self) for i in gdf.index]
 
     def update_services(self, service_type: ServiceType, gdf: gpd.GeoDataFrame | None = None):
-        """Update non-integrated services of the block"""
+        """Update services of the block"""
         if gdf is None:
             self.services = list(filter(lambda s: s.service_type != service_type, self.services))
         else:
-            services = [BlockService(service_type=service_type, block=self, **gdf.loc[i].to_dict()) for i in gdf.index]
+            services = []
+            for i in gdf.index:
+                service = BlockService(service_type=service_type, block=self, **gdf.loc[i].to_dict())
+                services.append(service)
+                # print(f'Problem with {i} service in {self.id} block')
             self.services = [*self.services, *services]
 
     @classmethod
@@ -476,32 +523,68 @@ class City:
         for block in self.blocks:
             block.update_buildings()
         # spatial join blocks and buildings and updated related blocks info
-        sjoin = gdf.sjoin(self.get_blocks_gdf()[["geometry"]], how="left")
-        groups = sjoin.groupby("index_right")
-        for block_id, buildings_gdf in groups:
+        sjoin = gdf.sjoin(self.get_blocks_gdf()[["geometry"]])
+        sjoin = sjoin.rename(columns={"index_right": "block_id"})
+        sjoin.geometry = sjoin.geometry.apply(
+            lambda g: g.buffer(0) if g.geom_type in ["Polygon", "MultiPolygon"] else g
+        )
+        sjoin["intersection_area"] = sjoin.apply(
+            lambda s: intersection(s.geometry, self[s.block_id].geometry), axis=1
+        ).area
+        sjoin["building_id"] = sjoin.index
+        sjoin = sjoin.sort_values("intersection_area").drop_duplicates(subset="building_id", keep="first")
+        groups = sjoin.groupby("block_id")
+        for block_id, buildings_gdf in tqdm(groups, desc="Update blocks buildings"):
             self[int(block_id)].update_buildings(buildings_gdf)
 
     def update_services(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame):
         """Update services in blocks of certain service_type"""
         assert gdf.crs == self.crs, "Services GeoDataFrame CRS should match city CRS"
         service_type = self[service_type]
+
         # reset services of blocks and buildings
         for block in self.blocks:
             block.update_services(service_type)
         for building in self.buildings:
             building.update_services(service_type)
+
         # spatial join buildings and services and update related blocks info
         buildings_gdf = self.get_buildings_gdf()
         building_services = gdf.sjoin(buildings_gdf[["geometry", "block_id"]])
-        for building_info, services_gdf in building_services.groupby(["index_right", "block_id"]):
+        building_services = building_services.rename(columns={"index_right": "building_id"})
+        building_services.geometry = building_services.geometry.apply(
+            lambda g: g.buffer(0) if g.geom_type in ["Polygon", "MultiPolygon"] else g
+        )
+        building_services["intersection_area"] = building_services.apply(
+            lambda s: intersection(s.geometry, self[s.block_id][s.building_id].geometry), axis=1
+        ).area
+        building_services["service_id"] = building_services.index
+        building_services = building_services.sort_values("intersection_area").drop_duplicates(
+            subset="service_id", keep="first"
+        )
+        for building_info, services_gdf in tqdm(
+            building_services.groupby(["building_id", "block_id"]), desc="Update buildings services"
+        ):
             building_id, block_id = building_info
             building = self[int(block_id)][int(building_id)]
             building.update_services(service_type, services_gdf)
+
         # spatial join block and rest of services
         blocks_gdf = self.get_blocks_gdf()
         block_services = gdf.loc[~gdf.index.isin(building_services.index)]
         block_services = block_services.sjoin(blocks_gdf[["geometry"]])
-        for block_id, gdf in block_services.groupby(["index_right"]):
+        block_services = block_services.rename(columns={"index_right": "block_id"})
+        block_services.geometry = block_services.geometry.apply(
+            lambda g: g.buffer(0) if g.geom_type in ["Polygon", "MultiPolygon"] else g
+        )
+        block_services["intersection_area"] = block_services.apply(
+            lambda s: intersection(s.geometry, self[s.block_id].geometry), axis=1
+        ).area
+        block_services["service_id"] = block_services.index
+        block_services = block_services.sort_values("intersection_area").drop_duplicates(
+            subset="service_id", keep="first"
+        )
+        for block_id, gdf in tqdm(block_services.groupby(["block_id"]), desc="Update blocks services"):
             block = self[int(block_id)]
             block.update_services(service_type, gdf)
 
