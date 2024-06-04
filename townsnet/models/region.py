@@ -1,6 +1,6 @@
 from functools import singledispatchmethod
 
-import dill as pickle
+import pickle
 import geopandas as gpd
 import pandas as pd
 import pyproj

@@ -33,7 +33,7 @@ class Territory(BaseModel):
         territory_dict["buffer_meters"] = buffer_meters
         return towns_gdf, territory_dict
 
-    def get_indicators(self, provs: dict[ServiceType, tuple]):
+    def get_indicators(self, provs: dict[ServiceType, tuple], min_provision = 0.8):
         dicts = []
         for service_type, prov_tuple in provs.items():
             _, _, towns_gdf, _ = prov_tuple
@@ -48,12 +48,9 @@ class Territory(BaseModel):
                 }
             )
         indicators = pd.DataFrame(dicts).set_index("service_type", drop=True)
-        indicators["assessment"] = indicators.apply(lambda s: s["weight"] if s["provision"] >= 0.9 else 0, axis=1)
+        indicators["assessment"] = indicators.apply(lambda s: s["weight"] if s["provision"] >= min_provision else 0, axis=1)
         basic, basic_plus, comfort = indicators.groupby("category").agg({"assessment": "sum"})["assessment"]
-        value = basic
-        if value == 3:
-            value += basic_plus + comfort
-        return indicators, value
+        return indicators, basic + basic_plus/4 + comfort/4
 
     def to_dict(self):
         return {"id": self.id, "name": self.name, "geometry": self.geometry}
