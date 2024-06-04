@@ -1,1 +1,1 @@
-from land_use_prediction import *
+from .land_use_prediction import *

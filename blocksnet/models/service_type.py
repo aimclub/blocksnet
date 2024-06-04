@@ -24,8 +24,8 @@ class ServiceType(BaseModel):
     name: str
     accessibility: int = Field(ge=0)
     demand: int = Field(ge=0)
-    bricks: list[ServiceBrick] = []
     land_use: list[LandUse] = []
+    bricks: list[ServiceBrick] = []
 
     def get_bricks(self, is_integrated=False):
         filtered_bricks = filter(lambda b: b.is_integrated == is_integrated, self.bricks)
@@ -53,3 +53,6 @@ class ServiceType(BaseModel):
         accessibility = f"{self.accessibility} min"
         demand = f"{self.demand}/1000 population"
         return f"{self.code.ljust(10)} {self.name.ljust(20)} {accessibility.ljust(10)} {demand.ljust(20)}"
+
+    def to_dict(self):
+        return self.model_dump()
