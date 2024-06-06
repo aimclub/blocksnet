@@ -50,7 +50,7 @@ class Service(ABC, BaseModel):
         else:
             area = data["geometry"].area
 
-        if "capacity" in data and not math.isnan(data["capacity"]):
+        if "capacity" in data and not math.isnan(data["capacity"]) and data["capacity"] > 0:
             capacity = data["capacity"]
             if area == 0:
                 brick = cls._get_min_brick(service_type, is_integrated, "capacity", capacity)
@@ -562,9 +562,7 @@ class City:
         building_services = building_services.sort_values("intersection_area").drop_duplicates(
             subset="service_id", keep="first"
         )
-        for building_info, services_gdf in tqdm(
-            building_services.groupby(["building_id", "block_id"]), desc="Update buildings services"
-        ):
+        for building_info, services_gdf in building_services.groupby(["building_id", "block_id"]):
             building_id, block_id = building_info
             building = self[int(block_id)][int(building_id)]
             building.update_services(service_type, services_gdf)
@@ -584,7 +582,7 @@ class City:
         block_services = block_services.sort_values("intersection_area").drop_duplicates(
             subset="service_id", keep="first"
         )
-        for block_id, gdf in tqdm(block_services.groupby(["block_id"]), desc="Update blocks services"):
+        for block_id, gdf in block_services.groupby("block_id"):
             block = self[int(block_id)]
             block.update_services(service_type, gdf)
 

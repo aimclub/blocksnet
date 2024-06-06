@@ -1,7 +1,0 @@
-folium
-ipywidgets
-jupyter
-mapclassify
-matplotlib
-osm2geojson
-rich
