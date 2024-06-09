@@ -85,7 +85,7 @@ BASIC_PLUS_SERVICE_TYPES = {
     ],
     "sport": [
         {
-            "name": "gym/fitness_center",
+            "name": "gym__fitness_center",
             "name_ru": "спортзал ОП / фитнес-центр",
             "weight": 0.2,
             "accessibility": 45,
@@ -93,7 +93,7 @@ BASIC_PLUS_SERVICE_TYPES = {
             "osm_tags": {"leisure": ["sports_hall", "sports_centre", "fitness_centre"]},
         },
         {
-            "name": "skatepark/workout_for_teenagers",
+            "name": "skatepark__workout_for_teenagers",
             "name_ru": "скейтпарк / воркаут для подростков",
             "weight": 0.1,
             "accessibility": 45,

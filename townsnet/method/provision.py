@@ -54,6 +54,7 @@ class Provision(BaseMethod):
             column=DEMAND_COLUMN,
             cmap="cool",
             alpha=1,
+            vmin=0,
             vmax=200,
         )
         self._plot_provision(ax, prov_gdf)

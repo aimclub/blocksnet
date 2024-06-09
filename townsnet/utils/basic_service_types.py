@@ -19,7 +19,7 @@ BASIC_SERVICE_TYPES = {
     ],
     "healthcare": [
         {
-            "name": "health_center/dispensary",
+            "name": "health_center__dispensary",
             "name_ru": "ФАП / амбулатория",
             "weight": 0.2,
             "accessibility": 10,
@@ -55,7 +55,7 @@ BASIC_SERVICE_TYPES = {
     ],
     "catering": [
         {
-            "name": "cafe/coffee",
+            "name": "cafe__coffee",
             "name_ru": "кафе / кофейня",
             "weight": 0.15,
             "accessibility": 15,
@@ -83,7 +83,7 @@ BASIC_SERVICE_TYPES = {
             "osm_tags": {"leisure": "playground"},
         },
         {
-            "name": "square/boulevard/forest_park",
+            "name": "square__boulevard__forest_park",
             "name_ru": "сквер / бульвар / лесопарк",
             "weight": 0.2,
             "accessibility": 30,
@@ -93,7 +93,7 @@ BASIC_SERVICE_TYPES = {
     ],
     "sport": [
         {
-            "name": "workout/school_gym",
+            "name": "workout__school_gym",
             "name_ru": "воркаут / школьный спортзал",
             "weight": 0.15,
             "accessibility": 45,
@@ -103,7 +103,7 @@ BASIC_SERVICE_TYPES = {
     ],
     "service": [
         {
-            "name": "delivery_point/post_office",
+            "name": "delivery_point__post_office",
             "name_ru": "пункт доставки / почтовое отделение",
             "weight": 0.1,
             "accessibility": 15,
@@ -111,7 +111,7 @@ BASIC_SERVICE_TYPES = {
             "osm_tags": {"shop": "outpost", "amenity": "post_office"},
         },
         {
-            "name": "hairdresser/beauty",
+            "name": "hairdresser__beauty",
             "name_ru": "парикмахерская / салон красоты",
             "weight": 0.1,
             "accessibility": 15,

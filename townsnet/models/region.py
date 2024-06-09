@@ -1,13 +1,13 @@
+import pickle
 from functools import singledispatchmethod
 
-import pickle
 import geopandas as gpd
+import osmnx as ox
 import pandas as pd
-import pyproj
 import shapely
 
 from ..utils import SERVICE_TYPES
-from .service_type import ServiceCategory, ServiceType
+from .service_type import ServiceType
 from .territory import Territory
 from .town import Town
 
@@ -136,7 +136,7 @@ class Region:
         def get_closest_city(service_i):
             # service_gdf = gdf[gdf.index == service_i]
             sjoin = towns_gdf.copy()
-            sjoin['distance'] = towns_gdf.geometry.apply(lambda g : shapely.distance(g, gdf.loc[service_i, 'geometry']))
+            sjoin["distance"] = towns_gdf.geometry.apply(lambda g: shapely.distance(g, gdf.loc[service_i, "geometry"]))
             sjoin["weight"] = sjoin["population"] / sjoin["distance"] / sjoin["distance"]
             return sjoin["weight"].idxmax()
 
