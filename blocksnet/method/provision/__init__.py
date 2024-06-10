@@ -1,4 +1,4 @@
 """
 Provision model is located here.
 """
-from .provision import Provision
+from .provision import *

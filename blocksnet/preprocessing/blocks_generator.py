@@ -4,7 +4,7 @@ import geopandas as gpd
 import numpy as np
 from shapely import Polygon, LineString, MultiPolygon
 from shapely.ops import polygonize
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, model_validator
 from . import utils
 from ..models import GeoDataFrame, BaseRow
 
@@ -56,16 +56,22 @@ class BlocksGenerator(BaseModel):
     def local_crs(self):
         return self.territory.crs
 
-    def model_post_init(self, __context: Any) -> None:
-        assert self.territory.crs == self.roads.crs, "Roads CRS have to match territory CRS"
-        assert self.territory.crs == self.railways.crs, "Railways CRS have to match territory CRS"
-        assert self.territory.crs == self.water.crs, "Water CRS have to match territory CRS"
-        if self.water is not None:
-            self.territory = self.territory.overlay(
-                self.water[self.water.geom_type != "LineString"], how="difference"
+    @model_validator(mode="after")
+    @classmethod
+    def validate_model(cls, self):
+        territory = self.territory
+        roads = self.roads
+        railways = self.railways
+        water = self.water
+        assert territory.crs == roads.crs, "Roads CRS have to match territory CRS"
+        assert territory.crs == railways.crs, "Railways CRS have to match territory CRS"
+        assert territory.crs == water.crs, "Water CRS have to match territory CRS"
+        if water is not None:
+            self.territory = territory.overlay(
+                water[water.geom_type != "LineString"], how="difference"
             )  # cut water polygons from territory
-            self.water = self.water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
-        return super().model_post_init(__context)
+            self.water = water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
+        return self
 
     def generate_blocks(self, min_block_width=None):
 
@@ -110,10 +116,6 @@ class BlocksGenerator(BaseModel):
         utils.verbose_print("Blocks generated.\n", self.verbose)
 
         return GeoDataFrame[BlockRow](blocks.to_crs(self.local_crs))
-
-    @staticmethod
-    def explore(blocks: GeoDataFrame[BlockRow]):
-        return blocks.explore(tiles="CartoDB Positron")
 
     @staticmethod
     def _get_enclosures(barriers, limit):

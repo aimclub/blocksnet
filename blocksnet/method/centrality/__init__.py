@@ -1,4 +1,4 @@
 """
 Connectivity method is located here.
 """
-from .connectivity import *
+from .centrality import *
