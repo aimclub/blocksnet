@@ -4,6 +4,7 @@ Methods provided by blocksnet are located here.
 
 from .accessibility import *
 from .balancing import *
+from .block_optimizer import *
 from .centrality import *
 from .connectivity import *
 from .diversity import *

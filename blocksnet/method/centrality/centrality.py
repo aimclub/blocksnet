@@ -8,7 +8,7 @@ from ..diversity import Diversity, DIVERSITY_COLUMN
 CENTRALITY_COLUMN = "centrality"
 DENSITY_COLUMN = "density"
 
-PLOT_KWARGS = {"column": CENTRALITY_COLUMN, "legend": True, "cmap": "coolwarm", "vmin": -1, "vmax": 1}
+PLOT_KWARGS = {"column": CENTRALITY_COLUMN, "legend": True, "cmap": "RdYlGn", "vmin": 0}
 
 
 class Centrality(BaseMethod):
@@ -63,13 +63,18 @@ class Centrality(BaseMethod):
         # normalize indices and calculate centrality index
         scaler = MinMaxScaler()
         blocks_normalized = blocks.copy()
+        blocks_normalized[CONNECTIVITY_COLUMN] = 1 / blocks_normalized[CONNECTIVITY_COLUMN]
         blocks_normalized[[CONNECTIVITY_COLUMN, DENSITY_COLUMN, DIVERSITY_COLUMN]] = scaler.fit_transform(
             blocks[[CONNECTIVITY_COLUMN, DENSITY_COLUMN, DIVERSITY_COLUMN]]
         )
         blocks[CENTRALITY_COLUMN] = (
             density_weight * blocks_normalized[DENSITY_COLUMN]
             + diversity_weight * blocks_normalized[DIVERSITY_COLUMN]
-            - connectivity_weight * blocks_normalized[CONNECTIVITY_COLUMN]
+            + connectivity_weight * blocks_normalized[CONNECTIVITY_COLUMN]
+        )
+
+        blocks[CENTRALITY_COLUMN] = blocks[CENTRALITY_COLUMN] / (
+            connectivity_weight + density_weight + diversity_weight
         )
 
         return blocks[["geometry", CONNECTIVITY_COLUMN, DENSITY_COLUMN, DIVERSITY_COLUMN, CENTRALITY_COLUMN]]

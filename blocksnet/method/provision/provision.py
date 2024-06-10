@@ -4,10 +4,11 @@ from typing import Literal
 
 import geopandas as gpd
 from matplotlib.gridspec import GridSpec
+from multiprocessing import Pool
 import matplotlib.pyplot as plt
 import pandas as pd
-from pulp import PULP_CBC_CMD, LpMinimize, LpProblem, LpVariable, lpSum, LpInteger
-
+from pulp import PULP_CBC_CMD, LpMinimize, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
+from tqdm import tqdm
 from ...models import Block, ServiceType
 from ..base_method import BaseMethod
 from enum import Enum
@@ -98,6 +99,9 @@ class Provision(BaseMethod):
     def total_provision(cls, gdf: gpd.GeoDataFrame) -> float:
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
+    def _calculate_provision(self, params):
+        return self.calculate(**params)
+
     def calculate_scenario(
         self,
         scenario: dict[str, float],
@@ -105,12 +109,37 @@ class Provision(BaseMethod):
         method: ProvisionMethod = ProvisionMethod.GRAVITATIONAL,
         self_supply: bool = False,
     ) -> tuple[dict[str, gpd.GeoDataFrame], float]:
+
+        with Pool() as pool:
+            gdfs = [
+                gdf
+                for gdf in pool.map(
+                    self._calculate_provision,
+                    [
+                        {
+                            "service_type": service_type,
+                            "update_df": update_df,
+                            "method": method,
+                            "self_supply": self_supply,
+                        }
+                        for service_type in scenario.keys()
+                    ],
+                )
+            ]
+
         result = {}
-        total: float = 0
-        for service_type, weight in scenario.items():
-            prov_gdf = self.calculate(service_type, update_df, method, self_supply)
-            result[service_type] = prov_gdf
-            total += weight * self.total_provision(prov_gdf)
+        total = 0
+        for i, gdf in enumerate(gdfs):
+            service_type = list(scenario.keys())[i]
+            weight = scenario[service_type]
+            total_prov = self.total_provision(gdf)
+            result[service_type] = gdf
+            total += total_prov * weight
+
+        # for service_type, weight in tqdm(scenario.items()):
+        #     prov_gdf = self.calculate(service_type, update_df, method, self_supply)
+        #     result[service_type] = prov_gdf
+        #     total += weight * self.total_provision(prov_gdf)
         return result, total
 
     @staticmethod
@@ -176,43 +205,50 @@ class Provision(BaseMethod):
         """Transport problem assessment method"""
 
         # if delta is not 0, we add a dummy city block
-        delta = gdf["demand"].sum() - gdf["capacity"].sum()
-        fictive_demand = None
-        fictive_capacity = None
-        fictive_block_id = gdf.index.max() + 1
-        if delta > 0:
-            fictive_capacity = fictive_block_id
-            gdf.loc[fictive_capacity, "capacity"] = delta
-            gdf.loc[fictive_capacity, "capacity_left"] = delta
-        if delta < 0:
-            fictive_demand = fictive_block_id
-            gdf.loc[fictive_demand, "demand"] = -delta
-            gdf.loc[fictive_demand, "demand_left"] = -delta
+        # delta = gdf["demand"].sum() - gdf["capacity"].sum()
+        # fictive_demand = None
+        # fictive_capacity = None
+        # fictive_block_id = gdf.index.max() + 1
+        # if delta > 0:
+        #     fictive_capacity = fictive_block_id
+        #     gdf.loc[fictive_capacity, "capacity"] = delta
+        #     gdf.loc[fictive_capacity, "capacity_left"] = delta
+        # if delta < 0:
+        #     fictive_demand = fictive_block_id
+        #     gdf.loc[fictive_demand, "demand"] = -delta
+        #     gdf.loc[fictive_demand, "demand_left"] = -delta
 
         def _get_distance(id1: int, id2: int):
-            if id1 == fictive_block_id or id2 == fictive_block_id:
-                return 0
+            # if id1 == fictive_block_id or id2 == fictive_block_id:
+            # return 0
             block1 = self.city_model[id1]
             block2 = self.city_model[id2]
             distance = self.city_model.get_distance(block1, block2)
-            return distance
+            return distance if distance > 1 else 1
 
         def _get_weight(id1: int, id2: int):
             distance = _get_distance(id1, id2)
             if method == ProvisionMethod.LINEAR:
-                return distance
-            return distance * distance
+                return 1 / distance
+            return 1 / (distance * distance)
 
         demand = gdf.loc[gdf["demand_left"] > 0]
         capacity = gdf.loc[gdf["capacity_left"] > 0]
 
-        prob = LpProblem("Transportation", LpMinimize)
-        x = LpVariable.dicts("Route", product(demand.index, capacity.index), 0, None, cat=LpInteger)
-        prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in product(demand.index, capacity.index))
+        prob = LpProblem("Provision", LpMaximize)
+        products = []
+        for i in demand.index:
+            for j in capacity.index:
+                if _get_distance(i, j) <= service_type.accessibility * 2:
+                    products.append((i, j))
+        x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)
+        prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in products)
         for n in demand.index:
-            prob += lpSum(x[n, m] for m in capacity.index) == demand.loc[n, "demand_left"]
+            capacity_products = [tpl[1] for tpl in filter(lambda tpl: tpl[0] == n, products)]
+            prob += lpSum(x[n, m] for m in capacity_products) <= demand.loc[n, "demand_left"]
         for m in capacity.index:
-            prob += lpSum(x[n, m] for n in demand.index) == capacity.loc[m, "capacity_left"]
+            demand_products = [tpl[0] for tpl in filter(lambda tpl: tpl[1] == m, products)]
+            prob += lpSum(x[n, m] for n in demand_products) <= capacity.loc[m, "capacity_left"]
         prob.solve(PULP_CBC_CMD(msg=False))
 
         for var in prob.variables():
@@ -224,16 +260,16 @@ class Provision(BaseMethod):
             b = int(name[2])
             distance = _get_distance(a, b)
             if value > 0:
-                if a != fictive_demand and b != fictive_capacity:
-                    if distance <= service_type.accessibility:
-                        gdf.loc[a, "demand_within"] += value
-                    else:
-                        gdf.loc[a, "demand_without"] += value
-                    gdf.loc[a, "demand_left"] -= value
-                    gdf.loc[b, "capacity_left"] -= value
+                # if a != fictive_demand and b != fictive_capacity:
+                if distance <= service_type.accessibility:
+                    gdf.loc[a, "demand_within"] += value
+                else:
+                    gdf.loc[a, "demand_without"] += value
+                gdf.loc[a, "demand_left"] -= value
+                gdf.loc[b, "capacity_left"] -= value
 
-        if fictive_block_id is not None:
-            gdf = gdf.drop(labels=[fictive_block_id])
+        # if fictive_block_id is not None:
+        #     gdf = gdf.drop(labels=[fictive_block_id])
 
         return gdf
 
