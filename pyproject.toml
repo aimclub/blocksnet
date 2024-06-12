@@ -39,6 +39,7 @@ dependencies = [
     "seaborn==0.12.2",
     "folium==0.14.0",
     "voronoi-diagram-for-polygons==0.1.6",
+    "momepy==0.7.0",
 ]
 
 classifiers = [
