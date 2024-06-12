@@ -33,7 +33,7 @@ class Fetcher(BaseModel):
         gdf["population"] = gdf["population"].fillna(0)
         gdf["population"] = gdf["population"].apply(lambda s: str(s).split(" ", maxsplit=1)[0]).apply(int)
         gdf = gdf[gdf["population"] > 0].reset_index()
-        return gdf[["geometry", "name", "population"]].drop_duplicates(["population", "name"])
+        return gdf[["geometry", "name", "population"]]
 
     def fetch_services(self, service_type: ServiceType | str, capacity: int = 250) -> gpd.GeoDataFrame:
         gdf = ox.features_from_polygon(self.geometry, tags=service_type.osm_tags)
