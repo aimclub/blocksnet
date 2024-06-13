@@ -2,7 +2,7 @@
 This package helps to automatically generate master plan requirements for urban areas
 """
 
-__version__ = "0.0.6"
+__version__ = "0.0.7"
 __author__ = ""
 __email__ = ""
 __credits__ = []
