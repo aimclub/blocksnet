@@ -10,9 +10,15 @@ import networkx as nx
 import pandas as pd
 from pydantic import BaseModel, InstanceOf, field_validator
 from shapely import Polygon
+from enum import Enum
 
 from ..models import BaseRow, GeoDataFrame
 from .graph_generator import GraphGenerator
+
+
+class AdjacencyMethod(Enum):
+    SPSP = "SPSP"
+    OPTIMIZED_SPSP = "Optimized SPSP"
 
 
 class BlockRow(BaseRow):
@@ -157,7 +163,15 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
 
         return pd.Series(data=distances, index=target_nodes)
 
-    def get_dataframe(self) -> pd.DataFrame:
+    @staticmethod
+    def get_distances(graph, df):
+        source_nodes = df.index
+        target_nodes = df.columns
+        spsp = nk.distance.SPSP(graph, source_nodes, target_nodes)
+        spsp.run()
+        return {(sn, tn): spsp.getDistance(sn, tn) for sn in source_nodes for tn in target_nodes}
+
+    def get_dataframe(self, method: AdjacencyMethod = AdjacencyMethod.OPTIMIZED_SPSP) -> pd.DataFrame:
         """
         This methods runs graph to matrix calculations
 
@@ -178,13 +192,27 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         blocks = self.blocks.copy()
         blocks.geometry = blocks.geometry.representative_point()
         from_blocks = graph_gdf["geometry"].sindex.nearest(blocks["geometry"], return_distance=False, return_all=False)
-
         accs_matrix = pd.DataFrame(0, index=from_blocks[1], columns=from_blocks[1])
-        nk_dists = nk.distance.SPSP(  # pylint: disable=c-extension-no-member
-            graph_nk, sources=accs_matrix.index.values
-        ).run()
 
-        accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x), axis=1)
+        if method == AdjacencyMethod.SPSP:
+            nk_dists = nk.distance.SPSP(  # pylint: disable=c-extension-no-member
+                graph_nk, sources=accs_matrix.index.values
+            ).run()
+
+            accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x), axis=1)
+
+        if method == AdjacencyMethod.OPTIMIZED_SPSP:
+            k_rows = 100
+            distances = {}
+
+            for i in range(0, len(accs_matrix.index), k_rows):
+                sub_df = accs_matrix.iloc[i : i + k_rows]
+                distances.update(self.get_distances(graph_nk, sub_df))
+
+            accs_matrix = accs_matrix.apply(
+                lambda x: pd.Series(data=[distances[x.name, i] for i in x.index], index=x.index), axis=1
+            )
+
         accs_matrix.index = blocks.index
         accs_matrix.columns = blocks.index
 
