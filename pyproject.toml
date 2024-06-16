@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "townsnet"
-version = "0.0.2"
+version = "0.0.3"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
@@ -21,7 +21,7 @@ dependencies = [
     "matplotlib-inline==0.1.6",
     "numpy==1.23.5",
     "osmnx==1.6.0",
-    "pandas==1.5.3",
+    "pandas>=2.0,<3.0.0",
     "PuLP==2.7.0",
     "pyarrow==12.0.0",
     "pydantic==2.0",

@@ -22,10 +22,10 @@ build:
 clean:
 	rm -rf ./build ./dist ./townsnet.egg-info
 
-update-pypi: clean build
+pypi: clean build
 	python3 -m twine upload dist/*
 
-update-test-pypi: clean build
+test-pypi: clean build
 	python3 -m twine upload --repository testpypi dist/*
 
 test:
