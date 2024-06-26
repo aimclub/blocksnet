@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "blocksnet"
-version = "0.0.6"
+version = "0.0.8"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
@@ -39,6 +39,7 @@ dependencies = [
     "seaborn==0.12.2",
     "folium==0.14.0",
     "voronoi-diagram-for-polygons==0.1.6",
+    "momepy==0.7.0",
 ]
 
 classifiers = [
