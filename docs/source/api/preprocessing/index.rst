@@ -8,7 +8,8 @@ todo
    :maxdepth: 2
 
    blocks_generator
-   landuse_processor
+   blocks_splitter
+   land_use_processor
    graph_generator
    adjacency_calculator
    utils

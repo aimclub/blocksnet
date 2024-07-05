@@ -2,7 +2,6 @@ import math
 
 from pydantic import BaseModel, Field, field_validator
 
-from blocksnet.models.city import Service
 from .land_use import LandUse
 
 

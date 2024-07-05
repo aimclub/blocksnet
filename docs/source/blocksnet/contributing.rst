@@ -12,7 +12,7 @@ Make sure to familiarize yourself with the project layout before making
 any major contributions.
 
 How to contribute
-----------
+-----------------
 
 .. include:: ../../../README.rst
    :start-after: .. developing-start
@@ -40,9 +40,7 @@ If your contribution changes BlocksNet in any way:
 
 If your contribution involves any code changes:
 
--  Update the `project unit
-   tests __ to
-   test your code changes.
+-  Update the `project unit` tests to test your code changes.
 
 -  Make sure that your code is properly commented with
    `docstrings <https://www.python.org/dev/peps/pep-0257/>`__ and

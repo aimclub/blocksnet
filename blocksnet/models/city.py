@@ -4,15 +4,10 @@ import math
 
 import pickle
 from functools import singledispatchmethod
-import statistics
 from typing import Literal
-import warnings
 from tqdm import tqdm
 
-from attr import field
 import geopandas as gpd
-import networkx as nx
-from numpy import number
 import pandas as pd
 from matplotlib import pyplot as plt
 from pydantic import BaseModel, Field, InstanceOf, field_validator, ConfigDict, model_validator, ValidationError
@@ -352,7 +347,6 @@ class Building(BaseModel):
             for i in gdf.index:
                 service = BuildingService(service_type=service_type, building=self, **gdf.loc[i].to_dict())
                 services.append(service)
-                # print(f'Problem with {i} service in {self.id} building ({self.block.id} block)')
             self.services = [*self.services, *services]
 
     def to_dict(self) -> dict:
