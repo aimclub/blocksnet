@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "townsnet"
-version = "0.0.5"
+version = "0.0.6"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
@@ -17,7 +17,7 @@ dependencies = [
     "geopandas>=0.13.0,<0.15.0",
     "loguru==0.7.0",
     "mapclassify==2.6.1",
-    "matplotlib==3.7.1",
+    "matplotlib>=3.7.1,<4.0.0",
     "matplotlib-inline==0.1.6",
     "numpy==1.23.5",
     "osmnx==1.6.0",
