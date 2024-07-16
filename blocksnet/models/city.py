@@ -10,8 +10,9 @@ from tqdm import tqdm
 import geopandas as gpd
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.gridspec import GridSpec
 from pydantic import BaseModel, Field, InstanceOf, field_validator, ConfigDict, model_validator, ValidationError
-from shapely import Point, Polygon, MultiPolygon, intersection
+from shapely import Point, Polygon, MultiPolygon, LineString, intersection
 
 from ..utils import SERVICE_TYPES
 from .service_type import ServiceType, ServiceBrick
@@ -909,7 +910,7 @@ class City:
 
     Methods
     -------
-    plot()
+    plot(figsize: tuple = (15, 15), linewidth: float = 0.1, max_travel_time:float = 15)
         Plot the city model, displaying blocks, land use, buildings, and services.
     get_land_use_service_types(land_use: LandUse | None)
         Retrieve service types allowed by a specific land use.
@@ -1027,34 +1028,67 @@ class City:
         """
         return [service for block in self.blocks for service in block.all_services]
 
-    def plot(self) -> None:
+    def plot(
+        self, figsize: tuple[float, float] = (15, 15), linewidth: float = 0.1, max_travel_time: float = 15
+    ) -> None:
         """
         Plot the city model data including blocks, land use, buildings, and services.
-        """
-        blocks = self.get_blocks_gdf(simplify=False)
-        # get gdfs
-        no_lu_blocks = blocks.loc[~blocks.land_use.notna()]
-        lu_blocks = blocks.loc[blocks.land_use.notna()]
-        buildings_gdf = self.get_buildings_gdf()
-        services_gdf = self.get_services_gdf()
 
-        # plot
-        _, ax = plt.subplots(figsize=(10, 10))
-        if len(no_lu_blocks) > 0:
-            no_lu_blocks.plot(ax=ax, alpha=1, color="#ddd")
-        if len(lu_blocks) > 0:
-            lu_blocks.plot(ax=ax, column="land_use", legend=True)
-        if len(buildings_gdf) > 0:
-            buildings_gdf.plot(ax=ax, markersize=1, color="#bbb")
-        if len(services_gdf) > 0:
-            services_gdf.plot(
-                ax=ax,
-                markersize=5,
-                column="service_type",
-                # legend=True,
-                # legend_kwds={"title": "Service types", "loc": "lower left"},
-            )
-        ax.set_axis_off()
+        Parameters
+        ----------
+        figsize : tuple[float, float], optional
+            Size of the plot to be displayed. Default is (15,15).
+        linewidth : float, optional
+            Line width of polygon objects to be displayed. Default is 0.1.
+        max_travel_time : float, optional
+            Max edge weight to be displayed on the plot (in min). Default is 15.
+        """
+        fig = plt.figure(figsize=figsize)
+        grid = GridSpec(2, 2)
+
+        ax_land_use = fig.add_subplot(grid[0, 0])
+        ax_network = fig.add_subplot(grid[0, 1])
+        ax_buildings = fig.add_subplot(grid[1, 0])
+        ax_services = fig.add_subplot(grid[1, 1])
+        blocks_gdf = self.get_blocks_gdf(True)
+
+        for ax in [ax_land_use, ax_network, ax_buildings, ax_services]:
+            blocks_gdf.plot(ax=ax, color="#777", linewidth=linewidth)
+            ax.set_axis_off()
+
+        # plot land_use
+        ax_land_use.set_title("Land use")
+        blocks_gdf.plot(ax=ax_land_use, linewidth=linewidth, column="land_use", legend=True)
+
+        # plot network
+        ax_network.set_title("Network")
+        lines = []
+        for i in self.adjacency_matrix.index:
+            point_i = self[i].geometry.representative_point()
+            series_i = self.adjacency_matrix.loc[i]
+            for j in series_i[series_i <= max_travel_time].index:
+                point_j = self[j].geometry.representative_point()
+                lines.append(
+                    {"geometry": LineString([point_i, point_j]), "travel_time": self.adjacency_matrix.loc[i, j]}
+                )
+        lines_gdf = gpd.GeoDataFrame(lines, crs=self.crs)
+        lines_gdf.plot(ax=ax_network, linewidth=linewidth, column="travel_time", cmap="summer", legend=True)
+
+        # plot buildings
+        ax_buildings.set_title("Buildings")
+        try:
+            buildings_gdf = self.get_buildings_gdf()
+            buildings_gdf.plot(ax=ax_buildings, linewidth=linewidth, column="population", legend=True, cmap="cool")
+        except:
+            ...
+
+        # plot services
+        ax_services.set_title("Services")
+        try:
+            services_gdf = self.get_services_gdf()
+            services_gdf.plot(ax=ax_services, linewidth=linewidth, column="service_type", markersize=0.5)
+        except:
+            ...
 
     def get_land_use_service_types(self, land_use: LandUse | None) -> list[ServiceType]:
         """
