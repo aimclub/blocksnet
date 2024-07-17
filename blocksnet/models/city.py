@@ -1228,7 +1228,8 @@ class City:
             lambda s: intersection(s.geometry, self[s.block_id].geometry), axis=1
         ).area
         sjoin["building_id"] = sjoin.index
-        sjoin = sjoin.sort_values("intersection_area").drop_duplicates(subset="building_id", keep="first")
+        return sjoin
+        sjoin = sjoin.sort_values("intersection_area").drop_duplicates(subset="building_id", keep="last")
         groups = sjoin.groupby("block_id")
         for block_id, buildings_gdf in tqdm(groups, desc="Update blocks buildings"):
             self[int(block_id)].update_buildings(buildings_gdf)
@@ -1279,7 +1280,7 @@ class City:
         ).area
         building_services["service_id"] = building_services.index
         building_services = building_services.sort_values("intersection_area").drop_duplicates(
-            subset="service_id", keep="first"
+            subset="service_id", keep="last"
         )
         for building_info, services_gdf in building_services.groupby(["building_id", "block_id"]):
             building_id, block_id = building_info
@@ -1299,7 +1300,7 @@ class City:
         ).area
         block_services["service_id"] = block_services.index
         block_services = block_services.sort_values("intersection_area").drop_duplicates(
-            subset="service_id", keep="first"
+            subset="service_id", keep="last"
         )
         for block_id, gdf in block_services.groupby("block_id"):
             block = self[int(block_id)]
