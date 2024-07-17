@@ -8,7 +8,6 @@ The examples below may help with getting used to the library.
    :maxdepth: 1
 
    pipeline
-   validation
    blocks_generator
    graph_generator
    city

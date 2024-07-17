@@ -8,13 +8,21 @@ import requests
 from pydantic import BaseModel, Field, InstanceOf, field_validator
 from shapely import LineString, MultiPolygon, Point, Polygon, line_locate_point
 from shapely.ops import linemerge, nearest_points, split
-
-from ..models import BaseRow, GeoDataFrame
+from ..models import BaseSchema
 
 
 OX_CRS = 4326
 METERS_IN_KILOMETER = 1000
 MINUTES_IN_HOUR = 60
+
+OVERPASS_URL = "http://lz4.overpass-api.de/api/interpreter"
+SPEED = {"walk": 4, "drive": 25, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
+WAITING_TIME = {
+    "subway": 5,
+    "tram": 5,
+    "trolleybus": 5,
+    "bus": 5,
+}
 
 
 class GraphNode(BaseModel):
@@ -28,34 +36,26 @@ class GraphEdge(BaseModel):
     transport_type: Literal["walk", "drive", "subway", "tram", "bus", "trolleybus"]
 
 
-class CityRow(BaseRow):
-    geometry: Polygon | MultiPolygon
+class TerritorySchema(BaseSchema):
+    _geom_types = [Polygon, MultiPolygon]
 
 
-class GraphGenerator(BaseModel):
-    territory: InstanceOf[GeoDataFrame[CityRow]]
-    """City geometry or geometries, may contain blocks or boundaries of the city"""
-    overpass_url: str = "http://lz4.overpass-api.de/api/interpreter"
-    """Overpass url used in OSM queries"""
-    speed: dict[str, int] = {"walk": 4, "drive": 25, "subway": 12, "tram": 15, "trolleybus": 12, "bus": 17}
-    """Average transport type speed in km/h"""
-    waiting_time: dict[str, int] = {
-        "subway": 5,
-        "tram": 5,
-        "trolleybus": 5,
-        "bus": 5,
-    }
-    """Average waiting time in min"""
+class GraphGenerator:
+    def __init__(
+        self,
+        territory: gpd.GeoDataFrame,
+        overpass_url: str = OVERPASS_URL,
+        speed: dict[str, int] = SPEED,
+        waiting_time: dict[str, int] = WAITING_TIME,
+    ):
 
-    @field_validator("territory", mode="before")
-    def cast_territory(gdf):
-        if not isinstance(gdf, GeoDataFrame[CityRow]):
-            gdf = GeoDataFrame[CityRow](gdf)
-        return gdf
+        territory = TerritorySchema(territory)
+        territory = gpd.GeoDataFrame([{"geometry": territory.geometry.unary_union.convex_hull}], crs=territory.crs)
 
-    @field_validator("territory", mode="after")
-    def union_territory(gdf):
-        return GeoDataFrame[CityRow]([{"geometry": gdf.geometry.unary_union.convex_hull}]).set_crs(gdf.crs)
+        self.territory = territory
+        self.overpass_url = overpass_url
+        self.speed = speed
+        self.waiting_time = waiting_time
 
     @staticmethod
     def to_graphml(graph: nx.MultiDiGraph, file_path: str):
@@ -101,12 +101,12 @@ class GraphGenerator(BaseModel):
         bbox = f"{bounds.loc[0,'miny']},{bounds.loc[0,'minx']},{bounds.loc[0,'maxy']},{bounds.loc[0,'maxx']}"
         tags = f"'route'='{public_transport_type}'"
         overpass_query = f"""
-    [out:json];
-            (
-                relation({bbox})[{tags}];
-            );
-    out geom;
-    """
+        [out:json];
+                (
+                    relation({bbox})[{tags}];
+                );
+        out geom;
+        """
         result = requests.get(self.overpass_url, params={"data": overpass_query})
         json_result = result.json()["elements"]
         return pd.DataFrame(json_result)
@@ -180,15 +180,14 @@ class GraphGenerator(BaseModel):
 
     @staticmethod
     def validate_graph(graph) -> nx.MultiDiGraph:
-        """Returns validated copy of the graph, according to ```GraphEdge``` and ```GraphNode``` classes"""
-        graph = graph.copy()
+        """Validates copy graph, according to ``GraphEdge`` and ``GraphNode`` classes"""
         for d in map(lambda e: e[2], graph.edges(data=True)):
             d = GraphEdge(**d).__dict__
         for d in map(lambda n: n[1], graph.nodes(data=True)):
             d = GraphNode(**d).__dict__
         return graph
 
-    def get_graph(self, graph_type: Literal["intermodal", "walk", "drive"]):
+    def run(self, graph_type: Literal["intermodal", "walk", "drive"]):
         """Returns intermodal graph for the city geometry bounds"""
         if graph_type != "intermodal":
             graph = self._get_basic_graph(graph_type)
