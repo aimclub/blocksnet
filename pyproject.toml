@@ -25,6 +25,7 @@ dependencies = [
     "numpy==1.23.5",
     "osmnx==1.6.0",
     "pandas==1.5.3",
+    "pandera==0.20.2",
     "PuLP==2.7.0",
     "pyarrow==12.0.0",
     "pydantic>=2.0.0,<3.0.0",

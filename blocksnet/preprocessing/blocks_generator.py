@@ -1,48 +1,32 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+import shapely
+from ..models import BaseSchema
 from loguru import logger
 from shapely.ops import polygonize
 from pyproj import CRS
-from . import utils
-
-BOUNDARIES_COLUMNS = ["geometry"]
-BOUNDARIES_GEOM_TYPES = ["Polygon", "MultiPolygon"]
-
-ROADS_COLUMNS = ["geometry"]
-ROADS_GEOM_TYPES = ["LineString"]
-
-RAILWAYS_COLUMNS = ["geometry"]
-RAILWAYS_GEOM_TYPES = ["LineString"]
-
-WATER_COLUMNS = ["geometry"]
-WATER_GEOM_TYPES = ["LineString", "Polygon", "MultiPolygon"]
-
-BLOCKS_COLUMNS = ["geometry"]
+from .. import utils
 
 
-def validate_gdf(gdf: gpd.GeoDataFrame, columns: list[str], geom_types: list[str]) -> gpd.GeoDataFrame:
-    """
-    Validate provided GeoDataFrame with columns and geometry types and return validated copy.
+class BoundariesSchema(BaseSchema):
+    _geom_types = [shapely.Polygon, shapely.MultiPolygon]
 
-    Parameters
-    ----------
-    gdf : gpd.GeoDataFrame
-        GeoDataFrame to validate.
-    columns : list[str]
-        List of columns, that the GeoDataFrame must contain and filter others out.
-    geom_types : list[str]
-        Geometry types allowed in ``geometry`` column.
 
-    Returns
-    -------
-    gpd.GeoDataFrame
-        Validated GeoDataFrame.
-    """
-    assert isinstance(gdf, gpd.GeoDataFrame), "Must be instance of gpd.GeoDataFrame"
-    gdf = gdf[columns].copy()
-    assert all(gdf.geom_type.isin(geom_types)), f"Geometry must be in {geom_types}"
-    return gdf
+class RoadsSchema(BaseSchema):
+    _geom_types = [shapely.LineString]
+
+
+class RailwaysSchema(BaseSchema):
+    _geom_types = [shapely.LineString]
+
+
+class WaterSchema(BaseSchema):
+    _geom_types = [shapely.LineString, shapely.Polygon, shapely.MultiPolygon]
+
+
+class BlocksSchema(BaseSchema):
+    _geom_types = [shapely.Polygon]
 
 
 class BlocksGenerator:
@@ -62,7 +46,7 @@ class BlocksGenerator:
 
     Methods
     -------
-    generate_blocks(min_block_width=None)
+    run(min_block_width=None)
         Generates blocks based on the provided boundaries, roads, railways, and water objects.
     """
 
@@ -88,28 +72,34 @@ class BlocksGenerator:
             Water objects geometries. Can be obtained via OSM tags like ``riverbank==*``, ``pond==*``, etc. Must contain a ``geometry`` column with ``LineString``, ``Polygon``, or ``MultiPolygon`` geometries. By default None.
         """
 
-        boundaries = validate_gdf(boundaries, BOUNDARIES_COLUMNS, BOUNDARIES_GEOM_TYPES)
+        logger.info("Check boundaries schema")
+        boundaries = BoundariesSchema(boundaries)
         crs = boundaries.crs
 
+        logger.info("Check roads schema")
         if roads is None:
-            roads = gpd.GeoDataFrame(data=[], columns=ROADS_COLUMNS, crs=crs)
+            roads = RoadsSchema.to_gdf().to_crs(crs)
         else:
-            roads = validate_gdf(roads, ROADS_COLUMNS, ROADS_GEOM_TYPES)
+            roads = RoadsSchema(roads)
 
+        logger.info("Check railways schema")
         if railways is None:
-            railways = gpd.GeoDataFrame(data=[], columns=RAILWAYS_COLUMNS, crs=crs)
+            railways = RailwaysSchema.to_gdf().to_crs(crs)
         else:
-            railways = validate_gdf(railways, RAILWAYS_COLUMNS, RAILWAYS_GEOM_TYPES)
+            railways = RailwaysSchema(railways)
 
+        logger.info("Check water schema")
         if water is None:
-            water = gpd.GeoDataFrame(data=[], columns=WATER_COLUMNS, crs=crs)
+            water = WaterSchema.to_gdf().to_crs(crs)
         else:
-            water = validate_gdf(water, WATER_COLUMNS, WATER_GEOM_TYPES)
+            water = WaterSchema(water)
 
         for gdf in [roads, railways, water]:
             assert gdf.crs == crs, "All CRS must match"
-            boundaries = boundaries.overlay(water[water.geom_type != "LineString"], how="difference")
-            water["geometry"] = water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
+
+        logger.info("Exclude water objects")
+        boundaries = boundaries.overlay(water[water.geom_type != "LineString"], how="difference")
+        water["geometry"] = water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
 
         self.boundaries = boundaries
         self.roads = roads
@@ -128,7 +118,7 @@ class BlocksGenerator:
         """
         return self.boundaries.crs
 
-    def generate_blocks(self, min_block_width: float | None = None) -> gpd.GeoDataFrame:
+    def run(self, min_block_width: float | None = None) -> gpd.GeoDataFrame:
         """
         Generates blocks based on the provided boundaries, roads, railways, and water bodies.
 
@@ -183,7 +173,7 @@ class BlocksGenerator:
 
         logger.info("Blocks generated")
 
-        return blocks.to_crs(self.local_crs)[BLOCKS_COLUMNS]
+        return BlocksSchema(blocks.to_crs(self.local_crs))
 
     @staticmethod
     def _get_enclosures(barriers: gpd.GeoDataFrame, limit: gpd.GeoDataFrame):

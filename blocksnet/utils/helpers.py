@@ -1,55 +1,6 @@
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
 
-import pyproj
-from pyproj.aoi import AreaOfInterest
-from pyproj.database import query_crs_info
-from pyproj import CRS
-
-
-def verbose_print(text, verbose=True):
-    if verbose:
-        print(text)
-
-
-def get_projected_crs(poly):
-    """
-    Returns a local projected CRS for a given polygon.
-    If no matching local CRS found, returns EPSG:3857.
-
-    Attributes
-    ----------
-    poly: shapely.Polygon or shapely.MultiPolygon
-        A polygon of a place.
-
-    Returns
-    -------
-    projected_crs: pyproj.CRS
-        Projected CRS.
-    """
-
-    try:
-        coords = [list(set(x)) for x in poly.envelope.boundary.coords.xy]
-
-        area_of_interest = AreaOfInterest(
-            west_lon_degree=coords[0][0],
-            east_lon_degree=coords[0][1],
-            north_lat_degree=coords[1][0],
-            south_lat_degree=coords[1][1],
-        )
-
-        utm_crs_list = query_crs_info(
-            pj_types=pyproj.enums.PJType.PROJECTED_CRS,
-            area_of_interest=area_of_interest,
-        )
-
-        projected_crs = CRS.from_epsg(utm_crs_list[0].code)
-
-    except:
-        projected_crs = CRS(3857)
-
-    return projected_crs
-
 
 def fill_holes(gdf):
     """
