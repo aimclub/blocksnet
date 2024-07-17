@@ -11,14 +11,74 @@ from ..models import BaseSchema
 
 
 class BlocksSchema(BaseSchema):
+    """
+    Schema for validating blocks GeoDataFrame.
+
+    Attributes
+    ----------
+    _geom_types : list
+        List of allowed geometry types for the blocks, default is [shapely.Polygon].
+    """
+
     _geom_types = [shapely.Polygon]
 
 
 class BuildingsSchema(BaseSchema):
+    """
+    Schema for validating buildings GeoDataFrame.
+
+    Attributes
+    ----------
+    _geom_types : list
+        List of allowed geometry types for the buildings, default is [shapely.Point].
+    """
+
     _geom_types = [shapely.Point]
 
 
 class BlocksSplitter:
+    """
+    Splits blocks based on the distribution of buildings within them.
+
+    Parameters
+    ----------
+    blocks : gpd.GeoDataFrame
+        GeoDataFrame containing block data. Must contain the following columns:
+        - index : int
+        - geometry : Polygon
+
+    buildings : gpd.GeoDataFrame
+        GeoDataFrame containing building data. Must contain the following columns:
+        - index : int
+        - geometry : Point
+
+    Raises
+    ------
+    AssertionError
+        If the Coordinate Reference Systems (CRS) of `blocks` and `buildings` do not match.
+
+    Methods
+    -------
+    run(n_clusters: int = 4, points_quantile: float = 0.98, area_quantile: float = 0.95) -> gpd.GeoDataFrame
+        Splits blocks based on buildings distribution.
+
+        Parameters
+        ----------
+        n_clusters : int
+            Number of clusters to form within each block, default is 4.
+
+        points_quantile : float
+            Quantile value to filter blocks by the number of points, default is 0.98.
+
+        area_quantile : float
+            Quantile value to filter blocks by area, default is 0.95.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing all the blocks.
+    """
+
     def __init__(self, blocks: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame):
         blocks = BlocksSchema(blocks)
         buildings = BuildingsSchema(buildings)
@@ -28,6 +88,14 @@ class BlocksSplitter:
 
     @staticmethod
     def _drop_index_columns(gdf) -> None:
+        """
+        Drops index columns from a GeoDataFrame if they exist.
+
+        Parameters
+        ----------
+        gdf : gpd.GeoDataFrame
+            GeoDataFrame from which to drop index columns.
+        """
         if "index_left" in gdf.columns:
             gdf.drop(columns=["index_left"], inplace=True)
         if "index_right" in gdf.columns:
@@ -35,6 +103,25 @@ class BlocksSplitter:
 
     @staticmethod
     def _split_block(block: shapely.Polygon, buildings: gpd.GeoDataFrame, n_clusters: int) -> gpd.GeoDataFrame:
+        """
+        Splits a block into smaller regions based on building locations using Voronoi diagrams and K-Means clustering.
+
+        Parameters
+        ----------
+        block : shapely.Polygon
+            The geometry of the block to be split.
+
+        buildings : gpd.GeoDataFrame
+            GeoDataFrame containing the buildings within the block.
+
+        n_clusters : int
+            Number of clusters to form within the block.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing the split regions.
+        """
         vd = voronoiDiagram4plg(buildings, block)
         vd = vd.explode(index_parts=True)
 
@@ -53,7 +140,25 @@ class BlocksSplitter:
         return vd.reset_index(drop=True)
 
     def run(self, n_clusters: int = 4, points_quantile: float = 0.98, area_quantile: float = 0.95) -> gpd.GeoDataFrame:
+        """
+        Splits blocks based on the distribution of buildings.
 
+        Parameters
+        ----------
+        n_clusters : int
+            Number of clusters to form within each block, default is 4.
+
+        points_quantile : float
+            Quantile value to filter blocks by the number of points, default is 0.98.
+
+        area_quantile : float
+            Quantile value to filter blocks by area, default is 0.95.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing the split blocks.
+        """
         get_geom_coords = lambda geom: len(geom.exterior.coords)
 
         logger.info("Joining buildings and blocks to exclude duplicates")
