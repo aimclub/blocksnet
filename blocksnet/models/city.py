@@ -6,7 +6,7 @@ import pickle
 from functools import singledispatchmethod
 from typing import Literal
 from tqdm import tqdm
-
+from loguru import logger
 import geopandas as gpd
 import pandas as pd
 from matplotlib import pyplot as plt
@@ -1189,7 +1189,7 @@ class City:
                 land_use = None
             self[i].land_use == land_use
 
-    def update_buildings(self, gdf: gpd.GeoDataFrame) -> None:
+    def update_buildings(self, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
         Update buildings information for blocks based on a GeoDataFrame.
 
@@ -1209,16 +1209,24 @@ class City:
 
             Please, do not specify building_id nor block_id columns, as they are used in the method. For more specific information, please, check Building class.
 
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame buildings that did not intersect any block.
+
         Raises
         ------
         AssertionError
             If the CRS of `gdf` does not match the city model's CRS.
+
         """
         assert gdf.crs == self.crs, "Buildings GeoDataFrame CRS should match city CRS"
         # reset buildings of blocks
+        logger.info("Removing existing blocks from the model")
         for block in self.blocks:
             block.update_buildings()
         # spatial join blocks and buildings and updated related blocks info
+        logger.info("Joining buildings and blocks")
         sjoin = gdf.sjoin(self.get_blocks_gdf()[["geometry"]])
         sjoin = sjoin.rename(columns={"index_right": "block_id"})
         sjoin.geometry = sjoin.geometry.apply(
@@ -1228,11 +1236,13 @@ class City:
             lambda s: intersection(s.geometry, self[s.block_id].geometry), axis=1
         ).area
         sjoin["building_id"] = sjoin.index
-        return sjoin
         sjoin = sjoin.sort_values("intersection_area").drop_duplicates(subset="building_id", keep="last")
+        if len(sjoin) < len(gdf):
+            logger.warning(f"{len(gdf)-len(sjoin)} buildings did not intersect any block")
         groups = sjoin.groupby("block_id")
         for block_id, buildings_gdf in tqdm(groups, desc="Update blocks buildings"):
             self[int(block_id)].update_buildings(buildings_gdf)
+        return gdf[~gdf.index.isin(sjoin.index)]
 
     def update_services(self, service_type: ServiceType | str, gdf: gpd.GeoDataFrame) -> None:
         """
