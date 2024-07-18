@@ -64,12 +64,33 @@ class BlocksGenerator:
         ----------
         boundaries : gpd.GeoDataFrame
             Boundaries of a city or a territory. Must contain a ``geometry`` column with ``Polygon`` or ``MultiPolygon`` geometries.
+
         roads : gpd.GeoDataFrame, optional
-            Roads geometries. Can be obtained via OSMnx and must contain a ``geometry`` column with ``LineString`` geometries. By default None.
+            Roads geometries. Must contain a ``geometry`` column with ``LineString`` geometries. By default None.
+
+            Possible OSM tags:
+            - ``highway`` : construction, crossing, living_street, motorway, motorway_link, motorway_junction, pedestrian, primary, primary_link, raceway, residential, road, secondary, secondary_link, services, tertiary, tertiary_link, track, trunk, trunk_link, turning_circle, turning_loop, unclassified
+            - ``service`` : living_street, emergency_access
+
         railways : gpd.GeoDataFrame, optional
-            Railways geometries. Can be obtained via OSM tags ``railway==rail`` and must contain a ``geometry`` column with ``LineString`` geometries. By default None.
+            Railways geometries. Must contain a ``geometry`` column with ``LineString`` geometries. By default None.
+
+            Possible OSM tags:
+            - ``railway`` : rail
+
         water : gpd.GeoDataFrame, optional
-            Water objects geometries. Can be obtained via OSM tags like ``riverbank==*``, ``pond==*``, etc. Must contain a ``geometry`` column with ``LineString``, ``Polygon``, or ``MultiPolygon`` geometries. By default None.
+            Water objects geometries. Must contain a ``geometry`` column with ``LineString``, ``Polygon``, or ``MultiPolygon`` geometries. By default None.
+
+            Possible OSM tags:
+            - ``riverbank``
+            - ``reservoir``
+            - ``basin``
+            - ``dock``
+            - ``canal``
+            - ``pond``
+            - ``natural`` : water, bay
+            - ``waterway`` : river, canal, ditch
+            - ``landuse`` : basin
         """
 
         logger.info("Check boundaries schema")
