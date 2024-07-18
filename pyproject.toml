@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "townsnet"
-version = "0.0.7"
+version = "0.0.8"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
@@ -28,7 +28,7 @@ dependencies = [
     "requests==2.31.0",
     "shapely==2.0.1",
     "six==1.16.0",
-    "tqdm==4.65.0",
+    "tqdm>=4.65.0,<5.0.0",
     "seaborn==0.12.2",
     "folium==0.14.0",
 ]
