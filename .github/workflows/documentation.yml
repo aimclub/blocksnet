@@ -1,6 +1,6 @@
 name: Documentation
 
-on: [push, pull_request, workflow_dispatch]
+on: [push]
 
 permissions:
   contents: write
@@ -11,6 +11,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -29,7 +30,6 @@ jobs:
           sphinx-build docs/source docs/build
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
         with:
           publish_branch: documentation
           github_token: ${{ secrets.GITHUB_TOKEN }}
