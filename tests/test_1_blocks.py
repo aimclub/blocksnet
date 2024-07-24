@@ -1,18 +1,18 @@
-"""Testing blocks cutter behavior"""
+"""Testing blocks generator behavior"""
 
 import os
 import pytest
 import geopandas as gpd
 from blocksnet import BlocksGenerator, LandUse, LandUseProcessor
 
-osm_data_path = "./tests/data"
+data_path = "./tests/data"
 
 zones_to_lu = {"zone_1": LandUse.RECREATION, "zone_2": LandUse.RESIDENTIAL, "zone_3": LandUse.BUSINESS}
 
 
 @pytest.fixture
 def boundaries():
-    gdf = gpd.read_parquet(os.path.join(osm_data_path, "boundaries.parquet"))
+    gdf = gpd.read_parquet(os.path.join(data_path, "boundaries.parquet"))
     crs = gdf.estimate_utm_crs()
     return gdf.to_crs(crs)
 
@@ -25,7 +25,7 @@ def local_crs(boundaries):
 @pytest.fixture
 def blocks_generator(boundaries, local_crs):
     gdfs = {
-        name: gpd.read_parquet(os.path.join(osm_data_path, f"{name}.parquet")).to_crs(local_crs)
+        name: gpd.read_parquet(os.path.join(data_path, f"{name}.parquet")).to_crs(local_crs)
         for name in ["roads", "railways", "water"]
     }
     return BlocksGenerator(boundaries, **gdfs)
@@ -71,4 +71,4 @@ def test_sameness(blocks, lu_blocks):
 
 
 def test_output(lu_blocks):
-    lu_blocks.to_parquet(os.path.join(osm_data_path, "_blocks.parquet"))
+    lu_blocks.to_parquet(os.path.join(data_path, "_blocks.parquet"))
