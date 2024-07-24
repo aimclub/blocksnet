@@ -70,7 +70,7 @@ dev = [
     "autodocsumm==0.2.12",
     "myst_parser>=3.0.0,<4.0.0",
     "sphinx_rtd_theme>=1.2.0,<2.0.0",
-    "pandoc>=2.0.0,<3.0.0",
+    "pandoc",
 ]
 
 
