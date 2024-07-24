@@ -8,50 +8,25 @@ import geopandas as gpd
 import networkit as nk
 import networkx as nx
 import pandas as pd
-from pydantic import BaseModel, InstanceOf, field_validator
 from shapely import Polygon
-from enum import Enum
-
-from ..models import BaseRow, GeoDataFrame
+from tqdm import tqdm
+from ..models import BaseSchema
 from .graph_generator import GraphGenerator
 
 
-class AdjacencyMethod(Enum):
-    SPSP = "SPSP"
-    OPTIMIZED_SPSP = "Optimized SPSP"
+class BlocksSchema(BaseSchema):
+    _geom_types = [Polygon]
 
 
-class BlockRow(BaseRow):
-    geometry: Polygon
-
-
-class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
-    """
-    Class Accessibility calculates accessibility matrix between city blocks.
-    It takes a lot of RAM to calculate one since we have thousands of city blocks.
-
-    Methods
-    -------
-    get_matrix
-    """
-
-    blocks: GeoDataFrame[BlockRow]
-    graph: InstanceOf[nx.MultiDiGraph]
-
-    @field_validator("blocks", mode="before")
-    def validate_blocks(gdf):
-        if not isinstance(gdf, GeoDataFrame[BlockRow]):
-            gdf = GeoDataFrame[BlockRow](gdf)
-        return gdf
-
-    @field_validator("graph", mode="before")
-    def validate_graph(graph):
+class AdjacencyCalculator:  # pylint: disable=too-few-public-methods
+    def __init__(self, blocks: gpd.GeoDataFrame, graph: nx.MultiDiGraph):
+        blocks = BlocksSchema(blocks)
         assert "crs" in graph.graph, 'Graph should contain "crs" property similar to GeoDataFrame'
-        return GraphGenerator.validate_graph(graph)
+        graph = GraphGenerator.validate_graph(graph)
+        assert blocks.crs == graph.graph["crs"], "Blocks CRS should match graph CRS"
 
-    def model_post_init(self, __context: Any) -> None:
-        assert self.blocks.crs == self.graph.graph["crs"], "Blocks CRS should match graph CRS"
-        return super().model_post_init(__context)
+        self.blocks = blocks
+        self.graph = graph
 
     @staticmethod
     def _get_nx2nk_idmap(graph: nx.Graph) -> dict:  # TODO: add typing for the dict
@@ -171,7 +146,7 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         spsp.run()
         return {(sn, tn): spsp.getDistance(sn, tn) for sn in source_nodes for tn in target_nodes}
 
-    def get_dataframe(self, method: AdjacencyMethod = AdjacencyMethod.OPTIMIZED_SPSP) -> pd.DataFrame:
+    def run(self, batch_size: int | None = None) -> pd.DataFrame:
         """
         This methods runs graph to matrix calculations
 
@@ -194,18 +169,17 @@ class AdjacencyCalculator(BaseModel):  # pylint: disable=too-few-public-methods
         from_blocks = graph_gdf["geometry"].sindex.nearest(blocks["geometry"], return_distance=False, return_all=False)
         accs_matrix = pd.DataFrame(0, index=from_blocks[1], columns=from_blocks[1])
 
-        if method == AdjacencyMethod.SPSP:
+        if batch_size is None:
             nk_dists = nk.distance.SPSP(  # pylint: disable=c-extension-no-member
                 graph_nk, sources=accs_matrix.index.values
             ).run()
 
             accs_matrix = accs_matrix.apply(lambda x: self._get_nk_distances(nk_dists, x), axis=1)
-
-        if method == AdjacencyMethod.OPTIMIZED_SPSP:
-            k_rows = 100
+        else:
+            k_rows = batch_size
             distances = {}
 
-            for i in range(0, len(accs_matrix.index), k_rows):
+            for i in tqdm(range(0, len(accs_matrix.index), k_rows)):
                 sub_df = accs_matrix.iloc[i : i + k_rows]
                 distances.update(self.get_distances(graph_nk, sub_df))
 

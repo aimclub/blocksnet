@@ -221,9 +221,7 @@ class Provision(BaseMethod):
         def _get_distance(id1: int, id2: int):
             # if id1 == fictive_block_id or id2 == fictive_block_id:
             # return 0
-            block1 = self.city_model[id1]
-            block2 = self.city_model[id2]
-            distance = self.city_model.get_distance(block1, block2)
+            distance = self.city_model.adjacency_matrix.loc[id1, id2]
             return distance if distance > 1 else 1
 
         def _get_weight(id1: int, id2: int):

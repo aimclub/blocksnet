@@ -1,81 +1,160 @@
-from typing import Any
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-from shapely import Polygon, LineString, MultiPolygon
+import shapely
+from ..models import BaseSchema
+from loguru import logger
 from shapely.ops import polygonize
-from pydantic import BaseModel, field_validator, model_validator
-from . import utils
-from ..models import GeoDataFrame, BaseRow
+from pyproj import CRS
+from .. import utils
 
 
-class TerritoryRow(BaseRow):
-    geometry: Polygon | MultiPolygon
+class BoundariesSchema(BaseSchema):
+    _geom_types = [shapely.Polygon, shapely.MultiPolygon]
 
 
-class RoadsRow(BaseRow):
-    geometry: LineString
+class RoadsSchema(BaseSchema):
+    _geom_types = [shapely.LineString]
 
 
-class RailwaysRow(BaseRow):
-    geometry: LineString
+class RailwaysSchema(BaseSchema):
+    _geom_types = [shapely.LineString]
 
 
-class WaterRow(BaseRow):
-    geometry: LineString | Polygon | MultiPolygon
+class WaterSchema(BaseSchema):
+    _geom_types = [shapely.LineString, shapely.Polygon, shapely.MultiPolygon]
 
 
-class BlockRow(BaseRow):
-    geometry: Polygon
+class BlocksSchema(BaseSchema):
+    _geom_types = [shapely.Polygon]
 
 
-class BlocksGenerator(BaseModel):
-    territory: GeoDataFrame[TerritoryRow]
-    roads: GeoDataFrame[RoadsRow] = None
-    railways: GeoDataFrame[RailwaysRow] = None
-    water: GeoDataFrame[WaterRow] = None
-    verbose: bool = True
+class BlocksGenerator:
+    """
+    Generates blocks (land parcels) based on boundaries, roads, railways, and water objects.
 
-    @field_validator("territory", mode="before")
-    def validate_territory(value):
-        return GeoDataFrame[TerritoryRow](value)
+    Parameters
+    ----------
+    boundaries : gpd.GeoDataFrame
+        Boundaries of a city or a territory. Must contain ``geometry`` column of ``Polygon`` or ``MultiPolygon`` geometries.
+    roads : gpd.GeoDataFrame | None, optional
+        Roads geometries. Can be obtained via OSMnx and must contain ``geometry`` column of ``LineString`` geometries. By default None.
+    railways : gpd.GeoDataFrame | None, optional
+        Railways geometries. Can be obtained via OSM tags ``railway==rail`` and must contain ``geometry`` column of ``LineString`` geometries. By default None.
+    water : gpd.GeoDataFrame | None, optional
+        Water objects geometries. Can be obtained via OSM tags like ``riverbank==*``, ``pond==*``, etc. Must contain ``geometry`` column of ``LineString``, ``Polygon`` or ``MultiPolygon``. By default None.
 
-    @field_validator("roads", mode="before")
-    def validate_roads(value):
-        return GeoDataFrame[RoadsRow](value)
+    Methods
+    -------
+    run(min_block_width=None)
+        Generates blocks based on the provided boundaries, roads, railways, and water objects.
+    """
 
-    @field_validator("railways", mode="before")
-    def validate_railways(value):
-        return GeoDataFrame[RailwaysRow](value)
+    def __init__(
+        self,
+        boundaries: gpd.GeoDataFrame,
+        roads: gpd.GeoDataFrame | None = None,
+        railways: gpd.GeoDataFrame | None = None,
+        water: gpd.GeoDataFrame | None = None,
+    ):
+        """
+        Initializes the BlocksGenerator with the specified boundaries, roads, railways, and water objects.
 
-    @field_validator("water", mode="before")
-    def validate_water(value):
-        return GeoDataFrame[WaterRow](value)
+        Parameters
+        ----------
+        boundaries : gpd.GeoDataFrame
+            Boundaries of a city or a territory. Must contain a ``geometry`` column with ``Polygon`` or ``MultiPolygon`` geometries.
+
+        roads : gpd.GeoDataFrame, optional
+            Roads geometries. Must contain a ``geometry`` column with ``LineString`` geometries. By default None.
+
+            Possible OSM tags:
+            - ``highway`` : construction, crossing, living_street, motorway, motorway_link, motorway_junction, pedestrian, primary, primary_link, raceway, residential, road, secondary, secondary_link, services, tertiary, tertiary_link, track, trunk, trunk_link, turning_circle, turning_loop, unclassified
+            - ``service`` : living_street, emergency_access
+
+        railways : gpd.GeoDataFrame, optional
+            Railways geometries. Must contain a ``geometry`` column with ``LineString`` geometries. By default None.
+
+            Possible OSM tags:
+            - ``railway`` : rail
+
+        water : gpd.GeoDataFrame, optional
+            Water objects geometries. Must contain a ``geometry`` column with ``LineString``, ``Polygon``, or ``MultiPolygon`` geometries. By default None.
+
+            Possible OSM tags:
+            - ``riverbank``
+            - ``reservoir``
+            - ``basin``
+            - ``dock``
+            - ``canal``
+            - ``pond``
+            - ``natural`` : water, bay
+            - ``waterway`` : river, canal, ditch
+            - ``landuse`` : basin
+        """
+
+        logger.info("Check boundaries schema")
+        boundaries = BoundariesSchema(boundaries)
+        crs = boundaries.crs
+
+        logger.info("Check roads schema")
+        if roads is None:
+            roads = RoadsSchema.to_gdf().to_crs(crs)
+        else:
+            roads = RoadsSchema(roads)
+
+        logger.info("Check railways schema")
+        if railways is None:
+            railways = RailwaysSchema.to_gdf().to_crs(crs)
+        else:
+            railways = RailwaysSchema(railways)
+
+        logger.info("Check water schema")
+        if water is None:
+            water = WaterSchema.to_gdf().to_crs(crs)
+        else:
+            water = WaterSchema(water)
+
+        for gdf in [roads, railways, water]:
+            assert gdf.crs == crs, "All CRS must match"
+
+        logger.info("Exclude water objects")
+        boundaries = boundaries.overlay(water[water.geom_type != "LineString"], how="difference")
+        water["geometry"] = water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
+
+        self.boundaries = boundaries
+        self.roads = roads
+        self.railways = railways
+        self.water = water
 
     @property
-    def local_crs(self):
-        return self.territory.crs
+    def local_crs(self) -> CRS:
+        """
+        Local CRS, defined by boundaries geometry.
 
-    @model_validator(mode="after")
-    @classmethod
-    def validate_model(cls, self):
-        territory = self.territory
-        roads = self.roads
-        railways = self.railways
-        water = self.water
-        assert territory.crs == roads.crs, "Roads CRS have to match territory CRS"
-        assert territory.crs == railways.crs, "Railways CRS have to match territory CRS"
-        assert territory.crs == water.crs, "Water CRS have to match territory CRS"
-        if water is not None:
-            self.territory = territory.overlay(
-                water[water.geom_type != "LineString"], how="difference"
-            )  # cut water polygons from territory
-            self.water = water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
-        return self
+        Returns
+        -------
+        CRS
+            ``pyproj.CRS`` object
+        """
+        return self.boundaries.crs
 
-    def generate_blocks(self, min_block_width=None):
+    def run(self, min_block_width: float | None = None) -> gpd.GeoDataFrame:
+        """
+        Generates blocks based on the provided boundaries, roads, railways, and water bodies.
 
-        utils.verbose_print("GENERATING BLOCKS", self.verbose)
+        Parameters
+        ----------
+        min_block_width : float, optional
+            Minimum width for the blocks. If specified, small blocks and bottlenecks will be filtered out. By default None.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing the generated blocks with ``geometry`` column.
+        """
+
+        logger.info("Generating blocks")
 
         # create a GeoDataFrame with barriers
         barriers = gpd.GeoDataFrame(
@@ -84,15 +163,15 @@ class BlocksGenerator(BaseModel):
         barriers = barriers.explode(index_parts=True).reset_index(drop=True).geometry
 
         # transform enclosed barriers to polygons
-        utils.verbose_print("Setting up enclosures...", self.verbose)
-        blocks = self._get_enclosures(barriers, self.territory.geometry)
+        logger.info("Setting up enclosures")
+        blocks = self._get_enclosures(barriers, self.boundaries.geometry)
 
         # fill everything within blocks' boundaries
-        utils.verbose_print("Filling holes...", self.verbose)
+        logger.info("Filling holes")
         blocks = utils.fill_holes(blocks)
 
         # cleanup after filling holes
-        utils.verbose_print("Dropping overlapping blocks...", self.verbose)
+        logger.info("Dropping overlapping blocks")
         blocks = utils.drop_contained_geometries(blocks)
         blocks = blocks.explode(index_parts=False).reset_index(drop=True)
 
@@ -101,26 +180,39 @@ class BlocksGenerator(BaseModel):
         # apply negative and positive buffers consecutively to remove small blocks
         # and divide them on bottlenecks
         if min_block_width is not None:
-            utils.verbose_print("Filtering bottlenecks and small blocks...", self.verbose)
+            logger.info("Filtering bottlenecks and small blocks")
             blocks = utils.filter_bottlenecks(blocks, self.local_crs, min_block_width)
             blocks = self._reindex_blocks(blocks)
 
         # calculate blocks' area in local projected CRS
-        utils.verbose_print("Calculating blocks area...", self.verbose)
+        logger.info("Calculating blocks area")
         blocks["area"] = blocks.to_crs(self.local_crs).area
         blocks = blocks[blocks["area"] > 1]
 
         # fix blocks' indices
         blocks = self._reindex_blocks(blocks)
 
-        utils.verbose_print("Blocks generated.\n", self.verbose)
+        logger.info("Blocks generated")
 
-        return GeoDataFrame[BlockRow](blocks.to_crs(self.local_crs))
+        return BlocksSchema(blocks.to_crs(self.local_crs))
 
     @staticmethod
-    def _get_enclosures(barriers, limit):
-        # limit should be a geodataframe or geoseries with with Polygon or MultiPolygon geometry
+    def _get_enclosures(barriers: gpd.GeoDataFrame, limit: gpd.GeoDataFrame):
+        """
+        Identifies enclosures formed by the barriers and within the limit.
 
+        Parameters
+        ----------
+        barriers : gpd.GeoDataFrame
+            GeoDataFrame containing barrier geometries.
+        limit : gpd.GeoDataFrame
+            GeoDataFrame containing the limit within which enclosures are to be found.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame containing the identified enclosures.
+        """
         barriers = pd.concat([barriers, limit.boundary]).reset_index(drop=True)
 
         unioned = barriers.unary_union
@@ -133,8 +225,20 @@ class BlocksGenerator(BaseModel):
         return enclosures
 
     @staticmethod
-    def _reindex_blocks(blocks):
+    def _reindex_blocks(blocks: gpd.GeoDataFrame):
+        """
+        Reindexes the blocks, ensuring each block has a unique block_id.
 
+        Parameters
+        ----------
+        blocks : gpd.GeoDataFrame
+            GeoDataFrame containing the blocks to be reindexed.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame with reindexed blocks.
+        """
         if "block_id" in blocks.columns:
             blocks = blocks.drop("block_id", axis=1).reset_index().rename(columns={"index": "block_id"})
         return blocks
