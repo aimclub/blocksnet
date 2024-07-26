@@ -80,7 +80,7 @@ class PopulationCentrality(BaseMethod):
 
         # connect graph and blocks
         nodes = gpd.GeoDataFrame(
-            geometry=[Point(position["pos"]) for _, position in connectivity_graph.nodes(data=True)], crs=32636
+            geometry=[Point(position["pos"]) for _, position in connectivity_graph.nodes(data=True)], crs=blocks.crs
         )
         nodes[POPULATION_CENTRALITY_COLUMN] = centrality
         blocks_out = gpd.sjoin(blocks, nodes, how="left", predicate="intersects")

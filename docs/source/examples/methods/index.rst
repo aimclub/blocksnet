@@ -11,3 +11,4 @@ The examples of how to operate the `City` model to perform certain analytics.
    connectivity
    diversity
    centrality
+   spacematrix

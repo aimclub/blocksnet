@@ -1,26 +1,73 @@
 import pandas as pd
 import geopandas as gpd
 import numpy as np
-import matplotlib.pyplot as plt
-from matplotlib.gridspec import GridSpec
 
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
 from ..base_method import BaseMethod
 
+SM_MORPHOTYPE_COLUMN = "spacematrix_morphotype"
+SM_CLUSTER_COLUMN = "spacematrix_cluster"
+KB_MORPHOTYPE_COLUMN = "strelka_morphotype"
+
 
 class Spacematrix(BaseMethod):
+    """
+    Provides methods for calculating and visualizing urban block morphotypes based on the Spacematrix model.
+
+    Attributes
+    ----------
+    number_of_clusters : int
+        Number of clusters for KMeans clustering.
+    random_state : int
+        Random state for reproducibility of clustering results.
+
+    Methods
+    -------
+    plot(gdf, linewidth=0.1, figsize=(10, 10))
+        Plots Spacematrix morphotypes on a map.
+    calculate() -> gpd.GeoDataFrame
+        Calculates Spacematrix and Strelka morphotypes for urban blocks.
+    """
 
     number_of_clusters: int = 11
     random_state: int = 10
 
     @staticmethod
-    def plot(gdf, figsize=(20, 20)):
-        gdf.plot(column=f"spacematrix_morphotype", legend=True, figsize=figsize).set_axis_off()
+    def plot(gdf, linewidth: float = 0.1, figsize: tuple[int, int] = (10, 10)):
+        """
+        Plots Spacematrix morphotypes for blocks on a map.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing block geometries and Spacematrix morphotype data.
+        linewidth : float, optional
+            Line width for plotting the geometries, by default 0.1.
+        figsize : tuple of int, optional
+            Size of the figure to plot, by default (10, 10).
+
+        Returns
+        -------
+        None
+        """
+        gdf.plot(column=SM_MORPHOTYPE_COLUMN, legend=True, linewidth=linewidth, figsize=figsize).set_axis_off()
 
     @staticmethod
-    def _get_strelka_morphotypes(blocks):
+    def _get_strelka_morphotypes(blocks) -> gpd.GeoDataFrame:
+        """
+        Calculates Strelka morphotypes for the given blocks.
 
+        Parameters
+        ----------
+        blocks : geopandas.GeoDataFrame
+            GeoDataFrame containing block geometries and attributes.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            GeoDataFrame with Strelka morphotypes added.
+        """
         blocks = blocks.copy()
         storeys = [blocks["l"].between(0, 3), blocks["l"].between(4, 8), (blocks["l"] >= 9)]
         labels = ["Малоэтажная застройка", "Среднеэтажная застройка", "Многоэтажная застройка"]
@@ -57,7 +104,20 @@ class Spacematrix(BaseMethod):
         return blocks
 
     @staticmethod
-    def _name_spacematrix_morphotypes(cluster):
+    def _name_spacematrix_morphotypes(cluster) -> str:
+        """
+        Assigns names to Spacematrix morphotypes based on cluster data.
+
+        Parameters
+        ----------
+        cluster : pandas.Series
+            Series containing cluster data for each block.
+
+        Returns
+        -------
+        str
+            The name of the Spacematrix morphotype.
+        """
         ranges = [[0, 3, 6, 10, 17], [0, 1, 2], [0, 0.22, 0.55]]
         labels = [
             ["Малоэтажный", "Среднеэтажный", "Повышенной этажности", "Многоэтажный", "Высотный"],
@@ -71,7 +131,20 @@ class Spacematrix(BaseMethod):
             )
         return "".join(cluster_name)
 
-    def _get_spacematrix_morphotypes(self, blocks):
+    def _get_spacematrix_morphotypes(self, blocks) -> gpd.GeoDataFrame:
+        """
+        Calculates Spacematrix morphotypes for the given blocks using KMeans clustering.
+
+        Parameters
+        ----------
+        blocks : geopandas.GeoDataFrame
+            GeoDataFrame containing block geometries and attributes.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            GeoDataFrame with Spacematrix morphotypes and clusters added.
+        """
         x = blocks[["fsi", "l", "mxi"]].copy()
         scaler = StandardScaler()
         x_scaler = pd.DataFrame(scaler.fit_transform(x))
@@ -85,13 +158,19 @@ class Spacematrix(BaseMethod):
         return blocks
 
     def calculate(self) -> gpd.GeoDataFrame:
+        """
+        Calculates Spacematrix and Strelka morphotypes for urban blocks.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            GeoDataFrame containing blocks with calculated Spacematrix and Strelka morphotypes.
+        """
         blocks = self.city_model.get_blocks_gdf()
         developed_blocks = blocks.loc[blocks.footprint_area > 0]  # or osr>=10
         spacematrix_blocks = self._get_spacematrix_morphotypes(developed_blocks)
         strelka_blocks = self._get_strelka_morphotypes(developed_blocks)
-        blocks["spacematrix_morphotype"] = spacematrix_blocks["morphotype"]
-        blocks["spacematrix_cluster"] = spacematrix_blocks["cluster"]
-        blocks["strelka_morphotype"] = strelka_blocks["morphotype"]
-        return blocks[
-            ["geometry", "l", "fsi", "mxi", "strelka_morphotype", "spacematrix_morphotype", "spacematrix_cluster"]
-        ]
+        blocks[SM_MORPHOTYPE_COLUMN] = spacematrix_blocks["morphotype"]
+        blocks[SM_CLUSTER_COLUMN] = spacematrix_blocks["cluster"]
+        blocks[KB_MORPHOTYPE_COLUMN] = strelka_blocks["morphotype"]
+        return blocks[["geometry", "l", "fsi", "mxi", KB_MORPHOTYPE_COLUMN, SM_CLUSTER_COLUMN, SM_MORPHOTYPE_COLUMN]]

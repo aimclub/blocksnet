@@ -15,6 +15,7 @@ from blocksnet.method.centrality import (
     CENTRALITY_COLUMN,
     POPULATION_CENTRALITY_COLUMN,
 )
+from blocksnet.method.spacematrix import Spacematrix, SM_CLUSTER_COLUMN, SM_MORPHOTYPE_COLUMN, KB_MORPHOTYPE_COLUMN
 
 data_path = "./tests/data"
 
@@ -121,3 +122,23 @@ def test_population_centrality(population_centrality_result):
     res = population_centrality_result
     assert all(res[~res[POPULATION_CENTRALITY_COLUMN].isna()][POPULATION_CENTRALITY_COLUMN] >= 0)
     assert all(res[~res[POPULATION_CENTRALITY_COLUMN].isna()][POPULATION_CENTRALITY_COLUMN] <= 10)
+
+
+# spacematrix
+
+
+@pytest.fixture
+def spacematrix(city):
+    return Spacematrix(city_model=city)
+
+
+@pytest.fixture
+def spacematrix_result(spacematrix):
+    return spacematrix.calculate()
+
+
+def test_spacematrix(spacematrix_result):
+    res = spacematrix_result
+    assert "fsi" in res.columns
+    assert "mxi" in res.columns
+    assert "l" in res.columns
