@@ -8,6 +8,14 @@ from blocksnet import City
 from blocksnet.method.accessibility import Accessibility, ACCESSIBILITY_FROM_COLUMN, ACCESSIBILITY_TO_COLUMN
 from blocksnet.method.connectivity import Connectivity, CONNECTIVITY_COLUMN
 
+# from blocksnet.method.diversity import Diversity, DIVERSITY_COLUMN
+from blocksnet.method.centrality import (
+    Centrality,
+    PopulationCentrality,
+    CENTRALITY_COLUMN,
+    POPULATION_CENTRALITY_COLUMN,
+)
+
 data_path = "./tests/data"
 
 # input data
@@ -67,3 +75,49 @@ def connectivity_result(connectivity):
 
 def test_connectivity(connectivity_result):
     assert all(connectivity_result[CONNECTIVITY_COLUMN] >= 0)
+
+
+# diversity
+
+# @pytest.fixture
+# def diversity(city):
+#     return Diversity(city_model=city)
+
+
+# @pytest.fixture
+# def diversity_result(diversity):
+#     return diversity.calculate()
+
+# def test_diversity(diversity_result):
+#     assert all(diversity_result[DIVERSITY_COLUMN] >= 0)
+
+# centrality
+
+# @pytest.fixture
+# def centrality(city):
+#     return Centrality(city_model=city)
+
+# @pytest.fixture
+# def centrality_result(centrality):
+#     return centrality.calculate()
+
+# def test_centrality(centrality_result):
+#     assert all(centrality_result[CENTRALITY_COLUMN] >= 0) and all(centrality_result[CENTRALITY_COLUMN] <= 3)
+
+# population centrality
+
+
+@pytest.fixture
+def population_centrality(city):
+    return PopulationCentrality(city_model=city)
+
+
+@pytest.fixture
+def population_centrality_result(population_centrality):
+    return population_centrality.calculate()
+
+
+def test_population_centrality(population_centrality_result):
+    res = population_centrality_result
+    assert all(res[~res[POPULATION_CENTRALITY_COLUMN].isna()][POPULATION_CENTRALITY_COLUMN] >= 0)
+    assert all(res[~res[POPULATION_CENTRALITY_COLUMN].isna()][POPULATION_CENTRALITY_COLUMN] <= 10)

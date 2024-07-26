@@ -10,3 +10,4 @@ The examples of how to operate the `City` model to perform certain analytics.
    accessibility
    connectivity
    diversity
+   centrality
