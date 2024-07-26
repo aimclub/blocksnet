@@ -4,7 +4,6 @@ import os
 import pytest
 import geopandas as gpd
 import pandas as pd
-import statistics
 from blocksnet import City
 
 data_path = "./tests/data"

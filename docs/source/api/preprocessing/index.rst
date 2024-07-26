@@ -1,8 +1,6 @@
 Preprocessing
 =============
 
-todo
-
 .. toctree::
    :glob:
    :maxdepth: 2
@@ -12,4 +10,3 @@ todo
    land_use_processor
    graph_generator
    adjacency_calculator
-   utils
