@@ -43,7 +43,7 @@ class Connectivity(BaseMethod):
         """
         gdf.plot(linewidth=linewidth, figsize=figsize, **PLOT_KWARGS).set_axis_off()
 
-    def calculate(self):
+    def calculate(self) -> gpd.GeoDataFrame:
         """
         Calculates connectivity for all blocks in the city model.
 
