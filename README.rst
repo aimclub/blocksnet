@@ -83,7 +83,7 @@ Installation
 
 ::
 
-   pip install git+https://github.com/iduprojects/blocksnet
+   pip install blocksnet
 
 .. installation-end
 
@@ -103,8 +103,8 @@ Next, use the necessary classes and modules:
 ::
 
    city = City(
-      blocks_gdf=blocks,
-      adjacency_matrix=adj_mx
+      blocks=blocks_gdf,
+      adj_mx=adj_mx,
    )
    city.plot()
 
@@ -115,11 +115,11 @@ For more detailed use case see our `examples <#examples>`__.
 Data
 ----
 
-Before running the examples, you must download the `input
+Before running the examples, one should download the `input
 data <https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP>`__
 and place it in the ``examples/data`` directory. You can use your own
 data, but it must follow the structure described in the
-`API documentation <https://blocknet.readthedocs.io/en/latest/index.html>`__.
+`API documentation <https://aimclub.github.io/blocksnet/>`__.
 
 Examples
 --------
@@ -146,7 +146,7 @@ Documentation
 -------------
 
 Detailed information and description of BlocksNet is available in
-`documentation <https://blocknet.readthedocs.io/en/latest/>`__.
+`documentation <https://aimclub.github.io/blocksnet/>`__.
 
 Project Structure
 -----------------
@@ -168,7 +168,7 @@ The repository includes the following directories and modules:
 -  `examples <https://github.com/iduprojects/blocksnet/tree/main/examples>`__
    examples of how methods work
 -  `docs <https://github.com/iduprojects/blocksnet/tree/main/docs>`__ -
-   ReadTheDocs documentation
+   documentation sources
 
 Developing
 ----------
@@ -185,9 +185,12 @@ To start developing the library, one must perform following actions:
 2. (Optional) Create a virtual environment as the library demands exact package versions:
    ::
 
-       $ python -m venv venv
+       $ make venv
 
-   Activate the virtual environment if you created one.
+   Activate the virtual environment if you created one:
+   ::
+
+       $ source .venv/bin/activate
 
 3. Install the library in editable mode with development dependencies:
    ::
@@ -229,18 +232,18 @@ To start developing the library, one must perform following actions:
          $ git add modified_files
          $ git commit
 
-to record your changes in Git, then push them to GitHub with:
+   to record your changes in Git, then push them to GitHub with:
 
-::
+   ::
 
-          $ git push -u origin my-contribution
+            $ git push -u origin my-contribution
 
-Finally, go to the web page of your fork of the BlocksNet repo, and click
-'Pull Request' (PR) to send your changes to the maintainers for review.
+   Finally, go to the web page of your fork of the BlocksNet repo, and click
+   'Pull Request' (PR) to send your changes to the maintainers for review.
 
 .. developing-end
 
-Check out the Contributing on ReadTheDocs for more information.
+Check out the `Contributing <https://aimclub.github.io/blocksnet/blocksnet/contributing.html>`__ for more information.
 
 License
 -------
@@ -272,6 +275,8 @@ You can contact us:
    Design and Urban Studies
 -  `Tatiana Churiakova <https://t.me/tanya_chk>`__ - project manager
 -  `Vasilii Starikov <https://t.me/vasilstar>`__ - lead software engineer
+
+Also, you are welcomed to our `issues <https://github.com/aimclub/blocksnet/issues>`__ section!
 
 .. contacts-end
 
@@ -311,8 +316,8 @@ Published:
 
 .. publications-end
 
-.. |Documentation Status| image:: https://readthedocs.org/projects/blocknet/badge/?version=latest
-   :target: https://blocknet.readthedocs.io/en/latest/?badge=latest
+.. |Documentation Status| image:: https://github.com/aimclub/blocksnet/actions/workflows/documentation.yml/badge.svg?branch=main
+   :target: https://aimclub.github.io/blocksnet/
 .. |PythonVersion| image:: https://img.shields.io/badge/python-3.10-blue
    :target: https://pypi.org/project/blocksnet/
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg

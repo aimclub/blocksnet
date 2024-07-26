@@ -1,8 +1,6 @@
 Models
 ======
 
-todo
-
 .. toctree::
    :glob:
    :maxdepth: 2
