@@ -23,6 +23,7 @@ class BlockOptimizer(BaseMethod):
     CONSTANTS:dict = {}
     SCENARIO:dict = {}
     FREE_AREA: Tuple = (0, 0)
+    MAX_FACILITIES:int = None
 
     def calculate_free_area(self, selected_block_id):
         selected_block = self.city_model[selected_block_id]
@@ -75,7 +76,7 @@ class BlockOptimizer(BaseMethod):
                     "service_type": serv.name,
                     "capacity": brick.capacity,
                     "area": brick.area,
-                    "is_integrated": brick.is_integrated,
+                    #"is_integrated": brick.is_integrated,
                 }
                 bricks_dict_list.append(brick_dict)
         bricks_df = pd.DataFrame(bricks_dict_list)
@@ -102,8 +103,8 @@ class BlockOptimizer(BaseMethod):
             else:
                 block_idx, idx = int(block_idx), int(idx)
                 counts[block_idx][idx] = service_count
-                self.BRICKS[block_idx].loc[idx, "capacity"] = self.BRICKS[block_idx].loc[idx, "capacity"] * service_count
-                self.BRICKS[block_idx].loc[idx, "area"] = self.BRICKS[block_idx].loc[idx, "area"] * service_count
+                self.BRICKS[block_idx].loc[idx, "capacity_agg"] = self.BRICKS[block_idx].loc[idx, "capacity"] * service_count
+                self.BRICKS[block_idx].loc[idx, "area_agg"] = self.BRICKS[block_idx].loc[idx, "area"] * service_count
 
         update = {}
         bricks_to_build_df = {}
@@ -112,10 +113,13 @@ class BlockOptimizer(BaseMethod):
             bricks_to_build_df[key] = self.BRICKS[key].loc[bricks_to_build]
             service_counts = counts[key][counts[key] != 0.0]
             bricks_to_build_df[key]['service_counts'] = service_counts
+            constants, min_population = self.CONSTANTS[key]
+            bricks_to_build_df[key]['demand_in_need'] = bricks_to_build_df[key]['service_type'].apply(lambda x: constants[x]["demand_local"] - constants[x]["capacity_local"])
 
-            service_capacities = bricks_to_build_df[key].groupby("service_type").sum()["capacity"].to_dict()
 
-            population = populations[key]
+            service_capacities = bricks_to_build_df[key].groupby("service_type").sum()["capacity_agg"].to_dict()
+
+            population = populations.get(key, 0)
             if population > 0:
                 service_capacities["population"] = population
 
@@ -131,30 +135,38 @@ class BlockOptimizer(BaseMethod):
         
         for key in self.BLOCKS_LANUSE_DICT:
             if len(self.SCENARIO) != 0:
-                scenario_coef_sum = np.array(self.SCENARIO.values()).sum()
-            scenario_coef_sum = 0
-
-            service_weight = (1-scenario_coef_sum) / len(self.NEW_SERVICE_TYPES[key])
+                servs = [serv.name for serv in self.NEW_SERVICE_TYPES[key]]
+                intersecting_keys = set(self.SCENARIO.keys()).intersection(servs)
+                scenario_coef_sum = sum(self.SCENARIO[key] for key in intersecting_keys)
+            else:
+                scenario_coef_sum = 0
+            
+            default_weight = (1-scenario_coef_sum) / len(self.NEW_SERVICE_TYPES[key])
             bricks_df = self.BRICKS[key]
             constants, min_population = self.CONSTANTS[key]
-            service_counts = LpVariable.dicts(f"{key}", list(bricks_df.index), 0, None, cat=LpInteger)
+            service_counts = LpVariable.dicts(f"{key}", list(bricks_df.index), 0, self.MAX_FACILITIES, cat=LpInteger)
             population = LpVariable(f"{key}_population", 0, None, cat=LpInteger)
-
+            
             for serv in self.NEW_SERVICE_TYPES[key]:
                 service_bricks_idxs = list(bricks_df[bricks_df.service_type == serv.name].index)
 
                 demand_local, capacity_local = constants[serv.name]["demand_local"], constants[serv.name]["capacity_local"]
 
                 fit_function = lpSum(service_counts[n] * bricks_df.loc[n].capacity for n in service_bricks_idxs)
-
-                if demand_local > 0:
+                
+                demand_from_new_population = (population * serv.demand) / 1000
+                C_i = fit_function + capacity_local 
+                D_i = demand_local + demand_from_new_population
+                service_weight = self.SCENARIO.get(serv.name, default_weight)
+                
+                if demand_local > 0 and capacity_local < demand_local:
                     lp_sum_components.append(
-                        service_weight
-                        * (((fit_function + capacity_local - (population * serv.demand) / 1000) / demand_local))
+                        service_weight * (C_i - D_i)
                     )
-
-            # Пытаемся добавить насление, если осталось незаполненные места
-            prob += population == min_population
+                    prob += fit_function <= demand_local - capacity_local
+    
+                if capacity_local > demand_local and self.BLOCKS_LANUSE_DICT[key] == LandUse.RESIDENTIAL:
+                    prob += demand_from_new_population <= capacity_local - demand_local
 
             block_area = self.city_model[key].site_area
 
@@ -167,8 +179,7 @@ class BlockOptimizer(BaseMethod):
 
             prob += sum(service_counts[n] * bricks_df.loc[n].area  for n in list(bricks_df.index)) <= block_area
 
-            prob += sum(i for i in lp_sum_components)
-            print(prob)
+        prob += sum(i for i in lp_sum_components)
 
         return prob
 
@@ -326,9 +337,10 @@ class BlockOptimizer(BaseMethod):
 
         return total_before, total_after, combined_landuse_services, provision_before, provision_after
 
-    def calculate(self, blocks_landuse_dict: dict, scenario:dict={}):
+    def calculate(self, blocks_landuse_dict: dict, scenario:dict={}, max_facilities:int=None):
         self.SCENARIO = scenario
         self.BLOCKS_LANUSE_DICT = blocks_landuse_dict
+        self.MAX_FACILITIES = max_facilities
 
         self.ORIG_SERVICE_TYPES = {}
         self.NEW_SERVICE_TYPES = {}
@@ -348,7 +360,7 @@ class BlockOptimizer(BaseMethod):
         # method
         prob = self.generate_lp_problem()
         prob.solve(PULP_CBC_CMD(msg=False))
-
+        print(LpStatus[prob.status])
         optimal_update_df, bricks_to_build_df, provision = self.get_optimal_update_df(prob)
 
         dfs = []
