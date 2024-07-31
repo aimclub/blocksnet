@@ -12,3 +12,4 @@ The examples of how to operate the `City` model to perform certain analytics.
    diversity
    centrality
    spacematrix
+   land_use_prediction

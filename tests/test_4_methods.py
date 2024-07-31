@@ -16,6 +16,8 @@ from blocksnet.method.centrality import (
     POPULATION_CENTRALITY_COLUMN,
 )
 from blocksnet.method.spacematrix import Spacematrix, SM_CLUSTER_COLUMN, SM_MORPHOTYPE_COLUMN, KB_MORPHOTYPE_COLUMN
+from blocksnet.method.land_use_prediction.land_use_prediction import LandUsePrediction, PREDICTION_COLUMN
+from blocksnet.models.land_use import LandUse
 
 data_path = "./tests/data"
 
@@ -142,3 +144,22 @@ def test_spacematrix(spacematrix_result):
     assert "fsi" in res.columns
     assert "mxi" in res.columns
     assert "l" in res.columns
+
+
+# land use prediction
+
+
+@pytest.fixture
+def lup(city):
+    return LandUsePrediction(city_model=city)
+
+
+@pytest.fixture
+def lup_result(lup):
+    return lup.calculate()
+
+
+def test_lup(lup_result):
+    res = lup_result
+    lus = [lu.name for lu in LandUse]
+    assert all(res[~res[PREDICTION_COLUMN].isna()].isin(lus))
