@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diversity &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Genetic" href="genetic.html" />
+    <link rel="prev" title="Connectivity" href="connectivity.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Method</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="base_method.html">BaseMethod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="accessibility.html">Accessibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="block_optimizer.html">BlockOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="centrality.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connectivity.html">Connectivity</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Diversity</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.method.diversity.diversity.Diversity"><code class="docutils literal notranslate"><span class="pre">Diversity</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="genetic.html">Genetic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="land_use_prediction.html">LandUsePrediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="provision.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacematrix.html">SpaceMatrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="vacant_area.html">VacantArea</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Method</a></li>
+      <li class="breadcrumb-item active">Diversity</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/method/diversity.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-blocksnet.method.diversity.diversity">
+<span id="diversity"></span><h1>Diversity<a class="headerlink" href="#module-blocksnet.method.diversity.diversity" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.method.diversity.diversity.Diversity">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.method.diversity.diversity.</span></span><span class="sig-name descname"><span class="pre">Diversity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../models/city.html#blocksnet.models.city.City" title="blocksnet.models.city.City"><span class="pre">City</span></a></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/method/diversity/diversity.html#Diversity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.diversity.diversity.Diversity" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="base_method.html#blocksnet.method.base_method.BaseMethod" title="blocksnet.method.base_method.BaseMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMethod</span></code></a></p>
+<p>Provides methods for assessing the diversity of services in city blocks.</p>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>plot(gdf, linewidth=0.1, figsize=(10, 10))</dt><dd><p>Plots diversity data on a map.</p>
+</dd>
+<dt>calculate()</dt><dd><p>Calculates the diversity of services for each block in the city model.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.diversity.diversity.Diversity.plot">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">linewidth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">10)</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/method/diversity/diversity.html#Diversity.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.diversity.diversity.Diversity.plot" title="Permalink to this definition"></a></dt>
+<dd><p>Plots diversity data for blocks on a map.</p>
+<section id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>gdf<span class="classifier">geopandas.GeoDataFrame</span></dt><dd><p>GeoDataFrame containing block geometries and diversity data.</p>
+</dd>
+<dt>linewidth<span class="classifier">float, optional</span></dt><dd><p>Line width for plotting the geometries, by default 0.1.</p>
+</dd>
+<dt>figsize<span class="classifier">tuple of int, optional</span></dt><dd><p>Size of the figure to plot, by default (10, 10).</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h3>
+<p>None</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.diversity.diversity.Diversity._shannon_index">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_shannon_index</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">services_series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/diversity/diversity.html#Diversity._shannon_index"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.diversity.diversity.Diversity._shannon_index" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the Shannon diversity index for given service counts.</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>services_series<span class="classifier">pandas.Series</span></dt><dd><p>Series representing counts of different service types in a block.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Returns<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>float</dt><dd><p>The Shannon diversity index.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.diversity.diversity.Diversity.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/diversity/diversity.html#Diversity.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.diversity.diversity.Diversity.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculates the diversity of services for each block in the city model.</p>
+<p>Diversity is determined using the Shannon diversity index based on the
+distribution of service types within each block.</p>
+<section id="id3">
+<h3>Returns<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>geopandas.GeoDataFrame</dt><dd><p>GeoDataFrame containing blocks with calculated diversity of services.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.diversity.diversity.Diversity.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#blocksnet.method.diversity.diversity.Diversity.model_computed_fields" title="Permalink to this definition"></a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="connectivity.html" class="btn btn-neutral float-left" title="Connectivity" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="genetic.html" class="btn btn-neutral float-right" title="Genetic" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

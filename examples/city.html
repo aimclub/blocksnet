@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>City initialization and methods &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Methods" href="methods/index.html" />
+    <link rel="prev" title="Generating intermodal graph and calculating adjacency matrix" href="graph_generator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="pipeline.html">Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blocks_generator.html">City blocks layer generating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_generator.html">Generating intermodal graph and calculating adjacency matrix</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">City initialization and methods</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#Initialization">Initialization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Update-layers">Update layers</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Methods-and-other-ways-to-operate-the-City-model">Methods and other ways to operate the <code class="docutils literal notranslate"><span class="pre">City</span></code> model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="methods/index.html">Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
+      <li class="breadcrumb-item active">City initialization and methods</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/city.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="City-initialization-and-methods">
+<h1>City initialization and methods<a class="headerlink" href="#City-initialization-and-methods" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+
+<span class="n">example_data_path</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span>
+</pre></div>
+</div>
+</div>
+<section id="Initialization">
+<h2>Initialization<a class="headerlink" href="#Initialization" title="Permalink to this heading"></a></h2>
+<p>Use the results obtained from the <code class="docutils literal notranslate"><span class="pre">blocksnet.preprocessing</span></code> or use your own data.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_data_path</span><span class="p">,</span> <span class="s2">&quot;blocks.parquet&quot;</span><span class="p">))</span>
+<span class="n">adj_mx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_data_path</span><span class="p">,</span> <span class="s2">&quot;adj_mx.pickle&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet.models</span> <span class="kn">import</span> <span class="n">City</span>
+
+<span class="n">city</span> <span class="o">=</span> <span class="n">City</span><span class="p">(</span>
+  <span class="n">blocks</span><span class="o">=</span><span class="n">blocks</span><span class="p">,</span>
+  <span class="n">adj_mx</span><span class="o">=</span><span class="n">adj_mx</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/vasilstar/masterplanning/.venv/lib/python3.10/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+  from .autonotebook import tqdm as notebook_tqdm
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<script type="text/javascript">
+<!--
+
+{
+        var element = document.getElementById('NetworKit_script');
+        if (element) {
+                element.parentNode.removeChild(element);
+        }
+        element = document.createElement('script');
+        element.type = 'text/javascript';
+        element.innerHTML = 'function NetworKit_pageEmbed(id) { var i, j; var elements; elements = document.getElementById(id).getElementsByClassName("Plot"); for (i=0; i<elements.length; i++) { elements[i].id = id + "_Plot_" + i; var data = elements[i].getAttribute("data-image").split("|"); elements[i].removeAttribute("data-image"); var content = "<div class=\\"Image\\" id=\\"" + elements[i].id + "_Image\\" />"; elements[i].innerHTML = content; elements[i].setAttribute("data-image-index", 0); elements[i].setAttribute("data-image-length", data.length); for (j=0; j<data.length; j++) { elements[i].setAttribute("data-image-" + j, data[j]); } NetworKit_plotUpdate(elements[i]); elements[i].onclick = function (e) { NetworKit_overlayShow((e.target) ? e.target : e.srcElement); } } elements = document.getElementById(id).getElementsByClassName("HeatCell"); for (i=0; i<elements.length; i++) { var data = parseFloat(elements[i].getAttribute("data-heat")); var color = "#00FF00"; if (data <= 1 && data > 0) { color = "hsla(0, 100%, 75%, " + (data) + ")"; } else if (data <= 0 && data >= -1) { color = "hsla(240, 100%, 75%, " + (-data) + ")"; } elements[i].style.backgroundColor = color; } elements = document.getElementById(id).getElementsByClassName("Details"); for (i=0; i<elements.length; i++) { elements[i].setAttribute("data-title", "-"); NetworKit_toggleDetails(elements[i]); elements[i].onclick = function (e) { NetworKit_toggleDetails((e.target) ? e.target : e.srcElement); } } elements = document.getElementById(id).getElementsByClassName("MathValue"); for (i=elements.length-1; i>=0; i--) { value = elements[i].innerHTML.trim(); if (value === "nan") { elements[i].parentNode.innerHTML = "" } } elements = document.getElementById(id).getElementsByClassName("SubCategory"); for (i=elements.length-1; i>=0; i--) { value = elements[i].innerHTML.trim(); if (value === "") { elements[i].parentNode.removeChild(elements[i]) } } elements = document.getElementById(id).getElementsByClassName("Category"); for (i=elements.length-1; i>=0; i--) { value = elements[i].innerHTML.trim(); if (value === "") { elements[i].parentNode.removeChild(elements[i]) } } var isFirefox = false; try { isFirefox = typeof InstallTrigger !== "undefined"; } catch (e) {} if (!isFirefox) { alert("Currently the function\'s output is only fully supported by Firefox."); } } function NetworKit_plotUpdate(source) { var index = source.getAttribute("data-image-index"); var data = source.getAttribute("data-image-" + index); var image = document.getElementById(source.id + "_Image"); image.style.backgroundImage = "url(" + data + ")"; } function NetworKit_showElement(id, show) { var element = document.getElementById(id); element.style.display = (show) ? "block" : "none"; } function NetworKit_overlayShow(source) { NetworKit_overlayUpdate(source); NetworKit_showElement("NetworKit_Overlay", true); } function NetworKit_overlayUpdate(source) { document.getElementById("NetworKit_Overlay_Title").innerHTML = source.title; var index = source.getAttribute("data-image-index"); var data = source.getAttribute("data-image-" + index); var image = document.getElementById("NetworKit_Overlay_Image"); image.setAttribute("data-id", source.id); image.style.backgroundImage = "url(" + data + ")"; var link = document.getElementById("NetworKit_Overlay_Toolbar_Bottom_Save"); link.href = data; link.download = source.title + ".svg"; } function NetworKit_overlayImageShift(delta) { var image = document.getElementById("NetworKit_Overlay_Image"); var source = document.getElementById(image.getAttribute("data-id")); var index = parseInt(source.getAttribute("data-image-index")); var length = parseInt(source.getAttribute("data-image-length")); var index = (index+delta) % length; if (index < 0) { index = length + index; } source.setAttribute("data-image-index", index); NetworKit_overlayUpdate(source); } function NetworKit_toggleDetails(source) { var childs = source.children; var show = false; if (source.getAttribute("data-title") == "-") { source.setAttribute("data-title", "+"); show = false; } else { source.setAttribute("data-title", "-"); show = true; } for (i=0; i<childs.length; i++) { if (show) { childs[i].style.display = "block"; } else { childs[i].style.display = "none"; } } }';
+        element.setAttribute('id', 'NetworKit_script');
+        document.head.appendChild(element);
+}
+
+
+{
+        var element = document.getElementById('NetworKit_style');
+        if (element) {
+                element.parentNode.removeChild(element);
+        }
+        element = document.createElement('style');
+        element.type = 'text/css';
+        element.innerHTML = '.NetworKit_Page { font-family: Arial, Helvetica, sans-serif; font-size: 14px; } .NetworKit_Page .Value:before { font-family: Arial, Helvetica, sans-serif; font-size: 1.05em; content: attr(data-title) ":"; margin-left: -2.5em; padding-right: 0.5em; } .NetworKit_Page .Details .Value:before { display: block; } .NetworKit_Page .Value { font-family: monospace; white-space: pre; padding-left: 2.5em; white-space: -moz-pre-wrap !important; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap; word-wrap: break-word; tab-size: 4; -moz-tab-size: 4; } .NetworKit_Page .Category { clear: both; padding-left: 1em; margin-bottom: 1.5em; } .NetworKit_Page .Category:before { content: attr(data-title); font-size: 1.75em; display: block; margin-left: -0.8em; margin-bottom: 0.5em; } .NetworKit_Page .SubCategory { margin-bottom: 1.5em; padding-left: 1em; } .NetworKit_Page .SubCategory:before { font-size: 1.6em; display: block; margin-left: -0.8em; margin-bottom: 0.5em; } .NetworKit_Page .SubCategory[data-title]:before { content: attr(data-title); } .NetworKit_Page .Block { display: block; } .NetworKit_Page .Block:after { content: "."; visibility: hidden; display: block; height: 0; clear: both; } .NetworKit_Page .Block .Thumbnail_Overview, .NetworKit_Page .Block .Thumbnail_ScatterPlot { width: 260px; float: left; } .NetworKit_Page .Block .Thumbnail_Overview img, .NetworKit_Page .Block .Thumbnail_ScatterPlot img { width: 260px; } .NetworKit_Page .Block .Thumbnail_Overview:before, .NetworKit_Page .Block .Thumbnail_ScatterPlot:before { display: block; text-align: center; font-weight: bold; } .NetworKit_Page .Block .Thumbnail_Overview:before { content: attr(data-title); } .NetworKit_Page .HeatCell { font-family: "Courier New", Courier, monospace; cursor: pointer; } .NetworKit_Page .HeatCell, .NetworKit_Page .HeatCellName { display: inline; padding: 0.1em; margin-right: 2px; background-color: #FFFFFF } .NetworKit_Page .HeatCellName { margin-left: 0.25em; } .NetworKit_Page .HeatCell:before { content: attr(data-heat); display: inline-block; color: #000000; width: 4em; text-align: center; } .NetworKit_Page .Measure { clear: both; } .NetworKit_Page .Measure .Details { cursor: pointer; } .NetworKit_Page .Measure .Details:before { content: "[" attr(data-title) "]"; display: block; } .NetworKit_Page .Measure .Details .Value { border-left: 1px dotted black; margin-left: 0.4em; padding-left: 3.5em; pointer-events: none; } .NetworKit_Page .Measure .Details .Spacer:before { content: "."; opacity: 0.0; pointer-events: none; } .NetworKit_Page .Measure .Plot { width: 440px; height: 440px; cursor: pointer; float: left; margin-left: -0.9em; margin-right: 20px; } .NetworKit_Page .Measure .Plot .Image { background-repeat: no-repeat; background-position: center center; background-size: contain; height: 100%; pointer-events: none; } .NetworKit_Page .Measure .Stat { width: 500px; float: left; } .NetworKit_Page .Measure .Stat .Group { padding-left: 1.25em; margin-bottom: 0.75em; } .NetworKit_Page .Measure .Stat .Group .Title { font-size: 1.1em; display: block; margin-bottom: 0.3em; margin-left: -0.75em; border-right-style: dotted; border-right-width: 1px; border-bottom-style: dotted; border-bottom-width: 1px; background-color: #D0D0D0; padding-left: 0.2em; } .NetworKit_Page .Measure .Stat .Group .List { -webkit-column-count: 3; -moz-column-count: 3; column-count: 3; } .NetworKit_Page .Measure .Stat .Group .List .Entry { position: relative; line-height: 1.75em; } .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:before { position: absolute; left: 0; top: -40px; background-color: #808080; color: #ffffff; height: 30px; line-height: 30px; border-radius: 5px; padding: 0 15px; content: attr(data-tooltip); white-space: nowrap; display: none; } .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:after { position: absolute; left: 15px; top: -10px; border-top: 7px solid #808080; border-left: 7px solid transparent; border-right: 7px solid transparent; content: ""; display: none; } .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:hover:after, .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:hover:before { display: block; } .NetworKit_Page .Measure .Stat .Group .List .Entry .MathValue { font-family: "Courier New", Courier, monospace; } .NetworKit_Page .Measure:after { content: "."; visibility: hidden; display: block; height: 0; clear: both; } .NetworKit_Page .PartitionPie { clear: both; } .NetworKit_Page .PartitionPie img { width: 600px; } #NetworKit_Overlay { left: 0px; top: 0px; display: none; position: absolute; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; } #NetworKit_Overlay_Title { position: absolute; color: white; transform: rotate(-90deg); width: 32em; height: 32em; padding-right: 0.5em; padding-top: 0.5em; text-align: right; font-size: 40px; } #NetworKit_Overlay .button { background: white; cursor: pointer; } #NetworKit_Overlay .button:before { size: 13px; display: inline-block; text-align: center; margin-top: 0.5em; margin-bottom: 0.5em; width: 1.5em; height: 1.5em; } #NetworKit_Overlay .icon-close:before { content: "X"; } #NetworKit_Overlay .icon-previous:before { content: "P"; } #NetworKit_Overlay .icon-next:before { content: "N"; } #NetworKit_Overlay .icon-save:before { content: "S"; } #NetworKit_Overlay_Toolbar_Top, #NetworKit_Overlay_Toolbar_Bottom { position: absolute; width: 40px; right: 13px; text-align: right; z-index: 1100; } #NetworKit_Overlay_Toolbar_Top { top: 0.5em; } #NetworKit_Overlay_Toolbar_Bottom { Bottom: 0.5em; } #NetworKit_Overlay_ImageContainer { position: absolute; top: 5%; left: 5%; height: 90%; width: 90%; background-repeat: no-repeat; background-position: center center; background-size: contain; } #NetworKit_Overlay_Image { height: 100%; width: 100%; background-repeat: no-repeat; background-position: center center; background-size: contain; }';
+        element.setAttribute('id', 'NetworKit_style');
+        document.head.appendChild(element);
+}
+
+
+{
+        var element = document.getElementById('NetworKit_Overlay');
+        if (element) {
+                element.parentNode.removeChild(element);
+        }
+        element = document.createElement('div');
+        element.innerHTML = '<div id="NetworKit_Overlay_Toolbar_Top"><div class="button icon-close" id="NetworKit_Overlay_Close" /></div><div id="NetworKit_Overlay_Title" /> <div id="NetworKit_Overlay_ImageContainer"> <div id="NetworKit_Overlay_Image" /> </div> <div id="NetworKit_Overlay_Toolbar_Bottom"> <div class="button icon-previous" onclick="NetworKit_overlayImageShift(-1)" /> <div class="button icon-next" onclick="NetworKit_overlayImageShift(1)" /> <a id="NetworKit_Overlay_Toolbar_Bottom_Save"><div class="button icon-save" /></a> </div>';
+        element.setAttribute('id', 'NetworKit_Overlay');
+        document.body.appendChild(element);
+        document.getElementById('NetworKit_Overlay_Close').onclick = function (e) {
+                document.getElementById('NetworKit_Overlay').style.display = 'none';
+        }
+}
+
+-->
+</script></div>
+</div>
+<p>Print city model to get the information about existing service types, CRS and blocks count</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">city</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CRS : EPSG:32636
+Blocks : 16320
+Service types : 66
+Buildings : 0
+Services : 0
+
+</pre></div></div>
+</div>
+</section>
+<section id="Update-layers">
+<h2>Update layers<a class="headerlink" href="#Update-layers" title="Permalink to this heading"></a></h2>
+<p>Update the information about services and buildings using <code class="docutils literal notranslate"><span class="pre">.update_buildings()</span></code> and <code class="docutils literal notranslate"><span class="pre">.update_services()</span></code>.</p>
+<p>It is <strong>IMPORTANT</strong> to update buildings first, because they serve as container for some kinds of services.</p>
+<p>Specification for buildings is described in the <code class="docutils literal notranslate"><span class="pre">blocksnet.models.city.Building</span></code></p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_data_path</span><span class="p">,</span> <span class="s2">&quot;platform/buildings.parquet&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings</span> <span class="o">=</span> <span class="n">buildings</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+  <span class="s1">&#39;population_balanced&#39;</span><span class="p">:</span> <span class="s1">&#39;population&#39;</span><span class="p">,</span>
+  <span class="s1">&#39;building_area&#39;</span><span class="p">:</span> <span class="s1">&#39;footprint_area&#39;</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">buildings</span> <span class="o">=</span> <span class="n">buildings</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;number_of_floors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+  <span class="k">lambda</span> <span class="n">x</span> <span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;storeys_count&#39;</span><span class="p">]</span> <span class="k">if</span> <span class="n">x</span><span class="p">[</span><span class="s1">&#39;storeys_count&#39;</span><span class="p">]</span><span class="o">&gt;</span><span class="mi">1</span> <span class="k">else</span> <span class="mi">1</span><span class="p">,</span>
+  <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+<span class="p">)</span>
+<span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;build_floor_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;footprint_area&#39;</span><span class="p">]</span><span class="o">*</span><span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;number_of_floors&#39;</span><span class="p">]</span>
+<span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;business_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;build_floor_area&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;living_area&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bad_buildings</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">update_buildings</span><span class="p">(</span><span class="n">buildings</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2024-07-22 10:59:09.427</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.models.city</span>:<span class="ansi-cyan-fg">update_buildings</span>:<span class="ansi-cyan-fg">1225</span> - <span class="ansi-bold">Removing existing blocks from the model</span>
+<span class="ansi-green-fg">2024-07-22 10:59:09.455</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.models.city</span>:<span class="ansi-cyan-fg">update_buildings</span>:<span class="ansi-cyan-fg">1229</span> - <span class="ansi-bold">Joining buildings and blocks</span>
+<span class="ansi-green-fg">2024-07-22 10:59:28.131</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.models.city</span>:<span class="ansi-cyan-fg">update_buildings</span>:<span class="ansi-cyan-fg">1241</span> - <span class="ansi-yellow-intense-fg ansi-bold">1721 buildings did not intersect any block</span>
+Update blocks buildings: 100%|██████████| 6109/6109 [00:27&lt;00:00, 225.47it/s]
+</pre></div></div>
+</div>
+<p>Visualize buildings that did not intersect any block</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span>
+<span class="n">bad_buildings</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_city_13_0.png" src="../_images/examples_city_13_0.png" />
+</div>
+</div>
+<p>Specification is described in the <code class="docutils literal notranslate"><span class="pre">blocksnet.models.city.Service</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="k">for</span> <span class="n">service_type</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">service_types</span><span class="p">):</span>
+  <span class="k">try</span><span class="p">:</span>
+    <span class="n">services_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_data_path</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;platform/</span><span class="si">{</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">.parquet&quot;</span><span class="p">))</span>
+    <span class="n">city</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">services_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">city</span><span class="o">.</span><span class="n">crs</span><span class="p">))</span>
+  <span class="k">except</span><span class="p">:</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 66/66 [01:20&lt;00:00,  1.21s/it]
+</pre></div></div>
+</div>
+<p>Visualize the model using <code class="docutils literal notranslate"><span class="pre">.plot()</span></code> method. If you don’t have <code class="docutils literal notranslate"><span class="pre">LandUse</span></code> in your blocks, you can update the info later via <code class="docutils literal notranslate"><span class="pre">.update_land_use()</span></code> method.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">city</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">max_travel_time</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_city_17_0.png" src="../_images/examples_city_17_0.png" />
+</div>
+</div>
+</section>
+<section id="Methods-and-other-ways-to-operate-the-City-model">
+<h2>Methods and other ways to operate the <code class="docutils literal notranslate"><span class="pre">City</span></code> model<a class="headerlink" href="#Methods-and-other-ways-to-operate-the-City-model" title="Permalink to this heading"></a></h2>
+<p>Save city model to file with <code class="docutils literal notranslate"><span class="pre">.to_pickle()</span></code> so we can use it later</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">city</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">example_data_path</span><span class="p">,</span> <span class="s1">&#39;model.pickle&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">Block</span></code> within the city model can be obtained via <code class="docutils literal notranslate"><span class="pre">id</span></code> (int)</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">block</span> <span class="o">=</span> <span class="n">city</span><span class="p">[</span><span class="mi">123</span><span class="p">]</span>
+<span class="n">block</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Block(id=123, geometry=&lt;POLYGON ((346460.223 6649125.497, 346465.461 6649128.123, 346465.462 664912...&gt;, land_use=&lt;LandUse.MIXED_USE: &#39;mixed_use&#39;&gt;, buildings=None, services={}, city=&lt;blocksnet.models.city.City object at 0x7f12698ac670&gt;)
+</pre></div></div>
+</div>
+<p>Get indicators for the block.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span><span class="n">value</span> <span class="ow">in</span> <span class="n">res</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+  <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span> <span class="p">:</span> <span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">key</span><span class="p">],</span><span class="mi">2</span><span class="p">)</span>
+<span class="n">res</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[32]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;id&#39;: 2,
+ &#39;geometry&#39;: &lt;POLYGON ((353934.329 6625429.433, 353923.453 6625429.324, 353918.105 662542...&gt;,
+ &#39;land_use&#39;: &#39;recreation&#39;,
+ &#39;is_living&#39;: True,
+ &#39;build_floor_area&#39;: 1173.87,
+ &#39;living_demand&#39;: 58.69,
+ &#39;living_area&#39;: 821.71,
+ &#39;share_living&#39;: 0.71,
+ &#39;business_area&#39;: 352.16,
+ &#39;share_business&#39;: 0.3,
+ &#39;site_area&#39;: 363005.82,
+ &#39;population&#39;: 14,
+ &#39;footprint_area&#39;: 1163.48,
+ &#39;fsi&#39;: 0.0,
+ &#39;gsi&#39;: 0.0,
+ &#39;l&#39;: 1.01,
+ &#39;osr&#39;: 308.25,
+ &#39;mxi&#39;: 0.7,
+ &#39;capacity_fuel&#39;: 501}
+</pre></div></div>
+</div>
+<p>Get available <code class="docutils literal notranslate"><span class="pre">ServiceType</span></code>s for current <code class="docutils literal notranslate"><span class="pre">Block</span></code> <code class="docutils literal notranslate"><span class="pre">LandUse</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">available_service_types</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">land_use_service_types</span>
+<span class="p">[</span><span class="n">st</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">available_service_types</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[&#39;pitch&#39;,
+ &#39;swimming_pool&#39;,
+ &#39;stadium&#39;,
+ &#39;theatre&#39;,
+ &#39;museum&#39;,
+ &#39;cinema&#39;,
+ &#39;bowling_alley&#39;,
+ &#39;university&#39;,
+ &#39;beach&#39;,
+ &#39;train_building&#39;,
+ &#39;subway_entrance&#39;,
+ &#39;multifunctional_center&#39;,
+ &#39;park&#39;,
+ &#39;hotel&#39;,
+ &#39;circus&#39;,
+ &#39;post&#39;,
+ &#39;police&#39;,
+ &#39;dog_park&#39;,
+ &#39;hostel&#39;,
+ &#39;guest_house&#39;,
+ &#39;reserve&#39;,
+ &#39;sanatorium&#39;,
+ &#39;embankment&#39;,
+ &#39;wastewater_plant&#39;,
+ &#39;water_works&#39;,
+ &#39;substation&#39;,
+ &#39;train_station&#39;,
+ &#39;bus_station&#39;,
+ &#39;bus_stop&#39;,
+ &#39;pier&#39;]
+</pre></div></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ServiceType</span></code> can be obtained the same way by <code class="docutils literal notranslate"><span class="pre">name</span></code> (str). The information about accessibility, demand, bricks can be obtained this way.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">service_type</span> <span class="o">=</span> <span class="n">city</span><span class="p">[</span><span class="s1">&#39;school&#39;</span><span class="p">]</span>
+<span class="n">service_type</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ServiceType(code=&#39;3.5.1&#39;, name=&#39;school&#39;, accessibility=15, demand=120, land_use=[&lt;LandUse.RESIDENTIAL: &#39;residential&#39;&gt;, &lt;LandUse.BUSINESS: &#39;business&#39;&gt;], bricks=[ServiceBrick(capacity=250, area=3200.0, is_integrated=False, parking_area=0.0), ServiceBrick(capacity=300, area=4000.0, is_integrated=False, parking_area=0.0), ServiceBrick(capacity=600, area=8200.0, is_integrated=False, parking_area=0.0), ServiceBrick(capacity=1100, area=13000.0, is_integrated=False, parking_area=0.0), ServiceBrick(capacity=250, area=2200.0, is_integrated=True, parking_area=200.0), ServiceBrick(capacity=300, area=3600.0, is_integrated=True, parking_area=300.0), ServiceBrick(capacity=600, area=7100.0, is_integrated=True, parking_area=600.0)])
+</pre></div></div>
+</div>
+<p>Add new <code class="docutils literal notranslate"><span class="pre">ServiceType</span></code> to the <code class="docutils literal notranslate"><span class="pre">City</span></code> model list</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet</span> <span class="kn">import</span> <span class="n">ServiceType</span>
+
+<span class="n">city</span><span class="o">.</span><span class="n">add_service_type</span><span class="p">(</span><span class="n">ServiceType</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s1">&#39;internet_cafe&#39;</span><span class="p">,</span> <span class="n">accessibility</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">demand</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">bricks</span><span class="o">=</span><span class="p">[]))</span>
+<span class="n">city</span><span class="p">[</span><span class="s1">&#39;internet_cafe&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+ServiceType(code=&#39;&#39;, name=&#39;internet_cafe&#39;, accessibility=30, demand=100, land_use=[], bricks=[])
+</pre></div></div>
+</div>
+<p>Get the distance (min) between two city <code class="docutils literal notranslate"><span class="pre">Block</span></code>s</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">city</span><span class="o">.</span><span class="n">get_distance</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+7.4
+</pre></div></div>
+</div>
+<p>Get blocks <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> via <code class="docutils literal notranslate"><span class="pre">.get_blocks_gdf()</span></code> method. Use <code class="docutils literal notranslate"><span class="pre">simplify=True</span></code> to exclude information about services.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">(</span><span class="n">simplify</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>land_use</th>
+      <th>is_living</th>
+      <th>build_floor_area</th>
+      <th>living_demand</th>
+      <th>living_area</th>
+      <th>share_living</th>
+      <th>business_area</th>
+      <th>share_business</th>
+      <th>site_area</th>
+      <th>population</th>
+      <th>footprint_area</th>
+      <th>fsi</th>
+      <th>gsi</th>
+      <th>l</th>
+      <th>osr</th>
+      <th>mxi</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((354918.622 6625258.829, 354901.464 6...</td>
+      <td>None</td>
+      <td>True</td>
+      <td>43840.686518</td>
+      <td>50.641057</td>
+      <td>30688.480678</td>
+      <td>2.199357</td>
+      <td>13152.205840</td>
+      <td>0.942581</td>
+      <td>8.044667e+05</td>
+      <td>606</td>
+      <td>13953.390266</td>
+      <td>0.054497</td>
+      <td>0.017345</td>
+      <td>3.141938</td>
+      <td>18.031500</td>
+      <td>0.700000</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((355412.142 6623378.149, 355411.700 6...</td>
+      <td>transport</td>
+      <td>True</td>
+      <td>10294.395525</td>
+      <td>53.114392</td>
+      <td>2177.690063</td>
+      <td>0.431105</td>
+      <td>8116.705462</td>
+      <td>1.606820</td>
+      <td>2.317313e+04</td>
+      <td>41</td>
+      <td>5051.410558</td>
+      <td>0.444238</td>
+      <td>0.217986</td>
+      <td>2.037925</td>
+      <td>1.760348</td>
+      <td>0.211541</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((353934.329 6625429.433, 353923.453 6...</td>
+      <td>recreation</td>
+      <td>True</td>
+      <td>1173.871643</td>
+      <td>58.693582</td>
+      <td>821.710142</td>
+      <td>0.706252</td>
+      <td>352.161501</td>
+      <td>0.302679</td>
+      <td>3.630058e+05</td>
+      <td>14</td>
+      <td>1163.480697</td>
+      <td>0.003234</td>
+      <td>0.003205</td>
+      <td>1.008931</td>
+      <td>308.246934</td>
+      <td>0.700000</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((355099.099 6623847.765, 355074.808 6...</td>
+      <td>residential</td>
+      <td>True</td>
+      <td>46303.954706</td>
+      <td>52.660044</td>
+      <td>30595.485797</td>
+      <td>2.760046</td>
+      <td>15708.468909</td>
+      <td>1.417075</td>
+      <td>1.964145e+05</td>
+      <td>581</td>
+      <td>11085.135352</td>
+      <td>0.235746</td>
+      <td>0.056437</td>
+      <td>4.177121</td>
+      <td>4.002452</td>
+      <td>0.660753</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((352766.168 6621954.748, 352744.412 6...</td>
+      <td>recreation</td>
+      <td>True</td>
+      <td>153749.574111</td>
+      <td>53.097680</td>
+      <td>106407.750936</td>
+      <td>2.352959</td>
+      <td>47341.823175</td>
+      <td>1.046854</td>
+      <td>1.781752e+06</td>
+      <td>2004</td>
+      <td>45222.959595</td>
+      <td>0.086291</td>
+      <td>0.025381</td>
+      <td>3.399812</td>
+      <td>11.294526</td>
+      <td>0.692085</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>The same way buildings and services <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code>s can be obtained with:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">.get_buildings_gdf()</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">.get_services_gdf()</span></code></p></li>
+</ul>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings_gdf</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">get_buildings_gdf</span><span class="p">()</span>
+<span class="n">buildings_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>block_id</th>
+      <th>geometry</th>
+      <th>population</th>
+      <th>footprint_area</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>non_living_area</th>
+      <th>number_of_floors</th>
+      <th>is_living</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>158414</th>
+      <td>0</td>
+      <td>POLYGON ((354964.060 6625185.771, 354959.684 6...</td>
+      <td>0</td>
+      <td>15.030958</td>
+      <td>15.035234</td>
+      <td>10.524664</td>
+      <td>4.510571</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>150194</th>
+      <td>0</td>
+      <td>POLYGON ((355008.167 6625301.606, 355012.344 6...</td>
+      <td>0</td>
+      <td>22.185639</td>
+      <td>22.191954</td>
+      <td>15.534368</td>
+      <td>6.657586</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>58769</th>
+      <td>0</td>
+      <td>POLYGON ((354878.941 6625544.327, 354882.984 6...</td>
+      <td>0</td>
+      <td>31.264070</td>
+      <td>31.272943</td>
+      <td>21.891060</td>
+      <td>9.381884</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>158321</th>
+      <td>0</td>
+      <td>POLYGON ((355037.286 6624978.295, 355060.347 6...</td>
+      <td>0</td>
+      <td>158.324760</td>
+      <td>158.369888</td>
+      <td>110.858925</td>
+      <td>47.510963</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>36319</th>
+      <td>0</td>
+      <td>POLYGON ((354643.688 6625735.942, 354657.286 6...</td>
+      <td>1</td>
+      <td>192.709820</td>
+      <td>192.764221</td>
+      <td>134.934952</td>
+      <td>57.829269</td>
+      <td>1</td>
+      <td>True</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">services_gdf</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">get_services_gdf</span><span class="p">()</span>
+<span class="n">services_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>block_id</th>
+      <th>building_id</th>
+      <th>service_type</th>
+      <th>capacity</th>
+      <th>area</th>
+      <th>is_integrated</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POINT (353603.237 6625736.175)</td>
+      <td>2</td>
+      <td>77507.0</td>
+      <td>fuel</td>
+      <td>501</td>
+      <td>80.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POINT (355093.541 6624021.861)</td>
+      <td>3</td>
+      <td>NaN</td>
+      <td>pitch</td>
+      <td>75</td>
+      <td>8000.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POINT (355171.604 6624273.791)</td>
+      <td>3</td>
+      <td>158369.0</td>
+      <td>fuel</td>
+      <td>261</td>
+      <td>80.0</td>
+      <td>True</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POINT (353025.189 6622629.138)</td>
+      <td>4</td>
+      <td>NaN</td>
+      <td>pitch</td>
+      <td>165</td>
+      <td>8000.0</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POINT (353416.159 6622235.257)</td>
+      <td>4</td>
+      <td>NaN</td>
+      <td>parking</td>
+      <td>52</td>
+      <td>1250.0</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="graph_generator.html" class="btn btn-neutral float-left" title="Generating intermodal graph and calculating adjacency matrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="methods/index.html" class="btn btn-neutral float-right" title="Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

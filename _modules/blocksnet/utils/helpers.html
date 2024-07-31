@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.utils.helpers &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.utils.helpers</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.utils.helpers</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">from</span> <span class="nn">shapely.geometry</span> <span class="kn">import</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Polygon</span>
+
+
+<div class="viewcode-block" id="fill_holes"><a class="viewcode-back" href="../../../api/utils/helpers.html#blocksnet.utils.helpers.fill_holes">[docs]</a><span class="k">def</span> <span class="nf">fill_holes</span><span class="p">(</span><span class="n">gdf</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fills holes in geometries of a given GeoDataFrame</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf: gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame with geometries to be filled.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gdf: gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame with filled geometries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">boundary</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">Polygon</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">if</span> <span class="n">x</span><span class="o">.</span><span class="n">geom_type</span> <span class="o">!=</span> <span class="s2">&quot;Point&quot;</span> <span class="k">else</span> <span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">dropna</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+<div class="viewcode-block" id="drop_contained_geometries"><a class="viewcode-back" href="../../../api/utils/helpers.html#blocksnet.utils.helpers.drop_contained_geometries">[docs]</a><span class="k">def</span> <span class="nf">drop_contained_geometries</span><span class="p">(</span><span class="n">gdf</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Drops geometries that are contained inside other geometries.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf: gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame with contained geometries.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gdf: gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame without contained geometries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">overlaps</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sindex</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">],</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;contains&quot;</span><span class="p">)</span>
+    <span class="n">contains_dict</span> <span class="o">=</span> <span class="p">{</span><span class="n">x</span><span class="p">:</span> <span class="p">[]</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">overlaps</span><span class="p">[</span><span class="mi">0</span><span class="p">]}</span>
+    <span class="k">for</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">overlaps</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">overlaps</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">!=</span> <span class="n">y</span><span class="p">:</span>
+            <span class="n">contains_dict</span><span class="p">[</span><span class="n">x</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
+
+    <span class="n">contained_geoms_idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">({</span><span class="n">x</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">contains_dict</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">v</span><span class="p">})</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">contained_geoms_idxs</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdf</span></div>
+
+
+<div class="viewcode-block" id="filter_bottlenecks"><a class="viewcode-back" href="../../../api/utils/helpers.html#blocksnet.utils.helpers.filter_bottlenecks">[docs]</a><span class="k">def</span> <span class="nf">filter_bottlenecks</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">projected_crs</span><span class="p">,</span> <span class="n">min_width</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Divides geometries in narrow places and removes small geometries.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    gdf: gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame with contained geometries.</span>
+
+<span class="sd">    projected_crs: int or pyproj.CRS</span>
+<span class="sd">        Metric projected CRS of a given area.</span>
+
+<span class="sd">    min_width: int or float</span>
+<span class="sd">        Minimum allowed width of geometries in resulting GeoDataFrame.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    gdf: gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame with processed geometries.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_filter_bottlenecks_helper</span><span class="p">(</span><span class="n">poly</span><span class="p">,</span> <span class="n">min_width</span><span class="o">=</span><span class="mi">40</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">poly</span><span class="o">.</span><span class="n">intersection</span><span class="p">(</span><span class="n">poly</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="o">-</span><span class="n">min_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">min_width</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">join_style</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">poly</span>
+
+    <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">projected_crs</span><span class="p">)[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span>
+        <span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">_filter_bottlenecks_helper</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">min_width</span><span class="p">))</span>
+        <span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">projected_crs</span><span class="p">)</span>
+        <span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Polygon</span><span class="p">()]</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">gdf</span><span class="o">.</span><span class="n">type</span> <span class="o">==</span> <span class="s2">&quot;Polygon&quot;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="s2">&quot;area&quot;</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+        <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">projected_crs</span><span class="p">)</span><span class="o">.</span><span class="n">area</span>
+
+    <span class="k">return</span> <span class="n">gdf</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

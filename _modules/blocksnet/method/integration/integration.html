@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.method.integration.integration &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.method.integration.integration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.method.integration.integration</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">shapely</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">momepy</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">osmnx</span> <span class="k">as</span> <span class="nn">ox</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">from</span> <span class="nn">sklearn.impute</span> <span class="kn">import</span> <span class="n">SimpleImputer</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span> <span class="nn">sklearn.cluster</span> <span class="kn">import</span> <span class="n">KMeans</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span> <span class="nn">enum</span> <span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">field_validator</span><span class="p">,</span> <span class="n">model_validator</span><span class="p">,</span> <span class="n">ConfigDict</span>
+<span class="kn">from</span> <span class="nn">..base_method</span> <span class="kn">import</span> <span class="n">BaseMethod</span>
+
+<span class="n">BLOCKS_GRAPH_FETCH_BUFFER</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">BLOCKS_INTERSECTION_BUFFER</span> <span class="o">=</span> <span class="o">-</span><span class="mi">5</span>
+
+<span class="n">INTEGRATION_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;integration&quot;</span>
+<span class="n">CLUSTER_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;cluster&quot;</span>
+<span class="n">FSI_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;fsi&quot;</span>
+
+
+<div class="viewcode-block" id="IntegrationType"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.IntegrationType">[docs]</a><span class="k">class</span> <span class="nc">IntegrationType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">LOCAL</span> <span class="o">=</span> <span class="s2">&quot;local&quot;</span>
+    <span class="n">GLOBAL</span> <span class="o">=</span> <span class="s2">&quot;global&quot;</span></div>
+
+
+<div class="viewcode-block" id="WeightType"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.WeightType">[docs]</a><span class="k">class</span> <span class="nc">WeightType</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+    <span class="n">ANGULAR</span> <span class="o">=</span> <span class="s2">&quot;angle&quot;</span>
+    <span class="n">LENGTH</span> <span class="o">=</span> <span class="s2">&quot;mm_len&quot;</span></div>
+
+
+<div class="viewcode-block" id="Integration"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.Integration">[docs]</a><span class="k">class</span> <span class="nc">Integration</span><span class="p">(</span><span class="n">BaseMethod</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="Integration.validate_graph"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.Integration.validate_graph">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;graph&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">graph</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">unary_union</span><span class="o">.</span><span class="n">unary_union</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_from_polygon</span><span class="p">(</span><span class="n">polygon</span><span class="p">,</span> <span class="n">network_type</span><span class="o">=</span><span class="s2">&quot;drive&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">graph</span></div>
+
+<div class="viewcode-block" id="Integration.validate_model"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.Integration.validate_model">[docs]</a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_model</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+        <span class="n">city</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;city_model&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="s2">&quot;graph&quot;</span> <span class="ow">in</span> <span class="n">model</span><span class="p">:</span>
+            <span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">city</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()</span>
+            <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">BLOCKS_GRAPH_FETCH_BUFFER</span><span class="p">)</span>
+            <span class="n">unary_union</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">unary_union</span>
+            <span class="n">polygon_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">([{</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">unary_union</span><span class="p">}],</span> <span class="n">crs</span><span class="o">=</span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span>
+            <span class="n">polygon</span> <span class="o">=</span> <span class="n">shapely</span><span class="o">.</span><span class="n">make_valid</span><span class="p">(</span><span class="n">polygon_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">])</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_from_polygon</span><span class="p">(</span><span class="n">polygon</span><span class="o">=</span><span class="n">polygon</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">network_type</span><span class="o">=</span><span class="s2">&quot;drive&quot;</span><span class="p">)</span>
+            <span class="n">model</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">project_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">city</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">model</span><span class="p">[</span><span class="s2">&quot;graph&quot;</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;crs&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">city</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;Graph CRS should match city CRS&quot;</span>
+        <span class="k">return</span> <span class="n">model</span></div>
+
+<div class="viewcode-block" id="Integration.plot"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.Integration.plot">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">column</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">)):</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+            <span class="n">column</span><span class="o">=</span><span class="n">column</span><span class="p">,</span> <span class="n">categorical</span><span class="o">=</span><span class="kc">True</span> <span class="k">if</span> <span class="n">column</span> <span class="o">==</span> <span class="n">CLUSTER_COLUMN</span> <span class="k">else</span> <span class="kc">False</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="n">FSI_COLUMN</span><span class="p">]]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">edges</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_to_gdfs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">edges</span>
+
+    <span class="k">def</span> <span class="nf">_get_dual_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">:</span>
+        <span class="n">gdf_blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">gdf_blocks</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">gdf_blocks</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">edges</span><span class="p">,</span> <span class="n">gdf_blocks</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">)</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="n">merged</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()]</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">])</span>
+        <span class="n">dual_graph</span> <span class="o">=</span> <span class="n">momepy</span><span class="o">.</span><span class="n">gdf_to_nx</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">approach</span><span class="o">=</span><span class="s2">&quot;dual&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">dual_graph</span>
+
+<div class="viewcode-block" id="Integration.clusterize"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.Integration.clusterize">[docs]</a>    <span class="k">def</span> <span class="nf">clusterize</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">integration_blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">FSI_COLUMN</span><span class="p">,</span> <span class="n">INTEGRATION_COLUMN</span><span class="p">],</span> <span class="n">n_clusters</span><span class="o">=</span><span class="mi">4</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+
+        <span class="n">features</span> <span class="o">=</span> <span class="n">integration_blocks</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="n">imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">)</span>
+        <span class="n">features_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+
+        <span class="n">scaler</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
+        <span class="n">features_scaled</span> <span class="o">=</span> <span class="n">scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">features</span><span class="p">)</span>
+        <span class="n">features_imputed</span> <span class="o">=</span> <span class="n">imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">features_scaled</span><span class="p">)</span>
+
+        <span class="n">kmeans</span> <span class="o">=</span> <span class="n">KMeans</span><span class="p">(</span><span class="n">n_clusters</span><span class="o">=</span><span class="n">n_clusters</span><span class="p">,</span> <span class="n">n_init</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+        <span class="n">kmeans</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">features_imputed</span><span class="p">)</span>
+
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">integration_blocks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">CLUSTER_COLUMN</span><span class="p">]</span> <span class="o">=</span> <span class="n">kmeans</span><span class="o">.</span><span class="n">labels_</span>
+
+        <span class="k">return</span> <span class="n">blocks</span></div>
+
+<div class="viewcode-block" id="Integration.calculate"><a class="viewcode-back" href="../../../../api/method/integration.html#blocksnet.method.integration.integration.Integration.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">integration_type</span><span class="p">:</span> <span class="n">IntegrationType</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">weight_type</span><span class="p">:</span> <span class="n">WeightType</span> <span class="o">=</span> <span class="n">WeightType</span><span class="o">.</span><span class="n">ANGULAR</span><span class="p">,</span>
+        <span class="n">local_radius</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">dual_graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_dual_graph</span><span class="p">()</span>
+
+        <span class="k">if</span> <span class="n">integration_type</span> <span class="o">==</span> <span class="n">IntegrationType</span><span class="o">.</span><span class="n">LOCAL</span><span class="p">:</span>
+            <span class="n">integration</span> <span class="o">=</span> <span class="n">momepy</span><span class="o">.</span><span class="n">closeness_centrality</span><span class="p">(</span>
+                <span class="n">dual_graph</span><span class="p">,</span> <span class="n">radius</span><span class="o">=</span><span class="n">local_radius</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">INTEGRATION_COLUMN</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight_type</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">integration_type</span> <span class="o">==</span> <span class="n">IntegrationType</span><span class="o">.</span><span class="n">GLOBAL</span><span class="p">:</span>
+            <span class="n">integration</span> <span class="o">=</span> <span class="n">momepy</span><span class="o">.</span><span class="n">closeness_centrality</span><span class="p">(</span>
+                <span class="n">dual_graph</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">INTEGRATION_COLUMN</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight_type</span><span class="o">.</span><span class="n">value</span>
+            <span class="p">)</span>
+
+        <span class="n">integration_gdf</span> <span class="o">=</span> <span class="n">momepy</span><span class="o">.</span><span class="n">nx_to_gdf</span><span class="p">(</span><span class="n">integration</span><span class="p">,</span> <span class="n">points</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">integration_gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">integration_gdf</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">centroid</span>  <span class="c1"># .buffer(5)</span>
+
+        <span class="n">merged</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">sjoin_nearest</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">integration_gdf</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">avg_local_integration</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">agg</span><span class="p">({</span><span class="n">INTEGRATION_COLUMN</span><span class="p">:</span> <span class="s2">&quot;mean&quot;</span><span class="p">})</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">INTEGRATION_COLUMN</span><span class="p">]</span> <span class="o">=</span> <span class="n">avg_local_integration</span><span class="p">[</span><span class="n">INTEGRATION_COLUMN</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">blocks</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

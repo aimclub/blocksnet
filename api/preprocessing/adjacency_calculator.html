@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AdjacencyCalculator &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Models" href="../models/index.html" />
+    <link rel="prev" title="GraphGenerator" href="graph_generator.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Preprocessing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="blocks_generator.html">BlocksGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocks_splitter.html">BlocksSplitter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="land_use_processor.html">LandUseProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_generator.html">GraphGenerator</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">AdjacencyCalculator</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.adjacency_calculator.BlocksSchema"><code class="docutils literal notranslate"><span class="pre">BlocksSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator"><code class="docutils literal notranslate"><span class="pre">AdjacencyCalculator</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Preprocessing</a></li>
+      <li class="breadcrumb-item active">AdjacencyCalculator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/preprocessing/adjacency_calculator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-blocksnet.preprocessing.adjacency_calculator">
+<span id="adjacencycalculator"></span><h1>AdjacencyCalculator<a class="headerlink" href="#module-blocksnet.preprocessing.adjacency_calculator" title="Permalink to this heading"></a></h1>
+<p>This module provides all necessary tools to get accesibility matrix from transport graph</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.BlocksSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.adjacency_calculator.</span></span><span class="sig-name descname"><span class="pre">BlocksSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#BlocksSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.BlocksSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema" title="blocksnet.models.schema.BaseSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSchema</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.BlocksSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.BlocksSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema.Config" title="blocksnet.models.schema.BaseSchema.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.BlocksSchema.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BlocksSchema'</span></em><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.BlocksSchema.Config.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.adjacency_calculator.</span></span><span class="sig-name descname"><span class="pre">AdjacencyCalculator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._get_nx2nk_idmap">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_nx2nk_idmap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator._get_nx2nk_idmap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._get_nx2nk_idmap" title="Permalink to this definition"></a></dt>
+<dd><p>This method gets ids from nx graph to place as attribute in nk graph</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h2>
+<p>graph: networkx graph</p>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>idmap: dict</dt><dd><p>map of old and new ids</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._get_nk_attrs">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_nk_attrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Graph</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator._get_nk_attrs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._get_nk_attrs" title="Permalink to this definition"></a></dt>
+<dd><p>This method gets attributes from nx graph to set as attributes in nk graph</p>
+<section id="id1">
+<h2>Attributes<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<p>graph: networkx graph</p>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>idmap: dict</dt><dd><p>map of old and new attributes</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._convert_nx2nk">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_convert_nx2nk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph_nx</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">MultiDiGraph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">idmap</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'weight'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Graph</span></span></span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator._convert_nx2nk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._convert_nx2nk" title="Permalink to this definition"></a></dt>
+<dd><p>This method converts <cite>networkx</cite> graph to <cite>networkit</cite> graph to fasten calculations.</p>
+<section id="id3">
+<h2>Attributes<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<p>graph_nx: networkx graph
+idmap: dict</p>
+<blockquote>
+<div><p>map of ids in old nx and new nk graphs</p>
+</div></blockquote>
+<dl class="simple">
+<dt>weight: str</dt><dd><p>value to be used as a edge’s weight</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Returns<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>graph_nk: nk.Graph</dt><dd><p>the same graph but now presented in is <cite>networkit</cite> package Graph class.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._get_nk_distances">
+<span class="sig-name descname"><span class="pre">_get_nk_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nk_dists</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Algorithm</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">loc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Series</span></span></span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator._get_nk_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator._get_nk_distances" title="Permalink to this definition"></a></dt>
+<dd><p>This method calculates distances between blocks using nk SPSP algorithm.
+The function is called inside apply function.</p>
+<section id="id5">
+<h2>Attributes<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>nk_dists: nk.base.Algorithm</dt><dd><p>Compressed nk graph to compute distances between nodes using SPSP algorithm</p>
+</dd>
+<dt>loc: pd.Series</dt><dd><p>Row in the df</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h2>Returns<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h2>
+<p>pd.Series with computed distances</p>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator.get_distances">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_distances</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">df</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator.get_distances"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator.get_distances" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">batch_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/adjacency_calculator.html#AdjacencyCalculator.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.adjacency_calculator.AdjacencyCalculator.run" title="Permalink to this definition"></a></dt>
+<dd><p>This methods runs graph to matrix calculations</p>
+<section id="id7">
+<h2>Returns<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>accs_matrix: pd.DataFrame</dt><dd><p>An accessibility matrix that contains time between all blocks in the city</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="graph_generator.html" class="btn btn-neutral float-left" title="GraphGenerator" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../models/index.html" class="btn btn-neutral float-right" title="Models" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

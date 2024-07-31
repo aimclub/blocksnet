@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.preprocessing.graph_generator &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.preprocessing.graph_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.preprocessing.graph_generator</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="kn">import</span> <span class="nn">osmnx</span> <span class="k">as</span> <span class="nn">ox</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">InstanceOf</span><span class="p">,</span> <span class="n">field_validator</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">line_locate_point</span>
+<span class="kn">from</span> <span class="nn">shapely.ops</span> <span class="kn">import</span> <span class="n">linemerge</span><span class="p">,</span> <span class="n">nearest_points</span><span class="p">,</span> <span class="n">split</span>
+<span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">BaseSchema</span>
+
+
+<span class="n">OX_CRS</span> <span class="o">=</span> <span class="mi">4326</span>
+<span class="n">METERS_IN_KILOMETER</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">MINUTES_IN_HOUR</span> <span class="o">=</span> <span class="mi">60</span>
+
+<span class="n">OVERPASS_URL</span> <span class="o">=</span> <span class="s2">&quot;http://lz4.overpass-api.de/api/interpreter&quot;</span>
+<span class="n">SPEED</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;walk&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span> <span class="s2">&quot;drive&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;subway&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;tram&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;trolleybus&quot;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s2">&quot;bus&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">}</span>
+<span class="n">WAITING_TIME</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;subway&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;tram&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;trolleybus&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="s2">&quot;bus&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="GraphNode"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphNode">[docs]</a><span class="k">class</span> <span class="nc">GraphNode</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">x</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">y</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+<div class="viewcode-block" id="GraphEdge"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphEdge">[docs]</a><span class="k">class</span> <span class="nc">GraphEdge</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">InstanceOf</span><span class="p">[</span><span class="n">LineString</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">weight</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">transport_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;walk&quot;</span><span class="p">,</span> <span class="s2">&quot;drive&quot;</span><span class="p">,</span> <span class="s2">&quot;subway&quot;</span><span class="p">,</span> <span class="s2">&quot;tram&quot;</span><span class="p">,</span> <span class="s2">&quot;bus&quot;</span><span class="p">,</span> <span class="s2">&quot;trolleybus&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="TerritorySchema"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.TerritorySchema">[docs]</a><span class="k">class</span> <span class="nc">TerritorySchema</span><span class="p">(</span><span class="n">BaseSchema</span><span class="p">):</span>
+    <span class="n">_geom_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="GraphGenerator"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator">[docs]</a><span class="k">class</span> <span class="nc">GraphGenerator</span><span class="p">:</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">territory</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">overpass_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">OVERPASS_URL</span><span class="p">,</span>
+        <span class="n">speed</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">SPEED</span><span class="p">,</span>
+        <span class="n">waiting_time</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">WAITING_TIME</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">territory</span> <span class="o">=</span> <span class="n">TerritorySchema</span><span class="p">(</span><span class="n">territory</span><span class="p">)</span>
+        <span class="n">territory</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">([{</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">territory</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">unary_union</span><span class="o">.</span><span class="n">convex_hull</span><span class="p">}],</span> <span class="n">crs</span><span class="o">=</span><span class="n">territory</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">territory</span> <span class="o">=</span> <span class="n">territory</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">overpass_url</span> <span class="o">=</span> <span class="n">overpass_url</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">waiting_time</span> <span class="o">=</span> <span class="n">waiting_time</span>
+
+<div class="viewcode-block" id="GraphGenerator.to_graphml"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator.to_graphml">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">to_graphml</span><span class="p">(</span><span class="n">graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save graph as OX .graphml&quot;&quot;&quot;</span>
+        <span class="n">ox</span><span class="o">.</span><span class="n">save_graphml</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">file_path</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphGenerator.from_graphml"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator.from_graphml">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_graphml</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load graph from OX .graphml&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">ox</span><span class="o">.</span><span class="n">load_graphml</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">local_crs</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">territory</span><span class="o">.</span><span class="n">crs</span>
+
+<div class="viewcode-block" id="GraphGenerator.plot"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator.plot">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">):</span>
+        <span class="n">_</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_to_gdfs</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+        <span class="n">edges</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s2">&quot;transport_type&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._get_speed"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._get_speed">[docs]</a>    <span class="k">def</span> <span class="nf">_get_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">transport_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return transport type speed in meters per minute&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">METERS_IN_KILOMETER</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span><span class="p">[</span><span class="n">transport_type</span><span class="p">]</span> <span class="o">/</span> <span class="n">MINUTES_IN_HOUR</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._get_basic_graph"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._get_basic_graph">[docs]</a>    <span class="k">def</span> <span class="nf">_get_basic_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">network_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;walk&quot;</span><span class="p">,</span> <span class="s2">&quot;drive&quot;</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns walk or drive graph for the city geometry&quot;&quot;&quot;</span>
+        <span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_speed</span><span class="p">(</span><span class="n">network_type</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_from_polygon</span><span class="p">(</span><span class="n">polygon</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">territory</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">OX_CRS</span><span class="p">)</span><span class="o">.</span><span class="n">unary_union</span><span class="p">,</span> <span class="n">network_type</span><span class="o">=</span><span class="n">network_type</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">project_graph</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">to_crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">edge</span> <span class="ow">in</span> <span class="n">G</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+            <span class="n">_</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">data</span> <span class="o">=</span> <span class="n">edge</span>
+            <span class="n">length</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">length</span> <span class="o">/</span> <span class="n">speed</span>
+            <span class="n">data</span><span class="p">[</span><span class="s2">&quot;transport_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">network_type</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">project_graph</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Graph made for &#39;</span><span class="si">{</span><span class="n">network_type</span><span class="si">}</span><span class="s2">&#39; network type&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._get_routes"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._get_routes">[docs]</a>    <span class="k">def</span> <span class="nf">_get_routes</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">public_transport_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;subway&quot;</span><span class="p">,</span> <span class="s2">&quot;tram&quot;</span><span class="p">,</span> <span class="s2">&quot;trolleybus&quot;</span><span class="p">,</span> <span class="s2">&quot;bus&quot;</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns OSM routes for the given geometry shapely geometry bounds and given transport type&quot;&quot;&quot;</span>
+        <span class="n">bbox</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">bounds</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;miny&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">bounds</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;minx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">bounds</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;maxy&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">bounds</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="s1">&#39;maxx&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&#39;route&#39;=&#39;</span><span class="si">{</span><span class="n">public_transport_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+        <span class="n">overpass_query</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        [out:json];</span>
+<span class="s2">                (</span>
+<span class="s2">                    relation(</span><span class="si">{</span><span class="n">bbox</span><span class="si">}</span><span class="s2">)[</span><span class="si">{</span><span class="n">tags</span><span class="si">}</span><span class="s2">];</span>
+<span class="s2">                );</span>
+<span class="s2">        out geom;</span>
+<span class="s2">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">overpass_url</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;data&quot;</span><span class="p">:</span> <span class="n">overpass_query</span><span class="p">})</span>
+        <span class="n">json_result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">json</span><span class="p">()[</span><span class="s2">&quot;elements&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_result</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._coordinates_to_linestring"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._coordinates_to_linestring">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">_coordinates_to_linestring</span><span class="p">(</span><span class="n">coordinates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">LineString</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;For given route coordinates dicts returns a concated linestring&quot;&quot;&quot;</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">coordinates</span><span class="p">:</span>
+            <span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Point</span><span class="p">(</span><span class="n">point</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]))</span>
+        <span class="n">linestring</span> <span class="o">=</span> <span class="n">LineString</span><span class="p">(</span><span class="n">points</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">linestring</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._ways_to_gdf"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._ways_to_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">_ways_to_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns GeoDataFrame for the given route ways, converting way&#39;s coordinates to linestring&quot;&quot;&quot;</span>
+        <span class="n">copy</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">copy</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;coordinates&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_coordinates_to_linestring</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">copy</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">copy</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">epsg</span><span class="o">=</span><span class="n">OX_CRS</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._nodes_to_gdf"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._nodes_to_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">_nodes_to_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns GeoDataFrame for the given route nodes, converting lon and lat columns to geometry column and local CRS&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gpd</span><span class="o">.</span><span class="n">points_from_xy</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]))</span>
+            <span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">epsg</span><span class="o">=</span><span class="n">OX_CRS</span><span class="p">)</span>
+            <span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._graph_from_route"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._graph_from_route">[docs]</a>    <span class="k">def</span> <span class="nf">_graph_from_route</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">nodes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">ways</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">transport_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get graph for the given route nodes and ways&quot;&quot;&quot;</span>
+        <span class="n">linestring</span> <span class="o">=</span> <span class="n">linemerge</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">ways</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]))</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">nearest_points</span><span class="p">(</span><span class="n">linestring</span><span class="p">,</span> <span class="n">x</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">line_locate_point</span><span class="p">(</span><span class="n">linestring</span><span class="p">,</span> <span class="n">x</span><span class="p">))</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">nodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">nodes</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">within</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">territory</span><span class="o">.</span><span class="n">unary_union</span><span class="p">)]</span>
+        <span class="n">sorted_nodes</span> <span class="o">=</span> <span class="n">nodes</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+        <span class="n">sorted_nodes</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sorted_nodes</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transport_type</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="nb">hash</span><span class="p">(</span><span class="n">x</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">G</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">index</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">sorted_nodes</span><span class="o">.</span><span class="n">index</span><span class="p">)[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">n1</span> <span class="o">=</span> <span class="n">sorted_nodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+            <span class="n">n2</span> <span class="o">=</span> <span class="n">sorted_nodes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">n2</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">n1</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span>
+            <span class="n">id1</span> <span class="o">=</span> <span class="n">n1</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span>  <span class="c1"># hash(n1[&#39;geometry&#39;])</span>
+            <span class="n">id2</span> <span class="o">=</span> <span class="n">n2</span><span class="p">[</span><span class="s2">&quot;hash&quot;</span><span class="p">]</span>  <span class="c1"># hash(n1[&#39;geometry&#39;])</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_speed</span><span class="p">(</span><span class="n">transport_type</span><span class="p">)</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">id1</span><span class="p">,</span> <span class="n">id2</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">d</span> <span class="o">/</span> <span class="n">speed</span><span class="p">,</span> <span class="n">transport_type</span><span class="o">=</span><span class="n">transport_type</span><span class="p">)</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">id1</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n1</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">id1</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n1</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">id2</span><span class="p">][</span><span class="s2">&quot;x&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n2</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">x</span>
+            <span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">id2</span><span class="p">][</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">n2</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">y</span>
+        <span class="k">return</span> <span class="n">G</span></div>
+
+<div class="viewcode-block" id="GraphGenerator._get_pt_graph"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator._get_pt_graph">[docs]</a>    <span class="k">def</span> <span class="nf">_get_pt_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pt_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;subway&quot;</span><span class="p">,</span> <span class="s2">&quot;tram&quot;</span><span class="p">,</span> <span class="s2">&quot;trolleybus&quot;</span><span class="p">,</span> <span class="s2">&quot;bus&quot;</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiGraph</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get public transport routes graphs for the given transport_type&quot;&quot;&quot;</span>
+        <span class="n">routes</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_routes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">territory</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">OX_CRS</span><span class="p">)</span><span class="o">.</span><span class="n">bounds</span><span class="p">,</span> <span class="n">pt_type</span><span class="p">)</span>
+        <span class="n">graphs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">routes</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">routes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;members&quot;</span><span class="p">])</span>
+            <span class="n">nodes_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;node&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">ways_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;way&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="s2">&quot;coordinates&quot;</span><span class="p">})</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">ways_df</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">nodes_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_nodes_to_gdf</span><span class="p">(</span><span class="n">nodes_df</span><span class="p">)</span>
+            <span class="n">ways_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_ways_to_gdf</span><span class="p">(</span><span class="n">ways_df</span><span class="p">)</span>
+            <span class="n">graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph_from_route</span><span class="p">(</span><span class="n">nodes_gdf</span><span class="p">,</span> <span class="n">ways_gdf</span><span class="p">,</span> <span class="n">pt_type</span><span class="p">))</span>
+        <span class="n">graph</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">graphs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">compose_all</span><span class="p">(</span><span class="n">graphs</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;crs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Graph made for &#39;</span><span class="si">{</span><span class="n">pt_type</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">graph</span></div>
+
+<div class="viewcode-block" id="GraphGenerator.validate_graph"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator.validate_graph">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validates copy graph, according to ``GraphEdge`` and ``GraphNode`` classes&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">e</span><span class="p">:</span> <span class="n">e</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">graph</span><span class="o">.</span><span class="n">edges</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">GraphEdge</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">n</span><span class="p">:</span> <span class="n">n</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+            <span class="n">d</span> <span class="o">=</span> <span class="n">GraphNode</span><span class="p">(</span><span class="o">**</span><span class="n">d</span><span class="p">)</span><span class="o">.</span><span class="vm">__dict__</span>
+        <span class="k">return</span> <span class="n">graph</span></div>
+
+<div class="viewcode-block" id="GraphGenerator.run"><a class="viewcode-back" href="../../../api/preprocessing/graph_generator.html#blocksnet.preprocessing.graph_generator.GraphGenerator.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;intermodal&quot;</span><span class="p">,</span> <span class="s2">&quot;walk&quot;</span><span class="p">,</span> <span class="s2">&quot;drive&quot;</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns intermodal graph for the city geometry bounds&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">graph_type</span> <span class="o">!=</span> <span class="s2">&quot;intermodal&quot;</span><span class="p">:</span>
+            <span class="n">graph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_basic_graph</span><span class="p">(</span><span class="n">graph_type</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_graph</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>
+
+        <span class="n">walk_graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_basic_graph</span><span class="p">(</span><span class="s2">&quot;walk&quot;</span><span class="p">)</span>
+        <span class="n">walk_nodes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_to_gdfs</span><span class="p">(</span><span class="n">walk_graph</span><span class="p">)</span>
+
+        <span class="n">pt_types</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;bus&quot;</span><span class="p">,</span> <span class="s2">&quot;trolleybus&quot;</span><span class="p">,</span> <span class="s2">&quot;tram&quot;</span><span class="p">,</span> <span class="s2">&quot;subway&quot;</span><span class="p">]</span>
+        <span class="n">pt_graphs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">nx</span><span class="o">.</span><span class="n">MultiDiGraph</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">t</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_pt_graph</span><span class="p">(</span><span class="n">t</span><span class="p">),</span> <span class="n">pt_types</span><span class="p">))</span>
+        <span class="n">pt_graphs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="n">pt_graphs</span><span class="p">))</span>
+        <span class="n">pt_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">compose_all</span><span class="p">(</span><span class="n">pt_graphs</span><span class="p">)</span>
+        <span class="n">pt_graph</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span>
+        <span class="n">pt_nodes</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_to_gdfs</span><span class="p">(</span><span class="n">pt_graph</span><span class="p">)</span>
+
+        <span class="n">intermodal_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">compose</span><span class="p">(</span><span class="n">walk_graph</span><span class="p">,</span> <span class="n">pt_graph</span><span class="p">)</span>
+        <span class="n">pt_to_walk</span> <span class="o">=</span> <span class="n">pt_nodes</span><span class="o">.</span><span class="n">sjoin_nearest</span><span class="p">(</span><span class="n">walk_nodes</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">distance_col</span><span class="o">=</span><span class="s2">&quot;distance&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">pt_to_walk</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">gs</span> <span class="o">=</span> <span class="n">pt_to_walk</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">transport_node</span> <span class="o">=</span> <span class="n">i</span>
+            <span class="n">walk_node</span> <span class="o">=</span> <span class="n">gs</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">]</span>
+            <span class="n">distance</span> <span class="o">=</span> <span class="n">gs</span><span class="p">[</span><span class="s2">&quot;distance&quot;</span><span class="p">]</span>
+            <span class="n">speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_speed</span><span class="p">(</span><span class="s2">&quot;walk&quot;</span><span class="p">)</span>
+            <span class="n">weight</span> <span class="o">=</span> <span class="n">distance</span> <span class="o">/</span> <span class="n">speed</span>
+            <span class="n">intermodal_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">transport_node</span><span class="p">,</span> <span class="n">walk_node</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span><span class="p">,</span> <span class="n">transport_type</span><span class="o">=</span><span class="s2">&quot;walk&quot;</span><span class="p">)</span>
+            <span class="n">intermodal_graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="n">walk_node</span><span class="p">,</span> <span class="n">transport_node</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">weight</span> <span class="o">+</span> <span class="mi">5</span><span class="p">,</span> <span class="n">transport_type</span><span class="o">=</span><span class="s2">&quot;walk&quot;</span><span class="p">)</span>
+        <span class="n">intermodal_graph</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s2">&quot;crs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">local_crs</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_graph</span><span class="p">(</span><span class="n">intermodal_graph</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

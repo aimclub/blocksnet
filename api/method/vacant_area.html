@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VacantArea &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Utils" href="../utils/index.html" />
+    <link rel="prev" title="SpaceMatrix" href="spacematrix.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Method</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="base_method.html">BaseMethod</a></li>
+<li class="toctree-l3"><a class="reference internal" href="accessibility.html">Accessibility</a></li>
+<li class="toctree-l3"><a class="reference internal" href="block_optimizer.html">BlockOptimizer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="centrality.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="connectivity.html">Connectivity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="diversity.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="genetic.html">Genetic</a></li>
+<li class="toctree-l3"><a class="reference internal" href="integration.html">Integration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="land_use_prediction.html">LandUsePrediction</a></li>
+<li class="toctree-l3"><a class="reference internal" href="provision.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="spacematrix.html">SpaceMatrix</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">VacantArea</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.method.vacant_area.vacant_area.VacantArea"><code class="docutils literal notranslate"><span class="pre">VacantArea</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Method</a></li>
+      <li class="breadcrumb-item active">VacantArea</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/method/vacant_area.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-blocksnet.method.vacant_area.vacant_area">
+<span id="vacantarea"></span><h1>VacantArea<a class="headerlink" href="#module-blocksnet.method.vacant_area.vacant_area" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.method.vacant_area.vacant_area.</span></span><span class="sig-name descname"><span class="pre">VacantArea</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">city_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="../models/city.html#blocksnet.models.city.City" title="blocksnet.models.city.City"><span class="pre">City</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_to_length_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area_to_mrr_area_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roads_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">buildings_buffer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_buffer_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">blocks_buffer_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">40</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="base_method.html#blocksnet.method.base_method.BaseMethod" title="blocksnet.method.base_method.BaseMethod"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseMethod</span></code></a></p>
+<p>A class to identify and calculate vacant areas within a specified block or blocks in a city model,
+taking into account various geographical features like buildings, highways, natural areas, etc.</p>
+<p>Attributes:
+- local_crs (ClassVar[int]): The local coordinate reference system (CRS) code used for spatial operations.
+- roads_buffer (ClassVar[int]): The buffer distance to apply around roads when identifying vacant areas.
+- buildings_buffer (ClassVar[int]): The buffer distance to apply around buildings when identifying vacant areas.
+- min_length (ClassVar[int]): The minimum length threshold for considered vacant areas.
+- min_area (ClassVar[int]): The minimum area threshold for considered vacant areas.
+- area_attitude (ClassVar[int]): The ratio used to filter areas based on their minimum bounding rectangle.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.area_to_length_min">
+<span class="sig-name descname"><span class="pre">area_to_length_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.area_to_length_min" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.area_min">
+<span class="sig-name descname"><span class="pre">area_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.area_min" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.area_to_mrr_area_min">
+<span class="sig-name descname"><span class="pre">area_to_mrr_area_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.area_to_mrr_area_min" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.path_buffer">
+<span class="sig-name descname"><span class="pre">path_buffer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.path_buffer" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.roads_buffer">
+<span class="sig-name descname"><span class="pre">roads_buffer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.roads_buffer" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.buildings_buffer">
+<span class="sig-name descname"><span class="pre">buildings_buffer</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.buildings_buffer" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.blocks_buffer_min">
+<span class="sig-name descname"><span class="pre">blocks_buffer_min</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.blocks_buffer_min" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.blocks_buffer_max">
+<span class="sig-name descname"><span class="pre">blocks_buffer_max</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.blocks_buffer_max" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_other">
+<span class="sig-name descname"><span class="pre">_dwn_other</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_other"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_other" title="Permalink to this definition"></a></dt>
+<dd><p>Download other non-standard areas within a block.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing other non-standard areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_leisure">
+<span class="sig-name descname"><span class="pre">_dwn_leisure</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoSeries</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_leisure"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_leisure" title="Permalink to this definition"></a></dt>
+<dd><p>Download leisure areas within a block.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing leisure areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_landuse">
+<span class="sig-name descname"><span class="pre">_dwn_landuse</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_landuse"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_landuse" title="Permalink to this definition"></a></dt>
+<dd><p>Download land use areas within a block, excluding residential.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing non-residential land use areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_amenity">
+<span class="sig-name descname"><span class="pre">_dwn_amenity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_amenity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_amenity" title="Permalink to this definition"></a></dt>
+<dd><p>Download amenity areas within a block.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing amenity areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_buildings">
+<span class="sig-name descname"><span class="pre">_dwn_buildings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_buildings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_buildings" title="Permalink to this definition"></a></dt>
+<dd><p>Download building areas within a block and apply a buffer.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.
+- buildings_buffer: Buffer distance to apply to building geometries.</p>
+<p>Returns:
+- A GeoSeries of buffered building geometries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_natural">
+<span class="sig-name descname"><span class="pre">_dwn_natural</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_natural"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_natural" title="Permalink to this definition"></a></dt>
+<dd><p>Download natural feature areas within a block, excluding bays.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing natural feature areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_waterway">
+<span class="sig-name descname"><span class="pre">_dwn_waterway</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_waterway"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_waterway" title="Permalink to this definition"></a></dt>
+<dd><p>Download waterway areas within a block.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing waterway areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_highway">
+<span class="sig-name descname"><span class="pre">_dwn_highway</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">block</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_highway"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_highway" title="Permalink to this definition"></a></dt>
+<dd><p>Download highway areas within a block, excluding paths, footways, and pedestrian areas, and apply a buffer.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.
+- roads_buffer: Buffer distance to apply to highway geometries.</p>
+<p>Returns:
+- A GeoSeries of buffered highway geometries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_path">
+<span class="sig-name descname"><span class="pre">_dwn_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_path" title="Permalink to this definition"></a></dt>
+<dd><p>Download path and footway areas within a block and apply a buffer.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of buffered path and footway geometries.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_railway">
+<span class="sig-name descname"><span class="pre">_dwn_railway</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">geometry</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea._dwn_railway"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_railway" title="Permalink to this definition"></a></dt>
+<dd><p>Download railway areas within a block, excluding subways.</p>
+<p>Parameters:
+- block: The block’s polygon geometry.
+- local_crs: The local coordinate reference system to project the geometries.</p>
+<p>Returns:
+- A GeoSeries of geometries representing railway areas.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.calculate">
+<span class="sig-name descname"><span class="pre">calculate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="../models/city.html#blocksnet.models.city.Block" title="blocksnet.models.city.Block"><span class="pre">blocksnet.models.city.Block</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/method/vacant_area/vacant_area.html#VacantArea.calculate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.calculate" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the vacant area within a given block or blocks.</p>
+<p>Parameters:
+- block: Either a single block identifier or a Block object representing the area to analyze.</p>
+<p>Returns:
+- A GeoDataFrame containing the vacant areas within the specified block(s), along with their area and length.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.method.vacant_area.vacant_area.VacantArea.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#blocksnet.method.vacant_area.vacant_area.VacantArea.model_computed_fields" title="Permalink to this definition"></a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="spacematrix.html" class="btn btn-neutral float-left" title="SpaceMatrix" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../utils/index.html" class="btn btn-neutral float-right" title="Utils" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

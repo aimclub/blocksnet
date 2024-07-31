@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.method.vacant_area.vacant_area &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.method.vacant_area.vacant_area</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.method.vacant_area.vacant_area</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">ClassVar</span>
+
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">osmnx</span> <span class="k">as</span> <span class="nn">ox</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">Field</span>
+
+<span class="kn">from</span> <span class="nn">...models</span> <span class="kn">import</span> <span class="n">Block</span><span class="p">,</span> <span class="n">ServiceType</span>
+<span class="kn">from</span> <span class="nn">..base_method</span> <span class="kn">import</span> <span class="n">BaseMethod</span>
+
+
+<div class="viewcode-block" id="VacantArea"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea">[docs]</a><span class="k">class</span> <span class="nc">VacantArea</span><span class="p">(</span><span class="n">BaseMethod</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    A class to identify and calculate vacant areas within a specified block or blocks in a city model,</span>
+<span class="sd">    taking into account various geographical features like buildings, highways, natural areas, etc.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">    - local_crs (ClassVar[int]): The local coordinate reference system (CRS) code used for spatial operations.</span>
+<span class="sd">    - roads_buffer (ClassVar[int]): The buffer distance to apply around roads when identifying vacant areas.</span>
+<span class="sd">    - buildings_buffer (ClassVar[int]): The buffer distance to apply around buildings when identifying vacant areas.</span>
+<span class="sd">    - min_length (ClassVar[int]): The minimum length threshold for considered vacant areas.</span>
+<span class="sd">    - min_area (ClassVar[int]): The minimum area threshold for considered vacant areas.</span>
+<span class="sd">    - area_attitude (ClassVar[int]): The ratio used to filter areas based on their minimum bounding rectangle.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">area_to_length_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="n">area_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">area_to_mrr_area_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+
+    <span class="n">path_buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">roads_buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">buildings_buffer</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">)</span>
+    <span class="n">blocks_buffer_min</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+    <span class="n">blocks_buffer_max</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+
+<div class="viewcode-block" id="VacantArea._dwn_other"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_other">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_other</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download other non-standard areas within a block.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing other non-standard areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;man_made&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;aeroway&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;military&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="n">other</span> <span class="o">=</span> <span class="n">other</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">other</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_leisure"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_leisure">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_leisure</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download leisure areas within a block.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing leisure areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">leisure</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;leisure&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="n">leisure</span> <span class="o">=</span> <span class="n">leisure</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">leisure</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_landuse"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_landuse">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_landuse</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download land use areas within a block, excluding residential.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing non-residential land use areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">landuse</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;landuse&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">landuse</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">landuse</span> <span class="o">=</span> <span class="n">landuse</span><span class="p">[</span><span class="n">landuse</span><span class="p">[</span><span class="s2">&quot;landuse&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;residential&quot;</span><span class="p">]</span>
+            <span class="n">landuse</span> <span class="o">=</span> <span class="n">landuse</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">landuse</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_amenity"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_amenity">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_amenity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download amenity areas within a block.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing amenity areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">amenity</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;amenity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="n">amenity</span> <span class="o">=</span> <span class="n">amenity</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">amenity</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_buildings"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_buildings">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_buildings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download building areas within a block and apply a buffer.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+<span class="sd">        - buildings_buffer: Buffer distance to apply to building geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of buffered building geometries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">buildings</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;building&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="n">buildings</span> <span class="o">=</span> <span class="n">buildings</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="n">buildings</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings_buffer</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">buildings</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoSeries</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_natural"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_natural">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_natural</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download natural feature areas within a block, excluding bays.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing natural feature areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">natural</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;natural&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">natural</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">natural</span> <span class="o">=</span> <span class="n">natural</span><span class="p">[</span><span class="n">natural</span><span class="p">[</span><span class="s2">&quot;natural&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;bay&quot;</span><span class="p">]</span>
+            <span class="n">natural</span> <span class="o">=</span> <span class="n">natural</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">natural</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_waterway"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_waterway">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_waterway</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download waterway areas within a block.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing waterway areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">waterway</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;waterway&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="n">waterway</span> <span class="o">=</span> <span class="n">waterway</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">waterway</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_highway"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_highway">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_highway</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download highway areas within a block, excluding paths, footways, and pedestrian areas, and apply a buffer.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+<span class="sd">        - roads_buffer: Buffer distance to apply to highway geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of buffered highway geometries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">highway</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;highway&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="n">condition</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">(</span><span class="n">highway</span><span class="p">[</span><span class="s2">&quot;highway&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;path&quot;</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">highway</span><span class="p">[</span><span class="s2">&quot;highway&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;footway&quot;</span><span class="p">)</span>
+                <span class="o">&amp;</span> <span class="p">(</span><span class="n">highway</span><span class="p">[</span><span class="s2">&quot;highway&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;pedestrian&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">filtered_highway</span> <span class="o">=</span> <span class="n">highway</span><span class="p">[</span><span class="n">condition</span><span class="p">]</span>
+            <span class="n">filtered_highway</span> <span class="o">=</span> <span class="n">filtered_highway</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="n">filtered_highway</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">filtered_highway</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">roads_buffer</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">filtered_highway</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_path"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_path">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download path and footway areas within a block and apply a buffer.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of buffered path and footway geometries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">tags</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;highway&quot;</span><span class="p">:</span> <span class="s2">&quot;path&quot;</span><span class="p">,</span> <span class="s2">&quot;highway&quot;</span><span class="p">:</span> <span class="s2">&quot;footway&quot;</span><span class="p">}</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="n">tags</span><span class="p">)</span>
+            <span class="n">path</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="n">path</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">path</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">path_buffer</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">path</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea._dwn_railway"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea._dwn_railway">[docs]</a>    <span class="k">def</span> <span class="nf">_dwn_railway</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">geometry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download railway areas within a block, excluding subways.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: The block&#39;s polygon geometry.</span>
+<span class="sd">        - local_crs: The local coordinate reference system to project the geometries.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoSeries of geometries representing railway areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">railway</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">geometry</span><span class="p">,</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;railway&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">railway</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+                <span class="n">railway</span> <span class="o">=</span> <span class="n">railway</span><span class="p">[</span><span class="n">railway</span><span class="p">[</span><span class="s2">&quot;railway&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;subway&quot;</span><span class="p">]</span>
+            <span class="n">railway</span> <span class="o">=</span> <span class="n">railway</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">railway</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error encountered: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="VacantArea.calculate"><a class="viewcode-back" href="../../../../api/method/vacant_area.html#blocksnet.method.vacant_area.vacant_area.VacantArea.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">Block</span><span class="p">]</span> <span class="o">=</span> <span class="p">[])</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the vacant area within a given block or blocks.</span>
+
+<span class="sd">        Parameters:</span>
+<span class="sd">        - block: Either a single block identifier or a Block object representing the area to analyze.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">        - A GeoDataFrame containing the vacant areas within the specified block(s), along with their area and length.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">blocks_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="n">buildings_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_buildings_gdf</span><span class="p">()</span>
+        <span class="n">services_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_services_gdf</span><span class="p">()</span>
+
+        <span class="c1"># filter gdf if blocks are provided</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">b</span><span class="p">,</span> <span class="n">Block</span><span class="p">)</span> <span class="k">else</span> <span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">blocks</span><span class="p">]</span>
+            <span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">blocks</span><span class="p">]</span>
+            <span class="n">buildings_gdf</span> <span class="o">=</span> <span class="n">buildings_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">buildings_gdf</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">blocks</span><span class="p">)]</span>
+            <span class="n">services_gdf</span> <span class="o">=</span> <span class="n">services_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">services_gdf</span><span class="p">[</span><span class="s2">&quot;block_id&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">blocks</span><span class="p">)]</span>
+
+        <span class="n">buildings_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings_buffer</span><span class="p">)</span>
+        <span class="n">blocks_buffer</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks_buffer_min</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">epsg</span><span class="o">=</span><span class="mi">4326</span><span class="p">)</span><span class="o">.</span><span class="n">unary_union</span>
+
+        <span class="c1"># setting occupied area with all the buffers possible</span>
+        <span class="n">occupied_areas</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">buildings_gdf</span><span class="p">,</span>
+            <span class="n">services_gdf</span><span class="p">,</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_other</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_landuse</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_natural</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_waterway</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_highway</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_railway</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dwn_path</span><span class="p">(</span><span class="n">blocks_buffer</span><span class="p">)</span>
+            <span class="c1"># self._dwn_leisure(blocks_buffer),</span>
+            <span class="c1"># self._dwn_amenity(blocks_buffer),</span>
+            <span class="c1"># self._dwn_buildings(blocks_buffer),</span>
+        <span class="p">]</span>
+        <span class="n">occupied_area</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span><span class="n">occupied_areas</span><span class="p">)[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]]</span>
+        <span class="n">occupied_area</span> <span class="o">=</span> <span class="n">occupied_area</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">occupied_area</span><span class="o">.</span><span class="n">geom_type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">])]</span>
+        <span class="n">buffered_blocks_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">buffered_blocks_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buffered_blocks_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks_buffer_max</span><span class="p">)</span>
+
+        <span class="n">vacant_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span><span class="n">occupied_area</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;difference&quot;</span><span class="p">)</span>
+        <span class="c1"># vacant_gdf = blocks_gdf.overlay(vacant_gdf, how=&quot;intersection&quot;)</span>
+        <span class="n">unified_geometry</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mf">1.1</span><span class="p">)</span><span class="o">.</span><span class="n">unary_union</span>
+        <span class="n">vacant_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">geometry</span><span class="o">=</span><span class="p">[</span><span class="n">unified_geometry</span><span class="p">],</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">vacant_gdf</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="o">.</span><span class="n">explode</span><span class="p">(</span><span class="n">index_parts</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># calculate filtering indicators</span>
+        <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;mrr_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">minimum_rotated_rectangle</span><span class="o">.</span><span class="n">area</span><span class="p">)</span>
+        <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">length</span><span class="p">)</span>
+        <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area_to_length&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;length&quot;</span><span class="p">]</span>
+        <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area_to_mrr_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;mrr_area&quot;</span><span class="p">]</span>
+
+        <span class="n">result_gdf</span> <span class="o">=</span> <span class="n">vacant_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_min</span><span class="p">]</span>
+        <span class="n">result_gdf</span> <span class="o">=</span> <span class="n">result_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area_to_mrr_area&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_to_mrr_area_min</span><span class="p">]</span>
+        <span class="n">result_gdf</span> <span class="o">=</span> <span class="n">result_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">vacant_gdf</span><span class="p">[</span><span class="s2">&quot;area_to_length&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_to_length_min</span><span class="p">]</span>
+
+        <span class="n">result_gdf</span> <span class="o">=</span> <span class="n">result_gdf</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;within&quot;</span><span class="p">)</span>
+        <span class="n">result_gdf</span> <span class="o">=</span> <span class="n">result_gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_right&quot;</span><span class="p">:</span> <span class="s2">&quot;block_id&quot;</span><span class="p">})</span>
+
+        <span class="k">return</span> <span class="n">result_gdf</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ServiceType &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="LandUse" href="land_use.html" />
+    <link rel="prev" title="City" href="city.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Models</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="city.html">City</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">ServiceType</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.models.service_type.ServiceBrick"><code class="docutils literal notranslate"><span class="pre">ServiceBrick</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.models.service_type.ServiceType"><code class="docutils literal notranslate"><span class="pre">ServiceType</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="land_use.html">LandUse</a></li>
+<li class="toctree-l3"><a class="reference internal" href="schema.html">Schema</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Models</a></li>
+      <li class="breadcrumb-item active">ServiceType</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/models/service_type.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-blocksnet.models.service_type">
+<span id="servicetype"></span><h1>ServiceType<a class="headerlink" href="#module-blocksnet.models.service_type" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceBrick">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.models.service_type.</span></span><span class="sig-name descname"><span class="pre">ServiceBrick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_integrated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parking_area</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceBrick"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceBrick" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents a typical service module or unit used in urban development.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>capacity<span class="classifier">int</span></dt><dd><p>Maximum number of people that can be accommodated or served by this service module.</p>
+</dd>
+<dt>area<span class="classifier">float</span></dt><dd><p>Area occupied by the service module in square meters.</p>
+</dd>
+<dt>is_integrated<span class="classifier">bool</span></dt><dd><p>Indicates whether the service module is integrated within a living building.</p>
+</dd>
+<dt>parking_area<span class="classifier">float</span></dt><dd><p>Required parking area in square meters for the service module.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceBrick.capacity">
+<span class="sig-name descname"><span class="pre">capacity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceBrick.capacity" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceBrick.area">
+<span class="sig-name descname"><span class="pre">area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceBrick.area" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceBrick.is_integrated">
+<span class="sig-name descname"><span class="pre">is_integrated</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceBrick.is_integrated" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceBrick.parking_area">
+<span class="sig-name descname"><span class="pre">parking_area</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceBrick.parking_area" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceBrick.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceBrick.model_computed_fields" title="Permalink to this definition"></a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.models.service_type.</span></span><span class="sig-name descname"><span class="pre">ServiceType</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">accessibility</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">demand</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">land_use</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="land_use.html#blocksnet.models.land_use.LandUse" title="blocksnet.models.land_use.LandUse"><span class="pre">blocksnet.models.land_use.LandUse</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bricks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#blocksnet.models.service_type.ServiceBrick" title="blocksnet.models.service_type.ServiceBrick"><span class="pre">blocksnet.models.service_type.ServiceBrick</span></a><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">[]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseModel</span></code></p>
+<p>Represents a category of service entity, such as schools, and its parameters.</p>
+<section id="id1">
+<h2>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>code<span class="classifier">str</span></dt><dd><p>Code identifying the service type.</p>
+</dd>
+<dt>name<span class="classifier">str</span></dt><dd><p>Unique name of the service type.</p>
+</dd>
+<dt>accessibility<span class="classifier">int, optional</span></dt><dd><p>Average accessibility time in minutes to reach the service unit. Must be equal or greater than 0.</p>
+</dd>
+<dt>demand<span class="classifier">int, optional</span></dt><dd><p>Demand per 1000 population for the service type. Must be equal or greater than 0.</p>
+</dd>
+<dt>land_use<span class="classifier">list[LandUse], optional</span></dt><dd><p>List of land use categories associated with the service type. Default is an empty list.</p>
+</dd>
+<dt>bricks<span class="classifier">list[ServiceBrick], optional</span></dt><dd><p>List of service bricks or modules available for the service type. Default is an empty list.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.code">
+<span class="sig-name descname"><span class="pre">code</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.code" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.accessibility">
+<span class="sig-name descname"><span class="pre">accessibility</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.accessibility" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.demand">
+<span class="sig-name descname"><span class="pre">demand</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.demand" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.land_use">
+<span class="sig-name descname"><span class="pre">land_use</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="land_use.html#blocksnet.models.land_use.LandUse" title="blocksnet.models.land_use.LandUse"><span class="pre">blocksnet.models.land_use.LandUse</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.land_use" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.bricks">
+<span class="sig-name descname"><span class="pre">bricks</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#blocksnet.models.service_type.ServiceBrick" title="blocksnet.models.service_type.ServiceBrick"><span class="pre">blocksnet.models.service_type.ServiceBrick</span></a><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.bricks" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.get_bricks">
+<span class="sig-name descname"><span class="pre">get_bricks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">is_integrated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#blocksnet.models.service_type.ServiceBrick" title="blocksnet.models.service_type.ServiceBrick"><span class="pre">blocksnet.models.service_type.ServiceBrick</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.get_bricks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.get_bricks" title="Permalink to this definition"></a></dt>
+<dd><p>Retrieve service bricks or modules associated with the service type.</p>
+<section id="id2">
+<h3>Parameters<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>is_integrated<span class="classifier">bool, optional</span></dt><dd><p>Filter by whether the brick may be integrated within a living building. Default is False.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>list[ServiceBrick]</dt><dd><p>List of ServiceBrick objects matching the filter criteria.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.validate_bricks">
+<span class="sig-name descname"><span class="pre">validate_bricks</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#blocksnet.models.service_type.ServiceBrick" title="blocksnet.models.service_type.ServiceBrick"><span class="pre">blocksnet.models.service_type.ServiceBrick</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.validate_bricks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.validate_bricks" title="Permalink to this definition"></a></dt>
+<dd><p>Validate and convert the <cite>bricks</cite> field into a list of <cite>ServiceBrick</cite> objects.</p>
+<section id="id3">
+<h3>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>value<span class="classifier">list</span></dt><dd><p>List of dictionaries or <cite>ServiceBrick</cite> objects.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Returns<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>list[ServiceBrick]</dt><dd><p>List of validated <cite>ServiceBrick</cite> objects.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.validate_land_use">
+<span class="sig-name descname"><span class="pre">validate_land_use</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="land_use.html#blocksnet.models.land_use.LandUse" title="blocksnet.models.land_use.LandUse"><span class="pre">blocksnet.models.land_use.LandUse</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.validate_land_use"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.validate_land_use" title="Permalink to this definition"></a></dt>
+<dd><p>Validate and convert the <cite>land_use</cite> field into a list of <cite>LandUse</cite> objects.</p>
+<section id="id5">
+<h3>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>value<span class="classifier">list</span></dt><dd><p>List of strings or LandUse objects.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Returns<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>list[LandUse]</dt><dd><p>List of validated LandUse objects.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.calculate_in_need">
+<span class="sig-name descname"><span class="pre">calculate_in_need</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">population</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.calculate_in_need"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.calculate_in_need" title="Permalink to this definition"></a></dt>
+<dd><p>Calculate the estimated number of people in need of this service type based on population.</p>
+<section id="id7">
+<h3>Parameters<a class="headerlink" href="#id7" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>population<span class="classifier">int</span></dt><dd><p>Total population.</p>
+</dd>
+</dl>
+</section>
+<section id="id8">
+<h3>Returns<a class="headerlink" href="#id8" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>int</dt><dd><p>Estimated number of people in need of this service type.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.__hash__">
+<span class="sig-name descname"><span class="pre">__hash__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.__hash__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.__hash__" title="Permalink to this definition"></a></dt>
+<dd><p>Compute the hash value of the ServiceType object based on its name.</p>
+<section id="id9">
+<h3>Returns<a class="headerlink" href="#id9" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>int</dt><dd><p>Hash value of the ServiceType object.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.__str__" title="Permalink to this definition"></a></dt>
+<dd><p>Return a string representation of the ServiceType object.</p>
+<section id="id10">
+<h3>Returns<a class="headerlink" href="#id10" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>str</dt><dd><p>String containing basic information about the ServiceType object.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.to_dict">
+<span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/models/service_type.html#ServiceType.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.to_dict" title="Permalink to this definition"></a></dt>
+<dd><p>Convert the ServiceType object into a dictionary representation.</p>
+<section id="id11">
+<h3>Returns<a class="headerlink" href="#id11" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>dict</dt><dd><p>Dictionary representation of the ServiceType object.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.models.service_type.ServiceType.model_computed_fields">
+<span class="sig-name descname"><span class="pre">model_computed_fields</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">ClassVar</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">ComputedFieldInfo</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{}</span></em><a class="headerlink" href="#blocksnet.models.service_type.ServiceType.model_computed_fields" title="Permalink to this definition"></a></dt>
+<dd><p>A dictionary of computed field names and their corresponding <cite>ComputedFieldInfo</cite> objects.</p>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="city.html" class="btn btn-neutral float-left" title="City" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="land_use.html" class="btn btn-neutral float-right" title="LandUse" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

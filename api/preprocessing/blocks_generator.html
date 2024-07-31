@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BlocksGenerator &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="BlocksSplitter" href="blocks_splitter.html" />
+    <link rel="prev" title="Preprocessing" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Preprocessing</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">BlocksGenerator</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.blocks_generator.BoundariesSchema"><code class="docutils literal notranslate"><span class="pre">BoundariesSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.blocks_generator.RoadsSchema"><code class="docutils literal notranslate"><span class="pre">RoadsSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.blocks_generator.RailwaysSchema"><code class="docutils literal notranslate"><span class="pre">RailwaysSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.blocks_generator.WaterSchema"><code class="docutils literal notranslate"><span class="pre">WaterSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.blocks_generator.BlocksSchema"><code class="docutils literal notranslate"><span class="pre">BlocksSchema</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#blocksnet.preprocessing.blocks_generator.BlocksGenerator"><code class="docutils literal notranslate"><span class="pre">BlocksGenerator</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="blocks_splitter.html">BlocksSplitter</a></li>
+<li class="toctree-l3"><a class="reference internal" href="land_use_processor.html">LandUseProcessor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="graph_generator.html">GraphGenerator</a></li>
+<li class="toctree-l3"><a class="reference internal" href="adjacency_calculator.html">AdjacencyCalculator</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../models/index.html">Models</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../method/index.html">Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html">Utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Preprocessing</a></li>
+      <li class="breadcrumb-item active">BlocksGenerator</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/preprocessing/blocks_generator.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="blocksgenerator">
+<h1>BlocksGenerator<a class="headerlink" href="#blocksgenerator" title="Permalink to this heading"></a></h1>
+<img alt="blocks generating process" src="../../_images/blocks_generator.gif" />
+<span class="target" id="module-blocksnet.preprocessing.blocks_generator"></span><dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BoundariesSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.blocks_generator.</span></span><span class="sig-name descname"><span class="pre">BoundariesSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#BoundariesSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BoundariesSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema" title="blocksnet.models.schema.BaseSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSchema</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BoundariesSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BoundariesSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema.Config" title="blocksnet.models.schema.BaseSchema.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BoundariesSchema.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BoundariesSchema'</span></em><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BoundariesSchema.Config.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.RoadsSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.blocks_generator.</span></span><span class="sig-name descname"><span class="pre">RoadsSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#RoadsSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.RoadsSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema" title="blocksnet.models.schema.BaseSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSchema</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.RoadsSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.RoadsSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema.Config" title="blocksnet.models.schema.BaseSchema.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.RoadsSchema.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RoadsSchema'</span></em><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.RoadsSchema.Config.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.RailwaysSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.blocks_generator.</span></span><span class="sig-name descname"><span class="pre">RailwaysSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#RailwaysSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.RailwaysSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema" title="blocksnet.models.schema.BaseSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSchema</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.RailwaysSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.RailwaysSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema.Config" title="blocksnet.models.schema.BaseSchema.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.RailwaysSchema.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'RailwaysSchema'</span></em><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.RailwaysSchema.Config.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.WaterSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.blocks_generator.</span></span><span class="sig-name descname"><span class="pre">WaterSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#WaterSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.WaterSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema" title="blocksnet.models.schema.BaseSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSchema</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.WaterSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.WaterSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema.Config" title="blocksnet.models.schema.BaseSchema.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.WaterSchema.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'WaterSchema'</span></em><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.WaterSchema.Config.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.blocks_generator.</span></span><span class="sig-name descname"><span class="pre">BlocksSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#BlocksSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema" title="blocksnet.models.schema.BaseSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSchema</span></code></a></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../models/schema.html#blocksnet.models.schema.BaseSchema.Config" title="blocksnet.models.schema.BaseSchema.Config"><code class="xref py py-class docutils literal notranslate"><span class="pre">Config</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksSchema.Config.name">
+<span class="sig-name descname"><span class="pre">name</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'BlocksSchema'</span></em><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksSchema.Config.name" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksGenerator">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.preprocessing.blocks_generator.</span></span><span class="sig-name descname"><span class="pre">BlocksGenerator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundaries</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">roads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">railways</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">water</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#BlocksGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksGenerator" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Generates blocks (land parcels) based on boundaries, roads, railways, and water objects.</p>
+<section id="parameters">
+<h2>Parameters<a class="headerlink" href="#parameters" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>boundaries<span class="classifier">gpd.GeoDataFrame</span></dt><dd><p>Boundaries of a city or a territory. Must contain <code class="docutils literal notranslate"><span class="pre">geometry</span></code> column of <code class="docutils literal notranslate"><span class="pre">Polygon</span></code> or <code class="docutils literal notranslate"><span class="pre">MultiPolygon</span></code> geometries.</p>
+</dd>
+<dt>roads<span class="classifier">gpd.GeoDataFrame | None, optional</span></dt><dd><p>Roads geometries. Can be obtained via OSMnx and must contain <code class="docutils literal notranslate"><span class="pre">geometry</span></code> column of <code class="docutils literal notranslate"><span class="pre">LineString</span></code> geometries. By default None.</p>
+</dd>
+<dt>railways<span class="classifier">gpd.GeoDataFrame | None, optional</span></dt><dd><p>Railways geometries. Can be obtained via OSM tags <code class="docutils literal notranslate"><span class="pre">railway==rail</span></code> and must contain <code class="docutils literal notranslate"><span class="pre">geometry</span></code> column of <code class="docutils literal notranslate"><span class="pre">LineString</span></code> geometries. By default None.</p>
+</dd>
+<dt>water<span class="classifier">gpd.GeoDataFrame | None, optional</span></dt><dd><p>Water objects geometries. Can be obtained via OSM tags like <code class="docutils literal notranslate"><span class="pre">riverbank==*</span></code>, <code class="docutils literal notranslate"><span class="pre">pond==*</span></code>, etc. Must contain <code class="docutils literal notranslate"><span class="pre">geometry</span></code> column of <code class="docutils literal notranslate"><span class="pre">LineString</span></code>, <code class="docutils literal notranslate"><span class="pre">Polygon</span></code> or <code class="docutils literal notranslate"><span class="pre">MultiPolygon</span></code>. By default None.</p>
+</dd>
+</dl>
+</section>
+<section id="methods">
+<h2>Methods<a class="headerlink" href="#methods" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>run(min_block_width=None)</dt><dd><p>Generates blocks based on the provided boundaries, roads, railways, and water objects.</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksGenerator.local_crs">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">local_crs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">CRS</span></em><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksGenerator.local_crs" title="Permalink to this definition"></a></dt>
+<dd><p>Local CRS, defined by boundaries geometry.</p>
+<section id="returns">
+<h3>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>CRS</dt><dd><p><code class="docutils literal notranslate"><span class="pre">pyproj.CRS</span></code> object</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksGenerator.run">
+<span class="sig-name descname"><span class="pre">run</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_block_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#BlocksGenerator.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksGenerator.run" title="Permalink to this definition"></a></dt>
+<dd><p>Generates blocks based on the provided boundaries, roads, railways, and water bodies.</p>
+<section id="id1">
+<h3>Parameters<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>min_block_width<span class="classifier">float, optional</span></dt><dd><p>Minimum width for the blocks. If specified, small blocks and bottlenecks will be filtered out. By default None.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h3>Returns<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>gpd.GeoDataFrame</dt><dd><p>GeoDataFrame containing the generated blocks with <code class="docutils literal notranslate"><span class="pre">geometry</span></code> column.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksGenerator._get_enclosures">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_get_enclosures</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">barriers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#BlocksGenerator._get_enclosures"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksGenerator._get_enclosures" title="Permalink to this definition"></a></dt>
+<dd><p>Identifies enclosures formed by the barriers and within the limit.</p>
+<section id="id3">
+<h3>Parameters<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>barriers<span class="classifier">gpd.GeoDataFrame</span></dt><dd><p>GeoDataFrame containing barrier geometries.</p>
+</dd>
+<dt>limit<span class="classifier">gpd.GeoDataFrame</span></dt><dd><p>GeoDataFrame containing the limit within which enclosures are to be found.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3>Returns<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>gpd.GeoDataFrame</dt><dd><p>GeoDataFrame containing the identified enclosures.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.preprocessing.blocks_generator.BlocksGenerator._reindex_blocks">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_reindex_blocks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">blocks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/preprocessing/blocks_generator.html#BlocksGenerator._reindex_blocks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.preprocessing.blocks_generator.BlocksGenerator._reindex_blocks" title="Permalink to this definition"></a></dt>
+<dd><p>Reindexes the blocks, ensuring each block has a unique block_id.</p>
+<section id="id5">
+<h3>Parameters<a class="headerlink" href="#id5" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>blocks<span class="classifier">gpd.GeoDataFrame</span></dt><dd><p>GeoDataFrame containing the blocks to be reindexed.</p>
+</dd>
+</dl>
+</section>
+<section id="id6">
+<h3>Returns<a class="headerlink" href="#id6" title="Permalink to this heading"></a></h3>
+<dl class="simple">
+<dt>gpd.GeoDataFrame</dt><dd><p>GeoDataFrame with reindexed blocks.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Preprocessing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="blocks_splitter.html" class="btn btn-neutral float-right" title="BlocksSplitter" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,2225 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="City blocks layer generating" href="blocks_generator.html" />
+    <link rel="prev" title="Examples" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#0.-BlocksNet-Installation">0. <strong>BlocksNet</strong> Installation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Generation-of-urban-blocks-layer">1. Generation of urban blocks layer</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Generation-of-Intermodal-Urban-Graph">2. Generation of Intermodal Urban Graph</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Generation-of-Block-Adjacency-Matrix">3. Generation of Block Adjacency Matrix</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Инициализация-модели-города">4. Инициализация модели города</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Methods-for-Analysis-of-Urban-Environment">5. Methods for Analysis of Urban Environment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#5.1.-Accessibility">5.1. Accessibility</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.2.-Connectivity">5.2. Connectivity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.3.-Service-Provision">5.3. Service Provision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.4.-Method-for-Optimization-of-Built-Environment-Parameters">5.4. Method for Optimization of Built Environment Parameters</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="blocks_generator.html">City blocks layer generating</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graph_generator.html">Generating intermodal graph and calculating adjacency matrix</a></li>
+<li class="toctree-l2"><a class="reference internal" href="city.html">City initialization and methods</a></li>
+<li class="toctree-l2"><a class="reference internal" href="methods/index.html">Methods</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
+      <li class="breadcrumb-item active">Pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/pipeline.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Pipeline">
+<h1>Pipeline<a class="headerlink" href="#Pipeline" title="Permalink to this heading"></a></h1>
+<section id="0.-BlocksNet-Installation">
+<h2>0. <strong>BlocksNet</strong> Installation<a class="headerlink" href="#0.-BlocksNet-Installation" title="Permalink to this heading"></a></h2>
+<p>Import <code class="docutils literal notranslate"><span class="pre">geopandas</span></code> and set a local coordinate reference system (in EPSG format)</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+
+<span class="n">local_crs</span> <span class="o">=</span> <span class="mi">32637</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="1.-Generation-of-urban-blocks-layer">
+<h2>1. Generation of urban blocks layer<a class="headerlink" href="#1.-Generation-of-urban-blocks-layer" title="Permalink to this heading"></a></h2>
+<p>Import block generation class from the library</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet</span> <span class="kn">import</span> <span class="n">BlocksGenerator</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+<script type="text/javascript">
+<!--
+
+{
+        var element = document.getElementById('NetworKit_script');
+        if (element) {
+                element.parentNode.removeChild(element);
+        }
+        element = document.createElement('script');
+        element.type = 'text/javascript';
+        element.innerHTML = 'function NetworKit_pageEmbed(id) { var i, j; var elements; elements = document.getElementById(id).getElementsByClassName("Plot"); for (i=0; i<elements.length; i++) { elements[i].id = id + "_Plot_" + i; var data = elements[i].getAttribute("data-image").split("|"); elements[i].removeAttribute("data-image"); var content = "<div class=\\"Image\\" id=\\"" + elements[i].id + "_Image\\" />"; elements[i].innerHTML = content; elements[i].setAttribute("data-image-index", 0); elements[i].setAttribute("data-image-length", data.length); for (j=0; j<data.length; j++) { elements[i].setAttribute("data-image-" + j, data[j]); } NetworKit_plotUpdate(elements[i]); elements[i].onclick = function (e) { NetworKit_overlayShow((e.target) ? e.target : e.srcElement); } } elements = document.getElementById(id).getElementsByClassName("HeatCell"); for (i=0; i<elements.length; i++) { var data = parseFloat(elements[i].getAttribute("data-heat")); var color = "#00FF00"; if (data <= 1 && data > 0) { color = "hsla(0, 100%, 75%, " + (data) + ")"; } else if (data <= 0 && data >= -1) { color = "hsla(240, 100%, 75%, " + (-data) + ")"; } elements[i].style.backgroundColor = color; } elements = document.getElementById(id).getElementsByClassName("Details"); for (i=0; i<elements.length; i++) { elements[i].setAttribute("data-title", "-"); NetworKit_toggleDetails(elements[i]); elements[i].onclick = function (e) { NetworKit_toggleDetails((e.target) ? e.target : e.srcElement); } } elements = document.getElementById(id).getElementsByClassName("MathValue"); for (i=elements.length-1; i>=0; i--) { value = elements[i].innerHTML.trim(); if (value === "nan") { elements[i].parentNode.innerHTML = "" } } elements = document.getElementById(id).getElementsByClassName("SubCategory"); for (i=elements.length-1; i>=0; i--) { value = elements[i].innerHTML.trim(); if (value === "") { elements[i].parentNode.removeChild(elements[i]) } } elements = document.getElementById(id).getElementsByClassName("Category"); for (i=elements.length-1; i>=0; i--) { value = elements[i].innerHTML.trim(); if (value === "") { elements[i].parentNode.removeChild(elements[i]) } } var isFirefox = false; try { isFirefox = typeof InstallTrigger !== "undefined"; } catch (e) {} if (!isFirefox) { alert("Currently the function\'s output is only fully supported by Firefox."); } } function NetworKit_plotUpdate(source) { var index = source.getAttribute("data-image-index"); var data = source.getAttribute("data-image-" + index); var image = document.getElementById(source.id + "_Image"); image.style.backgroundImage = "url(" + data + ")"; } function NetworKit_showElement(id, show) { var element = document.getElementById(id); element.style.display = (show) ? "block" : "none"; } function NetworKit_overlayShow(source) { NetworKit_overlayUpdate(source); NetworKit_showElement("NetworKit_Overlay", true); } function NetworKit_overlayUpdate(source) { document.getElementById("NetworKit_Overlay_Title").innerHTML = source.title; var index = source.getAttribute("data-image-index"); var data = source.getAttribute("data-image-" + index); var image = document.getElementById("NetworKit_Overlay_Image"); image.setAttribute("data-id", source.id); image.style.backgroundImage = "url(" + data + ")"; var link = document.getElementById("NetworKit_Overlay_Toolbar_Bottom_Save"); link.href = data; link.download = source.title + ".svg"; } function NetworKit_overlayImageShift(delta) { var image = document.getElementById("NetworKit_Overlay_Image"); var source = document.getElementById(image.getAttribute("data-id")); var index = parseInt(source.getAttribute("data-image-index")); var length = parseInt(source.getAttribute("data-image-length")); var index = (index+delta) % length; if (index < 0) { index = length + index; } source.setAttribute("data-image-index", index); NetworKit_overlayUpdate(source); } function NetworKit_toggleDetails(source) { var childs = source.children; var show = false; if (source.getAttribute("data-title") == "-") { source.setAttribute("data-title", "+"); show = false; } else { source.setAttribute("data-title", "-"); show = true; } for (i=0; i<childs.length; i++) { if (show) { childs[i].style.display = "block"; } else { childs[i].style.display = "none"; } } }';
+        element.setAttribute('id', 'NetworKit_script');
+        document.head.appendChild(element);
+}
+
+
+{
+        var element = document.getElementById('NetworKit_style');
+        if (element) {
+                element.parentNode.removeChild(element);
+        }
+        element = document.createElement('style');
+        element.type = 'text/css';
+        element.innerHTML = '.NetworKit_Page { font-family: Arial, Helvetica, sans-serif; font-size: 14px; } .NetworKit_Page .Value:before { font-family: Arial, Helvetica, sans-serif; font-size: 1.05em; content: attr(data-title) ":"; margin-left: -2.5em; padding-right: 0.5em; } .NetworKit_Page .Details .Value:before { display: block; } .NetworKit_Page .Value { font-family: monospace; white-space: pre; padding-left: 2.5em; white-space: -moz-pre-wrap !important; white-space: -pre-wrap; white-space: -o-pre-wrap; white-space: pre-wrap; word-wrap: break-word; tab-size: 4; -moz-tab-size: 4; } .NetworKit_Page .Category { clear: both; padding-left: 1em; margin-bottom: 1.5em; } .NetworKit_Page .Category:before { content: attr(data-title); font-size: 1.75em; display: block; margin-left: -0.8em; margin-bottom: 0.5em; } .NetworKit_Page .SubCategory { margin-bottom: 1.5em; padding-left: 1em; } .NetworKit_Page .SubCategory:before { font-size: 1.6em; display: block; margin-left: -0.8em; margin-bottom: 0.5em; } .NetworKit_Page .SubCategory[data-title]:before { content: attr(data-title); } .NetworKit_Page .Block { display: block; } .NetworKit_Page .Block:after { content: "."; visibility: hidden; display: block; height: 0; clear: both; } .NetworKit_Page .Block .Thumbnail_Overview, .NetworKit_Page .Block .Thumbnail_ScatterPlot { width: 260px; float: left; } .NetworKit_Page .Block .Thumbnail_Overview img, .NetworKit_Page .Block .Thumbnail_ScatterPlot img { width: 260px; } .NetworKit_Page .Block .Thumbnail_Overview:before, .NetworKit_Page .Block .Thumbnail_ScatterPlot:before { display: block; text-align: center; font-weight: bold; } .NetworKit_Page .Block .Thumbnail_Overview:before { content: attr(data-title); } .NetworKit_Page .HeatCell { font-family: "Courier New", Courier, monospace; cursor: pointer; } .NetworKit_Page .HeatCell, .NetworKit_Page .HeatCellName { display: inline; padding: 0.1em; margin-right: 2px; background-color: #FFFFFF } .NetworKit_Page .HeatCellName { margin-left: 0.25em; } .NetworKit_Page .HeatCell:before { content: attr(data-heat); display: inline-block; color: #000000; width: 4em; text-align: center; } .NetworKit_Page .Measure { clear: both; } .NetworKit_Page .Measure .Details { cursor: pointer; } .NetworKit_Page .Measure .Details:before { content: "[" attr(data-title) "]"; display: block; } .NetworKit_Page .Measure .Details .Value { border-left: 1px dotted black; margin-left: 0.4em; padding-left: 3.5em; pointer-events: none; } .NetworKit_Page .Measure .Details .Spacer:before { content: "."; opacity: 0.0; pointer-events: none; } .NetworKit_Page .Measure .Plot { width: 440px; height: 440px; cursor: pointer; float: left; margin-left: -0.9em; margin-right: 20px; } .NetworKit_Page .Measure .Plot .Image { background-repeat: no-repeat; background-position: center center; background-size: contain; height: 100%; pointer-events: none; } .NetworKit_Page .Measure .Stat { width: 500px; float: left; } .NetworKit_Page .Measure .Stat .Group { padding-left: 1.25em; margin-bottom: 0.75em; } .NetworKit_Page .Measure .Stat .Group .Title { font-size: 1.1em; display: block; margin-bottom: 0.3em; margin-left: -0.75em; border-right-style: dotted; border-right-width: 1px; border-bottom-style: dotted; border-bottom-width: 1px; background-color: #D0D0D0; padding-left: 0.2em; } .NetworKit_Page .Measure .Stat .Group .List { -webkit-column-count: 3; -moz-column-count: 3; column-count: 3; } .NetworKit_Page .Measure .Stat .Group .List .Entry { position: relative; line-height: 1.75em; } .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:before { position: absolute; left: 0; top: -40px; background-color: #808080; color: #ffffff; height: 30px; line-height: 30px; border-radius: 5px; padding: 0 15px; content: attr(data-tooltip); white-space: nowrap; display: none; } .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:after { position: absolute; left: 15px; top: -10px; border-top: 7px solid #808080; border-left: 7px solid transparent; border-right: 7px solid transparent; content: ""; display: none; } .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:hover:after, .NetworKit_Page .Measure .Stat .Group .List .Entry[data-tooltip]:hover:before { display: block; } .NetworKit_Page .Measure .Stat .Group .List .Entry .MathValue { font-family: "Courier New", Courier, monospace; } .NetworKit_Page .Measure:after { content: "."; visibility: hidden; display: block; height: 0; clear: both; } .NetworKit_Page .PartitionPie { clear: both; } .NetworKit_Page .PartitionPie img { width: 600px; } #NetworKit_Overlay { left: 0px; top: 0px; display: none; position: absolute; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); z-index: 1000; } #NetworKit_Overlay_Title { position: absolute; color: white; transform: rotate(-90deg); width: 32em; height: 32em; padding-right: 0.5em; padding-top: 0.5em; text-align: right; font-size: 40px; } #NetworKit_Overlay .button { background: white; cursor: pointer; } #NetworKit_Overlay .button:before { size: 13px; display: inline-block; text-align: center; margin-top: 0.5em; margin-bottom: 0.5em; width: 1.5em; height: 1.5em; } #NetworKit_Overlay .icon-close:before { content: "X"; } #NetworKit_Overlay .icon-previous:before { content: "P"; } #NetworKit_Overlay .icon-next:before { content: "N"; } #NetworKit_Overlay .icon-save:before { content: "S"; } #NetworKit_Overlay_Toolbar_Top, #NetworKit_Overlay_Toolbar_Bottom { position: absolute; width: 40px; right: 13px; text-align: right; z-index: 1100; } #NetworKit_Overlay_Toolbar_Top { top: 0.5em; } #NetworKit_Overlay_Toolbar_Bottom { Bottom: 0.5em; } #NetworKit_Overlay_ImageContainer { position: absolute; top: 5%; left: 5%; height: 90%; width: 90%; background-repeat: no-repeat; background-position: center center; background-size: contain; } #NetworKit_Overlay_Image { height: 100%; width: 100%; background-repeat: no-repeat; background-position: center center; background-size: contain; }';
+        element.setAttribute('id', 'NetworKit_style');
+        document.head.appendChild(element);
+}
+
+
+{
+        var element = document.getElementById('NetworKit_Overlay');
+        if (element) {
+                element.parentNode.removeChild(element);
+        }
+        element = document.createElement('div');
+        element.innerHTML = '<div id="NetworKit_Overlay_Toolbar_Top"><div class="button icon-close" id="NetworKit_Overlay_Close" /></div><div id="NetworKit_Overlay_Title" /> <div id="NetworKit_Overlay_ImageContainer"> <div id="NetworKit_Overlay_Image" /> </div> <div id="NetworKit_Overlay_Toolbar_Bottom"> <div class="button icon-previous" onclick="NetworKit_overlayImageShift(-1)" /> <div class="button icon-next" onclick="NetworKit_overlayImageShift(1)" /> <a id="NetworKit_Overlay_Toolbar_Bottom_Save"><div class="button icon-save" /></a> </div>';
+        element.setAttribute('id', 'NetworKit_Overlay');
+        document.body.appendChild(element);
+        document.getElementById('NetworKit_Overlay_Close').onclick = function (e) {
+                document.getElementById('NetworKit_Overlay').style.display = 'none';
+        }
+}
+
+-->
+</script></div>
+</div>
+<p>Read parquet/geojson files with the geometries needed for block generation. Reproject them to local coordinate reference system.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">city_geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/vologda_city_geometry.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span>
+<span class="n">water_geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/water_vologda.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span>
+<span class="n">roads_geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/roads_vologda.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span>
+<span class="n">railways_geometry</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/railways_vologda.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Initialize <code class="docutils literal notranslate"><span class="pre">BlocksGenerator</span></code> with our geometries. Then call <code class="docutils literal notranslate"><span class="pre">generate_blocks</span></code> method to get a <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> with block geometries.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span> <span class="o">=</span> <span class="n">BlocksGenerator</span><span class="p">(</span>
+  <span class="n">territory</span><span class="o">=</span><span class="n">city_geometry</span><span class="p">,</span>
+  <span class="n">water</span><span class="o">=</span><span class="n">water_geometry</span><span class="p">,</span>
+  <span class="n">roads</span><span class="o">=</span><span class="n">roads_geometry</span><span class="p">,</span>
+  <span class="n">railways</span><span class="o">=</span><span class="n">railways_geometry</span>
+<span class="p">)</span><span class="o">.</span><span class="n">generate_blocks</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+GENERATING BLOCKS
+Setting up enclosures...
+Filling holes...
+Dropping overlapping blocks...
+Calculating blocks area...
+Blocks generated.
+
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+  <div id="df-0e433215-7a81-4ff7-b672-0ead93fac334" class="colab-df-container">
+    <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((550762.290 6565038.844, 550768.857 6...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((550768.857 6565033.563, 550762.290 6...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((544937.479 6564706.592, 544935.619 6...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((544806.647 6565359.291, 544814.358 6...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((544793.346 6565395.228, 544800.150 6...</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>675</th>
+      <td>POLYGON ((550330.064 6563176.320, 550349.264 6...</td>
+    </tr>
+    <tr>
+      <th>676</th>
+      <td>POLYGON ((546106.838 6566506.429, 546183.774 6...</td>
+    </tr>
+    <tr>
+      <th>677</th>
+      <td>POLYGON ((552977.299 6562202.373, 553051.882 6...</td>
+    </tr>
+    <tr>
+      <th>678</th>
+      <td>POLYGON ((556605.841 6559581.667, 555984.050 6...</td>
+    </tr>
+    <tr>
+      <th>679</th>
+      <td>POLYGON ((552990.050 6562231.172, 552917.365 6...</td>
+    </tr>
+  </tbody>
+</table>
+<p>680 rows × 1 columns</p>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-0e433215-7a81-4ff7-b672-0ead93fac334')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-0e433215-7a81-4ff7-b672-0ead93fac334 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-0e433215-7a81-4ff7-b672-0ead93fac334');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-0ae83cdc-f8d6-413f-b6c2-977e279be879">
+  <button class="colab-df-quickchart" onclick="quickchart('df-0ae83cdc-f8d6-413f-b6c2-977e279be879')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-0ae83cdc-f8d6-413f-b6c2-977e279be879 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_12_1.png" src="../_images/examples_pipeline_12_1.png" />
+</div>
+</div>
+<p>The resulting blocks can be saved to a file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;blocks.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.-Generation-of-Intermodal-Urban-Graph">
+<h2>2. Generation of Intermodal Urban Graph<a class="headerlink" href="#2.-Generation-of-Intermodal-Urban-Graph" title="Permalink to this heading"></a></h2>
+<p>At this stage, you can generate an <strong>intermodal graph</strong> by passing the blocks <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> to <code class="docutils literal notranslate"><span class="pre">GraphGenerator</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet</span> <span class="kn">import</span> <span class="n">GraphGenerator</span>
+
+<span class="n">intermodal_graph</span> <span class="o">=</span> <span class="n">GraphGenerator</span><span class="p">(</span><span class="n">territory</span><span class="o">=</span><span class="n">blocks</span><span class="p">)</span><span class="o">.</span><span class="n">get_graph</span><span class="p">(</span><span class="s1">&#39;intermodal&#39;</span><span class="p">)</span> <span class="c1">#вместо intermodal можно передать drive, если необходимо посчитать время по графу дорог</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Graph made for &#39;walk&#39; network type
+Graph made for &#39;bus&#39;
+Graph made for &#39;trolleybus&#39;
+Graph made for &#39;tram&#39;
+Graph made for &#39;subway&#39;
+</pre></div></div>
+</div>
+<p>Vizualization of the resulting intermodal graph</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">GraphGenerator</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">intermodal_graph</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_19_0.png" src="../_images/examples_pipeline_19_0.png" />
+</div>
+</div>
+<p>Saving the graph as a <code class="docutils literal notranslate"><span class="pre">geojson</span></code> file</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">osmnx</span> <span class="k">as</span> <span class="nn">ox</span>
+<span class="n">nodes</span><span class="p">,</span> <span class="n">edges</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">graph_to_gdfs</span><span class="p">(</span><span class="n">intermodal_graph</span><span class="p">)</span>
+<span class="n">nodes</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;graph_nodes.geojson&#39;</span><span class="p">)</span>
+<span class="n">edges</span><span class="p">[[</span><span class="s1">&#39;length&#39;</span><span class="p">,</span> <span class="s1">&#39;weight&#39;</span><span class="p">,</span> <span class="s1">&#39;transport_type&#39;</span><span class="p">,</span> <span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;graph_edges.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="3.-Generation-of-Block-Adjacency-Matrix">
+<h2>3. Generation of Block Adjacency Matrix<a class="headerlink" href="#3.-Generation-of-Block-Adjacency-Matrix" title="Permalink to this heading"></a></h2>
+<p>Now, you can build a block adjacency matrix using the blocks layer and intermodal graph acquired on the previous stages. This matrix is obtained by finding the shortest travel time between each pair of blocks in the intermodal graph.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet</span> <span class="kn">import</span> <span class="n">AdjacencyCalculator</span>
+
+<span class="n">adjacency_matrix</span> <span class="o">=</span> <span class="n">AdjacencyCalculator</span><span class="p">(</span><span class="n">blocks</span><span class="o">=</span><span class="n">blocks</span><span class="p">,</span> <span class="n">graph</span><span class="o">=</span><span class="n">intermodal_graph</span><span class="p">)</span><span class="o">.</span><span class="n">get_dataframe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Output of the obtained block adjacency matrix.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+  <div id="df-eeafce6d-656c-4afd-a53d-b73e15eb6086" class="colab-df-container">
+    <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>670</th>
+      <th>671</th>
+      <th>672</th>
+      <th>673</th>
+      <th>674</th>
+      <th>675</th>
+      <th>676</th>
+      <th>677</th>
+      <th>678</th>
+      <th>679</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>5.8</td>
+      <td>63.8</td>
+      <td>69.2</td>
+      <td>67.1</td>
+      <td>52.3</td>
+      <td>63.5</td>
+      <td>63.3</td>
+      <td>61.0</td>
+      <td>63.4</td>
+      <td>...</td>
+      <td>29.8</td>
+      <td>32.2</td>
+      <td>35.3</td>
+      <td>22.4</td>
+      <td>28.2</td>
+      <td>29.6</td>
+      <td>36.8</td>
+      <td>27.8</td>
+      <td>37.4</td>
+      <td>24.1</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5.8</td>
+      <td>0.0</td>
+      <td>66.0</td>
+      <td>71.4</td>
+      <td>69.3</td>
+      <td>54.5</td>
+      <td>65.7</td>
+      <td>65.5</td>
+      <td>63.2</td>
+      <td>65.6</td>
+      <td>...</td>
+      <td>32.0</td>
+      <td>30.9</td>
+      <td>33.3</td>
+      <td>20.4</td>
+      <td>26.2</td>
+      <td>27.6</td>
+      <td>39.0</td>
+      <td>25.8</td>
+      <td>39.6</td>
+      <td>26.3</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>53.4</td>
+      <td>55.6</td>
+      <td>0.0</td>
+      <td>48.8</td>
+      <td>46.7</td>
+      <td>76.6</td>
+      <td>45.7</td>
+      <td>47.1</td>
+      <td>49.4</td>
+      <td>51.8</td>
+      <td>...</td>
+      <td>70.1</td>
+      <td>70.3</td>
+      <td>65.1</td>
+      <td>59.8</td>
+      <td>63.8</td>
+      <td>66.6</td>
+      <td>79.9</td>
+      <td>65.2</td>
+      <td>79.1</td>
+      <td>66.3</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>46.2</td>
+      <td>48.4</td>
+      <td>48.5</td>
+      <td>0.0</td>
+      <td>2.1</td>
+      <td>39.6</td>
+      <td>8.7</td>
+      <td>10.1</td>
+      <td>12.4</td>
+      <td>14.8</td>
+      <td>...</td>
+      <td>58.0</td>
+      <td>59.7</td>
+      <td>57.9</td>
+      <td>52.6</td>
+      <td>51.7</td>
+      <td>54.5</td>
+      <td>63.0</td>
+      <td>58.0</td>
+      <td>71.9</td>
+      <td>59.1</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>44.1</td>
+      <td>46.3</td>
+      <td>46.4</td>
+      <td>2.1</td>
+      <td>0.0</td>
+      <td>37.5</td>
+      <td>6.6</td>
+      <td>8.0</td>
+      <td>10.3</td>
+      <td>12.7</td>
+      <td>...</td>
+      <td>55.9</td>
+      <td>57.6</td>
+      <td>55.8</td>
+      <td>50.5</td>
+      <td>49.6</td>
+      <td>52.4</td>
+      <td>60.9</td>
+      <td>55.9</td>
+      <td>69.8</td>
+      <td>57.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 680 columns</p>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-eeafce6d-656c-4afd-a53d-b73e15eb6086')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-eeafce6d-656c-4afd-a53d-b73e15eb6086 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-eeafce6d-656c-4afd-a53d-b73e15eb6086');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-1a775337-db22-47aa-8922-a5c063b11387">
+  <button class="colab-df-quickchart" onclick="quickchart('df-1a775337-db22-47aa-8922-a5c063b11387')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-1a775337-db22-47aa-8922-a5c063b11387 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
+</div>
+<p>Optionally, save the adjacency matrix as a file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">to_pickle</span><span class="p">(</span><span class="s1">&#39;adjacency_matrix.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="4.-Инициализация-модели-города">
+<h2>4. Инициализация модели города<a class="headerlink" href="#4.-Инициализация-модели-города" title="Permalink to this heading"></a></h2>
+<p>Now with the resulting <strong>matrix</strong> and <strong>block layer</strong> we can initialize a city model.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet</span> <span class="kn">import</span> <span class="n">City</span>
+
+<span class="n">vologda</span> <span class="o">=</span> <span class="n">City</span><span class="p">(</span>
+  <span class="n">blocks_gdf</span><span class="o">=</span><span class="n">blocks</span><span class="p">,</span>
+  <span class="n">adjacency_matrix</span><span class="o">=</span><span class="n">adjacency_matrix</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>With <code class="docutils literal notranslate"><span class="pre">print</span></code> you can get information about the number of blocks in a city, types of city services (by default) and local coordinate reference system For each type of service you can see its <strong>name</strong>, <strong>normative availability</strong> in minutes and the value of <strong>normative availability</strong> per 1000 people (how many people out of 1000 need this type of service).</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">vologda</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+CRS:          : EPSG:32637
+Blocks count  : 680
+Service types :
+    3.5.1      school               15 min     120/1000 population
+    3.5.1      kindergarten         7 min      61/1000 population
+    3.4.2      hospital             60 min     9/1000 population
+    3.4.1      polyclinic           10 min     13/1000 population
+    5.1.3      pitch                60 min     10/1000 population
+    5.1.2      swimming_pool        30 min     8/1000 population
+    5.1.1      stadium              30 min     10/1000 population
+    3.6.1      theatre              60 min     6/1000 population
+    3.6.1      museum               60 min     1/1000 population
+    3.6.1      cinema               60 min     9/1000 population
+    4.2        mall                 30 min     8/1000 population
+    4.4        convenience          5 min      180/1000 population
+    4.4        supermarket          15 min     900/1000 population
+    3.7.1      religion             30 min     10/1000 population
+    4.3        marketplace          30 min     800/1000 population
+    4.8.1      bowling_alley        60 min     9/1000 population
+</pre></div></div>
+</div>
+<p>With this model, you can already perform basic analysis of urban environment. However, for more advanced analysis, information about existing service types should be added. Each of the service objects mush have the following attributes:</p>
+<ul class="simple">
+<li><p><strong>geometry</strong> - <code class="docutils literal notranslate"><span class="pre">Point</span></code></p></li>
+<li><p><strong>capacity</strong> - <code class="docutils literal notranslate"><span class="pre">int</span></code>, capacity (power) of a service</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">school</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/school_Vologda.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Вместимость&#39;</span><span class="p">:</span><span class="s1">&#39;capacity&#39;</span><span class="p">})</span>
+<span class="n">kindergarten</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/kindergarten_Vologda.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;Вместимость&#39;</span><span class="p">:</span><span class="s1">&#39;capacity&#39;</span><span class="p">})</span>
+
+<span class="n">vologda</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="s1">&#39;school&#39;</span><span class="p">,</span> <span class="n">school</span><span class="p">)</span>
+<span class="n">vologda</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="s1">&#39;kindergarten&#39;</span><span class="p">,</span> <span class="n">kindergarten</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>And information about buildings in the city as well:</p>
+<ul class="simple">
+<li><p><strong>geometry</strong> - <code class="docutils literal notranslate"><span class="pre">Point</span></code></p></li>
+<li><p><strong>population</strong> - <code class="docutils literal notranslate"><span class="pre">int</span></code>, population of a building (non-negative)</p></li>
+<li><p><strong>floors</strong> - <code class="docutils literal notranslate"><span class="pre">float</span></code>, number of levels in a building (non-negative)</p></li>
+<li><p><strong>area</strong> - <code class="docutils literal notranslate"><span class="pre">float</span></code>, area of building foundation, in square meters (non-negative)</p></li>
+<li><p><strong>living_area</strong> - <code class="docutils literal notranslate"><span class="pre">float</span></code>, living area, in square meters (non-negative)</p></li>
+<li><p><strong>is_living</strong> - <code class="docutils literal notranslate"><span class="pre">bool</span></code>, living (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or non-living (<code class="docutils literal notranslate"><span class="pre">False</span></code>)</p></li>
+</ul>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">buildings</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s2">&quot;/content/buildings_vologda.geojson&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">local_crs</span><span class="p">)</span>
+<span class="n">vologda</span><span class="o">.</span><span class="n">update_buildings</span><span class="p">(</span><span class="n">buildings</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualizing our model with blocks and aggregated information</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vologda</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_39_0.png" src="../_images/examples_pipeline_39_0.png" />
+</div>
+</div>
+</section>
+<section id="5.-Methods-for-Analysis-of-Urban-Environment">
+<h2>5. Methods for Analysis of Urban Environment<a class="headerlink" href="#5.-Methods-for-Analysis-of-Urban-Environment" title="Permalink to this heading"></a></h2>
+<section id="5.1.-Accessibility">
+<h3>5.1. Accessibility<a class="headerlink" href="#5.1.-Accessibility" title="Permalink to this heading"></a></h3>
+<p>With the <code class="docutils literal notranslate"><span class="pre">Accessibility</span></code> class, you can get a layer with information about block accessibility (relative to the chosen block).</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">block</span> <span class="o">=</span> <span class="n">vologda</span><span class="p">[</span><span class="mi">135</span><span class="p">]</span> <span class="c1"># choose a block</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet.method</span> <span class="kn">import</span> <span class="n">Accessibility</span>
+
+<span class="n">acc</span> <span class="o">=</span> <span class="n">Accessibility</span><span class="p">(</span><span class="n">city_model</span><span class="o">=</span><span class="n">vologda</span><span class="p">)</span>
+<span class="n">calc</span> <span class="o">=</span> <span class="n">acc</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">block</span><span class="p">)</span>
+<span class="n">calc</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+  <div id="df-957e2e6b-a1a9-4f33-b149-09a5ebcc5843" class="colab-df-container">
+    <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>geometry</th>
+      <th>distance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>POLYGON ((550762.290 6565038.844, 550768.857 6...</td>
+      <td>15.8</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1</td>
+      <td>POLYGON ((550768.857 6565033.563, 550762.290 6...</td>
+      <td>19.8</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2</td>
+      <td>POLYGON ((544937.479 6564706.592, 544935.619 6...</td>
+      <td>70.9</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>3</td>
+      <td>POLYGON ((544806.647 6565359.291, 544814.358 6...</td>
+      <td>70.5</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4</td>
+      <td>POLYGON ((544793.346 6565395.228, 544800.150 6...</td>
+      <td>68.4</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-957e2e6b-a1a9-4f33-b149-09a5ebcc5843')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-957e2e6b-a1a9-4f33-b149-09a5ebcc5843 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-957e2e6b-a1a9-4f33-b149-09a5ebcc5843');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-4bc01246-5ca2-4dfa-8371-32578d9054f4">
+  <button class="colab-df-quickchart" onclick="quickchart('df-4bc01246-5ca2-4dfa-8371-32578d9054f4')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-4bc01246-5ca2-4dfa-8371-32578d9054f4 button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
+</div>
+<p>Visualization of the resulting accessibility <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">acc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">calc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_46_0.png" src="../_images/examples_pipeline_46_0.png" />
+</div>
+</div>
+<p>You can also visualize normative availabiility of a selected service type</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">service_type</span> <span class="o">=</span> <span class="n">vologda</span><span class="p">[</span><span class="s1">&#39;school&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">acc</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">calc</span><span class="p">,</span> <span class="n">service_type</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_49_0.png" src="../_images/examples_pipeline_49_0.png" />
+</div>
+</div>
+<p>Saving the results to a <code class="docutils literal notranslate"><span class="pre">geojson</span></code> file</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">calc</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;accessibility.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.2.-Connectivity">
+<h3>5.2. Connectivity<a class="headerlink" href="#5.2.-Connectivity" title="Permalink to this heading"></a></h3>
+<p>Other methods are used in a similar way. Here is an example of blocks’ <strong>transport connectivity</strong> calculation using <code class="docutils literal notranslate"><span class="pre">Connectivity</span></code> class.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet.method</span> <span class="kn">import</span> <span class="n">Connectivity</span>
+
+<span class="n">conn</span> <span class="o">=</span> <span class="n">Connectivity</span><span class="p">(</span><span class="n">city_model</span><span class="o">=</span><span class="n">vologda</span><span class="p">)</span>
+<span class="n">calc</span> <span class="o">=</span> <span class="n">conn</span><span class="o">.</span><span class="n">calculate</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<p>Visualization of connectivity.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">conn</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">calc</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_56_0.png" src="../_images/examples_pipeline_56_0.png" />
+</div>
+</div>
+</section>
+<section id="5.3.-Service-Provision">
+<h3>5.3. Service Provision<a class="headerlink" href="#5.3.-Service-Provision" title="Permalink to this heading"></a></h3>
+<p>You can also assess service type provision for any block. Normative capacity and block population are used in assessment.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet.method</span> <span class="kn">import</span> <span class="n">Provision</span>
+
+<span class="n">prov</span> <span class="o">=</span> <span class="n">Provision</span><span class="p">(</span><span class="n">city_model</span><span class="o">=</span><span class="n">vologda</span><span class="p">)</span>
+<span class="n">calc_lp</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">service_type</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualization of service provision.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prov</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">calc_lp</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_61_0.png" src="../_images/examples_pipeline_61_0.png" />
+</div>
+</div>
+<p>Save result to a file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">calc_lp</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;provision_lp.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You can also use iterative (greedy) method of population distribution for provision assessment.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">calc_it</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;iterative&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualization.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prov</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">calc_it</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_67_0.png" src="../_images/examples_pipeline_67_0.png" />
+</div>
+</div>
+<p>Getting statistical parameters of provision.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Provision</span><span class="o">.</span><span class="n">stat_provision</span><span class="p">(</span><span class="n">calc_it</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{&#39;mean&#39;: 0.5715653412739928,
+ &#39;median&#39;: 0.7559055118110236,
+ &#39;min&#39;: 0.0,
+ &#39;max&#39;: 1.0}
+</pre></div></div>
+</div>
+<p>Getting city-wide provision estimate.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">Provision</span><span class="o">.</span><span class="n">total_provision</span><span class="p">(</span><span class="n">calc_it</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.39514769318355997
+</pre></div></div>
+</div>
+<p>Saving results to a file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">calc_it</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;provision_lp.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>You can modify parameters of any block and perform provision assessment again. Let’s take a block with <strong>id=110</strong> and set its popalation to 1000 people.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="n">update</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="mi">110</span><span class="p">:</span> <span class="p">{</span>
+    <span class="s1">&#39;population&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>
+  <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">update_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">update</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">calc_update</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="s1">&#39;school&#39;</span><span class="p">,</span> <span class="n">update_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualization of provision after modification of block parameters.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prov</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">calc_update</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_78_0.png" src="../_images/examples_pipeline_78_0.png" />
+</div>
+</div>
+<p>Saving the results as a <code class="docutils literal notranslate"><span class="pre">geojson</span></code> file.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">calc_update</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;provision_update.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">prov</span><span class="o">.</span><span class="n">plot_delta</span><span class="p">(</span><span class="n">calc_lp</span><span class="p">,</span> <span class="n">calc_update</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/usr/local/lib/python3.10/dist-packages/geopandas/geodataframe.py:1538: SettingWithCopyWarning:
+A value is trying to be set on a copy of a slice from a DataFrame.
+Try using .loc[row_indexer,col_indexer] = value instead
+
+See the caveats in the documentation: https://pandas.pydata.org/pandas-docs/stable/user_guide/indexing.html#returning-a-view-versus-a-copy
+  super().__setitem__(key, value)
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_81_1.png" src="../_images/examples_pipeline_81_1.png" />
+</div>
+</div>
+</section>
+<section id="5.4.-Method-for-Optimization-of-Built-Environment-Parameters">
+<h3>5.4. Method for Optimization of Built Environment Parameters<a class="headerlink" href="#5.4.-Method-for-Optimization-of-Built-Environment-Parameters" title="Permalink to this heading"></a></h3>
+<p>Selecting the scenario (concept) of city development includes specifiying weights for each of the service types.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">scenario</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;school&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>
+    <span class="s1">&#39;kindergarten&#39;</span><span class="p">:</span> <span class="mf">0.4</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<p>Assessment of scenario provision.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gdfs</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate_scenario</span><span class="p">(</span><span class="n">scenario</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.5961190137320266
+</pre></div></div>
+</div>
+<p>Visalization of scenario provision and saving to a file.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">service_type</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">gdfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">service_type</span><span class="p">)</span>
+  <span class="n">prov</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+  <span class="n">gdf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;provision_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s1">.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+school
+kindergarten
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_88_1.png" src="../_images/examples_pipeline_88_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_88_2.png" src="../_images/examples_pipeline_88_2.png" />
+</div>
+</div>
+<p>Selection of <strong>15</strong> random blocks to modify.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">vologda</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()</span>
+<span class="n">selected_blocks_gdf</span> <span class="o">=</span> <span class="n">vologda</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">15</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">selected_blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#333&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_91_0.png" src="../_images/examples_pipeline_91_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">blocksnet.method</span> <span class="kn">import</span> <span class="n">Genetic</span>
+<span class="n">gen</span> <span class="o">=</span> <span class="n">Genetic</span><span class="p">(</span><span class="n">city_model</span><span class="o">=</span><span class="n">vologda</span><span class="p">,</span> <span class="n">SCENARIO</span><span class="o">=</span><span class="n">scenario</span><span class="p">)</span>
+<span class="n">selected_blocks</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">selected_blocks_gdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+<span class="n">res</span> <span class="o">=</span> <span class="n">gen</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">comb_len</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">selected_blocks</span><span class="o">=</span><span class="n">selected_blocks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Dictionary acquired after scenario optimization indicates suggested service capacities in the given blocks.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">res</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{360: {&#39;school&#39;: 1350, &#39;kindergarten&#39;: 250},
+ 380: {&#39;school&#39;: 550, &#39;kindergarten&#39;: 0},
+ 5: {&#39;school&#39;: 900, &#39;kindergarten&#39;: 250},
+ 65: {&#39;school&#39;: 550, &#39;kindergarten&#39;: 180},
+ 561: {&#39;school&#39;: 250, &#39;kindergarten&#39;: 0},
+ 226: {&#39;school&#39;: 1400, &#39;kindergarten&#39;: 0},
+ 54: {&#39;school&#39;: 600, &#39;kindergarten&#39;: 280},
+ 10: {&#39;school&#39;: 900, &#39;kindergarten&#39;: 0},
+ 290: {&#39;school&#39;: 1150, &#39;kindergarten&#39;: 0},
+ 172: {&#39;school&#39;: 0, &#39;kindergarten&#39;: 250},
+ 270: {&#39;school&#39;: 1950, &#39;kindergarten&#39;: 0},
+ 199: {&#39;school&#39;: 1700, &#39;kindergarten&#39;: 280}}
+</pre></div></div>
+</div>
+<p>Visualization of the results.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">res_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s1">&#39;index&#39;</span><span class="p">)</span>
+<span class="n">res_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area rendered_html docutils container">
+  <div id="df-97443800-1364-425d-b6fd-261e1100d239" class="colab-df-container">
+    <div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>school</th>
+      <th>kindergarten</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>360</th>
+      <td>1350</td>
+      <td>250</td>
+    </tr>
+    <tr>
+      <th>380</th>
+      <td>550</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>900</td>
+      <td>250</td>
+    </tr>
+    <tr>
+      <th>65</th>
+      <td>550</td>
+      <td>180</td>
+    </tr>
+    <tr>
+      <th>561</th>
+      <td>250</td>
+      <td>0</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+    <div class="colab-df-buttons">
+
+  <div class="colab-df-container">
+    <button class="colab-df-convert" onclick="convertToInteractive('df-97443800-1364-425d-b6fd-261e1100d239')"
+            title="Convert this dataframe to an interactive table."
+            style="display:none;">
+
+  <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960">
+    <path d="M120-120v-720h720v720H120Zm60-500h600v-160H180v160Zm220 220h160v-160H400v160Zm0 220h160v-160H400v160ZM180-400h160v-160H180v160Zm440 0h160v-160H620v160ZM180-180h160v-160H180v160Zm440 0h160v-160H620v160Z"/>
+  </svg>
+    </button>
+
+  <style>
+    .colab-df-container {
+      display:flex;
+      gap: 12px;
+    }
+
+    .colab-df-convert {
+      background-color: #E8F0FE;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: none;
+      fill: #1967D2;
+      height: 32px;
+      padding: 0 0 0 0;
+      width: 32px;
+    }
+
+    .colab-df-convert:hover {
+      background-color: #E2EBFA;
+      box-shadow: 0px 1px 2px rgba(60, 64, 67, 0.3), 0px 1px 3px 1px rgba(60, 64, 67, 0.15);
+      fill: #174EA6;
+    }
+
+    .colab-df-buttons div {
+      margin-bottom: 4px;
+    }
+
+    [theme=dark] .colab-df-convert {
+      background-color: #3B4455;
+      fill: #D2E3FC;
+    }
+
+    [theme=dark] .colab-df-convert:hover {
+      background-color: #434B5C;
+      box-shadow: 0px 1px 3px 1px rgba(0, 0, 0, 0.15);
+      filter: drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.3));
+      fill: #FFFFFF;
+    }
+  </style>
+
+    <script>
+      const buttonEl =
+        document.querySelector('#df-97443800-1364-425d-b6fd-261e1100d239 button.colab-df-convert');
+      buttonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+
+      async function convertToInteractive(key) {
+        const element = document.querySelector('#df-97443800-1364-425d-b6fd-261e1100d239');
+        const dataTable =
+          await google.colab.kernel.invokeFunction('convertToInteractive',
+                                                    [key], {});
+        if (!dataTable) return;
+
+        const docLinkHtml = 'Like what you see? Visit the ' +
+          '<a target="_blank" href=https://colab.research.google.com/notebooks/data_table.ipynb>data table notebook</a>'
+          + ' to learn more about interactive tables.';
+        element.innerHTML = '';
+        dataTable['output_type'] = 'display_data';
+        await google.colab.output.renderOutput(dataTable, element);
+        const docLink = document.createElement('div');
+        docLink.innerHTML = docLinkHtml;
+        element.appendChild(docLink);
+      }
+    </script>
+  </div>
+
+
+<div id="df-4e7676eb-dee0-4eaa-bfff-27182e85633e">
+  <button class="colab-df-quickchart" onclick="quickchart('df-4e7676eb-dee0-4eaa-bfff-27182e85633e')"
+            title="Suggest charts"
+            style="display:none;">
+
+<svg xmlns="http://www.w3.org/2000/svg" height="24px"viewBox="0 0 24 24"
+     width="24px">
+    <g>
+        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+    </g>
+</svg>
+  </button>
+
+<style>
+  .colab-df-quickchart {
+      --bg-color: #E8F0FE;
+      --fill-color: #1967D2;
+      --hover-bg-color: #E2EBFA;
+      --hover-fill-color: #174EA6;
+      --disabled-fill-color: #AAA;
+      --disabled-bg-color: #DDD;
+  }
+
+  [theme=dark] .colab-df-quickchart {
+      --bg-color: #3B4455;
+      --fill-color: #D2E3FC;
+      --hover-bg-color: #434B5C;
+      --hover-fill-color: #FFFFFF;
+      --disabled-bg-color: #3B4455;
+      --disabled-fill-color: #666;
+  }
+
+  .colab-df-quickchart {
+    background-color: var(--bg-color);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    display: none;
+    fill: var(--fill-color);
+    height: 32px;
+    padding: 0;
+    width: 32px;
+  }
+
+  .colab-df-quickchart:hover {
+    background-color: var(--hover-bg-color);
+    box-shadow: 0 1px 2px rgba(60, 64, 67, 0.3), 0 1px 3px 1px rgba(60, 64, 67, 0.15);
+    fill: var(--button-hover-fill-color);
+  }
+
+  .colab-df-quickchart-complete:disabled,
+  .colab-df-quickchart-complete:disabled:hover {
+    background-color: var(--disabled-bg-color);
+    fill: var(--disabled-fill-color);
+    box-shadow: none;
+  }
+
+  .colab-df-spinner {
+    border: 2px solid var(--fill-color);
+    border-color: transparent;
+    border-bottom-color: var(--fill-color);
+    animation:
+      spin 1s steps(1) infinite;
+  }
+
+  @keyframes spin {
+    0% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+      border-left-color: var(--fill-color);
+    }
+    20% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    30% {
+      border-color: transparent;
+      border-left-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+      border-right-color: var(--fill-color);
+    }
+    40% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-top-color: var(--fill-color);
+    }
+    60% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+    }
+    80% {
+      border-color: transparent;
+      border-right-color: var(--fill-color);
+      border-bottom-color: var(--fill-color);
+    }
+    90% {
+      border-color: transparent;
+      border-bottom-color: var(--fill-color);
+    }
+  }
+</style>
+
+  <script>
+    async function quickchart(key) {
+      const quickchartButtonEl =
+        document.querySelector('#' + key + ' button');
+      quickchartButtonEl.disabled = true;  // To prevent multiple clicks.
+      quickchartButtonEl.classList.add('colab-df-spinner');
+      try {
+        const charts = await google.colab.kernel.invokeFunction(
+            'suggestCharts', [key], {});
+      } catch (error) {
+        console.error('Error during call to suggestCharts:', error);
+      }
+      quickchartButtonEl.classList.remove('colab-df-spinner');
+      quickchartButtonEl.classList.add('colab-df-quickchart-complete');
+    }
+    (() => {
+      let quickchartButtonEl =
+        document.querySelector('#df-4e7676eb-dee0-4eaa-bfff-27182e85633e button');
+      quickchartButtonEl.style.display =
+        google.colab.kernel.accessAllowed ? 'block' : 'none';
+    })();
+  </script>
+</div>
+    </div>
+  </div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">res_blocks_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res_df</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s1">&#39;left&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Visualization of <code class="docutils literal notranslate"><span class="pre">capacity</span></code> for suggested schools.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">res_blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">res_blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;school&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greens&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_99_0.png" src="../_images/examples_pipeline_99_0.png" />
+</div>
+</div>
+<p>Visalization of <code class="docutils literal notranslate"><span class="pre">capacity</span></code> for suggested kindergartens.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">res_blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">res_blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;kindergarten&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;Greens&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_101_0.png" src="../_images/examples_pipeline_101_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">res_blocks_gdf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="s1">&#39;update.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Here we can ensure that the resulting development plan improves service provision for whole city while prioritizing <strong>schools</strong>.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">gdfs</span><span class="p">,</span> <span class="n">total</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate_scenario</span><span class="p">(</span><span class="n">scenario</span><span class="p">,</span> <span class="n">res_df</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">total</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.6492021778309691
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">service_type</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">gdfs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+  <span class="nb">print</span><span class="p">(</span><span class="n">service_type</span><span class="p">)</span>
+  <span class="n">prov</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+  <span class="n">gdf</span><span class="o">.</span><span class="n">to_file</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;provision_upd_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s1">.geojson&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+school
+kindergarten
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_105_1.png" src="../_images/examples_pipeline_105_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_105_2.png" src="../_images/examples_pipeline_105_2.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="blocks_generator.html" class="btn btn-neutral float-right" title="City blocks layer generating" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

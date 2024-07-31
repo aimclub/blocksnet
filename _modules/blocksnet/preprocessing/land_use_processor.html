@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.preprocessing.land_use_processor &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.preprocessing.land_use_processor</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.preprocessing.land_use_processor</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">pandera</span> <span class="k">as</span> <span class="nn">pa</span>
+<span class="kn">import</span> <span class="nn">shapely</span>
+<span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span> <span class="nn">pandera.typing</span> <span class="kn">import</span> <span class="n">Series</span>
+<span class="kn">from</span> <span class="nn">..models</span> <span class="kn">import</span> <span class="n">BaseSchema</span>
+<span class="kn">from</span> <span class="nn">..models.land_use</span> <span class="kn">import</span> <span class="n">LandUse</span>
+
+<span class="n">DEFAULT_ZONE_TO_LAND_USE</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;Т3Ж1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТР0-2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;Т3Ж2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;Т1Ж2-1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;Т2ЖД2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТД1-3&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">BUSINESS</span><span class="p">,</span>
+    <span class="s2">&quot;ТД2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">BUSINESS</span><span class="p">,</span>
+    <span class="s2">&quot;ТД3&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">BUSINESS</span><span class="p">,</span>
+    <span class="s2">&quot;ТУ&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">,</span>
+    <span class="s2">&quot;ТИ4&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">,</span>
+    <span class="s2">&quot;ТД1-1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТД1-2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТПД1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТПД2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТИ1-1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">,</span>
+    <span class="s2">&quot;Т3ЖД3&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТК1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТР2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;ТИ2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">,</span>
+    <span class="s2">&quot;ТР5-2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;Т1Ж2-2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТР4&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;ТР5-1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;Т2Ж1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТИ3&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">,</span>
+    <span class="s2">&quot;Т1Ж1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТИ1-2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span><span class="p">,</span>
+    <span class="s2">&quot;ТР3-2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;ТР0-1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;ТП2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТК3&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТР1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;ТР3-1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+    <span class="s2">&quot;ТС1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">AGRICULTURE</span><span class="p">,</span>
+    <span class="s2">&quot;ТК2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТП1&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТП3&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТП4&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+    <span class="s2">&quot;ТС2&quot;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">LAND_USE_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;land_use&quot;</span>
+<span class="n">ZONE_COLUMN</span> <span class="o">=</span> <span class="s2">&quot;zone&quot;</span>
+
+
+<div class="viewcode-block" id="BlocksSchema"><a class="viewcode-back" href="../../../api/preprocessing/land_use_processor.html#blocksnet.preprocessing.land_use_processor.BlocksSchema">[docs]</a><span class="k">class</span> <span class="nc">BlocksSchema</span><span class="p">(</span><span class="n">BaseSchema</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for validating blocks GeoDataFrame.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _geom_types : list</span>
+<span class="sd">        List of valid geometry types for the schema, set to shapely.Polygon.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_geom_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ZonesSchema"><a class="viewcode-back" href="../../../api/preprocessing/land_use_processor.html#blocksnet.preprocessing.land_use_processor.ZonesSchema">[docs]</a><span class="k">class</span> <span class="nc">ZonesSchema</span><span class="p">(</span><span class="n">BaseSchema</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Schema for validating zones GeoDataFrame.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    _geom_types : list</span>
+<span class="sd">        List of valid geometry types for the schema, set to shapely.Polygon and shapely.MultiPolygon.</span>
+<span class="sd">    zone : Series[str]</span>
+<span class="sd">        Pandera Series to enforce zone column type as string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">_geom_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">shapely</span><span class="o">.</span><span class="n">Polygon</span><span class="p">,</span> <span class="n">shapely</span><span class="o">.</span><span class="n">MultiPolygon</span><span class="p">]</span>
+    <span class="n">zone</span><span class="p">:</span> <span class="n">Series</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="ProcessedBlocksSchema"><a class="viewcode-back" href="../../../api/preprocessing/land_use_processor.html#blocksnet.preprocessing.land_use_processor.ProcessedBlocksSchema">[docs]</a><span class="k">class</span> <span class="nc">ProcessedBlocksSchema</span><span class="p">(</span><span class="n">BlocksSchema</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extended BlocksSchema to include zone and land use information.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    zone : Series[str]</span>
+<span class="sd">        Pandera Series to enforce zone column type as string. Nullable, default is None.</span>
+<span class="sd">    land_use : Series[str]</span>
+<span class="sd">        Pandera Series to enforce land use column type as string. Nullable, default is None.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">zone</span><span class="p">:</span> <span class="n">Series</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">land_use</span><span class="p">:</span> <span class="n">Series</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">pa</span><span class="o">.</span><span class="n">Field</span><span class="p">(</span><span class="n">nullable</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="LandUseProcessor"><a class="viewcode-back" href="../../../api/preprocessing/land_use_processor.html#blocksnet.preprocessing.land_use_processor.LandUseProcessor">[docs]</a><span class="k">class</span> <span class="nc">LandUseProcessor</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Processes data to classify blocks based on their intersection with predefined standardized zones.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    blocks : gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing block data. Must contain the following columns:</span>
+<span class="sd">        - index : int</span>
+<span class="sd">        - geometry : Polygon</span>
+
+<span class="sd">    zones : gpd.GeoDataFrame</span>
+<span class="sd">        GeoDataFrame containing zone data. Must contain the following columns:</span>
+<span class="sd">        - index : int</span>
+<span class="sd">        - geometry : Polygon or MultiPolygon</span>
+<span class="sd">        - zone : str</span>
+
+<span class="sd">    zone_to_land_use : dict[str, LandUse], optional</span>
+<span class="sd">        Dictionary mapping zone codes to LandUse enums, default is DEFAULT_ZONE_TO_LAND_USE.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    AssertionError</span>
+<span class="sd">        If the Coordinate Reference Systems (CRS) of `blocks` and `zones` do not match.</span>
+<span class="sd">        If any zone in `zones` is not present in `zone_to_land_use` keys.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    run(min_intersection: float = 0.3) -&gt; gpd.GeoDataFrame</span>
+<span class="sd">        Processes the blocks and zones to classify the blocks based on land use.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        min_intersection : float</span>
+<span class="sd">            Threshold, minimum area (share) covered by geometry from df_with_attribute. If intersection &gt; min_intersection, then attribute is recorded to df, default is 0.3.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing the processed blocks with land use classifications.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">zones</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span>
+        <span class="n">zone_to_land_use</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">LandUse</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_ZONE_TO_LAND_USE</span><span class="p">,</span>
+    <span class="p">):</span>
+
+        <span class="n">blocks</span> <span class="o">=</span> <span class="n">BlocksSchema</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+        <span class="n">zones</span> <span class="o">=</span> <span class="n">ZonesSchema</span><span class="p">(</span><span class="n">zones</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">blocks</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="n">zones</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;Blocks CRS must match zones CRS&quot;</span>
+        <span class="k">assert</span> <span class="n">zones</span><span class="o">.</span><span class="n">zone</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">zone_to_land_use</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s2">&quot;Zone must be in dict&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zones</span> <span class="o">=</span> <span class="n">zones</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">zone_to_land_use</span> <span class="o">=</span> <span class="n">zone_to_land_use</span>
+
+<div class="viewcode-block" id="LandUseProcessor.run"><a class="viewcode-back" href="../../../api/preprocessing/land_use_processor.html#blocksnet.preprocessing.land_use_processor.LandUseProcessor.run">[docs]</a>    <span class="k">def</span> <span class="nf">run</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_intersection</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.3</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Processes the blocks and zones to classify the blocks based on land use.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        min_intersection : float</span>
+<span class="sd">            Threshold, minimum area (share) covered by geometry from df_with_attribute. If intersection &gt; min_intersection, then attribute is recorded to df, default is 0.3.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing the processed blocks with land use classifications.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">zones</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">zones</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="c1"># zones[LAND_USE_COLUMN] = zones[ZONE_COLUMN].replace(self.zone_to_land_use).apply(lambda x: x.name)</span>
+
+        <span class="n">block_id_column</span> <span class="o">=</span> <span class="s2">&quot;block_id&quot;</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="n">block_id_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">index</span>
+
+        <span class="c1"># overlay geometries</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Overlaying geometries&quot;</span><span class="p">)</span>
+        <span class="n">df_temp</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">overlay</span><span class="p">(</span>
+            <span class="n">blocks</span><span class="p">[[</span><span class="n">block_id_column</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]],</span>
+            <span class="n">zones</span><span class="p">[[</span><span class="n">ZONE_COLUMN</span><span class="p">,</span> <span class="s2">&quot;geometry&quot;</span><span class="p">]],</span>
+            <span class="n">how</span><span class="o">=</span><span class="s2">&quot;intersection&quot;</span><span class="p">,</span>
+            <span class="n">keep_geom_type</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># get areas</span>
+        <span class="n">df_temp</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">blocks</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">area</span>
+
+        <span class="c1"># group by id and attribute value and find a sum of intersection areas</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Finding sum of intersection areas&quot;</span><span class="p">)</span>
+        <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="n">block_id_column</span><span class="p">,</span> <span class="n">ZONE_COLUMN</span><span class="p">])[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">blocks</span><span class="p">[[</span><span class="n">block_id_column</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">]],</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+
+        <span class="c1"># find intersection shares</span>
+        <span class="n">df_temp</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df_temp</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="n">df_temp</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
+
+        <span class="c1"># filter out rows with attribute lower than min_intersection</span>
+        <span class="n">df_temp</span> <span class="o">=</span> <span class="n">df_temp</span><span class="p">[</span><span class="n">df_temp</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">min_intersection</span><span class="p">]</span>
+
+        <span class="c1"># get intersecting attributes for each id</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Getting intersecting attributes&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">df_temp</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="n">block_id_column</span><span class="p">)[</span><span class="n">ZONE_COLUMN</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">)</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+
+        <span class="c1"># intersecting attributes are added to columns x_1, x_2, x_3..., sorted by intersection area in descending order</span>
+        <span class="n">res</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">block_id_column</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="n">ZONE_COLUMN</span> <span class="o">+</span> <span class="s2">&quot;_&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">res</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)]</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">res</span><span class="p">,</span> <span class="n">how</span><span class="o">=</span><span class="s2">&quot;left&quot;</span><span class="p">)</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">res</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">ZONE_COLUMN</span><span class="si">}</span><span class="s2">_1&quot;</span><span class="p">:</span> <span class="n">ZONE_COLUMN</span><span class="p">})</span>
+        <span class="n">res</span><span class="p">[</span><span class="n">LAND_USE_COLUMN</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">res</span><span class="p">[</span><span class="n">ZONE_COLUMN</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">zone_to_land_use</span><span class="p">)</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">LandUse</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ProcessedBlocksSchema</span><span class="p">(</span><span class="n">res</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

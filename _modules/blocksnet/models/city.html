@@ -1,0 +1,1716 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.models.city &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.models.city</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.models.city</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">import</span> <span class="nn">pickle</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">singledispatchmethod</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span> <span class="nn">tqdm</span> <span class="kn">import</span> <span class="n">tqdm</span>
+<span class="kn">from</span> <span class="nn">loguru</span> <span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">import</span> <span class="nn">geopandas</span> <span class="k">as</span> <span class="nn">gpd</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">matplotlib</span> <span class="kn">import</span> <span class="n">pyplot</span> <span class="k">as</span> <span class="n">plt</span>
+<span class="kn">from</span> <span class="nn">matplotlib.gridspec</span> <span class="kn">import</span> <span class="n">GridSpec</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">InstanceOf</span><span class="p">,</span> <span class="n">field_validator</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">model_validator</span><span class="p">,</span> <span class="n">ValidationError</span>
+<span class="kn">from</span> <span class="nn">shapely</span> <span class="kn">import</span> <span class="n">Point</span><span class="p">,</span> <span class="n">Polygon</span><span class="p">,</span> <span class="n">MultiPolygon</span><span class="p">,</span> <span class="n">LineString</span><span class="p">,</span> <span class="n">intersection</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">SERVICE_TYPES</span>
+<span class="kn">from</span> <span class="nn">.service_type</span> <span class="kn">import</span> <span class="n">ServiceType</span><span class="p">,</span> <span class="n">ServiceBrick</span>
+<span class="kn">from</span> <span class="nn">.land_use</span> <span class="kn">import</span> <span class="n">LandUse</span>
+
+
+<div class="viewcode-block" id="Service"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Service">[docs]</a><span class="k">class</span> <span class="nc">Service</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Abstract base class for services.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    service_type : ServiceType</span>
+<span class="sd">        Type of the service.</span>
+<span class="sd">    capacity : int, optional</span>
+<span class="sd">        Capacity of the service, must be greater than 0.</span>
+<span class="sd">    area : float, optional</span>
+<span class="sd">        Service area in square meters, must be greater than 0.</span>
+<span class="sd">    is_integrated : bool</span>
+<span class="sd">        Whether the service is integrated within a living building.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span>
+    <span class="n">capacity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">gt</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">is_integrated</span><span class="p">:</span> <span class="nb">bool</span>
+
+<div class="viewcode-block" id="Service._get_min_brick"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Service._get_min_brick">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_get_min_brick</span><span class="p">(</span>
+        <span class="bp">cls</span><span class="p">,</span> <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span><span class="p">,</span> <span class="n">is_integrated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="s2">&quot;capacity&quot;</span><span class="p">],</span> <span class="n">value</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServiceBrick</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the minimum service brick based on the service type and integration status.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type : ServiceType</span>
+<span class="sd">            Type of the service.</span>
+<span class="sd">        is_integrated : bool</span>
+<span class="sd">            Whether the service is integrated within a living building.</span>
+<span class="sd">        field : Literal[&quot;area&quot;, &quot;capacity&quot;]</span>
+<span class="sd">            Field to compare, either &quot;area&quot; or &quot;capacity&quot;.</span>
+<span class="sd">        value : float</span>
+<span class="sd">            Value to compare against.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Brick</span>
+<span class="sd">            The brick with the minimum difference in the specified field value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">bricks</span> <span class="o">=</span> <span class="n">service_type</span><span class="o">.</span><span class="n">get_bricks</span><span class="p">(</span><span class="n">is_integrated</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bricks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">bricks</span> <span class="o">=</span> <span class="n">service_type</span><span class="o">.</span><span class="n">get_bricks</span><span class="p">(</span><span class="ow">not</span> <span class="n">is_integrated</span><span class="p">)</span>
+        <span class="n">brick</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">bricks</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">br</span><span class="p">:</span> <span class="nb">abs</span><span class="p">((</span><span class="n">br</span><span class="o">.</span><span class="n">area</span> <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;area&quot;</span> <span class="k">else</span> <span class="n">br</span><span class="o">.</span><span class="n">capacity</span><span class="p">)</span> <span class="o">-</span> <span class="n">value</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">brick</span></div>
+
+<div class="viewcode-block" id="Service._fill_capacity_and_area"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Service._fill_capacity_and_area">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">_fill_capacity_and_area</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fill the capacity and area fields in the data dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Dictionary containing service data.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Updated dictionary with filled capacity and area fields.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">service_type</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;service_type&quot;</span><span class="p">]</span>
+        <span class="n">is_integrated</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;is_integrated&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;area&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]):</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">area</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">area</span>
+
+        <span class="k">if</span> <span class="s2">&quot;capacity&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;capacity&quot;</span><span class="p">])</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">capacity</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">area</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">brick</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_min_brick</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">is_integrated</span><span class="p">,</span> <span class="s2">&quot;capacity&quot;</span><span class="p">,</span> <span class="n">capacity</span><span class="p">)</span>
+                <span class="n">area</span> <span class="o">=</span> <span class="n">brick</span><span class="o">.</span><span class="n">area</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">brick</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_get_min_brick</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">is_integrated</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span> <span class="n">area</span><span class="p">)</span>
+            <span class="n">capacity</span> <span class="o">=</span> <span class="n">brick</span><span class="o">.</span><span class="n">capacity</span>
+            <span class="k">if</span> <span class="n">area</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">area</span> <span class="o">=</span> <span class="n">brick</span><span class="o">.</span><span class="n">area</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">({</span><span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">area</span><span class="p">,</span> <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">capacity</span><span class="p">})</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="Service.to_dict"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Service.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the service to a dictionary representation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing service data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;service_type&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span>
+            <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">area</span><span class="p">,</span>
+            <span class="s2">&quot;is_integrated&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_integrated</span><span class="p">,</span>
+        <span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="BlockService"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BlockService">[docs]</a><span class="k">class</span> <span class="nc">BlockService</span><span class="p">(</span><span class="n">Service</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Service within a block taking some of a block&#39;s site area.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    block : Block</span>
+<span class="sd">        The block containing the service.</span>
+<span class="sd">    geometry : Union[Point, Polygon, MultiPolygon]</span>
+<span class="sd">        Geometry representing the service location.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">block</span><span class="p">:</span> <span class="n">Block</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">Point</span> <span class="o">|</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span>
+
+<div class="viewcode-block" id="BlockService.validate_model"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BlockService.validate_model">[docs]</a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">validate_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and process the model data before initialization to make sure capacities and areas are filled.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Data dictionary containing service information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Validated and processed data dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;is_integrated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fill_capacity_and_area</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="BlockService.to_dict"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BlockService.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the block service to a dictionary representation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing block service data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="s2">&quot;block_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()}</span></div></div>
+
+
+<div class="viewcode-block" id="BuildingService"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BuildingService">[docs]</a><span class="k">class</span> <span class="nc">BuildingService</span><span class="p">(</span><span class="n">Service</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Service within a building.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    building : Building</span>
+<span class="sd">        The building containing the service.</span>
+<span class="sd">    geometry : Point</span>
+<span class="sd">        Point geometry representing the service location.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">building</span><span class="p">:</span> <span class="n">Building</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">Point</span>
+
+<div class="viewcode-block" id="BuildingService.validate_model"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BuildingService.validate_model">[docs]</a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">validate_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and process the model data before initialization to figure out integration status and fill capacity and area if needed.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Data dictionary containing service information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Validated and processed data dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;is_integrated&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;building&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">is_living</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_fill_capacity_and_area</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+<div class="viewcode-block" id="BuildingService.attach_geometry"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BuildingService.attach_geometry">[docs]</a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">attach_geometry</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BuildingService</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Attach geometry of the service to the building representative point after initialization.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        self : BuildingService</span>
+<span class="sd">            Instance of the building service.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        BuildingService</span>
+<span class="sd">            The building service instance with attached geometry.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">building</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+<div class="viewcode-block" id="BuildingService.to_dict"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.BuildingService.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the building service to a dictionary representation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing building service data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="s2">&quot;block_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">building</span><span class="o">.</span><span class="n">block</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;building_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">building</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="o">**</span><span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span>
+        <span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="Building"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Building">[docs]</a><span class="k">class</span> <span class="nc">Building</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a building within a block.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    id : int</span>
+<span class="sd">        Unique identifier across the whole city information model.</span>
+<span class="sd">    block : Block</span>
+<span class="sd">        Parent block containing the building.</span>
+<span class="sd">    services : list of BuildingService, optional</span>
+<span class="sd">        List of services inside the building.</span>
+<span class="sd">    geometry : Union[Polygon, MultiPolygon]</span>
+<span class="sd">        Geometry representing the building.</span>
+<span class="sd">    build_floor_area : float</span>
+<span class="sd">        Total area of the building in square meters. Must be equal or greater than 0.</span>
+<span class="sd">    living_area : float</span>
+<span class="sd">        Building&#39;s area dedicated for living in square meters. Must be equal or greater than 0.</span>
+<span class="sd">    non_living_area : float</span>
+<span class="sd">        Building&#39;s area dedicated for non-living activities in square meters. Must be equal or greater than 0.</span>
+<span class="sd">    footprint_area : float</span>
+<span class="sd">        Building&#39;s ground floor area in square meters. Must be equal or greater than 0.</span>
+<span class="sd">    number_of_floors : int</span>
+<span class="sd">        Number of floors (storeys) in the building. Must be equal or greater than 1.</span>
+<span class="sd">    population : int</span>
+<span class="sd">        Total population of the building. Must be equal or greater than 0.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_inf_nan</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">block</span><span class="p">:</span> <span class="n">Block</span>
+    <span class="n">services</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BuildingService</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">Polygon</span> <span class="o">|</span> <span class="n">MultiPolygon</span>
+    <span class="n">build_floor_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">living_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">non_living_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">footprint_area</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">number_of_floors</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">population</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Building.validate_model"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Building.validate_model">[docs]</a>    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">validate_model</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and process the model data before initialization to fill needed empty fields.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        data : dict</span>
+<span class="sd">            Data dictionary containing building information.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Validated and processed data dictionary.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">footprint_area</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">living_area</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;living_area&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="s2">&quot;build_floor_area&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;build_floor_area&quot;</span><span class="p">]):</span>
+            <span class="n">build_floor_area</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;build_floor_area&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="s2">&quot;number_of_floors&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;number_of_floors&quot;</span><span class="p">]):</span>
+                <span class="n">number_of_floors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;number_of_floors&quot;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">number_of_floors</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">build_floor_area</span> <span class="o">/</span> <span class="n">footprint_area</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;number_of_floors&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;number_of_floors&quot;</span><span class="p">]):</span>
+                <span class="n">number_of_floors</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;number_of_floors&quot;</span><span class="p">]</span>
+                <span class="n">build_floor_area</span> <span class="o">=</span> <span class="n">number_of_floors</span> <span class="o">*</span> <span class="n">footprint_area</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Either number_of_floors or build_floor_area should be defined&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;non_living_area&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">math</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;non_living_area&quot;</span><span class="p">]):</span>
+            <span class="n">non_living_area</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;non_living_area&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">non_living_area</span> <span class="o">=</span> <span class="n">build_floor_area</span> <span class="o">-</span> <span class="n">living_area</span>
+
+        <span class="n">data</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+            <span class="p">{</span><span class="s2">&quot;footprint_area&quot;</span><span class="p">:</span> <span class="n">footprint_area</span><span class="p">,</span> <span class="s2">&quot;non_living_area&quot;</span><span class="p">:</span> <span class="n">non_living_area</span><span class="p">,</span> <span class="s2">&quot;build_floor_area&quot;</span><span class="p">:</span> <span class="n">build_floor_area</span><span class="p">}</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_living</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Indicates if the building is residential.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<div class="viewcode-block" id="Building.update_services"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Building.update_services">[docs]</a>    <span class="k">def</span> <span class="nf">update_services</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update services of the building.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type : ServiceType</span>
+<span class="sd">            The type of service to be updated.</span>
+<span class="sd">        gdf : GeoDataFrame, optional</span>
+<span class="sd">            A GeoDataFrame containing service data. If not provided, services of specified type will be removed from the building.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">service_type</span> <span class="o">!=</span> <span class="n">service_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="n">BuildingService</span><span class="p">(</span><span class="n">service_type</span><span class="o">=</span><span class="n">service_type</span><span class="p">,</span> <span class="n">building</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+                <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">,</span> <span class="o">*</span><span class="n">services</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Building.to_dict"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Building.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the building object to a dictionary.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            A dictionary representation of the building.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;block_id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">block</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="s2">&quot;population&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">,</span>
+            <span class="s2">&quot;footprint_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint_area</span><span class="p">,</span>
+            <span class="s2">&quot;build_floor_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_floor_area</span><span class="p">,</span>
+            <span class="s2">&quot;living_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span><span class="p">,</span>
+            <span class="s2">&quot;non_living_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_living_area</span><span class="p">,</span>
+            <span class="s2">&quot;number_of_floors&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">number_of_floors</span><span class="p">,</span>
+            <span class="s2">&quot;is_living&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_living</span><span class="p">,</span>
+        <span class="p">}</span></div></div>
+
+
+<div class="viewcode-block" id="Block"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block">[docs]</a><span class="k">class</span> <span class="nc">Block</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a city block.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    id : int</span>
+<span class="sd">        Unique block identifier across the whole city model.</span>
+<span class="sd">    geometry : Polygon</span>
+<span class="sd">        Geometry representing the city block.</span>
+<span class="sd">    land_use : LandUse, optional</span>
+<span class="sd">        Current city block land use.</span>
+<span class="sd">    buildings : list of Building, optional</span>
+<span class="sd">        List of buildings inside the block.</span>
+<span class="sd">    services : list of BlockService, optional</span>
+<span class="sd">        Services that occupy some area of the block.</span>
+<span class="sd">    city : City</span>
+<span class="sd">        Parent city instance that contains the block.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">arbitrary_types_allowed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">geometry</span><span class="p">:</span> <span class="n">Polygon</span>
+    <span class="n">land_use</span><span class="p">:</span> <span class="n">LandUse</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">buildings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Building</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">services</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">BlockService</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">city</span><span class="p">:</span> <span class="n">City</span>
+
+<div class="viewcode-block" id="Block.validate_land_use"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.validate_land_use">[docs]</a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;land_use&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">validate_land_use</span><span class="p">(</span><span class="n">land_use</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">LandUse</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LandUse</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and transform the land use value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        land_use : str or LandUse</span>
+<span class="sd">            The land use value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        LandUse or None</span>
+<span class="sd">            The validated land use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">land_use</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">land_use</span> <span class="o">=</span> <span class="n">land_use</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="n">land_use</span> <span class="o">=</span> <span class="n">land_use</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">land_use</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">land_use</span><span class="p">,</span> <span class="n">LandUse</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">land_use</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">all_services</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Service</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get all services in the block, including those in buildings.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of Service</span>
+<span class="sd">            List of all services in the block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">building_services</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">b</span><span class="o">.</span><span class="n">services</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">,</span> <span class="o">*</span><span class="n">building_services</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">site_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the block area in square meters.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Block area in square meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">area</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">population</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total population of the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Total population of the block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">population</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">footprint_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total footprint area of the buildings in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total footprint area of the buildings in square meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">footprint_area</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">build_floor_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total build floor area of the buildings in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total build floor area of the buildings in square meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">build_floor_area</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">living_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total living area of the buildings in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total living area of the buildings in square meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">living_area</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">non_living_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total non-living area of the buildings in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total non-living area of the buildings in square meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">sum</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">non_living_area</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">is_living</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if the block contains any living building and thus can be stated as living.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if there is at least one living building, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">any</span><span class="p">([</span><span class="n">b</span><span class="o">.</span><span class="n">is_living</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">])</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">living_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the square meters of living area per person.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or None</span>
+<span class="sd">            Living area per person in square meters, or None if the population is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">fsi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Floor Space Index (FSI).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            FSI, which is the build floor area per site area.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_floor_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_area</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">gsi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Ground Space Index (GSI).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            GSI, which is the footprint area per site area.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_area</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">mxi</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Mixed Use Index (MXI).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or None</span>
+<span class="sd">            MXI, which is the living area per build floor area, or None if the build floor area is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_floor_area</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">l</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the mean number of floors.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or None</span>
+<span class="sd">            Mean number of floors, or None if the GSI is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fsi</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">gsi</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">osr</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the Open Space Ratio (OSR).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or None</span>
+<span class="sd">            OSR, or None if the FSI is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">gsi</span><span class="p">)</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">fsi</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">share_living</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the share of living area, which is living area per footprint area.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or None</span>
+<span class="sd">            Share of living area, or None if the footprint area is 0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint_area</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">business_area</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the business area in the block, which is total business area of buildings inside the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Business area in square meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">non_living_area</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">share_business</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the share of business area, which is business area per footprint area.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float or None</span>
+<span class="sd">            Share of business area, or None if the footprint area is zero.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">business_area</span> <span class="o">/</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint_area</span>
+        <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">buildings_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get indicators related to buildings in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing various building indicators.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;build_floor_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">build_floor_area</span><span class="p">,</span>
+            <span class="s2">&quot;living_demand&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_demand</span><span class="p">,</span>
+            <span class="s2">&quot;living_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">living_area</span><span class="p">,</span>
+            <span class="s2">&quot;share_living&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_living</span><span class="p">,</span>
+            <span class="s2">&quot;business_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">business_area</span><span class="p">,</span>
+            <span class="s2">&quot;share_business&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">share_business</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">territory_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get indicators related to the territory of the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing various territory indicators.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;site_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">site_area</span><span class="p">,</span>
+            <span class="s2">&quot;population&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">population</span><span class="p">,</span>
+            <span class="s2">&quot;footprint_area&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">footprint_area</span><span class="p">,</span>
+            <span class="s2">&quot;fsi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">fsi</span><span class="p">,</span>
+            <span class="s2">&quot;gsi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">gsi</span><span class="p">,</span>
+            <span class="s2">&quot;l&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">l</span><span class="p">,</span>
+            <span class="s2">&quot;osr&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">osr</span><span class="p">,</span>
+            <span class="s2">&quot;mxi&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">mxi</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">services_indicators</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get indicators related to services in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary containing service capacities by type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">service_types</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="n">service</span><span class="o">.</span><span class="n">service_type</span> <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_services</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="sa">f</span><span class="s2">&quot;capacity_</span><span class="si">{</span><span class="n">st</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">:</span> <span class="nb">sum</span><span class="p">(</span>
+                <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">service_type</span> <span class="o">==</span> <span class="n">st</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_services</span><span class="p">))</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">service_types</span>
+        <span class="p">}</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">land_use_service_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ServiceType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the service types allowed by the land use of the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list of ServiceType</span>
+<span class="sd">            List of service types allowed by the land use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="o">.</span><span class="n">get_land_use_service_types</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">land_use</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Block.get_services_gdf"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.get_services_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_services_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a GeoDataFrame of services in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing services data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_services</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Block.get_buildings_gdf"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.get_buildings_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_buildings_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a GeoDataFrame of buildings in the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing buildings data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="n">building</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Block.to_dict"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.to_dict">[docs]</a>    <span class="k">def</span> <span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convert the block to a dictionary representation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        simplify : bool, optional</span>
+<span class="sd">            If True, exclude service indicators from the dictionary. Default is False.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary representation of the block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span>
+            <span class="s2">&quot;land_use&quot;</span><span class="p">:</span> <span class="kc">None</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">land_use</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="bp">self</span><span class="o">.</span><span class="n">land_use</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="s2">&quot;is_living&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">is_living</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings_indicators</span><span class="p">,</span>
+            <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">territory_indicators</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">simplify</span><span class="p">:</span>
+            <span class="n">res</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">res</span><span class="p">,</span> <span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">services_indicators</span><span class="p">}</span>
+        <span class="k">return</span> <span class="n">res</span></div>
+
+<div class="viewcode-block" id="Block.update_buildings"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.update_buildings">[docs]</a>    <span class="k">def</span> <span class="nf">update_buildings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the buildings within the block.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gdf : gpd.GeoDataFrame, optional</span>
+<span class="sd">            GeoDataFrame containing building data. If None, clear the list of buildings.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span> <span class="o">=</span> <span class="p">[</span><span class="n">Building</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="o">**</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(),</span> <span class="n">block</span><span class="o">=</span><span class="bp">self</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Block.update_services"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.update_services">[docs]</a>    <span class="k">def</span> <span class="nf">update_services</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update the services within the block.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type : ServiceType</span>
+<span class="sd">            The type of service to update.</span>
+<span class="sd">        gdf : gpd.GeoDataFrame, optional</span>
+<span class="sd">            GeoDataFrame containing service data. If None, remove all services of the given type.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">service_type</span> <span class="o">!=</span> <span class="n">service_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">services</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">service</span> <span class="o">=</span> <span class="n">BlockService</span><span class="p">(</span><span class="n">service_type</span><span class="o">=</span><span class="n">service_type</span><span class="p">,</span> <span class="n">block</span><span class="o">=</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
+                <span class="n">services</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">service</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">,</span> <span class="o">*</span><span class="n">services</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="Block.from_gdf"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.from_gdf">[docs]</a>    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">from_gdf</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">city</span><span class="p">:</span> <span class="n">City</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Block</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a dictionary of blocks from a GeoDataFrame. Must contain following columns:</span>
+<span class="sd">        - index : int</span>
+<span class="sd">        - geometry : Polygon</span>
+<span class="sd">        - land_use : LandUse or str</span>
+
+<span class="sd">        For more specified information, please, check the Block class.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gdf : gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing block data.</span>
+<span class="sd">        city : City</span>
+<span class="sd">            City instance containing the blocks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict of int : Block</span>
+<span class="sd">            Dictionary mapping block IDs to Block instances.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="bp">cls</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">i</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="n">land_use</span><span class="o">=</span><span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">land_use</span><span class="p">,</span> <span class="n">city</span><span class="o">=</span><span class="n">city</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span></div>
+
+<div class="viewcode-block" id="Block.__getitem__"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.__getitem__">[docs]</a>    <span class="nd">@singledispatchmethod</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Access a building information or instance by a specified argument.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        arg : Any</span>
+<span class="sd">            Argument to access the building.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        NotImplementedError</span>
+<span class="sd">            If the argument type is not supported.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t access object with such argument type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Block._"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block._">[docs]</a>    <span class="nd">@__getitem__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">building_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Building</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Access a building within the block by its ID.</span>
+<span class="sd">        For example:</span>
+
+<span class="sd">        &gt;&gt;&gt; block = city[456]</span>
+<span class="sd">        &gt;&gt;&gt; block[123]</span>
+<span class="sd">        Building(id=123, block_id=456, ...)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        building_id : int</span>
+<span class="sd">            ID of the building to access.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Building</span>
+<span class="sd">            The building with the specified ID.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If no building with the specified ID is found.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buildings_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">id</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">building_index</span> <span class="o">=</span> <span class="n">buildings_ids</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="n">building_id</span><span class="p">)</span>
+            <span class="n">building</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">[</span><span class="n">building_index</span><span class="p">]</span>
+            <span class="k">return</span> <span class="n">building</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t find building with such id: </span><span class="si">{</span><span class="n">building_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Block.__hash__"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.Block.__hash__">[docs]</a>    <span class="k">def</span> <span class="fm">__hash__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Compute the hash value for the block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            Hash value of the block.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hash</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="City"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City">[docs]</a><span class="k">class</span> <span class="nc">City</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents a block-network city information model that manages blocks, buildings,</span>
+<span class="sd">    services, and their relationships.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    crs : pyproj.CRS</span>
+<span class="sd">        Coordinate Reference System (CRS) used by the city model.</span>
+<span class="sd">    adjacency_matrix : pd.DataFrame</span>
+<span class="sd">        Adjacency matrix representing relationships between city blocks (travel time in minutes by drive, walk, intermodal or another type of city graph).</span>
+<span class="sd">    _blocks : dict[int, Block]</span>
+<span class="sd">        Dictionary mapping block IDs to Block objects.</span>
+<span class="sd">    _service_types : dict[str, ServiceType]</span>
+<span class="sd">        Dictionary mapping service type names to ServiceType objects.</span>
+
+<span class="sd">    Methods</span>
+<span class="sd">    -------</span>
+<span class="sd">    plot(figsize: tuple = (15, 15), linewidth: float = 0.1, max_travel_time:float = 15)</span>
+<span class="sd">        Plot the city model, displaying blocks, land use, buildings, and services.</span>
+<span class="sd">    get_land_use_service_types(land_use: LandUse | None)</span>
+<span class="sd">        Retrieve service types allowed by a specific land use.</span>
+<span class="sd">    get_buildings_gdf() -&gt; gpd.GeoDataFrame | None</span>
+<span class="sd">        Return a GeoDataFrame of all buildings in the city model.</span>
+<span class="sd">    get_services_gdf() -&gt; gpd.GeoDataFrame</span>
+<span class="sd">        Return a GeoDataFrame of all services in the city model.</span>
+<span class="sd">    get_blocks_gdf(simplify=False) -&gt; gpd.GeoDataFrame</span>
+<span class="sd">        Return a GeoDataFrame of all blocks in the city model.</span>
+<span class="sd">    update_land_use(gdf: gpd.GeoDataFrame) -&gt; None</span>
+<span class="sd">        Update land use of blocks based on a GeoDataFrame.</span>
+<span class="sd">    update_buildings(gdf: gpd.GeoDataFrame) -&gt; None</span>
+<span class="sd">        Update buildings in the city model based on a GeoDataFrame.</span>
+<span class="sd">    update_services(service_type: ServiceType | str, gdf: gpd.GeoDataFrame) -&gt; None</span>
+<span class="sd">        Update services of a specified type in the city model based on a GeoDataFrame.</span>
+<span class="sd">    add_service_type(service_type: ServiceType) -&gt; None</span>
+<span class="sd">        Add a new service type to the city model.</span>
+<span class="sd">    get_distance(block_a: int | Block, block_b: int | Block) -&gt; float</span>
+<span class="sd">        Get the distance (travel time) between two blocks.</span>
+<span class="sd">    get_out_edges(block: int | Block)</span>
+<span class="sd">        Get outgoing edges (connections) for a given block.</span>
+<span class="sd">    get_in_edges(block: int | Block)</span>
+<span class="sd">        Get incoming edges (connections) for a given block.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">adj_mx</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize a City instance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        blocks : gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing block data. Must contain following columns:</span>
+<span class="sd">            - index : int</span>
+<span class="sd">            - geometry : Polygon</span>
+<span class="sd">            - land_use : LandUse or str</span>
+
+<span class="sd">        adj_mx : pd.DataFrame</span>
+<span class="sd">            DataFrame representing the adjacency matrix (or accessibility matrix). It should follow next rules:</span>
+<span class="sd">            - the same index and columns as `blocks`.</span>
+<span class="sd">            - values should contain travel times between row and column blocks as float.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If the indices of `blocks` and `adj_mx` do not match.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">blocks</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">adj_mx</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s2">&quot;Matrix and blocks index don&#39;t match&quot;</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">blocks</span><span class="o">.</span><span class="n">index</span> <span class="o">==</span> <span class="n">adj_mx</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s2">&quot;Matrix columns and blocks index don&#39;t match&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">crs</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">crs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span> <span class="o">=</span> <span class="n">Block</span><span class="o">.</span><span class="n">from_gdf</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span> <span class="o">=</span> <span class="n">adj_mx</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">SERVICE_TYPES</span><span class="p">:</span>
+            <span class="n">service_type</span> <span class="o">=</span> <span class="n">ServiceType</span><span class="p">(</span><span class="o">**</span><span class="n">st</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span><span class="p">[</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_type</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">epsg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Property to retrieve the EPSG code of the city model&#39;s CRS.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        int</span>
+<span class="sd">            EPSG code of the CRS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="o">.</span><span class="n">to_epsg</span><span class="p">()</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Block</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all blocks in the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Block]</span>
+<span class="sd">            List of Block objects representing the city blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">b</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">service_types</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ServiceType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all service types available in the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[ServiceType]</span>
+<span class="sd">            List of ServiceType objects representing different service types.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">st</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">buildings</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Building</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all buildings in the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Building]</span>
+<span class="sd">            List of Building objects representing all buildings in the city.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">building</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">services</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Service</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a list of all services in the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[Service]</span>
+<span class="sd">            List of Service objects representing all services available in the city.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">service</span> <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span> <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">block</span><span class="o">.</span><span class="n">all_services</span><span class="p">]</span>
+
+<div class="viewcode-block" id="City.plot"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">figsize</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span> <span class="n">linewidth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.1</span><span class="p">,</span> <span class="n">max_travel_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mi">15</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Plot the city model data including blocks, land use, buildings, and services.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        figsize : tuple[float, float], optional</span>
+<span class="sd">            Size of the plot to be displayed. Default is (15,15).</span>
+<span class="sd">        linewidth : float, optional</span>
+<span class="sd">            Line width of polygon objects to be displayed. Default is 0.1.</span>
+<span class="sd">        max_travel_time : float, optional</span>
+<span class="sd">            Max edge weight to be displayed on the plot (in min). Default is 15.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">)</span>
+        <span class="n">grid</span> <span class="o">=</span> <span class="n">GridSpec</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">ax_land_use</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">ax_network</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">ax_buildings</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+        <span class="n">ax_services</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_subplot</span><span class="p">(</span><span class="n">grid</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">blocks_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">ax</span> <span class="ow">in</span> <span class="p">[</span><span class="n">ax_land_use</span><span class="p">,</span> <span class="n">ax_network</span><span class="p">,</span> <span class="n">ax_buildings</span><span class="p">,</span> <span class="n">ax_services</span><span class="p">]:</span>
+            <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;#777&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+
+        <span class="c1"># plot land_use</span>
+        <span class="n">ax_land_use</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Land use&quot;</span><span class="p">)</span>
+        <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_land_use</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;land_use&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># plot network</span>
+        <span class="n">ax_network</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Network&quot;</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">point_i</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>
+            <span class="n">series_i</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">series_i</span><span class="p">[</span><span class="n">series_i</span> <span class="o">&lt;=</span> <span class="n">max_travel_time</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+                <span class="n">point_j</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">j</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">representative_point</span><span class="p">()</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;geometry&quot;</span><span class="p">:</span> <span class="n">LineString</span><span class="p">([</span><span class="n">point_i</span><span class="p">,</span> <span class="n">point_j</span><span class="p">]),</span> <span class="s2">&quot;travel_time&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]}</span>
+                <span class="p">)</span>
+        <span class="n">lines_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">lines</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span>
+        <span class="n">lines_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_network</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;travel_time&quot;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;summer&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># plot buildings</span>
+        <span class="n">ax_buildings</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Buildings&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">buildings_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buildings_gdf</span><span class="p">()</span>
+            <span class="n">buildings_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_buildings</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;cool&quot;</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="o">...</span>
+
+        <span class="c1"># plot services</span>
+        <span class="n">ax_services</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="s2">&quot;Services&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">services_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_services_gdf</span><span class="p">()</span>
+            <span class="n">services_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax_services</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="n">linewidth</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s2">&quot;service_type&quot;</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+        <span class="k">except</span><span class="p">:</span>
+            <span class="o">...</span></div>
+
+<div class="viewcode-block" id="City.get_land_use_service_types"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_land_use_service_types">[docs]</a>    <span class="k">def</span> <span class="nf">get_land_use_service_types</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">land_use</span><span class="p">:</span> <span class="n">LandUse</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ServiceType</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Retrieve service types allowed by a specific land use.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        land_use : LandUse | None</span>
+<span class="sd">            Land use type to filter service types by.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[ServiceType]</span>
+<span class="sd">            List of ServiceType objects associated with the specified land use.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filtered_service_types</span> <span class="o">=</span> <span class="nb">filter</span><span class="p">(</span><span class="k">lambda</span> <span class="n">st</span><span class="p">:</span> <span class="n">land_use</span> <span class="ow">in</span> <span class="n">st</span><span class="o">.</span><span class="n">land_use</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_types</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="n">filtered_service_types</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="City.get_buildings_gdf"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_buildings_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_buildings_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a GeoDataFrame of all buildings in the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing all buildings&#39; geometries and attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">buildings</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="City.get_services_gdf"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_services_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_services_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a GeoDataFrame of all services in the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing all services&#39; geometries and attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">services</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">services</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="City.get_blocks_gdf"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_blocks_gdf">[docs]</a>    <span class="k">def</span> <span class="nf">get_blocks_gdf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">simplify</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a GeoDataFrame of all blocks in the city model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        simplify : bool, optional</span>
+<span class="sd">            Whether to simplify block parameters (default is False). If True, services information will not be provided.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing all blocks&#39; geometries and attributes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">blocks</span> <span class="o">=</span> <span class="p">[</span><span class="n">b</span><span class="o">.</span><span class="n">to_dict</span><span class="p">(</span><span class="n">simplify</span><span class="p">)</span> <span class="k">for</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">]</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">)</span><span class="o">.</span><span class="n">set_index</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">simplify</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">service_type</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">service_types</span><span class="p">:</span>
+                <span class="o">...</span>
+                <span class="n">capacity_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;capacity_</span><span class="si">{</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">capacity_column</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+                    <span class="n">gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf</span></div>
+
+<div class="viewcode-block" id="City.update_land_use"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.update_land_use">[docs]</a>    <span class="k">def</span> <span class="nf">update_land_use</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update land use information for blocks based on a GeoDataFrame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gdf : gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing updated land use information. It should have the same CRS as the city model,</span>
+<span class="sd">            and its index should match the IDs of blocks in the city model. It should have land_use column with value either LandUse, str or None.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If the CRS of `gdf` does not match the city model&#39;s CRS, or if the index of `gdf` does not match block IDs,</span>
+<span class="sd">            or if the length of `gdf` does not match the number of blocks in the city model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;LandUse GeoDataFrame CRS should match city CRS&quot;</span>
+        <span class="k">assert</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">all</span><span class="p">(),</span> <span class="s2">&quot;Index should match blocks IDs&quot;</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">),</span> <span class="s2">&quot;Index length must match blocks length&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="p">:</span>
+            <span class="n">land_use</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="s2">&quot;land_use&quot;</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">land_use</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">land_use</span> <span class="o">=</span> <span class="n">land_use</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="n">land_use</span> <span class="o">=</span> <span class="n">land_use</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+                <span class="n">land_use</span> <span class="o">=</span> <span class="n">LandUse</span><span class="p">(</span><span class="n">land_use</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">land_use</span><span class="p">,</span> <span class="n">LandUse</span><span class="p">):</span>
+                <span class="o">...</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">land_use</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="bp">self</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">land_use</span> <span class="o">==</span> <span class="n">land_use</span></div>
+
+<div class="viewcode-block" id="City.update_buildings"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.update_buildings">[docs]</a>    <span class="k">def</span> <span class="nf">update_buildings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update buildings information for blocks based on a GeoDataFrame.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        gdf : gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing updated buildings information. It should have the same CRS as the city model. It must contain the following columns:</span>
+
+<span class="sd">            - index : int - unique building id</span>
+<span class="sd">            - geometry : Polygon | MultiPolygon</span>
+<span class="sd">            - build_floor_area : float &gt;= 0</span>
+<span class="sd">            - living_area : float &gt;= 0</span>
+<span class="sd">            - non_living_area : float &gt;= 0</span>
+<span class="sd">            - footprint_area : float &gt;= 0</span>
+<span class="sd">            - number_of_floors : int &gt;= 1</span>
+<span class="sd">            - population : int &gt;= 0</span>
+
+<span class="sd">            Please, do not specify building_id nor block_id columns, as they are used in the method. For more specific information, please, check Building class.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame buildings that did not intersect any block.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If the CRS of `gdf` does not match the city model&#39;s CRS.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;Buildings GeoDataFrame CRS should match city CRS&quot;</span>
+        <span class="c1"># reset buildings of blocks</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Removing existing blocks from the model&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">update_buildings</span><span class="p">()</span>
+        <span class="c1"># spatial join blocks and buildings and updated related blocks info</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Joining buildings and blocks&quot;</span><span class="p">)</span>
+        <span class="n">sjoin</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]])</span>
+        <span class="n">sjoin</span> <span class="o">=</span> <span class="n">sjoin</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_right&quot;</span><span class="p">:</span> <span class="s2">&quot;block_id&quot;</span><span class="p">})</span>
+        <span class="n">sjoin</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">sjoin</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">g</span>
+        <span class="p">)</span>
+        <span class="n">sjoin</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sjoin</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">intersection</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">block_id</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">sjoin</span><span class="p">[</span><span class="s2">&quot;building_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sjoin</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">sjoin</span> <span class="o">=</span> <span class="n">sjoin</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span><span class="n">subset</span><span class="o">=</span><span class="s2">&quot;building_id&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sjoin</span><span class="p">)</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span><span class="o">-</span><span class="nb">len</span><span class="p">(</span><span class="n">sjoin</span><span class="p">)</span><span class="si">}</span><span class="s2"> buildings did not intersect any block&quot;</span><span class="p">)</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">sjoin</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;block_id&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">block_id</span><span class="p">,</span> <span class="n">buildings_gdf</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">groups</span><span class="p">,</span> <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Update blocks buildings&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">block_id</span><span class="p">)]</span><span class="o">.</span><span class="n">update_buildings</span><span class="p">(</span><span class="n">buildings_gdf</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">gdf</span><span class="p">[</span><span class="o">~</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">sjoin</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span></div>
+
+<div class="viewcode-block" id="City.update_services"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.update_services">[docs]</a>    <span class="k">def</span> <span class="nf">update_services</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update services information for blocks and buildings based on a GeoDataFrame.</span>
+<span class="sd">        Based on intersections with city buildings, service may be either `BuldingService` or `BlockService`.</span>
+<span class="sd">        Please, make sure, that block services (for example, pitch or playground) do not intersect any buildings!</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type : ServiceType | str</span>
+<span class="sd">            ServiceType object or name of the service type to update.</span>
+<span class="sd">        gdf : gpd.GeoDataFrame</span>
+<span class="sd">            GeoDataFrame containing updated services information. It should have the same CRS as the city model. It must contain the following columns:</span>
+
+<span class="sd">            - index : int</span>
+<span class="sd">            - geometry : Polygon | MultiPolygon | Point</span>
+<span class="sd">            - capacity : int (optional)</span>
+<span class="sd">            - area : int (optional)</span>
+
+<span class="sd">            For more specified information, please, check Service class.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If the CRS of `gdf` does not match the city model&#39;s CRS.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">assert</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">crs</span><span class="p">,</span> <span class="s2">&quot;Services GeoDataFrame CRS should match city CRS&quot;</span>
+        <span class="n">service_type</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">service_type</span><span class="p">]</span>
+
+        <span class="c1"># reset services of blocks and buildings</span>
+        <span class="k">for</span> <span class="n">block</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">:</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="n">service_type</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">building</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">:</span>
+            <span class="n">building</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="n">service_type</span><span class="p">)</span>
+
+        <span class="c1"># spatial join buildings and services and update related blocks info</span>
+        <span class="n">buildings_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_buildings_gdf</span><span class="p">()</span>
+        <span class="n">building_services</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">buildings_gdf</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="s2">&quot;block_id&quot;</span><span class="p">]])</span>
+        <span class="n">building_services</span> <span class="o">=</span> <span class="n">building_services</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_right&quot;</span><span class="p">:</span> <span class="s2">&quot;building_id&quot;</span><span class="p">})</span>
+        <span class="n">building_services</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">building_services</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">g</span>
+        <span class="p">)</span>
+        <span class="n">building_services</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">building_services</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">intersection</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">block_id</span><span class="p">][</span><span class="n">s</span><span class="o">.</span><span class="n">building_id</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">building_services</span><span class="p">[</span><span class="s2">&quot;service_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">building_services</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">building_services</span> <span class="o">=</span> <span class="n">building_services</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;service_id&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">building_info</span><span class="p">,</span> <span class="n">services_gdf</span> <span class="ow">in</span> <span class="n">building_services</span><span class="o">.</span><span class="n">groupby</span><span class="p">([</span><span class="s2">&quot;building_id&quot;</span><span class="p">,</span> <span class="s2">&quot;block_id&quot;</span><span class="p">]):</span>
+            <span class="n">building_id</span><span class="p">,</span> <span class="n">block_id</span> <span class="o">=</span> <span class="n">building_info</span>
+            <span class="n">building</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">block_id</span><span class="p">)][</span><span class="nb">int</span><span class="p">(</span><span class="n">building_id</span><span class="p">)]</span>
+            <span class="n">building</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">services_gdf</span><span class="p">)</span>
+
+        <span class="c1"># spatial join block and rest of services</span>
+        <span class="n">blocks_gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">()</span>
+        <span class="n">block_services</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="o">~</span><span class="n">gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">building_services</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span>
+        <span class="n">block_services</span> <span class="o">=</span> <span class="n">block_services</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">[[</span><span class="s2">&quot;geometry&quot;</span><span class="p">]])</span>
+        <span class="n">block_services</span> <span class="o">=</span> <span class="n">block_services</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;index_right&quot;</span><span class="p">:</span> <span class="s2">&quot;block_id&quot;</span><span class="p">})</span>
+        <span class="n">block_services</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">block_services</span><span class="o">.</span><span class="n">geometry</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">g</span><span class="p">:</span> <span class="n">g</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span> <span class="k">if</span> <span class="n">g</span><span class="o">.</span><span class="n">geom_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;MultiPolygon&quot;</span><span class="p">]</span> <span class="k">else</span> <span class="n">g</span>
+        <span class="p">)</span>
+        <span class="n">block_services</span><span class="p">[</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_services</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span>
+            <span class="k">lambda</span> <span class="n">s</span><span class="p">:</span> <span class="n">intersection</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">geometry</span><span class="p">,</span> <span class="bp">self</span><span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">block_id</span><span class="p">]</span><span class="o">.</span><span class="n">geometry</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">area</span>
+        <span class="n">block_services</span><span class="p">[</span><span class="s2">&quot;service_id&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">block_services</span><span class="o">.</span><span class="n">index</span>
+        <span class="n">block_services</span> <span class="o">=</span> <span class="n">block_services</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s2">&quot;intersection_area&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">drop_duplicates</span><span class="p">(</span>
+            <span class="n">subset</span><span class="o">=</span><span class="s2">&quot;service_id&quot;</span><span class="p">,</span> <span class="n">keep</span><span class="o">=</span><span class="s2">&quot;last&quot;</span>
+        <span class="p">)</span>
+        <span class="k">for</span> <span class="n">block_id</span><span class="p">,</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="n">block_services</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;block_id&quot;</span><span class="p">):</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">block_id</span><span class="p">)]</span>
+            <span class="n">block</span><span class="o">.</span><span class="n">update_services</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">gdf</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="City.add_service_type"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.add_service_type">[docs]</a>    <span class="k">def</span> <span class="nf">add_service_type</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add a new service type to the city model.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type : ServiceType</span>
+<span class="sd">            ServiceType object to be added.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If a service type with the same name already exists in the city model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">service_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="bp">self</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The service type with this name already exists: </span><span class="si">{</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span><span class="p">[</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_type</span></div>
+
+<div class="viewcode-block" id="City.get_distance"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_distance">[docs]</a>    <span class="k">def</span> <span class="nf">get_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_a</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Block</span><span class="p">,</span> <span class="n">block_b</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Block</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the distance (in minutes) between two blocks.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block_a : int | Block</span>
+<span class="sd">            ID or Block object representing the first block.</span>
+<span class="sd">        block_b : int | Block</span>
+<span class="sd">            ID or Block object representing the second block.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Distance in minutes between the two blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns distance (in min) between two blocks&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="p">[</span><span class="n">block_a</span><span class="p">,</span> <span class="n">block_b</span><span class="p">]</span></div>
+
+<div class="viewcode-block" id="City.get_out_edges"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_out_edges">[docs]</a>    <span class="k">def</span> <span class="nf">get_out_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Block</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[(</span><span class="n">Block</span><span class="p">,</span> <span class="n">Block</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get outgoing edges for a specific block.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block : int | Block</span>
+<span class="sd">            ID or Block object for which outgoing edges are requested.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[(Block, Block, float)]</span>
+<span class="sd">            List of tuples representing outgoing edges with weights between blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">Block</span><span class="p">):</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="p">[</span><span class="n">block</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="n">block_b</span><span class="p">],</span> <span class="n">weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">block_b</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">block</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
+
+<div class="viewcode-block" id="City.get_in_edges"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.get_in_edges">[docs]</a>    <span class="k">def</span> <span class="nf">get_in_edges</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="n">Block</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[(</span><span class="n">Block</span><span class="p">,</span> <span class="n">Block</span><span class="p">,</span> <span class="nb">float</span><span class="p">)]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get incoming edges for a specific block.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block : int | Block</span>
+<span class="sd">            ID or Block object for which incoming edges are requested.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        list[(Block, Block, float)]</span>
+<span class="sd">            List of tuples representing incoming edges with weights between blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">Block</span><span class="p">):</span>
+            <span class="n">block</span> <span class="o">=</span> <span class="n">block</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="p">[(</span><span class="bp">self</span><span class="p">[</span><span class="n">block_b</span><span class="p">],</span> <span class="bp">self</span><span class="p">[</span><span class="n">block</span><span class="p">],</span> <span class="n">weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">block_b</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[:,</span> <span class="n">block</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span></div>
+
+    <span class="nd">@singledispatchmethod</span>
+    <span class="k">def</span> <span class="fm">__getitem__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t access object with such argument type </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@__getitem__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">Block</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="n">Block</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Block</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Placeholder for some methods to exclude type checks.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block : Block</span>
+<span class="sd">            Block object to retrieve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Block</span>
+<span class="sd">            The requested Block object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">block</span>
+
+    <span class="nd">@__getitem__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Block</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a block object by its ID. For example:</span>
+<span class="sd">        &gt;&gt;&gt; city[123]</span>
+<span class="sd">        Block(id=123, ...)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block_id : int</span>
+<span class="sd">            ID of the block to retrieve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Block</span>
+<span class="sd">            The requested Block object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If the block with the specified ID does not exist in the city model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">block_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t find block with such id: </span><span class="si">{</span><span class="n">block_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span><span class="p">[</span><span class="n">block_id</span><span class="p">]</span>
+
+    <span class="nd">@__getitem__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">ServiceType</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type</span><span class="p">:</span> <span class="n">ServiceType</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServiceType</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Placeholder for some methods to exclude type checks.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type : ServiceType</span>
+<span class="sd">            ServiceType object to retrieve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ServiceType</span>
+<span class="sd">            The requested ServiceType object.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">service_type</span>
+
+    <span class="nd">@__getitem__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ServiceType</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a service type object by its name. For example:</span>
+<span class="sd">        &gt;&gt;&gt; city[&#39;school&#39;]</span>
+<span class="sd">        ServiceType(name=&#39;school&#39;, ...)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type_name : str</span>
+<span class="sd">            Name of the service type to retrieve.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ServiceType</span>
+<span class="sd">            The requested ServiceType object.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        KeyError</span>
+<span class="sd">            If a service type with the specified name does not exist in the city model.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">service_type_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Can&#39;t find service type with such name: </span><span class="si">{</span><span class="n">service_type_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span><span class="p">[</span><span class="n">service_type_name</span><span class="p">]</span>
+
+    <span class="nd">@__getitem__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">tuple</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">blocks</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the distance (travel time in minutes) between two blocks. For example:</span>
+
+<span class="sd">        &gt;&gt;&gt; city[123, 456]</span>
+<span class="sd">        34.5677</span>
+
+<span class="sd">        &gt;&gt;&gt; block_a = city[123]</span>
+<span class="sd">        &gt;&gt;&gt; block_b = city[456]</span>
+<span class="sd">        &gt;&gt;&gt; city[block_a, block_b]</span>
+<span class="sd">        34.5677</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        blocks : tuple</span>
+<span class="sd">            Tuple containing IDs or Block objects representing the two blocks.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Distance in minutes between the two blocks.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="p">(</span><span class="n">block_a</span><span class="p">,</span> <span class="n">block_b</span><span class="p">)</span> <span class="o">=</span> <span class="n">blocks</span>
+        <span class="n">block_a</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">block_a</span><span class="p">]</span>
+        <span class="n">block_b</span> <span class="o">=</span> <span class="bp">self</span><span class="p">[</span><span class="n">block_b</span><span class="p">]</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adjacency_matrix</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">block_a</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">block_b</span><span class="o">.</span><span class="n">id</span><span class="p">]</span>
+
+    <span class="nd">@singledispatchmethod</span>
+    <span class="k">def</span> <span class="fm">__contains__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">arg</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Wrong argument type for &#39;in&#39;: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">arg</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nd">@__contains__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">block_id</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a block exists in the city model. For example:</span>
+<span class="sd">        &gt;&gt;&gt; 123 in city</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; 10000 in city</span>
+<span class="sd">        False</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        block_id : int</span>
+<span class="sd">            ID of the block to check.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the block exists in the city model, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">block_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_blocks</span>
+
+<div class="viewcode-block" id="City._"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City._">[docs]</a>    <span class="nd">@__contains__</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="nb">str</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">_</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">service_type_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if a service type exists in the city model. For example:</span>
+
+<span class="sd">        &gt;&gt;&gt; &#39;school&#39; in city</span>
+<span class="sd">        True</span>
+<span class="sd">        &gt;&gt;&gt; &#39;computer_club&#39; in city</span>
+<span class="sd">        False</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        service_type_name : str</span>
+<span class="sd">            Name of the service type to check.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if the service type exists in the city model, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">service_type_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_service_types</span></div>
+
+<div class="viewcode-block" id="City.__str__"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.__str__">[docs]</a>    <span class="k">def</span> <span class="fm">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Return a string representation of the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            String describing the city model, including CRS, number of blocks, service types, buildings, and services.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;CRS : EPSG:</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">epsg</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Blocks : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">blocks</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Service types : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">service_types</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Buildings : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">buildings</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;Services : </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">services_description</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">service_types</span> <span class="o">=</span> <span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="n">service</span><span class="o">.</span><span class="n">service_type</span> <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">],</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">services</span><span class="p">:</span>
+            <span class="n">service_types</span><span class="p">[</span><span class="n">service</span><span class="o">.</span><span class="n">service_type</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">service_type</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">service_types</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">services_description</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">service_type</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> : </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">return</span> <span class="n">description</span></div>
+
+<div class="viewcode-block" id="City.from_pickle"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.from_pickle">[docs]</a>    <span class="nd">@staticmethod</span>
+    <span class="k">def</span> <span class="nf">from_pickle</span><span class="p">(</span><span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Load a city model from a `.pickle` file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            Path to the `.pickle` file containing the city model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        City</span>
+<span class="sd">            The loaded City object from the `.pickle` file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">state</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">state</span></div>
+
+<div class="viewcode-block" id="City.to_pickle"><a class="viewcode-back" href="../../../api/models/city.html#blocksnet.models.city.City.to_pickle">[docs]</a>    <span class="k">def</span> <span class="nf">to_pickle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Save the city model to a `.pickle` file.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        file_path : str</span>
+<span class="sd">            Path to the `.pickle` file where the city model will be saved.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

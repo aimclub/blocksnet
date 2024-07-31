@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Helpers &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Helpers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/utils/helpers.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-blocksnet.utils.helpers">
+<span id="helpers"></span><h1>Helpers<a class="headerlink" href="#module-blocksnet.utils.helpers" title="Permalink to this heading"></a></h1>
+<dl class="py function">
+<dt class="sig sig-object py" id="blocksnet.utils.helpers.fill_holes">
+<span class="sig-prename descclassname"><span class="pre">blocksnet.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">fill_holes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/helpers.html#fill_holes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.helpers.fill_holes" title="Permalink to this definition"></a></dt>
+<dd><p>Fills holes in geometries of a given GeoDataFrame</p>
+<section id="attributes">
+<h2>Attributes<a class="headerlink" href="#attributes" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>gdf: gpd.GeoDataFrame</dt><dd><p>GeoDataFrame with geometries to be filled.</p>
+</dd>
+</dl>
+</section>
+<section id="returns">
+<h2>Returns<a class="headerlink" href="#returns" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>gdf: gpd.GeoDataFrame</dt><dd><p>GeoDataFrame with filled geometries.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="blocksnet.utils.helpers.drop_contained_geometries">
+<span class="sig-prename descclassname"><span class="pre">blocksnet.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">drop_contained_geometries</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/helpers.html#drop_contained_geometries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.helpers.drop_contained_geometries" title="Permalink to this definition"></a></dt>
+<dd><p>Drops geometries that are contained inside other geometries.</p>
+<section id="id1">
+<h2>Attributes<a class="headerlink" href="#id1" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>gdf: gpd.GeoDataFrame</dt><dd><p>GeoDataFrame with contained geometries.</p>
+</dd>
+</dl>
+</section>
+<section id="id2">
+<h2>Returns<a class="headerlink" href="#id2" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>gdf: gpd.GeoDataFrame</dt><dd><p>GeoDataFrame without contained geometries.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="blocksnet.utils.helpers.filter_bottlenecks">
+<span class="sig-prename descclassname"><span class="pre">blocksnet.utils.helpers.</span></span><span class="sig-name descname"><span class="pre">filter_bottlenecks</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projected_crs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_width</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">40</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/helpers.html#filter_bottlenecks"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.helpers.filter_bottlenecks" title="Permalink to this definition"></a></dt>
+<dd><p>Divides geometries in narrow places and removes small geometries.</p>
+<section id="id3">
+<h2>Attributes<a class="headerlink" href="#id3" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>gdf: gpd.GeoDataFrame</dt><dd><p>GeoDataFrame with contained geometries.</p>
+</dd>
+<dt>projected_crs: int or pyproj.CRS</dt><dd><p>Metric projected CRS of a given area.</p>
+</dd>
+<dt>min_width: int or float</dt><dd><p>Minimum allowed width of geometries in resulting GeoDataFrame.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h2>Returns<a class="headerlink" href="#id4" title="Permalink to this heading"></a></h2>
+<dl class="simple">
+<dt>gdf: gpd.GeoDataFrame</dt><dd><p>GeoDataFrame with processed geometries.</p>
+</dd>
+</dl>
+</section>
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

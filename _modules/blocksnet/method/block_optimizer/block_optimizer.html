@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.method.block_optimizer.block_optimizer &mdash; BlocksNet 0.0.9 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.method.block_optimizer.block_optimizer</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.method.block_optimizer.block_optimizer</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">..accessibility</span> <span class="kn">import</span> <span class="n">Accessibility</span>
+<span class="kn">from</span> <span class="nn">..base_method</span> <span class="kn">import</span> <span class="n">BaseMethod</span>
+<span class="kn">from</span> <span class="nn">.land_use_coefs</span> <span class="kn">import</span> <span class="n">LAND_USE_INDICATORS</span>
+<span class="kn">from</span> <span class="nn">blocksnet.models.land_use</span> <span class="kn">import</span> <span class="n">LandUse</span>
+<span class="kn">from</span> <span class="nn">blocksnet.method.provision.provision</span> <span class="kn">import</span> <span class="n">Provision</span>
+<span class="kn">from</span> <span class="nn">blocksnet.models</span> <span class="kn">import</span> <span class="n">Block</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">typing</span> <span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span> <span class="nn">pulp</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">blocksnet.method.provision.provision</span> <span class="kn">import</span> <span class="n">Provision</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+
+<div class="viewcode-block" id="BlockOptimizer"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer">[docs]</a><span class="k">class</span> <span class="nc">BlockOptimizer</span><span class="p">(</span><span class="n">BaseMethod</span><span class="p">):</span>
+    <span class="n">NEW_LANDUSE</span><span class="p">:</span> <span class="n">LandUse</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">ORIG_LANDUSE</span><span class="p">:</span> <span class="n">LandUse</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">SELECTED_BLOCK</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">FREE_AREA</span><span class="p">:</span> <span class="n">Tuple</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">NEW_SERVICE_TYPES</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">ORIG_SERVICE_TYPES</span><span class="p">:</span> <span class="nb">list</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="BlockOptimizer.calculate_free_area"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.calculate_free_area">[docs]</a>    <span class="k">def</span> <span class="nf">calculate_free_area</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_block</span><span class="p">):</span>
+        <span class="n">land_use_coef</span> <span class="o">=</span> <span class="mf">0.8</span>
+        <span class="k">return</span> <span class="n">selected_block</span><span class="o">.</span><span class="n">site_area</span> <span class="o">*</span> <span class="n">land_use_coef</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.get_capacity_demand"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.get_capacity_demand">[docs]</a>    <span class="k">def</span> <span class="nf">get_capacity_demand</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_blocks_gdf</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
+
+        <span class="n">selected_block_gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">,</span> <span class="s2">&quot;population&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="n">selected_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">]</span>
+        <span class="n">acc_gdf</span> <span class="o">=</span> <span class="n">Accessibility</span><span class="p">(</span><span class="n">city_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="p">)</span><span class="o">.</span><span class="n">calculate</span><span class="p">(</span><span class="n">selected_block</span><span class="p">)</span>
+
+        <span class="n">constants</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">min_capacity_left</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
+        <span class="n">min_service</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">for</span> <span class="n">serv</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NEW_SERVICE_TYPES</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ORIG_SERVICE_TYPES</span><span class="p">)):</span>
+            <span class="n">idxs</span> <span class="o">=</span> <span class="n">acc_gdf</span><span class="p">[</span>
+                <span class="p">(</span><span class="n">acc_gdf</span><span class="o">.</span><span class="n">accessibility_to</span> <span class="o">&lt;=</span> <span class="n">serv</span><span class="o">.</span><span class="n">accessibility</span><span class="p">)</span> <span class="o">|</span> <span class="p">(</span><span class="n">acc_gdf</span><span class="o">.</span><span class="n">accessibility_from</span> <span class="o">&lt;=</span> <span class="n">serv</span><span class="o">.</span><span class="n">accessibility</span><span class="p">)</span>
+            <span class="p">][</span><span class="s2">&quot;id&quot;</span><span class="p">]</span>
+            <span class="n">capacity_column</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;capacity_</span><span class="si">{</span><span class="n">serv</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">context_gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idxs</span><span class="p">]</span>
+
+            <span class="n">demand_local</span> <span class="o">=</span> <span class="n">context_gdf</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">serv</span><span class="o">.</span><span class="n">calculate_in_need</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">capacity_local</span> <span class="o">=</span> <span class="n">context_gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="n">selected_block_gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span>
+
+            <span class="n">demand_global</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="n">serv</span><span class="o">.</span><span class="n">calculate_in_need</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+            <span class="n">capacity_global</span> <span class="o">=</span> <span class="n">gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span> <span class="o">-</span> <span class="n">selected_block_gdf</span><span class="p">[</span><span class="n">capacity_column</span><span class="p">]</span>
+
+            <span class="n">capacity_left</span> <span class="o">=</span> <span class="n">capacity_global</span> <span class="o">-</span> <span class="n">demand_global</span>
+            <span class="k">if</span> <span class="n">capacity_left</span> <span class="o">&lt;</span> <span class="n">min_capacity_left</span><span class="p">:</span>
+                <span class="n">min_capacity_left</span> <span class="o">=</span> <span class="n">capacity_left</span>
+                <span class="n">min_service</span> <span class="o">=</span> <span class="n">serv</span>
+
+            <span class="n">constants</span><span class="p">[</span><span class="n">serv</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;demand_local&quot;</span><span class="p">:</span> <span class="n">demand_local</span><span class="p">,</span> <span class="s2">&quot;capacity_local&quot;</span><span class="p">:</span> <span class="n">capacity_local</span><span class="p">}</span>
+
+        <span class="n">min_population</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">min_capacity_left</span> <span class="o">/</span> <span class="n">min_service</span><span class="o">.</span><span class="n">demand</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">constants</span><span class="p">,</span> <span class="n">min_population</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.get_bricks_df"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.get_bricks_df">[docs]</a>    <span class="k">def</span> <span class="nf">get_bricks_df</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">bricks_dict_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">serv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEW_SERVICE_TYPES</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">brick</span> <span class="ow">in</span> <span class="n">serv</span><span class="o">.</span><span class="n">bricks</span><span class="p">:</span>
+                <span class="n">brick_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;service_type&quot;</span><span class="p">:</span> <span class="n">serv</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="s2">&quot;capacity&quot;</span><span class="p">:</span> <span class="n">brick</span><span class="o">.</span><span class="n">capacity</span><span class="p">,</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="n">brick</span><span class="o">.</span><span class="n">area</span><span class="p">,</span>
+                    <span class="s2">&quot;is_integrated&quot;</span><span class="p">:</span> <span class="n">brick</span><span class="o">.</span><span class="n">is_integrated</span><span class="p">,</span>
+                <span class="p">}</span>
+                <span class="n">bricks_dict_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">brick_dict</span><span class="p">)</span>
+        <span class="n">bricks_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">bricks_dict_list</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">bricks_df</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.get_optimal_update_df"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.get_optimal_update_df">[docs]</a>    <span class="k">def</span> <span class="nf">get_optimal_update_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">prob</span><span class="p">,</span> <span class="n">bricks_df</span><span class="p">):</span>
+        <span class="n">n_bricks</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">prob</span><span class="o">.</span><span class="n">variables</span><span class="p">())</span>
+        <span class="n">counts</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_bricks</span><span class="p">))</span>
+
+        <span class="n">service_counts</span> <span class="o">=</span> <span class="n">prob</span><span class="o">.</span><span class="n">variables</span><span class="p">()</span>
+
+        <span class="k">for</span> <span class="n">var_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_bricks</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">var</span> <span class="o">=</span> <span class="n">service_counts</span><span class="p">[</span><span class="n">var_idx</span><span class="p">]</span>
+            <span class="n">service_count</span> <span class="o">=</span> <span class="n">var</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">counts</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">service_count</span>
+            <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;capacity&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;capacity&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">service_count</span>
+            <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">idx</span><span class="p">,</span> <span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">service_count</span>
+
+        <span class="n">bricks_to_build</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">counts</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">bricks_to_build_df</span> <span class="o">=</span> <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">bricks_to_build</span><span class="p">]</span>
+
+        <span class="n">service_capacities</span> <span class="o">=</span> <span class="n">bricks_to_build_df</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s2">&quot;service_type&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">()[</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+
+        <span class="n">population</span> <span class="o">=</span> <span class="n">service_counts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">value</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">population</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">service_capacities</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">population</span>
+
+        <span class="n">update</span> <span class="o">=</span> <span class="p">{</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">:</span> <span class="n">service_capacities</span><span class="p">}</span>
+
+        <span class="n">update_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">update</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">update_df</span><span class="p">,</span> <span class="n">bricks_to_build_df</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.generate_lp_problem"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.generate_lp_problem">[docs]</a>    <span class="k">def</span> <span class="nf">generate_lp_problem</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">constants</span><span class="p">,</span> <span class="n">min_population</span><span class="p">,</span> <span class="n">bricks_df</span><span class="p">):</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="n">LpProblem</span><span class="p">(</span><span class="s2">&quot;ProvisionOpt&quot;</span><span class="p">,</span> <span class="n">LpMaximize</span><span class="p">)</span>
+
+        <span class="n">lp_sum_components</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">service_weight</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NEW_SERVICE_TYPES</span><span class="p">)</span>
+
+        <span class="n">service_counts</span> <span class="o">=</span> <span class="n">LpVariable</span><span class="o">.</span><span class="n">dicts</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">bricks_df</span><span class="o">.</span><span class="n">index</span><span class="p">),</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="n">LpInteger</span><span class="p">)</span>
+        <span class="n">population</span> <span class="o">=</span> <span class="n">LpVariable</span><span class="p">(</span><span class="s2">&quot;population&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="n">cat</span><span class="o">=</span><span class="n">LpInteger</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">serv</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">NEW_SERVICE_TYPES</span><span class="p">:</span>
+            <span class="n">service_bricks_idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">bricks_df</span><span class="p">[</span><span class="n">bricks_df</span><span class="o">.</span><span class="n">service_type</span> <span class="o">==</span> <span class="n">serv</span><span class="o">.</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+
+            <span class="n">demand_local</span><span class="p">,</span> <span class="n">capacity_local</span> <span class="o">=</span> <span class="n">constants</span><span class="p">[</span><span class="n">serv</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;demand_local&quot;</span><span class="p">],</span> <span class="n">constants</span><span class="p">[</span><span class="n">serv</span><span class="o">.</span><span class="n">name</span><span class="p">][</span><span class="s2">&quot;capacity_local&quot;</span><span class="p">]</span>
+
+            <span class="n">fit_function</span> <span class="o">=</span> <span class="n">lpSum</span><span class="p">(</span><span class="n">service_counts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">*</span> <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">capacity</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">service_bricks_idxs</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">demand_local</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">lp_sum_components</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">service_weight</span>
+                    <span class="o">*</span> <span class="p">(((</span><span class="n">fit_function</span> <span class="o">+</span> <span class="n">capacity_local</span> <span class="o">-</span> <span class="p">(</span><span class="n">population</span> <span class="o">*</span> <span class="n">serv</span><span class="o">.</span><span class="n">demand</span><span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">/</span> <span class="n">demand_local</span><span class="p">))</span>
+                <span class="p">)</span>
+
+        <span class="c1"># Пытаемся добавить насление, если осталось незаполненные места</span>
+        <span class="n">prob</span> <span class="o">+=</span> <span class="n">population</span> <span class="o">==</span> <span class="n">min_population</span>
+
+        <span class="n">block_area</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">]</span><span class="o">.</span><span class="n">site_area</span>
+
+        <span class="n">indicators</span> <span class="o">=</span> <span class="n">LAND_USE_INDICATORS</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">NEW_LANDUSE</span><span class="p">]</span>
+
+        <span class="n">FSI_max</span><span class="p">,</span> <span class="n">FSI_min</span> <span class="o">=</span> <span class="n">indicators</span><span class="o">.</span><span class="n">FSI_max</span><span class="p">,</span> <span class="n">indicators</span><span class="o">.</span><span class="n">FSI_min</span>
+
+        <span class="n">prob</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">service_counts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">*</span> <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">area</span> <span class="o">/</span> <span class="n">block_area</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">bricks_df</span><span class="o">.</span><span class="n">index</span><span class="p">))</span> <span class="o">&lt;=</span> <span class="n">FSI_max</span>
+        <span class="n">prob</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">service_counts</span><span class="p">[</span><span class="n">n</span><span class="p">]</span> <span class="o">*</span> <span class="n">bricks_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">.</span><span class="n">area</span> <span class="o">/</span> <span class="n">block_area</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">bricks_df</span><span class="o">.</span><span class="n">index</span><span class="p">))</span> <span class="o">&gt;=</span> <span class="n">FSI_min</span>
+
+        <span class="n">prob</span> <span class="o">+=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">lp_sum_components</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">prob</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.get_deleting_update_df"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.get_deleting_update_df">[docs]</a>    <span class="k">def</span> <span class="nf">get_deleting_update_df</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_block_id</span><span class="p">,</span> <span class="n">delete_population</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+
+        <span class="n">service_capacities</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">selected_block</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="p">[</span><span class="n">selected_block_id</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">serv</span> <span class="ow">in</span> <span class="n">selected_block</span><span class="o">.</span><span class="n">all_services</span><span class="p">:</span>
+            <span class="n">service_dict</span> <span class="o">=</span> <span class="n">serv</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+            <span class="n">service_capacities</span><span class="p">[</span><span class="n">service_dict</span><span class="p">[</span><span class="s2">&quot;service_type&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="o">-</span><span class="n">service_dict</span><span class="p">[</span><span class="s2">&quot;capacity&quot;</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">delete_population</span><span class="p">:</span>
+            <span class="n">service_capacities</span><span class="p">[</span><span class="s2">&quot;population&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="n">selected_block</span><span class="o">.</span><span class="n">population</span>
+
+        <span class="n">update</span> <span class="o">=</span> <span class="p">{</span><span class="n">selected_block_id</span><span class="p">:</span> <span class="n">service_capacities</span><span class="p">}</span>
+
+        <span class="n">update_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">update</span><span class="p">,</span> <span class="n">orient</span><span class="o">=</span><span class="s2">&quot;index&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">update_df</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.plot"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.plot">[docs]</a>    <span class="k">def</span> <span class="nf">plot</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">optimal_update_df</span><span class="p">,</span>
+        <span class="n">bricks_to_build_df</span><span class="p">,</span>
+        <span class="n">total_before</span><span class="p">,</span>
+        <span class="n">total_after</span><span class="p">,</span>
+        <span class="n">categories</span><span class="p">,</span>
+        <span class="n">previous_values</span><span class="p">,</span>
+        <span class="n">current_values</span><span class="p">,</span>
+    <span class="p">):</span>
+        <span class="n">differences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">current_values</span><span class="p">)</span> <span class="o">-</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">previous_values</span><span class="p">),</span> <span class="mi">2</span><span class="p">)</span>
+
+        <span class="n">filtered_categories</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">filtered_differences</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">filtered_previous_values</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="n">highlight_columns</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">optimal_update_df</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">category</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">prev</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">differences</span><span class="p">,</span> <span class="n">previous_values</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">diff</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">filtered_categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">category</span><span class="p">)</span>
+                <span class="n">filtered_differences</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+                <span class="n">filtered_previous_values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">prev</span><span class="p">)</span>
+
+        <span class="n">previous_values</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">filtered_previous_values</span><span class="p">)</span>
+        <span class="n">categories</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">filtered_categories</span><span class="p">)</span>
+        <span class="n">differences</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">filtered_differences</span><span class="p">)</span>
+
+        <span class="n">bar_width</span> <span class="o">=</span> <span class="mf">0.5</span>
+        <span class="n">num_bars</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_categories</span><span class="p">)</span>
+
+        <span class="n">fig_width</span> <span class="o">=</span> <span class="n">num_bars</span> <span class="o">*</span> <span class="n">bar_width</span> <span class="o">*</span> <span class="mf">1.5</span>
+
+        <span class="n">fig_width</span> <span class="o">=</span> <span class="n">fig_width</span> <span class="k">if</span> <span class="n">fig_width</span> <span class="o">&gt;</span> <span class="mi">10</span> <span class="k">else</span> <span class="mi">10</span>
+        <span class="n">fig_height</span> <span class="o">=</span> <span class="mi">6</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">categories</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="mf">0.5</span><span class="p">,</span>
+                <span class="mf">0.5</span><span class="p">,</span>
+                <span class="s2">&quot;Изменений нет&quot;</span><span class="p">,</span>
+                <span class="n">horizontalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">verticalalignment</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">,</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">plt</span><span class="o">.</span><span class="n">axis</span><span class="p">(</span><span class="s2">&quot;off&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">become_higher</span> <span class="o">=</span> <span class="n">differences</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="n">become_lower</span> <span class="o">=</span> <span class="n">differences</span> <span class="o">&lt;</span> <span class="mi">0</span>
+
+            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="n">fig_width</span><span class="p">,</span> <span class="n">fig_height</span><span class="p">))</span>
+            <span class="n">bars_previous</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="n">previous_values</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="n">bar_width</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Previous Values&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">)</span>
+
+            <span class="n">bars_difference_higher</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+                <span class="n">categories</span><span class="p">[</span><span class="n">become_higher</span><span class="p">],</span>
+                <span class="n">differences</span><span class="p">[</span><span class="n">become_higher</span><span class="p">],</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">bar_width</span><span class="p">,</span>
+                <span class="n">bottom</span><span class="o">=</span><span class="n">previous_values</span><span class="p">[</span><span class="n">become_higher</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;green&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Provision become higher&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">bars_difference_higher</span><span class="p">,</span>
+                <span class="n">differences</span><span class="p">[</span><span class="n">become_higher</span><span class="p">],</span>
+                <span class="n">previous_values</span><span class="p">[</span><span class="n">become_higher</span><span class="p">],</span>
+                <span class="n">categories</span><span class="p">[</span><span class="n">become_higher</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="n">yval</span> <span class="o">=</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_x</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">prev</span> <span class="o">+</span> <span class="n">yval</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+
+            <span class="n">bars_difference_lower</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">bar</span><span class="p">(</span>
+                <span class="n">categories</span><span class="p">[</span><span class="n">become_lower</span><span class="p">],</span>
+                <span class="n">differences</span><span class="p">[</span><span class="n">become_lower</span><span class="p">],</span>
+                <span class="n">width</span><span class="o">=</span><span class="n">bar_width</span><span class="p">,</span>
+                <span class="n">bottom</span><span class="o">=</span><span class="n">previous_values</span><span class="p">[</span><span class="n">become_lower</span><span class="p">],</span>
+                <span class="n">color</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span>
+                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Provision become lower&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">bar</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">prev</span><span class="p">,</span> <span class="n">category</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
+                <span class="n">bars_difference_lower</span><span class="p">,</span>
+                <span class="n">differences</span><span class="p">[</span><span class="n">become_lower</span><span class="p">],</span>
+                <span class="n">previous_values</span><span class="p">[</span><span class="n">become_lower</span><span class="p">],</span>
+                <span class="n">categories</span><span class="p">[</span><span class="n">become_lower</span><span class="p">],</span>
+            <span class="p">):</span>
+                <span class="n">yval</span> <span class="o">=</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_height</span><span class="p">()</span> <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+                <span class="n">text</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="n">bar</span><span class="o">.</span><span class="n">get_x</span><span class="p">()</span> <span class="o">+</span> <span class="n">bar</span><span class="o">.</span><span class="n">get_width</span><span class="p">()</span> <span class="o">/</span> <span class="mi">2</span><span class="p">,</span> <span class="n">prev</span> <span class="o">+</span> <span class="n">yval</span> <span class="o">+</span> <span class="mf">0.01</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">)</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">1.1</span><span class="p">)</span>
+
+            <span class="n">land_use_names</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Changing </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">ORIG_LANDUSE</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">NEW_LANDUSE</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">total_provision_difference</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Total provision difference: </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">total_after</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">total_before</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s2">&quot;City Services</span><span class="se">\n</span><span class="s2"> The services highlighted in orange have just been built&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s2">&quot;Provision&quot;</span><span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Differences of Provisions in city services</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">land_use_names</span><span class="si">}</span><span class="s2"> </span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">total_provision_difference</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tick</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">gca</span><span class="p">()</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()):</span>
+                <span class="k">if</span> <span class="n">tick</span><span class="o">.</span><span class="n">get_text</span><span class="p">()</span> <span class="ow">in</span> <span class="n">highlight_columns</span><span class="p">:</span>
+                    <span class="n">tick</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s2">&quot;orange&quot;</span><span class="p">)</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+            <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.get_provision_diff"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.get_provision_diff">[docs]</a>    <span class="k">def</span> <span class="nf">get_provision_diff</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">optimal_update_df</span><span class="p">):</span>
+        <span class="n">prov</span> <span class="o">=</span> <span class="n">Provision</span><span class="p">(</span><span class="n">city_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="p">)</span>
+
+        <span class="n">orig_landuse_services</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_land_use_service_types</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">ORIG_LANDUSE</span><span class="p">)</span>
+        <span class="n">new_landuse_services</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_land_use_service_types</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">NEW_LANDUSE</span><span class="p">)</span>
+
+        <span class="n">orig_landuse_services_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">orig_landuse_services</span><span class="p">])</span>
+        <span class="n">new_landuse_services_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">([</span><span class="n">x</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">new_landuse_services</span><span class="p">])</span>
+
+        <span class="n">combined_landuse_services</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">orig_landuse_services_set</span> <span class="o">|</span> <span class="n">new_landuse_services_set</span><span class="p">)</span>
+
+        <span class="n">scenario</span> <span class="o">=</span> <span class="p">{</span><span class="n">elem</span><span class="p">:</span> <span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">combined_landuse_services</span><span class="p">)</span> <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">combined_landuse_services</span><span class="p">}</span>
+
+        <span class="n">gdf</span><span class="p">,</span> <span class="n">total_before</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate_scenario</span><span class="p">(</span><span class="n">scenario</span><span class="p">,</span> <span class="n">self_supply</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">provision_before</span> <span class="o">=</span> <span class="p">[</span><span class="n">prov</span><span class="o">.</span><span class="n">total_provision</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="n">service</span><span class="p">])</span> <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scenario</span><span class="p">]</span>
+
+        <span class="n">deleting_update_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_deleting_update_df</span><span class="p">(</span><span class="n">selected_block_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">,</span> <span class="n">delete_population</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">update_df</span> <span class="o">=</span> <span class="n">optimal_update_df</span><span class="o">.</span><span class="n">combine_first</span><span class="p">(</span><span class="n">deleting_update_df</span><span class="p">)</span>
+
+        <span class="n">gdf</span><span class="p">,</span> <span class="n">total_after</span> <span class="o">=</span> <span class="n">prov</span><span class="o">.</span><span class="n">calculate_scenario</span><span class="p">(</span><span class="n">scenario</span><span class="p">,</span> <span class="n">update_df</span><span class="o">=</span><span class="n">update_df</span><span class="p">,</span> <span class="n">self_supply</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">provision_after</span> <span class="o">=</span> <span class="p">[</span><span class="n">prov</span><span class="o">.</span><span class="n">total_provision</span><span class="p">(</span><span class="n">gdf</span><span class="p">[</span><span class="n">service</span><span class="p">])</span> <span class="k">for</span> <span class="n">service</span> <span class="ow">in</span> <span class="n">scenario</span><span class="p">]</span>
+
+        <span class="k">return</span> <span class="n">total_before</span><span class="p">,</span> <span class="n">total_after</span><span class="p">,</span> <span class="n">combined_landuse_services</span><span class="p">,</span> <span class="n">provision_before</span><span class="p">,</span> <span class="n">provision_after</span></div>
+
+<div class="viewcode-block" id="BlockOptimizer.calculate"><a class="viewcode-back" href="../../../../api/method/block_optimizer.html#blocksnet.method.block_optimizer.block_optimizer.BlockOptimizer.calculate">[docs]</a>    <span class="k">def</span> <span class="nf">calculate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">selected_block</span><span class="p">:</span> <span class="n">Block</span><span class="p">,</span> <span class="n">new_landuse</span><span class="p">:</span> <span class="n">LandUse</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span> <span class="o">=</span> <span class="n">selected_block</span><span class="o">.</span><span class="n">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEW_LANDUSE</span> <span class="o">=</span> <span class="n">new_landuse</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ORIG_LANDUSE</span> <span class="o">=</span> <span class="n">selected_block</span><span class="o">.</span><span class="n">land_use</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">NEW_SERVICE_TYPES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_land_use_service_types</span><span class="p">(</span><span class="n">new_landuse</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ORIG_SERVICE_TYPES</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">city_model</span><span class="o">.</span><span class="n">get_land_use_service_types</span><span class="p">(</span><span class="n">selected_block</span><span class="o">.</span><span class="n">land_use</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">FREE_AREA</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_free_area</span><span class="p">(</span><span class="n">selected_block</span><span class="p">)</span>
+        <span class="n">constants</span><span class="p">,</span> <span class="n">min_population</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_capacity_demand</span><span class="p">()</span>
+
+        <span class="n">bricks_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_bricks_df</span><span class="p">()</span>
+
+        <span class="c1"># method</span>
+        <span class="n">prob</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">generate_lp_problem</span><span class="p">(</span><span class="n">constants</span><span class="p">,</span> <span class="n">min_population</span><span class="p">,</span> <span class="n">bricks_df</span><span class="p">)</span>
+        <span class="n">prob</span><span class="o">.</span><span class="n">solve</span><span class="p">(</span><span class="n">PULP_CBC_CMD</span><span class="p">(</span><span class="n">msg</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+
+        <span class="n">optimal_update_df</span><span class="p">,</span> <span class="n">bricks_to_build_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_optimal_update_df</span><span class="p">(</span><span class="n">prob</span><span class="p">,</span> <span class="n">bricks_df</span><span class="p">)</span>
+
+        <span class="n">total_before</span><span class="p">,</span> <span class="n">total_after</span><span class="p">,</span> <span class="n">categories</span><span class="p">,</span> <span class="n">previous_values</span><span class="p">,</span> <span class="n">current_values</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_provision_diff</span><span class="p">(</span>
+            <span class="n">optimal_update_df</span>
+        <span class="p">)</span>
+
+        <span class="n">deleting_update_df</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_deleting_update_df</span><span class="p">(</span><span class="n">selected_block_id</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">SELECTED_BLOCK</span><span class="p">,</span> <span class="n">delete_population</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;optimal_update_df&quot;</span><span class="p">:</span> <span class="n">optimal_update_df</span><span class="p">,</span>
+            <span class="s2">&quot;bricks_to_build_df&quot;</span><span class="p">:</span> <span class="n">bricks_to_build_df</span><span class="p">,</span>
+            <span class="s2">&quot;total_before&quot;</span><span class="p">:</span> <span class="n">total_before</span><span class="p">,</span>
+            <span class="s2">&quot;total_after&quot;</span><span class="p">:</span> <span class="n">total_after</span><span class="p">,</span>
+            <span class="s2">&quot;categories&quot;</span><span class="p">:</span> <span class="n">categories</span><span class="p">,</span>
+            <span class="s2">&quot;previous_values&quot;</span><span class="p">:</span> <span class="n">previous_values</span><span class="p">,</span>
+            <span class="s2">&quot;current_values&quot;</span><span class="p">:</span> <span class="n">current_values</span><span class="p">,</span>
+        <span class="p">},</span> <span class="n">deleting_update_df</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2024, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
