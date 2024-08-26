@@ -1027,6 +1027,10 @@ class City:
             List of Service objects representing all services available in the city.
         """
         return [service for block in self.blocks for service in block.all_services]
+    
+    @property
+    def loaded_service_types(self) -> list[str]:
+        return list(set([service.service_type for block in self.blocks for service in block.all_services]))
 
     def plot(
         self, figsize: tuple[float, float] = (15, 15), linewidth: float = 0.1, max_travel_time: float = 15
