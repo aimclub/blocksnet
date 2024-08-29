@@ -1,3 +1,4 @@
+import collections
 from ..accessibility import Accessibility
 from ..base_method import BaseMethod
 from .land_use_coefs import LAND_USE_INDICATORS
@@ -10,34 +11,39 @@ from typing import Tuple
 from pulp import *
 from blocksnet.method.provision.provision import Provision
 import matplotlib.pyplot as plt
+from collections import defaultdict
 
 
 class BlockOptimizer(BaseMethod):
-    NEW_LANDUSE: LandUse = None
-    ORIG_LANDUSE: LandUse = None
-    SELECTED_BLOCK: int = 0
+    BLOCKS_LANUSE_DICT:dict = {}
+    ORIG_SERVICE_TYPES:dict = {}
+    NEW_SERVICE_TYPES:dict = {}
+    FREE_AREA:dict = {}
+    BRICKS:dict = {}
+    CONSTANTS:dict = {}
+    SCENARIO:dict = {}
     FREE_AREA: Tuple = (0, 0)
-    NEW_SERVICE_TYPES: list = []
-    ORIG_SERVICE_TYPES: list = []
+    MAX_FACILITIES:int = None
 
-    def calculate_free_area(self, selected_block):
+    def calculate_free_area(self, selected_block_id):
+        selected_block = self.city_model[selected_block_id]
         land_use_coef = 0.8
         return selected_block.site_area * land_use_coef
 
-    def get_capacity_demand(self):
+    def get_capacity_demand(self, selected_block_id):
         gdf = self.city_model.get_blocks_gdf(False)
 
-        selected_block_gdf = gdf.loc[self.SELECTED_BLOCK].to_dict()
-        gdf.loc[self.SELECTED_BLOCK, "population"] = 0
+        selected_block_gdf = gdf.loc[selected_block_id].to_dict()
+        gdf.loc[selected_block_id, "population"] = 0
 
-        selected_block = self.city_model[self.SELECTED_BLOCK]
+        selected_block = self.city_model[selected_block_id]
         acc_gdf = Accessibility(city_model=self.city_model).calculate(selected_block)
 
         constants = {}
         min_capacity_left = float("inf")
         min_service = None
 
-        for serv in list(set(self.NEW_SERVICE_TYPES) | set(self.ORIG_SERVICE_TYPES)):
+        for serv in list(set(self.NEW_SERVICE_TYPES[selected_block_id]) | set(self.ORIG_SERVICE_TYPES[selected_block_id])):
             idxs = acc_gdf[
                 (acc_gdf.accessibility_to <= serv.accessibility) | (acc_gdf.accessibility_from <= serv.accessibility)
             ]["id"]
@@ -61,83 +67,117 @@ class BlockOptimizer(BaseMethod):
 
         return constants, min_population
 
-    def get_bricks_df(self):
+    def get_bricks_df(self, service_types):
         bricks_dict_list = []
 
-        for serv in self.NEW_SERVICE_TYPES:
+        for serv in service_types:
             for brick in serv.bricks:
                 brick_dict = {
                     "service_type": serv.name,
                     "capacity": brick.capacity,
                     "area": brick.area,
-                    "is_integrated": brick.is_integrated,
+                    #"is_integrated": brick.is_integrated,
                 }
                 bricks_dict_list.append(brick_dict)
         bricks_df = pd.DataFrame(bricks_dict_list)
         return bricks_df
 
-    def get_optimal_update_df(self, prob, bricks_df):
+    def get_optimal_update_df(self, prob):
         n_bricks = len(prob.variables())
-        counts = np.zeros((n_bricks))
+        counts = {}
+        for key in self.BRICKS:
+            counts[key] = np.zeros(len(self.BRICKS[key]))
+        populations = {}
 
         service_counts = prob.variables()
 
-        for var_idx in range(n_bricks - 1):
+        for var_idx in range(n_bricks):
+       
+
             var = service_counts[var_idx]
             service_count = var.value()
-            idx = int(var.name.rsplit("_")[-1])
-            counts[idx] = service_count
-            bricks_df.loc[idx, "capacity"] = bricks_df.loc[idx, "capacity"] * service_count
-            bricks_df.loc[idx, "area"] = bricks_df.loc[idx, "area"] * service_count
+            block_idx, idx = var.name.rsplit("_")
 
-        bricks_to_build = np.where(counts != 0)[0]
-        bricks_to_build_df = bricks_df.loc[bricks_to_build]
+            if idx == 'population':
+                populations[int(block_idx)] = service_count
+            else:
+                block_idx, idx = int(block_idx), int(idx)
+                counts[block_idx][idx] = service_count
+                self.BRICKS[block_idx].loc[idx, "capacity_agg"] = self.BRICKS[block_idx].loc[idx, "capacity"] * service_count
+                self.BRICKS[block_idx].loc[idx, "area_agg"] = self.BRICKS[block_idx].loc[idx, "area"] * service_count
 
-        service_capacities = bricks_to_build_df.groupby("service_type").sum()["capacity"].to_dict()
+        update = {}
+        bricks_to_build_df = {}
+        for key in self.BLOCKS_LANUSE_DICT:
+            bricks_to_build = np.where(counts[key] != 0.0)[0]
+            bricks_to_build_df[key] = self.BRICKS[key].loc[bricks_to_build]
+            service_counts = counts[key][counts[key] != 0.0]
+            bricks_to_build_df[key]['service_counts'] = service_counts
+            constants, min_population = self.CONSTANTS[key]
+            bricks_to_build_df[key]['demand_in_need'] = bricks_to_build_df[key]['service_type'].apply(lambda x: constants[x]["demand_local"] - constants[x]["capacity_local"])
 
-        population = service_counts[-1].value()
-        if population > 0:
-            service_capacities["population"] = population
 
-        update = {self.SELECTED_BLOCK: service_capacities}
+            service_capacities = bricks_to_build_df[key].groupby("service_type").sum()["capacity_agg"].to_dict()
+
+            population = populations.get(key, 0)
+            if population > 0:
+                service_capacities["population"] = population
+
+            update[key] = service_capacities
 
         update_df = pd.DataFrame.from_dict(update, orient="index")
-        return update_df, bricks_to_build_df
+        return update_df, bricks_to_build_df, prob.objective.value()
 
-    def generate_lp_problem(self, constants, min_population, bricks_df):
+    def generate_lp_problem(self):
         prob = LpProblem("ProvisionOpt", LpMaximize)
 
         lp_sum_components = []
+        
+        for key in self.BLOCKS_LANUSE_DICT:
+            if len(self.SCENARIO) != 0:
+                servs = [serv.name for serv in self.NEW_SERVICE_TYPES[key]]
+                intersecting_keys = set(self.SCENARIO.keys()).intersection(servs)
+                scenario_coef_sum = sum(self.SCENARIO[key] for key in intersecting_keys)
+            else:
+                scenario_coef_sum = 0
+            
+            default_weight = (1-scenario_coef_sum) / len(self.NEW_SERVICE_TYPES[key])
+            bricks_df = self.BRICKS[key]
+            constants, min_population = self.CONSTANTS[key]
+            service_counts = LpVariable.dicts(f"{key}", list(bricks_df.index), 0, self.MAX_FACILITIES, cat=LpInteger)
+            population = LpVariable(f"{key}_population", 0, None, cat=LpInteger)
+            
+            for serv in self.NEW_SERVICE_TYPES[key]:
+                service_bricks_idxs = list(bricks_df[bricks_df.service_type == serv.name].index)
 
-        service_weight = 1 / len(self.NEW_SERVICE_TYPES)
+                demand_local, capacity_local = constants[serv.name]["demand_local"], constants[serv.name]["capacity_local"]
 
-        service_counts = LpVariable.dicts("", list(bricks_df.index), 0, None, cat=LpInteger)
-        population = LpVariable("population", 0, None, cat=LpInteger)
+                fit_function = lpSum(service_counts[n] * bricks_df.loc[n].capacity for n in service_bricks_idxs)
+                
+                demand_from_new_population = (population * serv.demand) / 1000
+                C_i = fit_function + capacity_local 
+                D_i = demand_local + demand_from_new_population
+                service_weight = self.SCENARIO.get(serv.name, default_weight)
+                
+                if demand_local > 0 and capacity_local < demand_local:
+                    lp_sum_components.append(
+                        service_weight * (C_i - D_i)
+                    )
+                    prob += fit_function <= demand_local - capacity_local
+    
+                if capacity_local > demand_local and self.BLOCKS_LANUSE_DICT[key] == LandUse.RESIDENTIAL:
+                    prob += demand_from_new_population <= capacity_local - demand_local
 
-        for serv in self.NEW_SERVICE_TYPES:
-            service_bricks_idxs = list(bricks_df[bricks_df.service_type == serv.name].index)
+            block_area = self.city_model[key].site_area
 
-            demand_local, capacity_local = constants[serv.name]["demand_local"], constants[serv.name]["capacity_local"]
+            indicators = LAND_USE_INDICATORS[self.BLOCKS_LANUSE_DICT[key]]
 
-            fit_function = lpSum(service_counts[n] * bricks_df.loc[n].capacity for n in service_bricks_idxs)
+            FSI_max, FSI_min = indicators.FSI_max, indicators.FSI_min
 
-            if demand_local > 0:
-                lp_sum_components.append(
-                    service_weight
-                    * (((fit_function + capacity_local - (population * serv.demand) / 1000) / demand_local))
-                )
+            prob += sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) <= FSI_max
+            prob += sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) >= FSI_min
 
-        # Пытаемся добавить насление, если осталось незаполненные места
-        prob += population == min_population
-
-        block_area = self.city_model[self.SELECTED_BLOCK].site_area
-
-        indicators = LAND_USE_INDICATORS[self.NEW_LANDUSE]
-
-        FSI_max, FSI_min = indicators.FSI_max, indicators.FSI_min
-
-        prob += sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) <= FSI_max
-        prob += sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) >= FSI_min
+            prob += sum(service_counts[n] * bricks_df.loc[n].area  for n in list(bricks_df.index)) <= block_area
 
         prob += sum(i for i in lp_sum_components)
 
@@ -297,37 +337,41 @@ class BlockOptimizer(BaseMethod):
 
         return total_before, total_after, combined_landuse_services, provision_before, provision_after
 
-    def calculate(self, selected_block: Block, new_landuse: LandUse):
-        self.SELECTED_BLOCK = selected_block.id
-        self.NEW_LANDUSE = new_landuse
-        self.ORIG_LANDUSE = selected_block.land_use
+    def calculate(self, blocks_landuse_dict: dict, scenario:dict={}, max_facilities:int=None):
+        self.SCENARIO = scenario
+        self.BLOCKS_LANUSE_DICT = blocks_landuse_dict
+        self.MAX_FACILITIES = max_facilities
 
-        self.NEW_SERVICE_TYPES = self.city_model.get_land_use_service_types(new_landuse)
-        self.ORIG_SERVICE_TYPES = self.city_model.get_land_use_service_types(selected_block.land_use)
-
-        self.FREE_AREA = self.calculate_free_area(selected_block)
-        constants, min_population = self.get_capacity_demand()
-
-        bricks_df = self.get_bricks_df()
-
+        self.ORIG_SERVICE_TYPES = {}
+        self.NEW_SERVICE_TYPES = {}
+        self.FREE_AREA = {}
+        self.BRICKS = {}
+        self.CONSTANTS = {}
+        for key in self.BLOCKS_LANUSE_DICT:
+            orig_landuse = self.city_model[key].land_use
+            orig_service_types = self.city_model.get_land_use_service_types(orig_landuse)
+            new_service_types = self.city_model.get_land_use_service_types(blocks_landuse_dict[key])
+            self.ORIG_SERVICE_TYPES[key] = orig_service_types
+            self.NEW_SERVICE_TYPES[key] = new_service_types
+            self.FREE_AREA[key] = self.calculate_free_area(key)
+            self.CONSTANTS[key] = self.get_capacity_demand(key)
+            self.BRICKS[key] = self.get_bricks_df(new_service_types)
+            
         # method
-        prob = self.generate_lp_problem(constants, min_population, bricks_df)
+        prob = self.generate_lp_problem()
         prob.solve(PULP_CBC_CMD(msg=False))
+        print(LpStatus[prob.status])
+        optimal_update_df, bricks_to_build_df, provision = self.get_optimal_update_df(prob)
 
-        optimal_update_df, bricks_to_build_df = self.get_optimal_update_df(prob, bricks_df)
-
-        total_before, total_after, categories, previous_values, current_values = self.get_provision_diff(
-            optimal_update_df
-        )
-
-        deleting_update_df = self.get_deleting_update_df(selected_block_id=self.SELECTED_BLOCK, delete_population=True)
+        dfs = []
+        for key in self.BLOCKS_LANUSE_DICT:
+            deleting_update_df = self.get_deleting_update_df(selected_block_id=key, delete_population=True)
+            dfs.append(deleting_update_df)
+        combined_df = pd.concat(dfs, ignore_index=True)
 
         return {
-            "optimal_update_df": optimal_update_df,
+            "optimal_update_df": optimal_update_df.fillna(0),
             "bricks_to_build_df": bricks_to_build_df,
-            "total_before": total_before,
-            "total_after": total_after,
-            "categories": categories,
-            "previous_values": previous_values,
-            "current_values": current_values,
-        }, deleting_update_df
+            "deleting_df":combined_df.fillna(0),
+            "provision":provision
+        }
