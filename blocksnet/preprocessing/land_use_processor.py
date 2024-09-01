@@ -1,3 +1,6 @@
+"""
+Module that processes data to classify blocks based on their intersection with predefined standardized zones.
+"""
 import geopandas as gpd
 import pandas as pd
 import pandera as pa

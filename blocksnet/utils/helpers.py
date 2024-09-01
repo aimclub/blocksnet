@@ -1,3 +1,6 @@
+"""
+Some helping functions used to perform certain spatial operations and can be used in different modules.
+"""
 import geopandas as gpd
 from shapely.geometry import MultiPolygon, Polygon
 

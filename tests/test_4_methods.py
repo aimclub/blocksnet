@@ -9,15 +9,14 @@ from blocksnet.method.accessibility import Accessibility, ACCESSIBILITY_FROM_COL
 from blocksnet.method.connectivity import Connectivity, CONNECTIVITY_COLUMN
 
 # from blocksnet.method.diversity import Diversity, DIVERSITY_COLUMN
-from blocksnet.method.centrality import (
-    Centrality,
-    PopulationCentrality,
-    CENTRALITY_COLUMN,
-    POPULATION_CENTRALITY_COLUMN,
-)
+# from blocksnet.method.centrality import Centrality, CENTRALITY_COLUMN
+from blocksnet.method.population_centrality import PopulationCentrality, POPULATION_CENTRALITY_COLUMN
 from blocksnet.method.spacematrix import Spacematrix, SM_CLUSTER_COLUMN, SM_MORPHOTYPE_COLUMN, KB_MORPHOTYPE_COLUMN
-from blocksnet.methodland_use_prediction import LandUsePrediction, PREDICTION_COLUMN
+
+from blocksnet.method.land_use_prediction import LandUsePrediction, PREDICTION_COLUMN
 from blocksnet.models.land_use import LandUse
+
+# from blocksnet.method.vacant_area import VacantArea
 
 data_path = "./tests/data"
 
@@ -163,3 +162,21 @@ def test_lup(lup_result):
     res = lup_result
     lus = [lu.name for lu in LandUse]
     assert all(res[~res[PREDICTION_COLUMN].isna()].isin(lus))
+
+
+# vacant area
+
+
+# @pytest.fixture
+# def va(city):
+#     return VacantArea(city_model=city)
+
+
+# @pytest.fixture
+# def va_result(va):
+#     return va.calculate()
+
+
+# def test_va(va_result):
+#     res = va_result
+#     assert res.index.is_unique

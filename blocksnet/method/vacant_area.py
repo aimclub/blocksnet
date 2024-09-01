@@ -1,26 +1,41 @@
-from typing import ClassVar
-
+"""
+Identify vacant areas within specified blocks.
+"""
 import geopandas as gpd
 import osmnx as ox
 import pandas as pd
 from pydantic import Field
 
-from ..models import Block, ServiceType
+from ..models import Block
 from .base_method import BaseMethod
 
 
 class VacantArea(BaseMethod):
     """
-    A class to identify and calculate vacant areas within a specified block or blocks in a city model,
-    taking into account various geographical features like buildings, highways, natural areas, etc.
+    A class for identifying and calculating vacant areas within specified city blocks.
 
-    Attributes:
-    - local_crs (ClassVar[int]): The local coordinate reference system (CRS) code used for spatial operations.
-    - roads_buffer (ClassVar[int]): The buffer distance to apply around roads when identifying vacant areas.
-    - buildings_buffer (ClassVar[int]): The buffer distance to apply around buildings when identifying vacant areas.
-    - min_length (ClassVar[int]): The minimum length threshold for considered vacant areas.
-    - min_area (ClassVar[int]): The minimum area threshold for considered vacant areas.
-    - area_attitude (ClassVar[int]): The ratio used to filter areas based on their minimum bounding rectangle.
+    This class extends `BaseMethod` and includes methods to identify and calculate vacant areas in city blocks
+    by considering various geographical features such as buildings, roads, natural areas, and amenities. The vacant
+    areas are filtered based on their size, shape, and proximity to existing features.
+
+    Attributes
+    ----------
+    area_to_length_min : float
+        Minimum ratio of area to length for considering an area as vacant.
+    area_min : float
+        Minimum area size for considering an area as vacant.
+    area_to_mrr_area_min : float
+        Minimum ratio of area to minimum rotated rectangle (MRR) area for considering an area as vacant.
+    path_buffer : float
+        Buffer distance around path and footway geometries.
+    roads_buffer : float
+        Buffer distance around road geometries.
+    buildings_buffer : float
+        Buffer distance around building geometries.
+    blocks_buffer_min : float
+        Minimum buffer distance around blocks.
+    blocks_buffer_max : float
+        Maximum buffer distance around blocks.
     """
 
     area_to_length_min: float = Field(ge=0, default=4)
@@ -35,14 +50,17 @@ class VacantArea(BaseMethod):
 
     def _dwn_other(self, geometry) -> gpd.GeoDataFrame:
         """
-        Download other non-standard areas within a block.
+        Download non-standard areas within a block.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing other non-standard areas.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with the geometries of non-standard areas.
         """
         try:
             other = ox.features_from_polygon(geometry, tags={"man_made": True, "aeroway": True, "military": True})
@@ -56,12 +74,15 @@ class VacantArea(BaseMethod):
         """
         Download leisure areas within a block.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing leisure areas.
+        Returns
+        -------
+        gpd.GeoSeries
+            A GeoSeries with the geometries of leisure areas.
         """
         try:
             leisure = ox.features_from_polygon(geometry, tags={"leisure": True})
@@ -73,14 +94,17 @@ class VacantArea(BaseMethod):
 
     def _dwn_landuse(self, geometry) -> gpd.GeoDataFrame:
         """
-        Download land use areas within a block, excluding residential.
+        Download land use areas within a block, excluding residential areas.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing non-residential land use areas.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with the geometries of non-residential land use areas.
         """
         try:
             landuse = ox.features_from_polygon(geometry, tags={"landuse": True})
@@ -96,12 +120,15 @@ class VacantArea(BaseMethod):
         """
         Download amenity areas within a block.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing amenity areas.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with the geometries of amenity areas.
         """
         try:
             amenity = ox.features_from_polygon(geometry, tags={"amenity": True})
@@ -115,13 +142,15 @@ class VacantArea(BaseMethod):
         """
         Download building areas within a block and apply a buffer.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
-        - buildings_buffer: Buffer distance to apply to building geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of buffered building geometries.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with buffered building geometries.
         """
         try:
             buildings = ox.features_from_polygon(geometry, tags={"building": True})
@@ -136,12 +165,15 @@ class VacantArea(BaseMethod):
         """
         Download natural feature areas within a block, excluding bays.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing natural feature areas.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with the geometries of natural feature areas.
         """
         try:
             natural = ox.features_from_polygon(geometry, tags={"natural": True})
@@ -157,12 +189,15 @@ class VacantArea(BaseMethod):
         """
         Download waterway areas within a block.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing waterway areas.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with the geometries of waterway areas.
         """
         try:
             waterway = ox.features_from_polygon(geometry, tags={"waterway": True})
@@ -174,15 +209,17 @@ class VacantArea(BaseMethod):
 
     def _dwn_highway(self, block) -> gpd.GeoDataFrame:
         """
-        Download highway areas within a block, excluding paths, footways, and pedestrian areas, and apply a buffer.
+        Download highway areas within a block, applying a buffer and excluding certain types of highways.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
-        - roads_buffer: Buffer distance to apply to highway geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of buffered highway geometries.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with buffered highway geometries.
         """
         try:
             highway = ox.features_from_polygon(block, tags={"highway": True})
@@ -203,12 +240,15 @@ class VacantArea(BaseMethod):
         """
         Download path and footway areas within a block and apply a buffer.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of buffered path and footway geometries.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with buffered path and footway geometries.
         """
         try:
             tags = {"highway": "path", "highway": "footway"}
@@ -224,12 +264,15 @@ class VacantArea(BaseMethod):
         """
         Download railway areas within a block, excluding subways.
 
-        Parameters:
-        - block: The block's polygon geometry.
-        - local_crs: The local coordinate reference system to project the geometries.
+        Parameters
+        ----------
+        geometry : gpd.GeoSeries
+            The polygon geometry of the block.
 
-        Returns:
-        - A GeoSeries of geometries representing railway areas.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame with the geometries of railway areas.
         """
         try:
             railway = ox.features_from_polygon(geometry, tags={"railway": True})
@@ -243,13 +286,17 @@ class VacantArea(BaseMethod):
 
     def calculate(self, blocks: list[int] | list[Block] = []) -> gpd.GeoDataFrame:
         """
-        Calculate the vacant area within a given block or blocks.
+        Calculate vacant areas within specified blocks.
 
-        Parameters:
-        - block: Either a single block identifier or a Block object representing the area to analyze.
+        Parameters
+        ----------
+        blocks : list[int] | list[Block]
+            List of block identifiers or `Block` objects representing the areas to analyze. If not provided, the calculation will be done for the whole city.
 
-        Returns:
-        - A GeoDataFrame containing the vacant areas within the specified block(s), along with their area and length.
+        Returns
+        -------
+        gpd.GeoDataFrame
+            A GeoDataFrame containing the vacant areas within the specified blocks, including their area and length.
         """
 
         blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
@@ -276,10 +323,10 @@ class VacantArea(BaseMethod):
             self._dwn_waterway(blocks_buffer),
             self._dwn_highway(blocks_buffer),
             self._dwn_railway(blocks_buffer),
-            self._dwn_path(blocks_buffer)
-            # self._dwn_leisure(blocks_buffer),
-            # self._dwn_amenity(blocks_buffer),
-            # self._dwn_buildings(blocks_buffer),
+            self._dwn_path(blocks_buffer),
+            self._dwn_leisure(blocks_buffer),
+            self._dwn_amenity(blocks_buffer),
+            self._dwn_buildings(blocks_buffer),
         ]
         occupied_area = pd.concat(occupied_areas)[["geometry"]]
         occupied_area = occupied_area.loc[occupied_area.geom_type.isin(["Polygon", "MultiPolygon"])]

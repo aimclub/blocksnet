@@ -1,3 +1,6 @@
+"""
+Module to split blocks based on the distribution of buildings within them.
+"""
 import shapely
 import geopandas as gpd
 import pandas as pd
