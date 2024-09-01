@@ -4,7 +4,7 @@ import numpy as np
 
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from ..base_method import BaseMethod
+from .base_method import BaseMethod
 
 SM_MORPHOTYPE_COLUMN = "spacematrix_morphotype"
 SM_CLUSTER_COLUMN = "spacematrix_cluster"

@@ -16,7 +16,7 @@ from blocksnet.method.centrality import (
     POPULATION_CENTRALITY_COLUMN,
 )
 from blocksnet.method.spacematrix import Spacematrix, SM_CLUSTER_COLUMN, SM_MORPHOTYPE_COLUMN, KB_MORPHOTYPE_COLUMN
-from blocksnet.method.land_use_prediction.land_use_prediction import LandUsePrediction, PREDICTION_COLUMN
+from blocksnet.methodland_use_prediction import LandUsePrediction, PREDICTION_COLUMN
 from blocksnet.models.land_use import LandUse
 
 data_path = "./tests/data"

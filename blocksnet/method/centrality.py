@@ -1,9 +1,9 @@
 import geopandas as gpd
 
 from sklearn.preprocessing import MinMaxScaler
-from ..base_method import BaseMethod
-from ..connectivity import Connectivity, CONNECTIVITY_COLUMN
-from ..diversity import Diversity, DIVERSITY_COLUMN
+from .base_method import BaseMethod
+from .connectivity import Connectivity, CONNECTIVITY_COLUMN
+from .diversity import Diversity, DIVERSITY_COLUMN
 
 CENTRALITY_COLUMN = "centrality"
 DENSITY_COLUMN = "density"

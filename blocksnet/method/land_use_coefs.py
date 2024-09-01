@@ -1,4 +1,4 @@
-from blocksnet.models.land_use import LandUse
+from ..models.land_use import LandUse
 
 
 class Indicator:

@@ -67,12 +67,12 @@ automodule:: <module_name> section which describes all the code in the module.
 
    2. Add a Header underlined with “=” sign. It’s crucial.
 
-   3. Add automodule description for each of your scripts. ::
+   .. 3. Add automodule description for each of your scripts. ::
 
-       .. automodule:: blocksnet.your.first.script.path
+   ..     .. automodule:: blocksnet.your.first.script.path
 
-       .. automodule:: blocksnet.your.second.script.path
-       ...
+   ..     .. automodule:: blocksnet.your.second.script.path
+   ..     ...
 
    4. Add your_name_for_file to the toctree at ``docs/source/blocksnet/api/index.rst``
 

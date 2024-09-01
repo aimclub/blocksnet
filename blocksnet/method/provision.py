@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from pulp import PULP_CBC_CMD, LpMinimize, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 from tqdm import tqdm
-from ...models import Block, ServiceType
-from ..base_method import BaseMethod
+from ..models import Block, ServiceType
+from .base_method import BaseMethod
 from enum import Enum
 
 PROVISION_COLUMN = "provision"

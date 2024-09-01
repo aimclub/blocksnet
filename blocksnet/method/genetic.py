@@ -1,8 +1,8 @@
 import geopandas as gpd
 import pandas as pd
-from ..base_method import BaseMethod
-from ...models import Block
-from ..provision import Provision
+from .base_method import BaseMethod
+from ..models import Block
+from .provision import Provision
 from pydantic import Field, InstanceOf
 import itertools
 import pygad

@@ -4,7 +4,7 @@ import numpy as np
 from scipy.spatial import cKDTree
 from shapely import Point
 from sklearn.preprocessing import MinMaxScaler
-from ..base_method import BaseMethod
+from .base_method import BaseMethod
 
 
 POPULATION_CENTRALITY_COLUMN = "population_centrality"

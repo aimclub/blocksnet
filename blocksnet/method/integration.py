@@ -11,7 +11,7 @@ from sklearn.preprocessing import StandardScaler
 from typing import Optional
 from enum import Enum
 from pydantic import field_validator, model_validator, ConfigDict
-from ..base_method import BaseMethod
+from .base_method import BaseMethod
 
 BLOCKS_GRAPH_FETCH_BUFFER = 1000
 BLOCKS_INTERSECTION_BUFFER = -5

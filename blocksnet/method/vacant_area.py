@@ -5,8 +5,8 @@ import osmnx as ox
 import pandas as pd
 from pydantic import Field
 
-from ...models import Block, ServiceType
-from ..base_method import BaseMethod
+from ..models import Block, ServiceType
+from .base_method import BaseMethod
 
 
 class VacantArea(BaseMethod):

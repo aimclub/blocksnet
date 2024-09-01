@@ -4,8 +4,8 @@ import pandas as pd
 from tqdm import trange
 from sklearn.metrics.pairwise import cosine_similarity
 
-from ...models.land_use import LandUse
-from ..base_method import BaseMethod
+from ..models.land_use import LandUse
+from .base_method import BaseMethod
 
 PREDICTION_COLUMN = "land_use"
 

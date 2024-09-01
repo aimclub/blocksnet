@@ -1,6 +1,6 @@
 import statistics
 import geopandas as gpd
-from ..base_method import BaseMethod
+from .base_method import BaseMethod
 
 CONNECTIVITY_COLUMN = "connectivity"
 

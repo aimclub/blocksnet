@@ -1,5 +1,5 @@
 """
-This package helps to automatically generate master plan requirements for urban areas
+This package helps one to automatically generate master plan requirements for urban areas.
 """
 
 import importlib

@@ -2,8 +2,8 @@ import geopandas as gpd
 from matplotlib.gridspec import GridSpec
 import matplotlib.pyplot as plt
 
-from ...models import Block
-from ..base_method import BaseMethod
+from ..models import Block
+from .base_method import BaseMethod
 
 ACCESSIBILITY_TO_COLUMN = "accessibility_to"
 ACCESSIBILITY_FROM_COLUMN = "accessibility_from"

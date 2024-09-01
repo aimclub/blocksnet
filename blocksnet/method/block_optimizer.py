@@ -1,29 +1,47 @@
 import collections
-from ..accessibility import Accessibility
-from ..base_method import BaseMethod
-from .land_use_coefs import LAND_USE_INDICATORS
+from .accessibility import Accessibility
+from .base_method import BaseMethod
 from blocksnet.models.land_use import LandUse
-from blocksnet.method.provision.provision import Provision
+from blocksnet.method.provision import Provision
 from blocksnet.models import Block
 import pandas as pd
 import numpy as np
 from typing import Tuple
 from pulp import *
-from blocksnet.method.provision.provision import Provision
+from blocksnet.method.provision import Provision
 import matplotlib.pyplot as plt
 from collections import defaultdict
 
 
+class Indicator:
+    def __init__(self, FSI_min, FSI_max, site_coverage_min, site_coverage_max):
+        self.FSI_min = FSI_min  # минимальный коэффициент плотности застройки
+        self.FSI_max = FSI_max  # максимальный коэффициент плотности застройки
+        self.site_coverage_min = site_coverage_min  # минимальный процент застроенности участка
+        self.site_coverage_max = site_coverage_max  # максимальный процент застроенности участка
+
+
+LAND_USE_INDICATORS = {
+    LandUse.RESIDENTIAL: Indicator(FSI_min=0.5, FSI_max=3.0, site_coverage_min=0.2, site_coverage_max=0.8),
+    LandUse.BUSINESS: Indicator(FSI_min=1.0, FSI_max=3.0, site_coverage_min=0.0, site_coverage_max=0.8),
+    LandUse.RECREATION: Indicator(FSI_min=0.05, FSI_max=0.2, site_coverage_min=0.0, site_coverage_max=0.3),
+    LandUse.SPECIAL: Indicator(FSI_min=0.05, FSI_max=0.2, site_coverage_min=0.05, site_coverage_max=0.15),
+    LandUse.INDUSTRIAL: Indicator(FSI_min=0.3, FSI_max=1.5, site_coverage_min=0.2, site_coverage_max=0.8),
+    LandUse.AGRICULTURE: Indicator(FSI_min=0.1, FSI_max=0.2, site_coverage_min=0.0, site_coverage_max=0.6),
+    LandUse.TRANSPORT: Indicator(FSI_min=0.2, FSI_max=1.0, site_coverage_min=0.0, site_coverage_max=0.8),
+}
+
+
 class BlockOptimizer(BaseMethod):
-    BLOCKS_LANUSE_DICT:dict = {}
-    ORIG_SERVICE_TYPES:dict = {}
-    NEW_SERVICE_TYPES:dict = {}
-    FREE_AREA:dict = {}
-    BRICKS:dict = {}
-    CONSTANTS:dict = {}
-    SCENARIO:dict = {}
+    BLOCKS_LANUSE_DICT: dict = {}
+    ORIG_SERVICE_TYPES: dict = {}
+    NEW_SERVICE_TYPES: dict = {}
+    FREE_AREA: dict = {}
+    BRICKS: dict = {}
+    CONSTANTS: dict = {}
+    SCENARIO: dict = {}
     FREE_AREA: Tuple = (0, 0)
-    MAX_FACILITIES:int = None
+    MAX_FACILITIES: int = None
 
     def calculate_free_area(self, selected_block_id):
         selected_block = self.city_model[selected_block_id]
@@ -43,7 +61,9 @@ class BlockOptimizer(BaseMethod):
         min_capacity_left = float("inf")
         min_service = None
 
-        for serv in list(set(self.NEW_SERVICE_TYPES[selected_block_id]) | set(self.ORIG_SERVICE_TYPES[selected_block_id])):
+        for serv in list(
+            set(self.NEW_SERVICE_TYPES[selected_block_id]) | set(self.ORIG_SERVICE_TYPES[selected_block_id])
+        ):
             idxs = acc_gdf[
                 (acc_gdf.accessibility_to <= serv.accessibility) | (acc_gdf.accessibility_from <= serv.accessibility)
             ]["id"]
@@ -76,7 +96,7 @@ class BlockOptimizer(BaseMethod):
                     "service_type": serv.name,
                     "capacity": brick.capacity,
                     "area": brick.area,
-                    #"is_integrated": brick.is_integrated,
+                    # "is_integrated": brick.is_integrated,
                 }
                 bricks_dict_list.append(brick_dict)
         bricks_df = pd.DataFrame(bricks_dict_list)
@@ -92,18 +112,19 @@ class BlockOptimizer(BaseMethod):
         service_counts = prob.variables()
 
         for var_idx in range(n_bricks):
-       
 
             var = service_counts[var_idx]
             service_count = var.value()
             block_idx, idx = var.name.rsplit("_")
 
-            if idx == 'population':
+            if idx == "population":
                 populations[int(block_idx)] = service_count
             else:
                 block_idx, idx = int(block_idx), int(idx)
                 counts[block_idx][idx] = service_count
-                self.BRICKS[block_idx].loc[idx, "capacity_agg"] = self.BRICKS[block_idx].loc[idx, "capacity"] * service_count
+                self.BRICKS[block_idx].loc[idx, "capacity_agg"] = (
+                    self.BRICKS[block_idx].loc[idx, "capacity"] * service_count
+                )
                 self.BRICKS[block_idx].loc[idx, "area_agg"] = self.BRICKS[block_idx].loc[idx, "area"] * service_count
 
         update = {}
@@ -112,10 +133,11 @@ class BlockOptimizer(BaseMethod):
             bricks_to_build = np.where(counts[key] != 0.0)[0]
             bricks_to_build_df[key] = self.BRICKS[key].loc[bricks_to_build]
             service_counts = counts[key][counts[key] != 0.0]
-            bricks_to_build_df[key]['service_counts'] = service_counts
+            bricks_to_build_df[key]["service_counts"] = service_counts
             constants, min_population = self.CONSTANTS[key]
-            bricks_to_build_df[key]['demand_in_need'] = bricks_to_build_df[key]['service_type'].apply(lambda x: constants[x]["demand_local"] - constants[x]["capacity_local"])
-
+            bricks_to_build_df[key]["demand_in_need"] = bricks_to_build_df[key]["service_type"].apply(
+                lambda x: constants[x]["demand_local"] - constants[x]["capacity_local"]
+            )
 
             service_capacities = bricks_to_build_df[key].groupby("service_type").sum()["capacity_agg"].to_dict()
 
@@ -132,7 +154,7 @@ class BlockOptimizer(BaseMethod):
         prob = LpProblem("ProvisionOpt", LpMaximize)
 
         lp_sum_components = []
-        
+
         for key in self.BLOCKS_LANUSE_DICT:
             if len(self.SCENARIO) != 0:
                 servs = [serv.name for serv in self.NEW_SERVICE_TYPES[key]]
@@ -140,31 +162,32 @@ class BlockOptimizer(BaseMethod):
                 scenario_coef_sum = sum(self.SCENARIO[key] for key in intersecting_keys)
             else:
                 scenario_coef_sum = 0
-            
-            default_weight = (1-scenario_coef_sum) / len(self.NEW_SERVICE_TYPES[key])
+
+            default_weight = (1 - scenario_coef_sum) / len(self.NEW_SERVICE_TYPES[key])
             bricks_df = self.BRICKS[key]
             constants, min_population = self.CONSTANTS[key]
             service_counts = LpVariable.dicts(f"{key}", list(bricks_df.index), 0, self.MAX_FACILITIES, cat=LpInteger)
             population = LpVariable(f"{key}_population", 0, None, cat=LpInteger)
-            
+
             for serv in self.NEW_SERVICE_TYPES[key]:
                 service_bricks_idxs = list(bricks_df[bricks_df.service_type == serv.name].index)
 
-                demand_local, capacity_local = constants[serv.name]["demand_local"], constants[serv.name]["capacity_local"]
+                demand_local, capacity_local = (
+                    constants[serv.name]["demand_local"],
+                    constants[serv.name]["capacity_local"],
+                )
 
                 fit_function = lpSum(service_counts[n] * bricks_df.loc[n].capacity for n in service_bricks_idxs)
-                
+
                 demand_from_new_population = (population * serv.demand) / 1000
-                C_i = fit_function + capacity_local 
+                C_i = fit_function + capacity_local
                 D_i = demand_local + demand_from_new_population
                 service_weight = self.SCENARIO.get(serv.name, default_weight)
-                
+
                 if demand_local > 0 and capacity_local < demand_local:
-                    lp_sum_components.append(
-                        service_weight * (C_i - D_i)
-                    )
+                    lp_sum_components.append(service_weight * (C_i - D_i))
                     prob += fit_function <= demand_local - capacity_local
-    
+
                 if capacity_local > demand_local and self.BLOCKS_LANUSE_DICT[key] == LandUse.RESIDENTIAL:
                     prob += demand_from_new_population <= capacity_local - demand_local
 
@@ -174,10 +197,14 @@ class BlockOptimizer(BaseMethod):
 
             FSI_max, FSI_min = indicators.FSI_max, indicators.FSI_min
 
-            prob += sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) <= FSI_max
-            prob += sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) >= FSI_min
+            prob += (
+                sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) <= FSI_max
+            )
+            prob += (
+                sum(service_counts[n] * bricks_df.loc[n].area / block_area for n in list(bricks_df.index)) >= FSI_min
+            )
 
-            prob += sum(service_counts[n] * bricks_df.loc[n].area  for n in list(bricks_df.index)) <= block_area
+            prob += sum(service_counts[n] * bricks_df.loc[n].area for n in list(bricks_df.index)) <= block_area
 
         prob += sum(i for i in lp_sum_components)
 
@@ -337,7 +364,7 @@ class BlockOptimizer(BaseMethod):
 
         return total_before, total_after, combined_landuse_services, provision_before, provision_after
 
-    def calculate(self, blocks_landuse_dict: dict, scenario:dict={}, max_facilities:int=None):
+    def calculate(self, blocks_landuse_dict: dict, scenario: dict = {}, max_facilities: int = None):
         self.SCENARIO = scenario
         self.BLOCKS_LANUSE_DICT = blocks_landuse_dict
         self.MAX_FACILITIES = max_facilities
@@ -356,7 +383,7 @@ class BlockOptimizer(BaseMethod):
             self.FREE_AREA[key] = self.calculate_free_area(key)
             self.CONSTANTS[key] = self.get_capacity_demand(key)
             self.BRICKS[key] = self.get_bricks_df(new_service_types)
-            
+
         # method
         prob = self.generate_lp_problem()
         prob.solve(PULP_CBC_CMD(msg=False))
@@ -372,6 +399,6 @@ class BlockOptimizer(BaseMethod):
         return {
             "optimal_update_df": optimal_update_df.fillna(0),
             "bricks_to_build_df": bricks_to_build_df,
-            "deleting_df":combined_df.fillna(0),
-            "provision":provision
+            "deleting_df": combined_df.fillna(0),
+            "provision": provision,
         }

@@ -1,6 +1,6 @@
 import numpy as np
 import geopandas as gpd
-from ..base_method import BaseMethod
+from .base_method import BaseMethod
 
 DIVERSITY_COLUMN = "diversity"
 

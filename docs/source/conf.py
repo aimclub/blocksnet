@@ -46,6 +46,8 @@ extensions = [
     "nbsphinx_link",
 ]
 
+autosummary_generate = True
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
@@ -80,7 +82,7 @@ html_theme = "sphinx_rtd_theme"
 # napoleon_google_docstring = True
 # napoleon_include_init_with_doc = True
 napoleon_google_docstring = True
-napoleon_numpy_docstring = False
+napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = True
 napoleon_include_special_with_doc = True
@@ -99,7 +101,7 @@ autodoc_default_options = {
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
-    "exclude-members": "model_config, model_fields, model_post_init",
+    "exclude-members": "model_config, model_fields, model_post_init, maketrans",
 }
 autoclass_content = "class"
 autodoc_typehints = "signature"
