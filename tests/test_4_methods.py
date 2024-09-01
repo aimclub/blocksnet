@@ -15,6 +15,7 @@ from blocksnet.method.spacematrix import Spacematrix, SM_CLUSTER_COLUMN, SM_MORP
 
 from blocksnet.method.land_use_prediction import LandUsePrediction, PREDICTION_COLUMN
 from blocksnet.models.land_use import LandUse
+from blocksnet.method.integration import Integration, INTEGRATION_COLUMN, FSI_COLUMN, CLUSTER_COLUMN
 
 # from blocksnet.method.vacant_area import VacantArea
 
@@ -180,3 +181,18 @@ def test_lup(lup_result):
 # def test_va(va_result):
 #     res = va_result
 #     assert res.index.is_unique
+
+
+@pytest.fixture
+def integration(city):
+    return Integration(city_model=city)
+
+
+@pytest.fixture
+def integration_result(integration):
+    return integration.calculate()
+
+
+def test_integration(integration_result):
+    res = integration_result
+    assert res.index.is_unique
