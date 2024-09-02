@@ -1,3 +1,6 @@
+"""
+Module to generate blocks (land parcels) based on boundaries, roads, railways, and water objects.
+"""
 import pandas as pd
 import geopandas as gpd
 import numpy as np

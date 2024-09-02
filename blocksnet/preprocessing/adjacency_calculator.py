@@ -1,8 +1,6 @@
 """
-This module provides all necessary tools to get accesibility matrix from transport graph
+The module provides all necessary tools to get accesibility matrix from transport graph
 """
-
-from typing import Any
 
 import geopandas as gpd
 import networkit as nk

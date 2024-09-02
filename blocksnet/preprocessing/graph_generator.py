@@ -1,3 +1,6 @@
+"""
+Module used to generate graph based on user territory.
+"""
 from typing import Literal
 
 import geopandas as gpd

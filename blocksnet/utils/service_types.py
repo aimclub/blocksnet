@@ -1,5 +1,5 @@
 """
-Default service types used in ``City`` model
+Default service types used in city model.
 """
 
 SERVICE_TYPES = [

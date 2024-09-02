@@ -3,11 +3,11 @@ API documentation
 
 The modules of BlocksNet are listed below:
 
-.. toctree::
-   :glob:
-   :maxdepth: 2
+.. autosummary::
+   :toctree: _autosummary
+   :recursive:
 
-   preprocessing/index
-   models/index
-   method/index
-   utils/index
+   blocksnet.preprocessing
+   blocksnet.models
+   blocksnet.method
+   blocksnet.utils

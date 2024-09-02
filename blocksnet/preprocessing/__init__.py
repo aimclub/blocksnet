@@ -1,5 +1,5 @@
 """
-Data getter utilities are located here.
+Preprocessing classes to help one split blocks, calculate accessibility and initialize a city model.
 """
 from .adjacency_calculator import AdjacencyCalculator
 from .graph_generator import GraphGenerator

@@ -1028,6 +1028,18 @@ class City:
         """
         return [service for block in self.blocks for service in block.all_services]
 
+    @property
+    def loaded_service_types(self) -> list[ServiceType]:
+        """
+        Return list of service types loaded in the model.
+
+        Returns
+        -------
+        list[ServiceType]
+            List of ServiceTypes existing in the city model.
+        """
+        return list({service.service_type for service in self.services})
+
     def plot(
         self, figsize: tuple[float, float] = (15, 15), linewidth: float = 0.1, max_travel_time: float = 15
     ) -> None:

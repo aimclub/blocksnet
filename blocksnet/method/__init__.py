@@ -1,11 +1,12 @@
 """
-Methods provided by blocksnet are located here.
+Methods provided by blocksnet are located here. Methods are used only with initialized city model.
 """
 
 from .accessibility import *
-from .balancing import *
+from .balancer import *
 from .block_optimizer import *
 from .centrality import *
+from .population_centrality import *
 from .connectivity import *
 from .diversity import *
 from .genetic import *
