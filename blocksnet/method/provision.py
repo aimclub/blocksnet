@@ -1,6 +1,7 @@
 import math
 from itertools import product
 from typing import Literal
+from loguru import logger
 
 import geopandas as gpd
 from matplotlib.gridspec import GridSpec
@@ -204,23 +205,7 @@ class Provision(BaseMethod):
     def _tp_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType, method: ProvisionMethod):
         """Transport problem assessment method"""
 
-        # if delta is not 0, we add a dummy city block
-        # delta = gdf["demand"].sum() - gdf["capacity"].sum()
-        # fictive_demand = None
-        # fictive_capacity = None
-        # fictive_block_id = gdf.index.max() + 1
-        # if delta > 0:
-        #     fictive_capacity = fictive_block_id
-        #     gdf.loc[fictive_capacity, "capacity"] = delta
-        #     gdf.loc[fictive_capacity, "capacity_left"] = delta
-        # if delta < 0:
-        #     fictive_demand = fictive_block_id
-        #     gdf.loc[fictive_demand, "demand"] = -delta
-        #     gdf.loc[fictive_demand, "demand_left"] = -delta
-
         def _get_distance(id1: int, id2: int):
-            # if id1 == fictive_block_id or id2 == fictive_block_id:
-            # return 0
             distance = self.city_model.adjacency_matrix.loc[id1, id2]
             return distance if distance > 1 else 1
 
@@ -230,24 +215,46 @@ class Provision(BaseMethod):
                 return 1 / distance
             return 1 / (distance * distance)
 
+        logger.info("Setting an LP problem")
+
         demand = gdf.loc[gdf["demand_left"] > 0]
         capacity = gdf.loc[gdf["capacity_left"] > 0]
 
         prob = LpProblem("Provision", LpMaximize)
-        products = []
-        for i in demand.index:
-            for j in capacity.index:
-                if _get_distance(i, j) <= service_type.accessibility * 2:
-                    products.append((i, j))
+        # Precompute distance and filter products
+        products = [
+            (i, j)
+            for i in demand.index
+            for j in capacity.index
+            if _get_distance(i, j) <= service_type.accessibility * 2
+        ]
+
+        # Create the decision variable dictionary
         x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)
+
+        # Objective Function
         prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in products)
+
+        # Constraint dictionaries
+        demand_constraints = {n: [] for n in demand.index}
+        capacity_constraints = {m: [] for m in capacity.index}
+
+        for n, m in products:
+            demand_constraints[n].append(x[n, m])
+            capacity_constraints[m].append(x[n, m])
+
+        # Add Demand Constraints
         for n in demand.index:
-            capacity_products = [tpl[1] for tpl in filter(lambda tpl: tpl[0] == n, products)]
-            prob += lpSum(x[n, m] for m in capacity_products) <= demand.loc[n, "demand_left"]
+            prob += lpSum(demand_constraints[n]) <= demand.loc[n, "demand_left"]
+
+        # Add Capacity Constraints
         for m in capacity.index:
-            demand_products = [tpl[0] for tpl in filter(lambda tpl: tpl[1] == m, products)]
-            prob += lpSum(x[n, m] for n in demand_products) <= capacity.loc[m, "capacity_left"]
+            prob += lpSum(capacity_constraints[m]) <= capacity.loc[m, "capacity_left"]
+
+        logger.info("Solving the problem")
         prob.solve(PULP_CBC_CMD(msg=False))
+
+        logger.info("Restoring values from variables")
 
         for var in prob.variables():
             value = var.value()
@@ -258,16 +265,12 @@ class Provision(BaseMethod):
             b = int(name[2])
             distance = _get_distance(a, b)
             if value > 0:
-                # if a != fictive_demand and b != fictive_capacity:
                 if distance <= service_type.accessibility:
                     gdf.loc[a, "demand_within"] += value
                 else:
                     gdf.loc[a, "demand_without"] += value
                 gdf.loc[a, "demand_left"] -= value
                 gdf.loc[b, "capacity_left"] -= value
-
-        # if fictive_block_id is not None:
-        #     gdf = gdf.drop(labels=[fictive_block_id])
 
         return gdf
 
