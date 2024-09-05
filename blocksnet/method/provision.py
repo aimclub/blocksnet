@@ -75,12 +75,18 @@ class Provision(BaseMethod):
             ax.set_title(f"{service_type_name} provision: {total: .3f}")
             ax.set_axis_off()
 
-    def _get_blocks_gdf(self, service_type: ServiceType) -> gpd.GeoDataFrame:
+    def _get_blocks_gdf(self, service_type: ServiceType, update_df: pd.DataFrame | None = None) -> gpd.GeoDataFrame:
         """Returns blocks gdf for provision assessment"""
         capacity_column = f"capacity_{service_type.name}"
         gdf = self.city_model.get_blocks_gdf()[["geometry", "population", capacity_column]].fillna(0)
+        gdf = gdf.rename(columns={capacity_column: "capacity"})
+        if update_df is not None:
+            if "population" in update_df.columns:
+                gdf["population"] = gdf["population"].add(update_df["population"].fillna(0), fill_value=0)
+            if service_type.name in update_df.columns:
+                gdf["capacity"] += gdf["capacity"].add(update_df[service_type.name].fillna(0), fill_value=0)
         gdf["population"] = gdf["population"].apply(service_type.calculate_in_need)
-        gdf = gdf.rename(columns={"population": "demand", capacity_column: "capacity"})
+        gdf = gdf.rename(columns={"population": "demand"})
         gdf["capacity_left"] = gdf["capacity"]
         gdf["demand_left"] = gdf["demand"]
         gdf["demand_within"] = 0
@@ -156,9 +162,9 @@ class Provision(BaseMethod):
         demand = gdf["demand"].sum()
         return min(capacity / demand, 1)
 
-    def get_bounds(self, service_type: ServiceType | str):
+    def get_bounds(self, service_type: ServiceType | str, update_df: pd.DataFrame = None):
         service_type: ServiceType = self.city_model[service_type]
-        gdf = self._get_blocks_gdf(service_type)
+        gdf = self._get_blocks_gdf(service_type, update_df)
         lower_bound = self._get_lower_bound(gdf)
         upper_bound = self._get_upper_bound(gdf)
         return lower_bound, upper_bound
@@ -174,19 +180,7 @@ class Provision(BaseMethod):
         service type, can be used with certain updated blocks DataFrame"""
         if not isinstance(service_type, ServiceType):
             service_type: ServiceType = self.city_model[service_type]
-        gdf = self._get_blocks_gdf(service_type)
-
-        if update_df is not None:
-            gdf = gdf.join(update_df)
-            gdf[update_df.columns] = gdf[update_df.columns].fillna(0)
-            if not "population" in gdf:
-                gdf["population"] = 0
-            gdf["demand"] += gdf["population"].apply(service_type.calculate_in_need)
-            gdf["demand_left"] = gdf["demand"]
-            if not service_type.name in gdf:
-                gdf[service_type.name] = 0
-            gdf["capacity"] += gdf[service_type.name]
-            gdf["capacity_left"] += gdf[service_type.name]
+        gdf = self._get_blocks_gdf(service_type, update_df)
 
         if self_supply:
             supply: pd.Series = gdf.apply(lambda x: min(x["demand"], x["capacity"]), axis=1)
