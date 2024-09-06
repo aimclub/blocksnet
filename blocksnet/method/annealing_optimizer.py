@@ -50,7 +50,7 @@ class AnnealingOptimizer(BaseMethod):
         x.value += delta
         return new_X, x.service_type
 
-    def _generate_initial_X(self, blocks: dict[int, LandUse], service_types: dict[str, float]) -> list[Variable]:
+    def generate_initial_X(self, blocks: dict[int, LandUse], service_types: dict[str, float]) -> list[Variable]:
         X = []
         for block_id, land_use in blocks.items():
             block = self.city_model[block_id]
@@ -80,6 +80,7 @@ class AnnealingOptimizer(BaseMethod):
         self,
         blocks: dict[int, LandUse],
         service_types: dict[str, float],
+        X: list[Variable] = None,
         t_max: float = 100,
         t_min: float = 1e-3,
         rate: float = 0.95,
@@ -88,7 +89,10 @@ class AnnealingOptimizer(BaseMethod):
 
         logger.disable("blocksnet.method.provision")
 
-        best_X = self._generate_initial_X(blocks, service_types)
+        if X is None:
+            best_X = self.generate_initial_X(blocks, service_types)
+        else:
+            best_X = [Variable(x.block, x.service_type, x.brick, x.value) for x in X]
         best_value = 0
 
         prov = Provision(city_model=self.city_model)
