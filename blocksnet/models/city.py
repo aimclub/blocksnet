@@ -1579,7 +1579,7 @@ class City:
         description = ""
         description += f"CRS : EPSG:{self.epsg}\n"
         description += f"Blocks : {len(self.blocks)}\n"
-        description += f"Service types : {len(self.service_types)}\n"
+        description += f"Service types : {len(self.loaded_service_types)}/{len(self.service_types)}\n"
         description += f"Buildings : {len(self.buildings)}\n"
         description += f"Services : {len(self.services)}\n"
         services_description = ""
