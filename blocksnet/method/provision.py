@@ -209,7 +209,8 @@ class Provision(BaseMethod):
                 return 1 / distance
             return 1 / (distance * distance)
 
-        logger.info("Setting an LP problem")
+        if self.verbose:
+            logger.info("Setting an LP problem")
 
         demand = gdf.loc[gdf["demand_left"] > 0]
         capacity = gdf.loc[gdf["capacity_left"] > 0]
@@ -245,10 +246,12 @@ class Provision(BaseMethod):
         for m in capacity.index:
             prob += lpSum(capacity_constraints[m]) <= capacity.loc[m, "capacity_left"]
 
-        logger.info("Solving the problem")
+        if self.verbose:
+            logger.info("Solving the problem")
         prob.solve(PULP_CBC_CMD(msg=False))
 
-        logger.info("Restoring values from variables")
+        if self.verbose:
+            logger.info("Restoring values from variables")
 
         for var in prob.variables():
             value = var.value()

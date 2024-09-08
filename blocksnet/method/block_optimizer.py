@@ -66,7 +66,7 @@ class BlockOptimizer(BaseMethod):
         ):
             idxs = acc_gdf[
                 (acc_gdf.accessibility_to <= serv.accessibility) | (acc_gdf.accessibility_from <= serv.accessibility)
-            ]["id"]
+            ].index
             capacity_column = f"capacity_{serv.name}"
             context_gdf = gdf.loc[idxs]
 
