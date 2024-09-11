@@ -1,16 +1,11 @@
-import math
-from itertools import product
-from typing import Literal
+"""
+Service type provisions assessment module.
+"""
 from loguru import logger
-
 import geopandas as gpd
-from matplotlib.gridspec import GridSpec
-from multiprocessing import Pool
-import matplotlib.pyplot as plt
 import pandas as pd
-from pulp import PULP_CBC_CMD, LpMinimize, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
-from tqdm import tqdm
-from ..models import Block, ServiceType
+from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
+from ..models import ServiceType
 from .base_method import BaseMethod
 from enum import Enum
 
@@ -20,63 +15,89 @@ PLOT_KWARGS = {"column": PROVISION_COLUMN, "cmap": "RdYlGn", "vmin": 0, "vmax": 
 
 
 class ProvisionMethod(Enum):
+    """
+    Enum for different methods of service provision assessment.
+
+    Attributes
+    ----------
+    GREEDY : str
+        Greedy method for service provision.
+    GRAVITATIONAL : str
+        Linear method for service provision, where distances are taken into account as squares.
+    LINEAR : str
+        Linear method for service provision, where distances are taken into account linearly.
+    """
+
     GREEDY = "greedy"
     GRAVITATIONAL = "gravitational"
     LINEAR = "linear"
 
 
 class Provision(BaseMethod):
-    """Class provides methods for service type provision assessment"""
+    """
+    Class for assessing provision of services to urban areas.
 
-    def plot(self, gdf: gpd.GeoDataFrame, figsize: tuple[int, int] = (10, 10)):
-        """Visualizes provision assessment results"""
+    This class provides various methods to evaluate the provision of services
+    such as healthcare, education, etc., for a given city model. The provision
+    can be assessed using multiple methods like gravitational models, greedy
+    allocation, and linear programming-based transportation problem solutions.
+
+    Methods
+    -------
+    plot(gdf: gpd.GeoDataFrame, linewidth: float = 0.1, figsize: tuple[int, int] = (10, 10)) -> None
+        Visualizes provision assessment results for a given GeoDataFrame.
+
+    stat(gdf: gpd.GeoDataFrame) -> dict[str, float]
+        Computes basic statistics of provision (mean, median, min, max) from a GeoDataFrame.
+
+    total(gdf: gpd.GeoDataFrame) -> float
+        Calculates the total provision ratio from the given GeoDataFrame.
+
+    get_bounds(service_type: ServiceType | str, update_df: pd.DataFrame = None) -> tuple[float, float]
+        Returns the lower and upper bounds of provision for a given service type.
+
+    calculate(service_type: ServiceType | str, update_df: pd.DataFrame | None = None, method: ProvisionMethod = ProvisionMethod.GRAVITATIONAL, self_supply: bool = False) -> gpd.GeoDataFrame
+        Performs provision assessment for a specified service type and method.
+    """
+
+    def plot(self, gdf: gpd.GeoDataFrame, linewidth: float = 0.1, figsize: tuple[int, int] = (10, 10)):
+        """
+        Visualizes provision assessment results for a given GeoDataFrame.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing spatial data with provision assessment results.
+        linewidth : float
+            Size of polygons' borders, by default 0.1.
+        figsize : tuple of int, optional
+            Size of the plot in inches, by default (10, 10).
+
+        Returns
+        -------
+        None
+        """
         ax = gdf.plot(color="#ddd", figsize=figsize)
-        gdf.plot(ax=ax, **PLOT_KWARGS)
-        ax.set_title("Provision: " + f"{self.total_provision(gdf): .3f}")
+        gdf.plot(ax=ax, linewidth=linewidth, **PLOT_KWARGS)
+        ax.set_title("Provision: " + f"{self.total(gdf): .3f}")
         ax.set_axis_off()
 
-    def plot_delta(
-        self, gdf_before: gpd.GeoDataFrame, gdf_after: gpd.GeoDataFrame, figsize: tuple[int, int] = (10, 10)
-    ):
-        fig = plt.figure(figsize=figsize)
-        grid = GridSpec(3, 2)
-        axes = {
-            "delta": fig.add_subplot(grid[0:2, 0:2]),
-            "before": fig.add_subplot(grid[2, 0]),
-            "after": fig.add_subplot(grid[2, 1]),
-        }
-        for ax in axes.values():
-            gdf_before.plot(ax=ax, color="#ddd")
-            ax.set_axis_off()
-        gdf_before.plot(ax=axes["before"], **PLOT_KWARGS)
-        gdf_after.plot(ax=axes["after"], **PLOT_KWARGS)
-        gdf_delta = gdf_after.copy()
-        gdf_delta["provision"] = gdf_after["provision"] - gdf_before["provision"]
-        gdf_delta.loc[gdf_delta["provision"] != 0].plot(
-            column="provision", ax=axes["delta"], cmap="PuOr", vmin=-1, vmax=1, legend=True
-        )
-        prov_delta = self.total_provision(gdf_after) - self.total_provision(gdf_before)
-        axes["delta"].set_title("Provision delta: " + f"{prov_delta: .3f}")
-
-    def plot_provisions(self, provisions: dict[str, gpd.GeoDataFrame], figsize=(20, 20)):
-
-        n_plots = len(provisions)
-        n_cols = 2
-        n_rows = n_plots // n_cols + n_plots % n_cols
-
-        fig = plt.figure(figsize=figsize)
-        grid = GridSpec(n_rows, n_cols)
-
-        for i, (service_type_name, provision_gdf) in enumerate(provisions.items()):
-            ax = fig.add_subplot(grid[i // n_cols, i % n_cols])
-            provision_gdf.plot(ax=ax, color="#ddd")
-            provision_gdf.plot(ax=ax, **PLOT_KWARGS)
-            total = self.total_provision(provision_gdf)
-            ax.set_title(f"{service_type_name} provision: {total: .3f}")
-            ax.set_axis_off()
-
     def _get_blocks_gdf(self, service_type: ServiceType, update_df: pd.DataFrame | None = None) -> gpd.GeoDataFrame:
-        """Returns blocks gdf for provision assessment"""
+        """
+        Generates a GeoDataFrame of city blocks with updated service capacities and demands.
+
+        Parameters
+        ----------
+        service_type : ServiceType
+            The service type for which provision assessment is being calculated.
+        update_df : pandas.DataFrame, optional
+            DataFrame containing updates to population or capacity, by default None.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            GeoDataFrame containing the geometry, demand, and capacity for each block.
+        """
         capacity_column = f"capacity_{service_type.name}"
         gdf = self.city_model.get_blocks_gdf()[["geometry", "population", capacity_column]].fillna(0)
         gdf = gdf.rename(columns={capacity_column: "capacity"})
@@ -94,7 +115,20 @@ class Provision(BaseMethod):
         return gdf
 
     @classmethod
-    def stat_provision(cls, gdf: gpd.GeoDataFrame):
+    def stat(cls, gdf: gpd.GeoDataFrame) -> dict[str, float]:
+        """
+        Computes basic statistics of provision (mean, median, min, max) from a GeoDataFrame.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing provision data.
+
+        Returns
+        -------
+        dict
+            Dictionary with keys 'mean', 'median', 'min', and 'max' representing provision statistics.
+        """
         return {
             "mean": gdf["provision"].mean(),
             "median": gdf["provision"].median(),
@@ -103,66 +137,84 @@ class Provision(BaseMethod):
         }
 
     @classmethod
-    def total_provision(cls, gdf: gpd.GeoDataFrame) -> float:
+    def total(cls, gdf: gpd.GeoDataFrame) -> float:
+        """
+        Calculates the total provision by dividing the sum of met demand
+        by the total demand for all blocks in the GeoDataFrame.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing the columns 'demand_within' and 'demand',
+            representing the met demand and total demand for each block.
+
+        Returns
+        -------
+        float
+            The ratio of total met demand to total demand, representing overall provision.
+        """
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
-    def _calculate_provision(self, params):
-        return self.calculate(**params)
-
-    def calculate_scenario(
-        self,
-        scenario: dict[str, float],
-        update_df: pd.DataFrame | None = None,
-        method: ProvisionMethod = ProvisionMethod.GRAVITATIONAL,
-        self_supply: bool = False,
-    ) -> tuple[dict[str, gpd.GeoDataFrame], float]:
-
-        with Pool() as pool:
-            gdfs = [
-                gdf
-                for gdf in pool.map(
-                    self._calculate_provision,
-                    [
-                        {
-                            "service_type": service_type,
-                            "update_df": update_df,
-                            "method": method,
-                            "self_supply": self_supply,
-                        }
-                        for service_type in scenario.keys()
-                    ],
-                )
-            ]
-
-        result = {}
-        total = 0
-        for i, gdf in enumerate(gdfs):
-            service_type = list(scenario.keys())[i]
-            weight = scenario[service_type]
-            total_prov = self.total_provision(gdf)
-            result[service_type] = gdf
-            total += total_prov * weight
-
-        # for service_type, weight in tqdm(scenario.items()):
-        #     prov_gdf = self.calculate(service_type, update_df, method, self_supply)
-        #     result[service_type] = prov_gdf
-        #     total += weight * self.total_provision(prov_gdf)
-        return result, total
-
     @staticmethod
-    def _get_lower_bound(gdf):
+    def _get_lower_bound(gdf: gpd.GeoDataFrame) -> float:
+        """
+        Calculates the lower bound of provision, assuming each block
+        meets its demand up to its capacity.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing 'capacity' and 'demand' columns.
+
+        Returns
+        -------
+        float
+            The lower bound of provision as the ratio of the total met demand
+            (limited by capacity) to the total demand.
+        """
         gdf = gdf.copy()
         gdf["demand_within"] = gdf.apply(lambda x: min(x["capacity"], x["demand"]), axis=1)
         return gdf["demand_within"].sum() / gdf["demand"].sum()
 
     @staticmethod
-    def _get_upper_bound(gdf):
+    def _get_upper_bound(gdf: gpd.GeoDataFrame) -> float:
+        """
+        Calculates the upper bound of provision, assuming total capacity can be
+        fully allocated to meet total demand.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing 'capacity' and 'demand' columns.
+
+        Returns
+        -------
+        float
+            The upper bound of provision, calculated as the minimum of the total
+            capacity-to-demand ratio or 1 (full provision).
+        """
         gdf = gdf.copy()
         capacity = gdf["capacity"].sum()
         demand = gdf["demand"].sum()
         return min(capacity / demand, 1)
 
-    def get_bounds(self, service_type: ServiceType | str, update_df: pd.DataFrame = None):
+    def get_bounds(self, service_type: ServiceType | str, update_df: pd.DataFrame = None) -> tuple[float, float]:
+        """
+        Returns the lower and upper bounds of provision for a given service type.
+
+        Parameters
+        ----------
+        service_type : ServiceType or str
+            The service type for which provision bounds are calculated.
+        update_df : pandas.DataFrame, optional
+            DataFrame containing updates to population or capacity, by default None.
+
+        Returns
+        -------
+        tuple of float
+            A tuple (lower_bound, upper_bound) representing the lower and upper
+            bounds of provision.
+        """
         service_type: ServiceType = self.city_model[service_type]
         gdf = self._get_blocks_gdf(service_type, update_df)
         lower_bound = self._get_lower_bound(gdf)
@@ -176,10 +228,28 @@ class Provision(BaseMethod):
         method: ProvisionMethod = ProvisionMethod.GRAVITATIONAL,
         self_supply: bool = False,
     ) -> gpd.GeoDataFrame:
-        """Provision assessment using certain method for the current city and
-        service type, can be used with certain updated blocks DataFrame"""
-        if not isinstance(service_type, ServiceType):
-            service_type: ServiceType = self.city_model[service_type]
+        """
+        Performs provision assessment for a specified service type and method.
+
+        Parameters
+        ----------
+        service_type : ServiceType or str
+            The type of service for which the provision is calculated.
+        update_df : pandas.DataFrame, optional
+            Updated DataFrame for blocks (demand or capacity changes), by default None.
+        method : ProvisionMethod, optional
+            The provision method to be used (GRAVITATIONAL by default).
+        self_supply : bool, optional
+            If True, blocks are allowed to meet their own demand directly using their
+            own capacity, by default False.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            GeoDataFrame with provision data, including 'demand_within', 'demand_left',
+            'capacity_left', and 'provision'.
+        """
+        service_type: ServiceType = self.city_model[service_type]
         gdf = self._get_blocks_gdf(service_type, update_df)
 
         if self_supply:
@@ -191,13 +261,36 @@ class Provision(BaseMethod):
         if method == ProvisionMethod.GREEDY:
             gdf = self._greedy_provision(gdf, service_type)
         else:
-            gdf = self._tp_provision(gdf, service_type, method)
+            gdf = self._lp_provision(gdf, service_type, method)
 
         gdf["provision"] = gdf["demand_within"] / gdf["demand"]
+
+        if self.verbose:
+            logger.success("Provision assessment finished")
+
         return gdf
 
-    def _tp_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType, method: ProvisionMethod):
-        """Transport problem assessment method"""
+    def _lp_provision(
+        self, gdf: gpd.GeoDataFrame, service_type: ServiceType, method: ProvisionMethod
+    ) -> gpd.GeoDataFrame:
+        """
+        Solves the provision problem using a Linear Programming (LP) solver.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing blocks with demand and capacity.
+        service_type : ServiceType
+            The type of service for which provision is being calculated.
+        method : ProvisionMethod
+            The method used to calculate provision (LINEAR or GRAVITATIONAL).
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            Updated GeoDataFrame with provision results, including updates to
+            'demand_within', 'demand_without', 'demand_left', and 'capacity_left'.
+        """
 
         def _get_distance(id1: int, id2: int):
             distance = self.city_model.adjacency_matrix.loc[id1, id2]
@@ -271,9 +364,23 @@ class Provision(BaseMethod):
 
         return gdf
 
-    def _greedy_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType):
-        """Iterative provision assessment method"""
+    def _greedy_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
+        """
+        Iteratively assigns demand to the closest available capacity using a greedy method.
 
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing blocks with demand and capacity.
+        service_type : ServiceType
+            The type of service for which provision is being calculated.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            Updated GeoDataFrame with provision results, including updates to
+            'demand_within', 'demand_without', 'demand_left', and 'capacity_left'.
+        """
         demand_gdf = gdf.loc[gdf["demand_left"] > 0]
         capacity_gdf = gdf.loc[gdf["capacity_left"] > 0]
 

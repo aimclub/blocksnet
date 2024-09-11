@@ -204,7 +204,7 @@ class AnnealingOptimizer(BaseMethod):
             if df[service_type.name].sum() == 0:
                 return 0
             gdf = prov.calculate(service_type, df, self_supply=True)
-            return prov.total_provision(gdf)
+            return prov.total(gdf)
 
         provisions = {st: 0.0 for st in service_types.keys()}
 
