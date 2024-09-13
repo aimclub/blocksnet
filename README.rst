@@ -285,13 +285,11 @@ Publications
 
 .. publications-start
 
-Published:
-
 -  `Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S.
    Digital Master Plan as a tool for generating territory development
    requirements // International Conference on Advanced Research in
    Technologies, Information, Innovation and Sustainability 2023 –
-   ARTIIS 2023 <https://link.springer.com/chapter/10.1007/978-3-031-48855-9_4>`new_branch_name
+   ARTIIS 2023 <https://link.springer.com/chapter/10.1007/978-3-031-48855-9_4>`__
 
 .. publications-end
 
