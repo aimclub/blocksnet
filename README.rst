@@ -14,12 +14,12 @@ BlocksNet
 
 **BlocksNet** is an open-source library that includes methods of
 modeling urbanized areas for the generation of value-oriented master
-planning requirements. The library is provided for generating a
-universal information city model based on the accessibility of urban
-blocks. The library also provides tools for working with the information
-city model, which allow: to generate a layer of urban blocks, to
-calculate provisioning based on regulatory requirements, to obtain
-optimal requirements for master planning of territories.
+planning requirements. The library provides tools for generating an information
+city model based on the accessibility of urban blocks.
+The library also provides tools for working with the information
+city model, which allows one: to assess urban network metrics such as connectivity
+and centrality, to calculate service type provision based on regulatory
+requirements, to obtain optimal requirements for master planning of territories.
 
 .. description-end
 
@@ -155,19 +155,19 @@ The latest version of the library is available in the ``main`` branch.
 
 The repository includes the following directories and modules:
 
--  `blocksnet <https://github.com/iduprojects/blocksnet/tree/main/blocksnet>`__
+-  `blocksnet <https://github.com/aimclub/blocksnet/tree/main/blocksnet>`__
    - directory with the library code:
 
    -  preprocessing - data preprocessing module
    -  models - entities' classes used in library
    -  method - library tool methods on ``City`` model
-   -  utils - module for helping functions and consts
+   -  utils - module containing utulity functions and consts
 
--  `tests <https://github.com/iduprojects/blocksnet/tree/main/tests>`__
+-  `tests <https://github.com/aimclub/blocksnet/tree/main/tests>`__
    ``pytest`` testing
--  `examples <https://github.com/iduprojects/blocksnet/tree/main/examples>`__
+-  `examples <https://github.com/aimclub/blocksnet/tree/main/examples>`__
    examples of how methods work
--  `docs <https://github.com/iduprojects/blocksnet/tree/main/docs>`__ -
+-  `docs <https://github.com/aimclub/blocksnet/tree/main/docs>`__ -
    documentation sources
 
 Developing
@@ -285,34 +285,11 @@ Publications
 
 .. publications-start
 
-Published:
-
 -  `Churiakova T., Starikov V., Sudakova V., Morozov A. and Mityagin S.
    Digital Master Plan as a tool for generating territory development
    requirements // International Conference on Advanced Research in
    Technologies, Information, Innovation and Sustainability 2023 –
    ARTIIS 2023 <https://link.springer.com/chapter/10.1007/978-3-031-48855-9_4>`__
--  `Morozov A. S. et al. Assessing the transport connectivity of urban
-   territories, based on intermodal transport accessibility // Frontiers
-   in Built Environment. – 2023. – Т. 9. – С.
-   1148708. <https://www.frontiersin.org/articles/10.3389/fbuil.2023.1148708/full>`__
--  `Morozov A. et al. Assessment of Spatial Inequality Through the
-   Accessibility of Urban Services // International Conference on
-   Computational Science and Its Applications. – Cham : Springer Nature
-   Switzerland, 2023. – С.
-   270-286. <https://link.springer.com/chapter/10.1007/978-3-031-36808-0_18>`__
--  `Natykin M.V., Morozov A., Starikov V. and Mityagin S.A. A method for
-   automatically identifying vacant area in the current urban
-   environment based on open source data // 12th International Young
-   Scientists Conference in Computational Science – YSC 2023. <https://www.sciencedirect.com/science/article/pii/S1877050923020306>`__
--  `Natykin M.V., Budenny S., Zakharenko N. and Mityagin S.A. Comparison
-   of solution methods the maximal covering location problem of public
-   spaces for teenagers in the urban environment // International
-   Conference on Advanced Research in Technologies, Information,
-   Innovation and Sustainability 2023 – ARTIIS 2023. <https://link.springer.com/chapter/10.1007/978-3-031-48858-0_35>`__
--  `Kontsevik G., Churiakova T., Markovskiy V., Antonov A. and Mityagin
-   S. Urban blocks modelling method // 12th International Young
-   Scientists Conference in Computational Science – YSC 2023. <https://www.sciencedirect.com/science/article/pii/S1877050923020033>`__
 
 .. publications-end
 

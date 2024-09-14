@@ -3,15 +3,14 @@ Methods provided by blocksnet are located here. Methods are used only with initi
 """
 
 from .accessibility import *
-from .balancer import *
-from .block_optimizer import *
+from .annealing_optimizer import AnnealingOptimizer
 from .centrality import *
-from .population_centrality import *
 from .connectivity import *
 from .diversity import *
-from .genetic import *
 from .integration import *
+from .land_use_optimizer import LandUseOptimizer
 from .land_use_prediction import *
+from .population_centrality import *
 from .provision import *
 from .spacematrix import *
 from .vacant_area import *

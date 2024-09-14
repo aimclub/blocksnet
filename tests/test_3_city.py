@@ -15,8 +15,8 @@ def blocks():
 
 
 @pytest.fixture
-def adjacency_matrix():
-    return pd.read_pickle(os.path.join(data_path, "_adj_mx.pickle"))
+def accessibility_matrix():
+    return pd.read_pickle(os.path.join(data_path, "_acc_mx.pickle"))
 
 
 @pytest.fixture
@@ -30,19 +30,19 @@ def buildings(local_crs):
 
 
 @pytest.fixture
-def city(blocks, adjacency_matrix, buildings):
-    city = City(blocks, adjacency_matrix)
+def city(blocks, accessibility_matrix, buildings):
+    city = City(blocks, accessibility_matrix)
     city.update_buildings(buildings)
     return city
 
 
-def test_coherence(city, blocks, adjacency_matrix):
+def test_coherence(city, blocks, accessibility_matrix):
     blocks_gdf = city.get_blocks_gdf(True)
     assert all(blocks.index == blocks_gdf.index)
-    assert all(adjacency_matrix.index == city.adjacency_matrix.index)
-    assert all(adjacency_matrix.columns == city.adjacency_matrix.columns)
-    assert all(blocks_gdf.index == city.adjacency_matrix.index)
-    assert all(city.adjacency_matrix.index == city.adjacency_matrix.columns)
+    assert all(accessibility_matrix.index == city.accessibility_matrix.index)
+    assert all(accessibility_matrix.columns == city.accessibility_matrix.columns)
+    assert all(blocks_gdf.index == city.accessibility_matrix.index)
+    assert all(city.accessibility_matrix.index == city.accessibility_matrix.columns)
 
 
 def test_output(city):

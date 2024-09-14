@@ -14,4 +14,6 @@ The examples of how to operate the `City` model to perform certain analytics.
    spacematrix
    land_use_prediction
    vacant_area
+   provision
+   annealing_optimizer
    integration

@@ -74,7 +74,8 @@ class Accessibility(BaseMethod):
             GeoDataFrame containing blocks with calculated accessibility to and from
             the specified block.
         """
+        block = self.city_model[block]
         blocks_gdf = self.city_model.get_blocks_gdf(True)[["geometry"]]
-        blocks_gdf[ACCESSIBILITY_TO_COLUMN] = blocks_gdf.apply(lambda s: self.city_model[block, int(s.name)], axis=1)
-        blocks_gdf[ACCESSIBILITY_FROM_COLUMN] = blocks_gdf.apply(lambda s: self.city_model[int(s.name), block], axis=1)
+        blocks_gdf[ACCESSIBILITY_TO_COLUMN] = self.city_model.accessibility_matrix.loc[block.id]
+        blocks_gdf[ACCESSIBILITY_FROM_COLUMN] = self.city_model.accessibility_matrix[block.id]
         return blocks_gdf

@@ -901,8 +901,8 @@ class City:
     ----------
     crs : pyproj.CRS
         Coordinate Reference System (CRS) used by the city model.
-    adjacency_matrix : pd.DataFrame
-        Adjacency matrix representing relationships between city blocks (travel time in minutes by drive, walk, intermodal or another type of city graph).
+    accessibility_matrix : pd.DataFrame
+        Accessibility matrix representing relationships between city blocks (travel time in minutes by drive, walk, intermodal or another type of city graph).
     _blocks : dict[int, Block]
         Dictionary mapping block IDs to Block objects.
     _service_types : dict[str, ServiceType]
@@ -936,7 +936,7 @@ class City:
         Get incoming edges (connections) for a given block.
     """
 
-    def __init__(self, blocks: gpd.GeoDataFrame, adj_mx: pd.DataFrame) -> None:
+    def __init__(self, blocks: gpd.GeoDataFrame, acc_mx: pd.DataFrame) -> None:
         """
         Initialize a City instance.
 
@@ -948,21 +948,21 @@ class City:
             - geometry : Polygon
             - land_use : LandUse or str
 
-        adj_mx : pd.DataFrame
-            DataFrame representing the adjacency matrix (or accessibility matrix). It should follow next rules:
+        acc_mx : pd.DataFrame
+            DataFrame representing the accessibility matrix. It should follow next rules:
             - the same index and columns as `blocks`.
             - values should contain travel times between row and column blocks as float.
 
         Raises
         ------
         AssertionError
-            If the indices of `blocks` and `adj_mx` do not match.
+            If the indices of `blocks` and `acc_mx` do not match.
         """
-        assert (blocks.index == adj_mx.index).all(), "Matrix and blocks index don't match"
-        assert (blocks.index == adj_mx.columns).all(), "Matrix columns and blocks index don't match"
+        assert (blocks.index == acc_mx.index).all(), "Matrix and blocks index don't match"
+        assert (blocks.index == acc_mx.columns).all(), "Matrix columns and blocks index don't match"
         self.crs = blocks.crs
         self._blocks = Block.from_gdf(blocks, self)
-        self.adjacency_matrix = adj_mx.copy()
+        self.accessibility_matrix = acc_mx.copy()
         self._service_types = {}
         for st in SERVICE_TYPES:
             service_type = ServiceType(**st)
@@ -1075,13 +1075,13 @@ class City:
         # plot network
         ax_network.set_title("Network")
         lines = []
-        for i in self.adjacency_matrix.index:
+        for i in self.accessibility_matrix.index:
             point_i = self[i].geometry.representative_point()
-            series_i = self.adjacency_matrix.loc[i]
+            series_i = self.accessibility_matrix.loc[i]
             for j in series_i[series_i <= max_travel_time].index:
                 point_j = self[j].geometry.representative_point()
                 lines.append(
-                    {"geometry": LineString([point_i, point_j]), "travel_time": self.adjacency_matrix.loc[i, j]}
+                    {"geometry": LineString([point_i, point_j]), "travel_time": self.accessibility_matrix.loc[i, j]}
                 )
         lines_gdf = gpd.GeoDataFrame(lines, crs=self.crs)
         lines_gdf.plot(ax=ax_network, linewidth=linewidth, column="travel_time", cmap="summer", legend=True)
@@ -1382,7 +1382,9 @@ class City:
         """
         if isinstance(block, Block):
             block = block.id
-        return [(self[block], self[block_b], weight) for block_b, weight in self.adjacency_matrix.loc[block].items()]
+        return [
+            (self[block], self[block_b], weight) for block_b, weight in self.accessibility_matrix.loc[block].items()
+        ]
 
     def get_in_edges(self, block: int | Block) -> list[(Block, Block, float)]:
         """
@@ -1400,7 +1402,9 @@ class City:
         """
         if isinstance(block, Block):
             block = block.id
-        return [(self[block_b], self[block], weight) for block_b, weight in self.adjacency_matrix.loc[:, block].items()]
+        return [
+            (self[block_b], self[block], weight) for block_b, weight in self.accessibility_matrix.loc[:, block].items()
+        ]
 
     @singledispatchmethod
     def __getitem__(self, arg):
@@ -1518,7 +1522,7 @@ class City:
         (block_a, block_b) = blocks
         block_a = self[block_a]
         block_b = self[block_b]
-        return self.adjacency_matrix.loc[block_a.id, block_b.id]
+        return self.accessibility_matrix.loc[block_a.id, block_b.id]
 
     @singledispatchmethod
     def __contains__(self, arg):
@@ -1579,7 +1583,7 @@ class City:
         description = ""
         description += f"CRS : EPSG:{self.epsg}\n"
         description += f"Blocks : {len(self.blocks)}\n"
-        description += f"Service types : {len(self.service_types)}\n"
+        description += f"Service types : {len(self.loaded_service_types)}/{len(self.service_types)}\n"
         description += f"Buildings : {len(self.buildings)}\n"
         description += f"Services : {len(self.services)}\n"
         services_description = ""

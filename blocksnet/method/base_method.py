@@ -6,6 +6,7 @@ from ..models import City
 
 
 class BaseMethod(ABC, BaseModel):
+
     """
     BaseMethod class required for methods implementation.
 
@@ -13,6 +14,9 @@ class BaseMethod(ABC, BaseModel):
     ----------
     city_model : InstanceOf[City]
         Instance of the City model used in the method.
+
+    verbose : bool, optional
+        Whether to display progress, default is True.
 
     Methods
     -------
@@ -24,6 +28,7 @@ class BaseMethod(ABC, BaseModel):
     """
 
     city_model: InstanceOf[City]
+    verbose: bool = True
 
     def calculate(self, *args, **kwargs) -> any:
         """
