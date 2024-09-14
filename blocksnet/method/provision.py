@@ -271,10 +271,15 @@ class Provision(BaseMethod):
         return gdf
 
     def _lp_provision(
-        self, gdf: gpd.GeoDataFrame, service_type: ServiceType, method: ProvisionMethod
+        self,
+        gdf: gpd.GeoDataFrame,
+        service_type: ServiceType,
+        method: ProvisionMethod,
+        selection_range: float | None = None,
     ) -> gpd.GeoDataFrame:
         """
         Solves the provision problem using a Linear Programming (LP) solver.
+        Loops itself till capacity or demand left meet 0.
 
         Parameters
         ----------
@@ -284,6 +289,9 @@ class Provision(BaseMethod):
             The type of service for which provision is being calculated.
         method : ProvisionMethod
             The method used to calculate provision (LINEAR or GRAVITATIONAL).
+        selection_range : float | None
+            The accessibility range defining maximum distance between living blocks and service blocks
+            in the current problem loop, default None (actually service type accessibility).
 
         Returns
         -------
@@ -291,6 +299,9 @@ class Provision(BaseMethod):
             Updated GeoDataFrame with provision results, including updates to
             'demand_within', 'demand_without', 'demand_left', and 'capacity_left'.
         """
+
+        if selection_range is None:
+            selection_range = service_type.accessibility
 
         def _get_distance(id1: int, id2: int):
             distance = self.city_model.adjacency_matrix.loc[id1, id2]
@@ -302,11 +313,11 @@ class Provision(BaseMethod):
                 return 1 / distance
             return 1 / (distance * distance)
 
-        if self.verbose:
-            logger.info("Setting an LP problem")
-
         demand = gdf.loc[gdf["demand_left"] > 0]
         capacity = gdf.loc[gdf["capacity_left"] > 0]
+
+        if self.verbose:
+            logger.info(f"Setting an LP problem for accessibility = {selection_range} : {len(demand)}x{len(capacity)}")
 
         prob = LpProblem("Provision", LpMaximize)
         # Precompute distance and filter products
@@ -314,7 +325,7 @@ class Provision(BaseMethod):
             (i, j)
             for i in demand.index
             for j in capacity.index
-            if _get_distance(i, j) <= service_type.accessibility * 2
+            if _get_distance(i, j) <= selection_range  # service_type.accessibility * 2
         ]
 
         # Create the decision variable dictionary
@@ -362,6 +373,8 @@ class Provision(BaseMethod):
                 gdf.loc[a, "demand_left"] -= value
                 gdf.loc[b, "capacity_left"] -= value
 
+        if gdf["demand_left"].sum() > 0 and gdf["capacity_left"].sum() > 0:
+            return self._lp_provision(gdf, service_type, method, selection_range * 2)
         return gdf
 
     def _greedy_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
