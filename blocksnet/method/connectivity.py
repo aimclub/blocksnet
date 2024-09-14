@@ -47,7 +47,7 @@ class Connectivity(BaseMethod):
         """
         Calculates connectivity for all blocks in the city model.
 
-        Connectivity is determined by the median value of the adjacency matrix row for each block.
+        Connectivity is determined by the median value of the accessibility matrix row for each block.
 
         Returns
         -------
@@ -55,5 +55,5 @@ class Connectivity(BaseMethod):
             GeoDataFrame containing blocks with calculated connectivity.
         """
         blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
-        blocks_gdf[CONNECTIVITY_COLUMN] = self.city_model.adjacency_matrix.apply(statistics.median, axis=1)
+        blocks_gdf[CONNECTIVITY_COLUMN] = self.city_model.accessibility_matrix.apply(statistics.median, axis=1)
         return blocks_gdf

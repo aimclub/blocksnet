@@ -76,6 +76,6 @@ class Accessibility(BaseMethod):
         """
         block = self.city_model[block]
         blocks_gdf = self.city_model.get_blocks_gdf(True)[["geometry"]]
-        blocks_gdf[ACCESSIBILITY_TO_COLUMN] = self.city_model.adjacency_matrix.loc[block.id]
-        blocks_gdf[ACCESSIBILITY_FROM_COLUMN] = self.city_model.adjacency_matrix[block.id]
+        blocks_gdf[ACCESSIBILITY_TO_COLUMN] = self.city_model.accessibility_matrix.loc[block.id]
+        blocks_gdf[ACCESSIBILITY_FROM_COLUMN] = self.city_model.accessibility_matrix[block.id]
         return blocks_gdf

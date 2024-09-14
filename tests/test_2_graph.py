@@ -4,7 +4,7 @@ import os
 import pytest
 import geopandas as gpd
 import osmnx as ox
-from blocksnet import GraphGenerator, AdjacencyCalculator
+from blocksnet.preprocessing.accessibility_processor import AccessibilityProcessor, IDUEDU_CRS
 
 data_path = "./tests/data"
 
@@ -15,42 +15,37 @@ def blocks():
 
 
 @pytest.fixture
-def graph_generator(blocks):
-    return GraphGenerator(blocks)
+def accessibility_processor(blocks):
+    return AccessibilityProcessor(blocks)
 
 
 @pytest.fixture
-def graph(graph_generator):
-    return graph_generator.run("intermodal")
+def graph(accessibility_processor):
+    return accessibility_processor.get_intermodal_graph()
 
 
 @pytest.fixture
-def adjacency_calculator(blocks, graph):
-    return AdjacencyCalculator(blocks, graph)
+def accessibility_matrix(accessibility_processor, graph):
+    return accessibility_processor.get_accessibility_matrix(graph)
 
 
-@pytest.fixture
-def adjacency_matrix(adjacency_calculator):
-    return adjacency_calculator.run()
-
-
-def test_within(graph, graph_generator):
+def test_within(graph, accessibility_processor):
     """Check if graph nodes are within the initial geometry"""
     nodes, _ = ox.graph_to_gdfs(graph)
-    assert all(nodes.within(graph_generator.territory.unary_union))
+    assert all(nodes.to_crs(IDUEDU_CRS).within(accessibility_processor.polygon))
 
 
-def test_index(blocks, adjacency_matrix):
+def test_index(blocks, accessibility_matrix):
     """Check if blocks index matches matrix index and columns"""
-    assert (blocks.index == adjacency_matrix.index).all()
-    assert (blocks.index == adjacency_matrix.columns).all()
+    assert (blocks.index == accessibility_matrix.index).all()
+    assert (blocks.index == accessibility_matrix.columns).all()
 
 
-def test_values(adjacency_matrix):
+def test_values(accessibility_matrix):
     """Check if adjacency matrix values are positive"""
-    values = adjacency_matrix.values.ravel()
+    values = accessibility_matrix.values.ravel()
     assert all(v >= 0 for v in values)
 
 
-def test_output(adjacency_matrix):
-    adjacency_matrix.to_pickle(os.path.join(data_path, "_adj_mx.pickle"))
+def test_output(accessibility_matrix):
+    accessibility_matrix.to_pickle(os.path.join(data_path, "_acc_mx.pickle"))

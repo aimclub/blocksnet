@@ -304,7 +304,7 @@ class Provision(BaseMethod):
             selection_range = service_type.accessibility
 
         def _get_distance(id1: int, id2: int):
-            distance = self.city_model.adjacency_matrix.loc[id1, id2]
+            distance = self.city_model.accessibility_matrix.loc[id1, id2]
             return distance if distance > 1 else 1
 
         def _get_weight(id1: int, id2: int):
