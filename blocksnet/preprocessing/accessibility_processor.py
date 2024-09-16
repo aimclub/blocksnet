@@ -1,5 +1,5 @@
 """
-Module used to generate graph based on user territory and calculate the accessibility matrix.
+IduEdu wrapper. The module is used to generate graph based on user territory and calculate the accessibility matrix.
 """
 import geopandas as gpd
 import networkx as nx
@@ -98,6 +98,19 @@ class AccessibilityProcessor:
 
     @staticmethod
     def _get_island_nodes(graph: nx.Graph) -> list:
+        """
+        Identifies island nodes in the graph that stay not connected with the main graph.
+
+        Parameters
+        ----------
+        graph : nx.Graph
+            NetworkX graph representing the transportation network.
+
+        Returns
+        -------
+        list
+            A list of island node identifiers.
+        """
         components = sorted(nx.strongly_connected_components(graph), key=len)
         components = list(components)[:-1]
         return [node for comp in components for node in comp]
