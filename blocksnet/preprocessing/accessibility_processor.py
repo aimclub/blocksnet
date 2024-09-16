@@ -96,10 +96,17 @@ class AccessibilityProcessor:
         """
         return [n for n, data in graph.nodes(data=True) if not "x" in data or not "y" in data]
 
+    @staticmethod
+    def _get_island_nodes(graph: nx.Graph) -> list:
+        components = sorted(nx.strongly_connected_components(graph), key=len)
+        components = list(components)[:-1]
+        return [node for comp in components for node in comp]
+
     @classmethod
     def _fix_graph(cls, graph) -> None:
         """
-        Removes broken nodes from the graph that do not have valid coordinates inplace.
+        Removes broken nodes that do not have valid coordinates and islands
+        from the graph inplace.
 
         Parameters
         ----------
@@ -108,6 +115,8 @@ class AccessibilityProcessor:
         """
         broken_nodes = cls._get_broken_nodes(graph)
         graph.remove_nodes_from(broken_nodes)
+        island_nodes = cls._get_island_nodes(graph)
+        graph.remove_nodes_from(island_nodes)
 
     def get_intermodal_graph(self, clip_by_bounds: bool = True, keep_routes_geom: bool = True) -> nx.Graph:
         """
