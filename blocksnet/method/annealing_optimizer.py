@@ -15,6 +15,25 @@ VACANT_AREA_COEF = 0.8
 LIVING_AREA_DEMAND = 20
 
 
+class Indicator:
+    def __init__(self, fsi_min, fsi_max, gsi_min, gsi_max):
+        self.fsi_min = fsi_min  # минимальный коэффициент плотности застройки
+        self.fsi_max = fsi_max  # максимальный коэффициент плотности застройки
+        self.gsi_min = gsi_min  # минимальный процент застроенности участка
+        self.gsi_max = gsi_max  # максимальный процент застроенности участка
+
+
+LU_INDICATORS = {
+    LandUse.RESIDENTIAL: Indicator(fsi_min=0.5, fsi_max=3.0, gsi_min=0.2, gsi_max=0.8),
+    LandUse.BUSINESS: Indicator(fsi_min=1.0, fsi_max=3.0, gsi_min=0.0, gsi_max=0.8),
+    LandUse.RECREATION: Indicator(fsi_min=0.05, fsi_max=0.2, gsi_min=0.0, gsi_max=0.3),
+    LandUse.SPECIAL: Indicator(fsi_min=0.05, fsi_max=0.2, gsi_min=0.05, gsi_max=0.15),
+    LandUse.INDUSTRIAL: Indicator(fsi_min=0.3, fsi_max=1.5, gsi_min=0.2, gsi_max=0.8),
+    LandUse.AGRICULTURE: Indicator(fsi_min=0.1, fsi_max=0.2, gsi_min=0.0, gsi_max=0.6),
+    LandUse.TRANSPORT: Indicator(fsi_min=0.2, fsi_max=1.0, gsi_min=0.0, gsi_max=0.8),
+}
+
+
 class Variable:
     """
     Represents a variable for optimization in a given block with a specific service type and brick.
