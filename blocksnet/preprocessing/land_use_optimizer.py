@@ -85,9 +85,9 @@ class LandUseOptimizer:
     def __init__(self, blocks: gpd.GeoDataFrame):
 
         blocks = BlocksSchema(blocks)
-        blocks = self._split_large_blocks(blocks)
+        while blocks.geometry.apply(self._is_block_large).any():
+            blocks = self._split_large_blocks(blocks)
         self.blocks = blocks
-
         self.adjacency_graph = self._get_adjacency_graph(blocks)
 
     # @staticmethod
@@ -220,7 +220,7 @@ class LandUseOptimizer:
     ):
         assert (
             round(sum(lu_shares.values()), 3) == 1
-        ), f"LandUse shares sum must be equal 1, got {sum(lu_shares.values())}"
+        ), f"LandUse shares sum must be  equal 1, got {sum(lu_shares.values())}"
 
         best_X = self._generate_initial_X()
         best_value = self._objective(best_X, lu_shares)
@@ -255,12 +255,13 @@ class LandUseOptimizer:
             if value < current_value:
                 current_value = value
                 current_X = X
+                # Если оно еще лучше лучшего, то меняем и его
                 if value < best_value:
                     best_value = value
                     best_X = X
             else:
                 # Принимаем худшее решение с вероятностью, зависящей от температуры
-                delta = best_value - value
+                delta = current_value - value
                 if random.random() < math.exp(delta / T):
                     current_value = value
                     current_X = X
