@@ -556,7 +556,7 @@ class AnnealingOptimizer(BaseMethod):
 
             if self.verbose:
                 pbar.update(1)
-                pbar.set_description(f"Best value : {best_value}")
+                pbar.set_description(f"Value : {round(best_value,3)}")
 
             if self.on_iteration is not None:
                 self.on_iteration(iteration, best_X, indicators, best_value)

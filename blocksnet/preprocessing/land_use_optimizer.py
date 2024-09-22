@@ -4,6 +4,7 @@ import shapely
 import geopandas as gpd
 import pandas as pd
 import networkx as nx
+from tqdm import tqdm
 from shapely.ops import split
 from ..models.land_use import LandUse
 from ..models.schema import BaseSchema
@@ -82,13 +83,34 @@ BUFFER_STEP = 0.5
 
 
 class LandUseOptimizer:
-    def __init__(self, blocks: gpd.GeoDataFrame):
+    """
+    Optimizes the allocation of land use within a set of urban blocks.
 
+    Parameters
+    ----------
+    blocks : gpd.GeoDataFrame
+        GeoDataFrame containing the urban blocks with geometry.
+    verbose : bool, optional
+        If True, progress is displayed using tqdm (default is True).
+    """
+
+    def __init__(self, blocks: gpd.GeoDataFrame, verbose: bool = True):
+        """
+        Initializes the LandUseOptimizer class by validating and processing the blocks data.
+
+        Parameters
+        ----------
+        blocks : gpd.GeoDataFrame
+            The GeoDataFrame representing the urban blocks.
+        verbose : bool, optional
+            Whether to display progress with tqdm (default is True).
+        """
         blocks = BlocksSchema(blocks)
         while blocks.geometry.apply(self._is_block_large).any():
             blocks = self._split_large_blocks(blocks)
         self.blocks = blocks
         self.adjacency_graph = self._get_adjacency_graph(blocks)
+        self.verbose = verbose
 
     # @staticmethod
     # def _get_possible_lus(polygon) -> list[LandUse]:
@@ -104,6 +126,19 @@ class LandUseOptimizer:
 
     @staticmethod
     def _split_polygon(polygon) -> shapely.GeometryCollection:
+        """
+        Splits a polygon into two parts by cutting along its midpoint.
+
+        Parameters
+        ----------
+        polygon : shapely.Polygon
+            The polygon to split.
+
+        Returns
+        -------
+        shapely.GeometryCollection
+            A collection of geometries resulting from the split operation.
+        """
         min_rect = polygon.buffer(1).minimum_rotated_rectangle
         rect_coords = list(min_rect.exterior.coords)
 
@@ -128,6 +163,19 @@ class LandUseOptimizer:
 
     @staticmethod
     def _is_block_large(block_geometry: shapely.Polygon) -> bool:
+        """
+        Determines if a block is too large based on its area and aspect ratio.
+
+        Parameters
+        ----------
+        block_geometry : shapely.Polygon
+            The geometry of the block to evaluate.
+
+        Returns
+        -------
+        bool
+            True if the block exceeds size or aspect ratio constraints, False otherwise.
+        """
         area = block_geometry.area
         aspect_ratio = get_polygon_aspect_ratio(block_geometry)
         lus = []
@@ -140,6 +188,19 @@ class LandUseOptimizer:
 
     @classmethod
     def _split_large_blocks(cls, blocks_gdf: gpd.GeoDataFrame):
+        """
+        Splits blocks in the GeoDataFrame that are too large according to predefined rules.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            The GeoDataFrame containing block geometries.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            Updated GeoDataFrame with large blocks split into smaller ones.
+        """
         blocks_gdf = blocks_gdf.copy()
         blocks_gdf.geometry = blocks_gdf.geometry.apply(
             lambda g: cls._split_polygon(g) if cls._is_block_large(g) else g
@@ -148,6 +209,21 @@ class LandUseOptimizer:
 
     @classmethod
     def _get_adjacency_graph(cls, blocks_gdf: gpd.GeoDataFrame, buffer: float = BUFFER_MIN):
+        """
+        Generates an adjacency graph of blocks based on their spatial proximity.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            The GeoDataFrame of blocks with geometries.
+        buffer : float, optional
+            Buffer size used for detecting intersections (default is BUFFER_MIN).
+
+        Returns
+        -------
+        nx.Graph
+            A NetworkX graph representing the adjacency relations between blocks.
+        """
         blocks_gdf = blocks_gdf.copy()
         blocks_gdf.geometry = blocks_gdf.buffer(buffer)
         sjoin = gpd.sjoin(blocks_gdf, blocks_gdf, predicate="intersects")
@@ -157,10 +233,31 @@ class LandUseOptimizer:
         return nx.from_edgelist(edge_list)
 
     def _generate_initial_X(self) -> dict[int, LandUse]:
+        """
+        Generates an initial configuration of land uses for the blocks.
+
+        Returns
+        -------
+        dict[int, LandUse]
+            A dictionary mapping block IDs to initial land uses (default is LandUse.RECREATION).
+        """
         return {block_id: LandUse.RECREATION for block_id in self.blocks.index}
 
     @staticmethod
     def _perturb(X: dict[int, LandUse]) -> dict[int, LandUse]:
+        """
+        Perturbs the current land use configuration by randomly changing the land use of one block.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Current land use configuration.
+
+        Returns
+        -------
+        dict[int, LandUse]
+            Modified configuration with one randomly changed land use.
+        """
         X = {block_id: lu for block_id, lu in X.items()}
         b_id = random.choice(list(X.keys()))
         x_lu = X[b_id]
@@ -170,12 +267,38 @@ class LandUseOptimizer:
         return X
 
     def _check_adj_rules(self, X: dict[int, LandUse]) -> bool:
+        """
+        Validates the adjacency rules for the given land use configuration.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Land use configuration to check.
+
+        Returns
+        -------
+        bool
+            True if the configuration satisfies adjacency rules, False otherwise.
+        """
         for u, v in self.adjacency_graph.edges:
             if not RULES_GRAPH.has_edge(X[u], X[v]):
                 return False
         return True
 
     def _check_area_ranges(self, X: dict[int, LandUse]):
+        """
+        Validates that each block's area falls within the allowed range for its land use.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Land use configuration to check.
+
+        Returns
+        -------
+        bool
+            True if all areas are within valid ranges, False otherwise.
+        """
         for b_id, lu in X.items():
             area_min, area_max = AREA_RANGES[lu]
             block_area = self.blocks.loc[b_id, "geometry"].area
@@ -184,6 +307,19 @@ class LandUseOptimizer:
         return True
 
     def _check_ratio_ranges(self, X: dict[int, LandUse]):
+        """
+        Checks whether the aspect ratio of each block falls within the allowed range for its land use.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Land use configuration to check.
+
+        Returns
+        -------
+        bool
+            True if all aspect ratios are valid, False otherwise.
+        """
         for b_id, lu in X.items():
             ar = get_polygon_aspect_ratio(self.blocks.loc[b_id, "geometry"])
             min_ar, max_ar = ASPECT_RATIO_RANGES[lu]
@@ -192,16 +328,57 @@ class LandUseOptimizer:
         return True
 
     def to_shares_dict(self, X: dict[int, LandUse]) -> pd.DataFrame:
+        """
+        Converts the land use configuration to a dictionary of land use area shares.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Land use configuration.
+
+        Returns
+        -------
+        pd.DataFrame
+            A dictionary mapping each land use to its share of the total area.
+        """
         gdf = self.to_gdf(X)
         total_area = gdf.area.sum()
         return {lu: gdf[gdf.land_use == lu.value].area.sum() / total_area for lu in list(LandUse)}
 
     def to_gdf(self, X: dict[int, LandUse]) -> gpd.GeoDataFrame:
+        """
+        Converts the land use configuration into a GeoDataFrame with land use labels.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Land use configuration.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            GeoDataFrame with land use assignments.
+        """
         gdf = self.blocks.copy()
         gdf["land_use"] = gdf.apply(lambda s: X[s.name].value, axis=1)
         return gdf
 
     def _objective(self, X: dict[int, LandUse], lu_shares: dict[LandUse, float]) -> float:
+        """
+        Computes the objective function value, which measures deviation from target land use shares.
+
+        Parameters
+        ----------
+        X : dict[int, LandUse]
+            Land use configuration.
+        lu_shares : dict[LandUse, float]
+            Target land use shares.
+
+        Returns
+        -------
+        float
+            Sum of squared deviations between actual and target land use shares.
+        """
         actual_shares = self.to_shares_dict(X)
         deviations = []
         for lu, share in lu_shares.items():
@@ -217,7 +394,29 @@ class LandUseOptimizer:
         t_max: float = 100,
         t_min: float = 1e-3,
         max_iter=10000,
-    ):
+    ) -> tuple:
+        """
+        Runs the optimization algorithm to find the optimal land use configuration.
+
+        Parameters
+        ----------
+        lu_shares : dict[LandUse, float]
+            Target shares for each land use, must sum to 1.
+        rate : float, optional
+            Cooling rate for the simulated annealing algorithm (default is 0.99).
+        t_max : float, optional
+            Initial temperature for simulated annealing (default is 100).
+        t_min : float, optional
+            Minimum temperature for simulated annealing (default is 1e-3).
+        max_iter : int, optional
+            Maximum number of iterations for the optimization (default is 10000).
+
+        Returns
+        -------
+        tuple
+            A tuple containing the best land use configuration, best objective value, list of configurations, and list of objective values.
+        """
+
         assert (
             round(sum(lu_shares.values()), 3) == 1
         ), f"LandUse shares sum must be  equal 1, got {sum(lu_shares.values())}"
@@ -232,7 +431,14 @@ class LandUseOptimizer:
         current_X = best_X
         current_value = best_value
 
+        if self.verbose:
+            pbar = tqdm(range(max_iter))
+
         for _ in range(max_iter):
+
+            if self.verbose:
+                pbar.update(1)
+                pbar.set_description(f"Value : {round(current_value, 3)}")
 
             Xs.append(current_X)
             values.append(current_value)
