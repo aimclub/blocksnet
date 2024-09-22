@@ -19,7 +19,7 @@ city model based on the accessibility of urban blocks.
 The library also provides tools for working with the information
 city model, which allows one: to assess urban network metrics such as connectivity
 and centrality, to calculate service type provision based on regulatory
-requirements, to obtain optimal requirements for master planning of territories.
+requirements and to obtain optimal requirements for master planning of territories.
 
 .. description-end
 
@@ -31,32 +31,35 @@ Features
 BlocksNet — a library for modeling urban development scenarios
 (e.g. creating a master plan), supporting the following tools:
 
-1. Method for generating a layer of urban blocks is the division of
+-  Method for generating a layer of urban blocks is the division of
    the territory into the smallest elements for the analysis of the
    urban area - blocks. The method of generating a layer of urban blocks
    is based on clustering algorithms taking into account additional data
    on land use.
-2. Method for generating an intermodal city graph based on open-data. The
-   intermodal graph includes the information about public transport and
-   pedestrian routes to better analyze city mobility.
-3. The Universal Information City Model is used to further analyze urban
+-  Intermodal graph generator and accessibility matrix calculator based
+   on `IduEdu <https://github.com/DDonnyy/IduEdu>`__ library.
+-  The Universal Information City Model is used to further analyze urban
    areas and to obtain information on the accessibility of urban blocks.
    The City Model includes aggregated information on services and buildings,
    intermodal accessibility, service types hierarchy, and urban blocks.
-4. Method for accessing the connectivity of the blocks based on intermodal
+-  Method for accessing the connectivity of the blocks based on intermodal
    accessibility.
-5. Methods for assessing urban provision of different types of services
+-  Methods for assessing urban provision of different types of services
    with regard to normative requirements and value attitudes of the
    population. The estimation of provisioning is performed by iterative
    algorithm on graphs, as well as by solving linear optimization
    problem.
-6. Method for computing the function for evaluating the optimality of
+-  Method for computing the function for evaluating the optimality of
    master planning projects based on the value attitudes of the
    population and systems of external limitations. The method is based
    on solving an optimization problem: it is necessary to find an
    optimal development to increase the provision. The problem is solved
-   with the help of genetic algorithm, user scenarios support is added.
-7. Method for identifying vacant areas based on open-data.
+   with the help of simulated annealing algorithm, user scenarios
+   support is added.
+-  Method for identifying vacant areas based on open-data.
+-  Land use prediction based on services within blocks.
+-  Centrality and diversity assessments, spacematrix morphotypes identification
+   method, integration metric assessment etc.
 
 Main differences from existing solutions:
 
@@ -66,11 +69,14 @@ Main differences from existing solutions:
 -  The universal information **city model** can be built on open data;
    the smallest spatial unit for analysis is a block, which makes it
    possible to analyze on a city scale.
--  Not only normative documents are taken into account when assessing
-   **provision**, but also the value attitudes of the population.
--  Genetic algorithm for optimization of development supports
+-  **Provision assessment** takes into account the competition element created
+   between residents and services.
+-  **Services optimization** algorithm based on simulated annealing supports
    user-defined **scenarios**.
 -  Support for different regulatory requirements.
+-  Pretty easy to use out of the box. The library is aimed to help students,
+   so it balances between being friendly to non-programmers as well as useful
+   and respective for advanced possible users and contributors.
 
 .. features-end
 
@@ -104,7 +110,7 @@ Next, use the necessary classes and modules:
 
    city = City(
       blocks=blocks_gdf,
-      adj_mx=adj_mx,
+      acc_mx=acc_mx,
    )
    city.plot()
 
@@ -115,8 +121,8 @@ For more detailed use case see our `examples <#examples>`__.
 Data
 ----
 
-Before running the examples, one should download the `input
-data <https://drive.google.com/drive/folders/1xrLzJ2mcA0Qn7FG0ul8mTkfzKolvUoiP>`__
+Before running the examples, one can use the data from `tests
+section <#tests/data>`__
 and place it in the ``examples/data`` directory. You can use your own
 data, but it must follow the structure described in the
 `API documentation <https://aimclub.github.io/blocksnet/>`__.
@@ -126,21 +132,22 @@ Examples
 
 Next examples will help to get used to the library:
 
-1. Main `pipeline <examples/pipeline>`__ of the library. Includes full ``City`` model initialization
-   and ``Genetic`` optimization.
+1. Main `pipeline <examples/0%20pipeline>`__ of the library. Includes full ``City`` model initialization
+   and ``Provision`` assessment.
 2. `City blocks generating <examples/1%20blocks_generator.ipynb>`__ using ``BlocksGenerator`` class
    based on city geometries data.
-3. `Intermodal graph generating <examples/2%20graph_generator.ipynb>`__ - using ``GraphGenerator`` class.
-   Includes adjacency matrix calculating using ``AdjacencyCalculator`` for given city blocks.
-4. `City model initialization <examples/city.ipynb>`__ and its methods usage.
+3. `Accessibility matrix calculation <examples/2%20accessibility_processor.ipynb>`__ -
+   using the ``AccessibilityProcessor`` class. Includes intermodal graph
+   generating for given city blocks.
+4. `City model initialization <examples/3%20city.ipynb>`__ and its methods usage.
    The example explains, how to work with ``City`` model, access ``ServiceType`` or
-   ``Block`` information etc. Extremely helpful if you want to participate in developing.
-5. `Provision assessment <examples/3%20provision.ipynb>`__ - how
+   ``Block`` information etc. Extremely helpful if you want to participate in the developing of **BlocksNet**.
+5. `Provision assessment <examples/methods/provision.ipynb>`__ - how
    to assess provision of certain city ``ServiceType``,
-6. `Development optimization method <examples/4%20genetic.ipynb>`__ based on genetic
-   algorithm. The goal of the method is to optimize the search for master planning
-   requirements for a specific ``Block`` or the entire ``City`` in a specific scenario.
-7. `Vacant area identifying <examples/5%20vacant_area.ipynb>`__ for a certain city ``Block``.
+6. `Development optimization method <examples/methods/annealing_optimizer.ipynb>`__ based on
+   simulated annealing algorithm. The goal of the method is to optimize the search for master planning
+   requirements for specific ``Block`` or the entire ``City`` in a specific scenario.
+7. `Vacant area identifying <examples/vacant_area.ipynb>`__ for a certain city ``Block``.
 
 Documentation
 -------------
@@ -160,7 +167,7 @@ The repository includes the following directories and modules:
 
    -  preprocessing - data preprocessing module
    -  models - entities' classes used in library
-   -  method - library tool methods on ``City`` model
+   -  method - library tool methods based on ``City`` model
    -  utils - module containing utulity functions and consts
 
 -  `tests <https://github.com/aimclub/blocksnet/tree/main/tests>`__
@@ -223,7 +230,7 @@ To start developing the library, one must perform following actions:
 
 8. Update the
    `documentation <https://github.com/aimclub/blocksnet/tree/main/docs>`__
-   and README files according to your changes.
+   and **README** according to your changes.
 
 11. When you're done editing and local testing, run:
 
