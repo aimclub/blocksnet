@@ -9,6 +9,6 @@ The examples below may help with getting used to the library.
 
    pipeline
    blocks_generator
-   graph_generator
+   accessibility_processor
    city
    methods/index

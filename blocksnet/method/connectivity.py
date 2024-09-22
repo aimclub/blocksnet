@@ -1,4 +1,3 @@
-import statistics
 import geopandas as gpd
 from .base_method import BaseMethod
 
@@ -55,5 +54,5 @@ class Connectivity(BaseMethod):
             GeoDataFrame containing blocks with calculated connectivity.
         """
         blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
-        blocks_gdf[CONNECTIVITY_COLUMN] = self.city_model.accessibility_matrix.apply(statistics.median, axis=1)
+        blocks_gdf[CONNECTIVITY_COLUMN] = self.city_model.accessibility_matrix.median(axis=1)
         return blocks_gdf

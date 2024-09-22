@@ -122,7 +122,8 @@ class BlocksGenerator:
             assert gdf.crs == crs, "All CRS must match"
 
         logger.info("Exclude water objects")
-        boundaries = boundaries.overlay(water[water.geom_type != "LineString"], how="difference")
+        line_water = water[water.geom_type != "LineString"].unary_union
+        boundaries = boundaries.overlay(gpd.GeoDataFrame(geometry=[line_water], crs=water.crs), how="difference")
         water["geometry"] = water["geometry"].apply(lambda x: x if x.geom_type == "LineString" else x.boundary)
 
         self.boundaries = boundaries

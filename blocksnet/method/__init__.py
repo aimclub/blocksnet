@@ -8,7 +8,6 @@ from .centrality import *
 from .connectivity import *
 from .diversity import *
 from .integration import *
-from .land_use_optimizer import LandUseOptimizer
 from .land_use_prediction import *
 from .population_centrality import *
 from .provision import *

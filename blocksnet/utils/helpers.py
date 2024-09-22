@@ -99,3 +99,15 @@ def filter_bottlenecks(gdf, projected_crs, min_width=40):
         gdf["area"] = gdf.to_crs(projected_crs).area
 
     return gdf
+
+
+def get_polygon_aspect_ratio(polygon: Polygon):
+    min_rect = polygon.minimum_rotated_rectangle
+    rect_coords = list(min_rect.exterior.coords)
+    side_lengths = [
+        ((rect_coords[i][0] - rect_coords[i - 1][0]) ** 2 + (rect_coords[i][1] - rect_coords[i - 1][1]) ** 2) ** 0.5
+        for i in range(1, 5)
+    ]
+    length_1, length_2 = side_lengths[0], side_lengths[1]
+    aspect_ratio = max(length_1, length_2) / min(length_1, length_2)
+    return aspect_ratio

@@ -14,6 +14,28 @@ from .provision import Provision
 VACANT_AREA_COEF = 0.8
 LIVING_AREA_DEMAND = 20
 
+# fsi is build floor area per site area
+LU_FSIS = {
+    LandUse.RESIDENTIAL: (0.5, 3.0),
+    LandUse.BUSINESS: (1.0, 3.0),
+    LandUse.RECREATION: (0.05, 0.2),
+    LandUse.SPECIAL: (0.05, 0.2),
+    LandUse.INDUSTRIAL: (0.3, 1.5),
+    LandUse.AGRICULTURE: (0.1, 0.2),
+    LandUse.TRANSPORT: (0.2, 1.0),
+}
+
+# gsi is footprint area per site area
+LU_GSIS = {
+    LandUse.RESIDENTIAL: (0.2, 0.8),
+    LandUse.BUSINESS: (0.0, 0.8),
+    LandUse.RECREATION: (0.0, 0.3),
+    LandUse.SPECIAL: (0.05, 0.15),
+    LandUse.INDUSTRIAL: (0.2, 0.8),
+    LandUse.AGRICULTURE: (0.0, 0.6),
+    LandUse.TRANSPORT: (0.0, 0.8),
+}
+
 
 class Variable:
     """
@@ -527,7 +549,14 @@ class AnnealingOptimizer(BaseMethod):
         # Начальная температура
         T = t_max
 
-        for iteration in tqdm(range(max_iter), disable=(not self.verbose)):
+        if self.verbose:
+            pbar = tqdm(range(max_iter))
+
+        for iteration in range(max_iter):
+
+            if self.verbose:
+                pbar.update(1)
+                pbar.set_description(f"Value : {round(best_value,3)}")
 
             if self.on_iteration is not None:
                 self.on_iteration(iteration, best_X, indicators, best_value)
