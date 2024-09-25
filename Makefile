@@ -16,6 +16,9 @@ venv: #then source .venv/bin/activate
 install-dev:
 	pip install -e '.[dev]'
 
+install-docs:
+	pip install -e '.[docs]'
+
 build:
 	python3 -m build .
 

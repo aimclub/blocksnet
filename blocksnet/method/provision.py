@@ -402,8 +402,6 @@ class Provision(BaseMethod):
 
         while gdf["demand_left"].sum() > 0 and gdf["capacity_left"].sum() > 0:
 
-            print(gdf["demand_left"].sum(), gdf["capacity_left"].sum())
-
             for demand_block in demand_blocks:
                 if len(capacity_blocks) == 0:
                     break

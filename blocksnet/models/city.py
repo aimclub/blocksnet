@@ -1199,7 +1199,7 @@ class City:
                 ...
             else:
                 land_use = None
-            self[i].land_use == land_use
+            self[i].land_use = land_use
 
     def update_buildings(self, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """
@@ -1210,14 +1210,14 @@ class City:
         gdf : gpd.GeoDataFrame
             GeoDataFrame containing updated buildings information. It should have the same CRS as the city model. It must contain the following columns:
 
-            - index : int - unique building id
-            - geometry : Polygon | MultiPolygon
-            - build_floor_area : float >= 0
-            - living_area : float >= 0
-            - non_living_area : float >= 0
-            - footprint_area : float >= 0
-            - number_of_floors : int >= 1
-            - population : int >= 0
+            - index : `int` - unique building id
+            - geometry : `Polygon` | MultiPolygon
+            - build_floor_area : `float` >= 0
+            - living_area : `float` >= 0
+            - non_living_area : `float` >= 0
+            - footprint_area : `float` >= 0
+            - number_of_floors : `int` >= 1
+            - population : `int` >= 0
 
             Please, do not specify building_id nor block_id columns, as they are used in the method. For more specific information, please, check Building class.
 
