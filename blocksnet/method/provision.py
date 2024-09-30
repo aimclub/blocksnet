@@ -105,7 +105,7 @@ class Provision(BaseMethod):
             if "population" in update_df.columns:
                 gdf["population"] = gdf["population"].add(update_df["population"].fillna(0), fill_value=0)
             if service_type.name in update_df.columns:
-                gdf["capacity"] += gdf["capacity"].add(update_df[service_type.name].fillna(0), fill_value=0)
+                gdf["capacity"] = gdf["capacity"].add(update_df[service_type.name].fillna(0), fill_value=0)
         gdf["population"] = gdf["population"].apply(service_type.calculate_in_need)
         gdf = gdf.rename(columns={"population": "demand"})
         gdf["capacity_left"] = gdf["capacity"]
