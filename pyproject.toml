@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "blocksnet"
-version = "0.0.10"
+version = "0.0.11"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
