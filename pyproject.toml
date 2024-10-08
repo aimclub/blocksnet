@@ -6,31 +6,26 @@ build-backend = "setuptools.build_meta"
 name = "townsnet"
 version = "0.0.9"
 authors = [
-    # { name = "", email = "" }, # TODO add authors
+    { name = "Vasilii Starikov", email = "vasilstar97@gmail.com" }, # TODO add authors
 ]
 description = "Provision assessment for cities of an urban region"
-readme = "README.md"
+readme = "README.rst"
 requires-python = ">=3.10"
-license = { file = "LICENCE.md" }
+license = { file = "LICENSE" }
 
 dependencies = [
-    "geopandas>=0.13.0,<0.15.0",
-    "loguru==0.7.0",
-    "mapclassify>=2.6.1,<3.0.0",
-    "matplotlib>=3.7.1,<4.0.0",
-    "matplotlib-inline==0.1.6",
-    "numpy>=1.23.5,<2.0.0",
-    "osmnx==1.6.0",
+    "idu_clients@git+https://github.com/vasilstar97/idu-clients.git@develop",
+    "geopandas>=0.13.0,<1.0.0",
     "pandas>=1.5.3,<3.0.0",
+    "numpy>=1.23.5,<2.0.0",
+    "loguru>=0.7.0,<1.0.0",
+    "osmnx>=1.6.0,<2.0.0",
     "PuLP==2.7.0",
     "pyarrow==12.0.0",
-    "pydantic>=2.0.0,<3.0.0",
-    "requests==2.31.0",
-    "shapely==2.0.1",
-    "six==1.16.0",
+    "pydantic",
+    "shapely",
     "tqdm>=4.65.0,<5.0.0",
-    "seaborn==0.12.2",
-    "folium>=0.14.0,<1.0.0",
+    "pandera",
 ]
 
 classifiers = [
@@ -47,16 +42,21 @@ include = ["townsnet*"]
 [project.optional-dependencies]
 dev = [
     "black[jupyter]>=22",
+    "mapclassify==2.6.1",       #jupyter maps
+    "folium==0.14.0",           #jupyter maps
+    "matplotlib",
+    "matplotlib-inline==0.1.6", #jupyter plots
+    "ipykernel",
+    "jupyter",
+    "ipywidgets",
     "isort>=5.6",
     "pylint>=2.17",
     "pre-commit>=3.1",
-    "sphinx==6.2.1",
-    "sphinx-book-theme==1.0.1",
-    "numpydoc==1.5.0",
     "pytest==7.4.3",
-    "pytest-cov==4.1.0"
+    "pytest-cov==4.1.0",
+    "build",
+    "twine",
 ]
-
 
 [project.urls]
 "Repository" = "https://github.com/vasilstar97/townsnet"

@@ -11,14 +11,6 @@ from .service_type import ServiceType
 from .territory import Territory
 from .town import Town
 
-
-DISTRICTS_PLOT_COLOR = "#e40e37"
-SETTLEMENTS_PLOT_COLOR = "#ddd"
-TOWNS_PLOT_COLOR = "#777"
-SERVICES_PLOT_COLOR = "#aaa"
-TERRITORIES_PLOT_COLOR = "#29392C"
-
-
 class Region:
 
     def __init__(
