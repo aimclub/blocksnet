@@ -17,16 +17,14 @@ dependencies = [
     "idu_clients@git+https://github.com/vasilstar97/idu-clients.git@develop",
     "geopandas>=0.13.0,<1.0.0",
     "pandas>=1.5.3,<3.0.0",
-    "numpy>=1.23.5,<2.0.0",
     "loguru>=0.7.0,<1.0.0",
-    "osmnx>=1.6.0,<2.0.0",
+    "osmnx>=1.6.0,<2.0.0",                                                    #to remove maybe
     "PuLP==2.7.0",
     "pandera",
     "pyarrow==12.0.0",
     "pydantic",
     "shapely",
     "tqdm>=4.65.0,<5.0.0",
-    "pandera",
 ]
 
 classifiers = [

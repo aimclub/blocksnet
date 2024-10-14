@@ -1,71 +1,108 @@
-import math
-from enum import Enum
-
+import pandera as pa
 import pandas as pd
+import geopandas as gpd
+import numpy as np
+from enum import Enum
+from pandera.typing import Series, Index
 from pydantic import BaseModel, Field, field_validator
 
+DB_ACCESSIBILITY_METERS_COLUMN = 'radius_availability_meters'
+DB_ACCESSIBILITY_MINUTES_COLUMN = 'time_availability_minutes'
+DB_SUPPLY_COUNT_COLUMN = 'services_per_1000_normative'
+DB_SUPPLY_CAPACITY_COLUMN = 'services_capacity_per_1000_normative'
 
-class ServiceInfrastructure(Enum):
-    EDUCATION = "education"
-    HEALTHCARE = "healthcare"
-    COMMERCE = "commerce"
-    CATERING = "catering"
-    LEISURE = "leisure"
-    RECREATION = "recreation"
-    SPORT = "sport"
-    SERVICE = "service"
-    TRANSPORT = "transport"
-    SAFENESS = "safeness"
+class AccessibilityType(Enum):
+  METERS = 'м'
+  MINUTES = 'мин'
 
+class SupplyType(Enum):
+  SERVICES_PER_1000 = 'шт. на 1000 человек'
+  CAPACITY_PER_1000 = 'ед. на 1000 человек'
 
-class ServiceCategory(Enum):
-    BASIC = "basic"
-    BASIC_PLUS = "basic_plus"
-    COMFORT = "comfort"
+class Category(Enum):
+  BASIC = 'Базовая'
+  ADDITIONAL = 'Дополнительная'
+  COMFORT = "Комфорт"
 
+class ServiceTypesSchema(pa.DataFrameModel):
+  idx : Index[int] = pa.Field(unique=True)
+  name : Series[str]
+  category : Series[str]
+  weight : Series[float] = pa.Field(nullable=True, coerce=True)
+  ...
+
+class NormativesSchema(pa.DataFrameModel):
+  service_type_id : Series[int]
+  radius_availability_meters : Series[float] = pa.Field(coerce=True, nullable=True)
+  time_availability_minutes : Series[float] = pa.Field(coerce=True, nullable=True)
+  services_per_1000_normative : Series[float] = pa.Field(coerce=True, nullable=True)
+  services_capacity_per_1000_normative : Series[float] = pa.Field(coerce=True, nullable=True)
+  
+  @pa.dataframe_check()
+  @classmethod
+  def check_availability(cls, df : pd.DataFrame) -> pd.Series:
+      return ~df[DB_ACCESSIBILITY_METERS_COLUMN].isna() ^ ~df[DB_ACCESSIBILITY_MINUTES_COLUMN].isna()
+  
+  @pa.dataframe_check()
+  @classmethod
+  def check_supply(cls, df : pd.DataFrame) -> pd.Series:
+      return ~df[DB_SUPPLY_COUNT_COLUMN].isna() ^ ~df[DB_SUPPLY_CAPACITY_COLUMN].isna()
 
 class ServiceType(BaseModel):
-    """Represents service type entity, such as schools and its parameters overall"""
+  id : int
+  accessibility_value : float = Field(ge=0)
+  supply_value : float = Field(ge=0)
+  accessibility_type : AccessibilityType
+  supply_type : SupplyType
+  category : Category
+  weight : float = Field(coerce=True, nullable=True)
 
-    category: ServiceCategory
-    infrastructure: ServiceInfrastructure
-    name: str
-    name_ru: str
-    weight: float = Field(gt=0)
-    accessibility: int = Field(gt=0)
-    demand: int = Field(gt=0)
-    osm_tags: dict
-    # bricks: list[ServiceBrick] = []
+  @field_validator('weight', mode='after')
+  @classmethod
+  def validate_weight(cls, w):
+    if not np.isnan(w):
+      assert 0 <= w <= 1, 'Weight should be in [0.0, 1.0]'
+    return w
 
-    # @field_validator("bricks", mode="before")
-    # def validate_bricks(value):
-    #     bricks = [sb if isinstance(sb, ServiceBrick) else ServiceBrick(**sb) for sb in value]
-    #     return bricks
+  @classmethod
+  def from_series(cls, series : pd.Series):
+    i = series.name
+    
+    if not np.isnan(series[DB_ACCESSIBILITY_METERS_COLUMN]):
+      accessibility_type = AccessibilityType.METERS
+      accessibility_value = series[DB_ACCESSIBILITY_METERS_COLUMN]
+    else:
+      accessibility_type = AccessibilityType.MINUTES
+      accessibility_value = series[DB_ACCESSIBILITY_MINUTES_COLUMN]
 
-    def calculate_in_need(self, population: int) -> int:
-        """Calculate how many people in the given population are in need by this service type"""
-        return math.ceil(population / 1000 * self.demand)
+    if not np.isnan(series[DB_SUPPLY_COUNT_COLUMN]):
+      supply_type = SupplyType.SERVICES_PER_1000
+      supply_value = series[DB_SUPPLY_COUNT_COLUMN]
+    else:
+      supply_type = SupplyType.CAPACITY_PER_1000
+      supply_value = series[DB_SUPPLY_CAPACITY_COLUMN]
 
-    def to_dict(self):
-        return {
-            "category": self.category.name,
-            "infrastructure": self.infrastructure.name,
-            "name": self.name,
-            "name_ru": self.name_ru,
-            "weight": self.weight,
-            "accessibility": self.accessibility,
-            "demand": self.demand,
-        }
+    category = series['category']
+    if category == 'Базовая':
+      category = Category.BASIC
+    elif category == 'Дополнительная':
+      category = Category.ADDITIONAL
+    else :
+      category = Category.COMFORT
 
-    @staticmethod
-    def to_df(iterable):
-        if isinstance(iterable, dict):
-            iterable = iterable.values()
-        return pd.DataFrame([st.to_dict() for st in iterable])
+    return cls(
+      id = i,
+      accessibility_value = accessibility_value,
+      accessibility_type = accessibility_type, 
+      supply_value = supply_value,
+      supply_type = supply_type,
+      weight = series['weight'],
+      category=category
+    )
 
-    def __hash__(self):
-        """Make service type hashable to use it as a key"""
-        return hash(self.name)
-
-    def __str__(self):
-        return str.join("\n", [f"{key.ljust(15)}: {value}" for key, value in self.to_dict().items()])
+  @classmethod
+  def initialize_service_types(cls, service_types : gpd.GeoDataFrame, normatives : gpd.GeoDataFrame) -> list :
+    service_types = ServiceTypesSchema(service_types)
+    normatives = NormativesSchema(normatives)
+    service_types = service_types.merge(normatives, left_index=True, right_on='service_type_id')
+    return [cls.from_series(s) for _, s in service_types.iterrows()]

@@ -2,8 +2,5 @@
 Models classes are located here.
 """
 
-from .region import *
 from .service_type import *
-from .territory import *
-from .town import *
-from .schema import BaseSchema
+from .provision_model import ProvisionModel

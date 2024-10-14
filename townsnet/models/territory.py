@@ -2,7 +2,6 @@ import geopandas as gpd
 import pandas as pd
 import shapely
 from pydantic import BaseModel, InstanceOf
-
 from .service_type import ServiceType
 
 
