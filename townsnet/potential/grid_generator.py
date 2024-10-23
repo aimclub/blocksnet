@@ -1,7 +1,7 @@
 import geopandas as gpd
 import json
 import h3
-from shapely import to_geojson, Polygon, MultiPolygon
+from shapely import to_geojson, Polygon
 
 DEFAULT_RESOLUTION = 6
 
