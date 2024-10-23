@@ -106,3 +106,6 @@ class ServiceType(BaseModel):
     normatives = NormativesSchema(normatives)
     service_types = service_types.merge(normatives, left_index=True, right_on='service_type_id')
     return [cls.from_series(s) for _, s in service_types.iterrows()]
+
+  def __hash__(self):
+    return self.id
