@@ -15,7 +15,7 @@ license = { file = "LICENSE" }
 
 dependencies = [
     "idu_clients@git+https://github.com/vasilstar97/idu-clients.git@develop",
-    "geopandas>=0.13.0,<1.0.0",
+    "geopandas>=1.0.0,<2.0.0",
     "pandas>=1.5.3,<3.0.0",
     "loguru>=0.7.0,<1.0.0",
     "osmnx>=1.6.0,<2.0.0",                                                    #to remove maybe
