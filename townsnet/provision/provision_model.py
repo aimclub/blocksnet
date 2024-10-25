@@ -5,7 +5,7 @@ from loguru import logger
 from pandera.typing import Index, Series
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 from shapely import Point
-from .schema import BaseSchema
+from ..base_schema import BaseSchema
 from .service_type import ServiceType
 
 POPULATION_COLUMN = 'population'

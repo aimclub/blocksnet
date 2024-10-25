@@ -4,7 +4,7 @@ import pandera as pa
 from shapely import Polygon, MultiPolygon, Point
 from pandera.typing import Index, Series
 from .service_type import ServiceType, AccessibilityType
-from .schema import BaseSchema
+from ..base_schema import BaseSchema
 from .provision_model import ProvisionModel
 
 DEFAULT_TRAVEL_SPEED = 60 #km/h
