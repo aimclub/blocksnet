@@ -15,13 +15,14 @@ class EngineeringObject(Enum):
     GAS_DISTRIBUTION = 'Газораспределительная станция'
 
 class EngineeringsSchema(BaseSchema):
-    _geom_types = [Point]
+    ...
+    # _geom_types = [Point]
 
-    @pa.parser('geometry')
-    @classmethod
-    def parse_geometry(cls, series):
-        name = series.name
-        return series.representative_point().rename(name)
+    # @pa.parser('geometry')
+    # @classmethod
+    # def parse_geometry(cls, series):
+    #     name = series.name
+    #     return series.representative_point().rename(name)
 
 class EngineeringModel():
   
@@ -30,7 +31,7 @@ class EngineeringModel():
 
     @staticmethod
     def _aggregate(gdf : gpd.GeoDataFrame, territories : gpd.GeoDataFrame):
-        sjoin = gdf.sjoin(territories[['geometry']], predicate='within')
+        sjoin = gdf.sjoin(territories[['geometry']], predicate='intersects')
         return sjoin.groupby(TERRITORY_INDEX_NAME).size()
 
     def aggregate(self, territories : gpd.GeoDataFrame) -> gpd.GeoDataFrame:
