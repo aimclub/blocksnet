@@ -70,7 +70,7 @@ class ServiceType(BaseModel):
 
   @classmethod
   def from_series(cls, series : pd.Series):
-    i = series.name
+    i = series['service_type_id']
     
     if not np.isnan(series[DB_ACCESSIBILITY_METERS_COLUMN]):
       accessibility_type = AccessibilityType.METERS
