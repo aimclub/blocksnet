@@ -29,7 +29,11 @@ class ServiceTypesSchema(pa.DataFrameModel):
   name : Series[str]
   category : Series[str]
   weight : Series[float] = pa.Field(nullable=True, coerce=True)
-  ...
+  
+  @pa.parser('category')
+  @classmethod
+  def parse_category(cls, series : pd.Series) -> pd.Series:
+      return series.apply(str.upper)
 
 class NormativesSchema(pa.DataFrameModel):
   service_type_id : Series[int]
@@ -55,7 +59,7 @@ class ServiceType(BaseModel):
   accessibility_type : AccessibilityType
   supply_type : SupplyType
   category : Category
-  weight : float = Field(coerce=True, nullable=True)
+  weight : float = Field(coerce=True, nullable=True, ge=0)
 
   @field_validator('weight', mode='after')
   @classmethod
@@ -82,13 +86,7 @@ class ServiceType(BaseModel):
       supply_type = SupplyType.CAPACITY_PER_1000
       supply_value = series[DB_SUPPLY_CAPACITY_COLUMN]
 
-    category = series['category']
-    if category == 'Базовая':
-      category = Category.BASIC
-    elif category == 'Дополнительная':
-      category = Category.ADDITIONAL
-    else :
-      category = Category.COMFORT
+    category = Category(series.category)
 
     return cls(
       id = i,
