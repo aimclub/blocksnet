@@ -86,7 +86,7 @@ class ServiceType(BaseModel):
       supply_type = SupplyType.CAPACITY_PER_1000
       supply_value = series[DB_SUPPLY_CAPACITY_COLUMN]
 
-    category = Category(series.category)
+    category = Category[series.category]
 
     return cls(
       id = i,
