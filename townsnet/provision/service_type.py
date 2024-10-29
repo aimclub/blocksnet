@@ -59,14 +59,7 @@ class ServiceType(BaseModel):
   accessibility_type : AccessibilityType
   supply_type : SupplyType
   category : Category | None
-  weight : float | None
-
-  @field_validator('weight', mode='after')
-  @classmethod
-  def validate_weight(cls, w):
-    if isinstance(w, float) and not np.isnan(w):
-      assert 0 < w <= 1, 'Weight should be in (0.0, 1.0]'
-    return w
+  weight : float = Field(ge=0, le=1)
   
   @field_validator('category', mode='before')
   @classmethod
