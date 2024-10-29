@@ -27,13 +27,13 @@ class Category(Enum):
 class ServiceTypesSchema(pa.DataFrameModel):
   idx : Index[int] = pa.Field(unique=True)
   name : Series[str]
-  category : Series[str]
+  category : Series[str] = pa.Field(nullable=True)
   weight : Series[float] = pa.Field(nullable=True, coerce=True)
   
   @pa.parser('category')
   @classmethod
   def parse_category(cls, series : pd.Series) -> pd.Series:
-      return series.apply(str.upper)
+      return series.apply(lambda s : s if s is None else str.upper)
 
 class NormativesSchema(pa.DataFrameModel):
   service_type_id : Series[int]
@@ -58,15 +58,22 @@ class ServiceType(BaseModel):
   supply_value : float = Field(ge=0)
   accessibility_type : AccessibilityType
   supply_type : SupplyType
-  category : Category
-  weight : float = Field(coerce=True, nullable=True, ge=0)
+  category : Category | None
+  weight : float | None
 
   @field_validator('weight', mode='after')
   @classmethod
   def validate_weight(cls, w):
-    if not np.isnan(w):
-      assert 0 <= w <= 1, 'Weight should be in [0.0, 1.0]'
+    if isinstance(w, float) and not np.isnan(w):
+      assert 0 < w <= 1, 'Weight should be in (0.0, 1.0]'
     return w
+  
+  @field_validator('category', mode='before')
+  @classmethod
+  def validate_category(cls, c):
+    if isinstance(c, str):
+      return Category[c.upper()]
+    return c
 
   @classmethod
   def from_series(cls, series : pd.Series):
@@ -86,8 +93,6 @@ class ServiceType(BaseModel):
       supply_type = SupplyType.CAPACITY_PER_1000
       supply_value = series[DB_SUPPLY_CAPACITY_COLUMN]
 
-    category = Category[series.category]
-
     return cls(
       id = i,
       accessibility_value = accessibility_value,
@@ -95,7 +100,7 @@ class ServiceType(BaseModel):
       supply_value = supply_value,
       supply_type = supply_type,
       weight = series['weight'],
-      category=category
+      category=series['category']
     )
 
   @classmethod
