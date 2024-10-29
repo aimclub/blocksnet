@@ -33,7 +33,7 @@ class ServiceTypesSchema(pa.DataFrameModel):
   @pa.parser('category')
   @classmethod
   def parse_category(cls, series : pd.Series) -> pd.Series:
-      return series.apply(lambda s : s if s is None else str.upper)
+      return series.apply(lambda s : s if s is None else str.upper(s))
 
 class NormativesSchema(pa.DataFrameModel):
   service_type_id : Series[int]
