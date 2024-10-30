@@ -54,6 +54,7 @@ class NormativesSchema(pa.DataFrameModel):
 
 class ServiceType(BaseModel):
   id : int
+  name : str
   accessibility_value : float = Field(ge=0)
   supply_value : float = Field(ge=0)
   accessibility_type : AccessibilityType
@@ -88,6 +89,7 @@ class ServiceType(BaseModel):
 
     return cls(
       id = i,
+      name=series['name'],
       accessibility_value = accessibility_value,
       accessibility_type = accessibility_type, 
       supply_value = supply_value,
