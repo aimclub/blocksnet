@@ -1,3 +1,4 @@
+import math
 import geopandas as gpd
 import pandas as pd
 import pandera as pa
@@ -54,7 +55,7 @@ class ProvisionModel():
 
     def _preprocess_gdf(self, supplies_df : SuppliesSchema, service_type : ServiceType):
         gdf = self.towns_gdf.copy()
-        gdf[DEMAND_COLUMN] = gdf[POPULATION_COLUMN].apply(lambda p : round(p/1000*service_type.supply_value))
+        gdf[DEMAND_COLUMN] = gdf[POPULATION_COLUMN].apply(lambda p : math.ceil(p/1000*service_type.supply_value))
         gdf[CAPACITY_COLUMN] = supplies_df[SUPPLY_COLUMN]
         gdf[CAPACITY_LEFT_COLUMN] = gdf[CAPACITY_COLUMN]
         gdf[DEMAND_LEFT_COLUMN] = gdf[DEMAND_COLUMN]
