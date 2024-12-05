@@ -1,7 +1,9 @@
 import geopandas as gpd
 from .base_method import BaseMethod
+import numpy as np
+import pandas as pd
 
-CONNECTIVITY_COLUMN = "connectivity"
+CONNECTIVITY_COLUMN = "weighted_connectivity"
 
 PLOT_KWARGS = {
     "column": CONNECTIVITY_COLUMN,
@@ -53,6 +55,27 @@ class WeightedConnectivity(BaseMethod):
         geopandas.GeoDataFrame
             GeoDataFrame containing blocks with calculated connectivity.
         """
-        blocks_gdf = self.city_model.get_blocks_gdf()[["geometry"]]
-        blocks_gdf[CONNECTIVITY_COLUMN] = self.city_model.accessibility_matrix.median(axis=1)
-        return blocks_gdf
+
+        blocks_gdf = self.city_model.get_blocks_gdf()[["geometry", "population"]]
+        services = self.city_model.get_services_gdf()
+        # Group services by block and count the number of services in each block
+        service_counts = services.groupby("block_id").size()
+        blocks_gdf["service_count"] = blocks_gdf.index.map(service_counts).fillna(0).astype(int)
+
+        # Get accessibility matrix and corresponding population and service counts
+        mx = self.city_model.accessibility_matrix
+        populations = blocks_gdf.loc[mx.index, "population"]
+        service_counts = blocks_gdf.loc[mx.index, "service_count"]
+
+        # Compute accessibility from houses to services
+        house_to_service = np.outer(populations, service_counts) / mx.values**2
+        house_to_service = np.where(mx.values != 0, house_to_service, 0)  # handle zeros
+        # Compute accessibility from services to houses
+        service_to_house = np.outer(service_counts, populations) / mx.values**2
+        service_to_house = np.where(mx.values != 0, service_to_house, 0)
+
+        # Calculate the weighted accessibility matrix as the average of both directions
+        weighted_mx = pd.DataFrame((house_to_service + service_to_house) / 2, index=mx.index, columns=mx.columns)
+
+        blocks_gdf[CONNECTIVITY_COLUMN] = weighted_mx.mean(axis=1)
+        return blocks_gdf[["geometry", CONNECTIVITY_COLUMN]]
