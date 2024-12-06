@@ -13,3 +13,4 @@ from .population_centrality import *
 from .provision import *
 from .spacematrix import *
 from .vacant_area import *
+from .weighted_connectivity import WeightedConnectivity
