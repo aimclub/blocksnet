@@ -68,10 +68,10 @@ class WeightedConnectivity(BaseMethod):
         service_counts = blocks_gdf.loc[mx.index, "service_count"]
 
         # Compute accessibility from houses to services
-        house_to_service = np.outer(populations, service_counts) / mx.values**2
+        house_to_service = np.outer(populations, service_counts) / mx.values
         house_to_service = np.where(mx.values != 0, house_to_service, 0)  # handle zeros
         # Compute accessibility from services to houses
-        service_to_house = np.outer(service_counts, populations) / mx.values**2
+        service_to_house = np.outer(service_counts, populations) / mx.values
         service_to_house = np.where(mx.values != 0, service_to_house, 0)
 
         # Calculate the weighted accessibility matrix as the average of both directions
