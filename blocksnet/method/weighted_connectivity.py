@@ -57,10 +57,11 @@ class WeightedConnectivity(BaseMethod):
         """
 
         blocks_gdf = self.city_model.get_blocks_gdf()[["geometry", "population"]]
-        services = self.city_model.get_services_gdf()
         # Group services by block and count the number of services in each block
-        service_counts = services.groupby("block_id").size()
-        blocks_gdf["service_count"] = blocks_gdf.index.map(service_counts).fillna(0).astype(int)
+        blocks_gdf["service_count"] = blocks_gdf.apply(lambda s: len(self.city_model[s.name].all_services), axis=1)
+        # services = self.city_model.get_services_gdf()
+        # service_counts = services.groupby("block_id").size()
+        # blocks_gdf["service_count"] = blocks_gdf.index.map(service_counts).fillna(0).astype(int)
 
         # Get accessibility matrix and corresponding population and service counts
         mx = self.city_model.accessibility_matrix
