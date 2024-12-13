@@ -106,8 +106,8 @@ class LandUseOptimizer:
             Whether to display progress with tqdm (default is True).
         """
         blocks = BlocksSchema(blocks)
-        while blocks.geometry.apply(self._is_block_large).any():
-            blocks = self._split_large_blocks(blocks)
+        # while blocks.geometry.apply(self._is_block_large).any():
+        #     blocks = self._split_large_blocks(blocks)
         self.blocks = blocks
         self.adjacency_graph = self._get_adjacency_graph(blocks)
         self.verbose = verbose
@@ -451,8 +451,8 @@ class LandUseOptimizer:
                 continue
             # if not self._check_area_ranges(X):
             #   continue
-            if not self._check_ratio_ranges(X):
-                continue
+            # if not self._check_ratio_ranges(X):
+            #     continue
 
             # Вычисляем значение целевой функции
             value = self._objective(X, lu_shares)
