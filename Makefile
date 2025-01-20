@@ -11,7 +11,7 @@ install:
 	pip install .
 
 venv: #then source .venv/bin/activate
-	python3 -m venv .venv
+	python -m venv .venv
 
 install-dev:
 	pip install -e '.[dev]'
@@ -20,7 +20,7 @@ install-docs:
 	pip install -e '.[docs]'
 
 build:
-	python3 -m build .
+	python3.10 -m build .
 
 clean:
 	rm -rf ./build ./dist ./blocksnet.egg-info

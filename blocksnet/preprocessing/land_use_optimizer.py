@@ -106,8 +106,8 @@ class LandUseOptimizer:
             Whether to display progress with tqdm (default is True).
         """
         blocks = BlocksSchema(blocks)
-        while blocks.geometry.apply(self._is_block_large).any():
-            blocks = self._split_large_blocks(blocks)
+        # while blocks.geometry.apply(self._is_block_large).any():
+        # blocks = self._split_large_blocks(blocks)
         self.blocks = blocks
         self.adjacency_graph = self._get_adjacency_graph(blocks)
         self.verbose = verbose
@@ -228,8 +228,8 @@ class LandUseOptimizer:
         blocks_gdf.geometry = blocks_gdf.buffer(buffer)
         sjoin = gpd.sjoin(blocks_gdf, blocks_gdf, predicate="intersects")
         edge_list = [(i, s.index_right) for i, s in sjoin[sjoin.index != sjoin.index_right][["index_right"]].iterrows()]
-        if len(edge_list) == 0:
-            return cls._get_adjacency_graph(blocks_gdf, buffer + BUFFER_STEP)
+        # if len(edge_list) == 0:
+        #     return cls._get_adjacency_graph(blocks_gdf, buffer + BUFFER_STEP)
         return nx.from_edgelist(edge_list)
 
     def _generate_initial_X(self) -> dict[int, LandUse]:
@@ -451,8 +451,8 @@ class LandUseOptimizer:
                 continue
             # if not self._check_area_ranges(X):
             #   continue
-            if not self._check_ratio_ranges(X):
-                continue
+            # if not self._check_ratio_ranges(X):
+            #     continue
 
             # Вычисляем значение целевой функции
             value = self._objective(X, lu_shares)

@@ -9,6 +9,7 @@ The examples of how to operate the `City` model to perform certain analytics.
 
    accessibility
    connectivity
+   weighted_connectivity
    diversity
    centrality
    spacematrix

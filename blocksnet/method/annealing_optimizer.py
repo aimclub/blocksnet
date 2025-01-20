@@ -364,6 +364,23 @@ class AnnealingOptimizer(BaseMethod):
                     x = Variable(block=block, service_type=service_type, brick=brick)
                     X.append(x)
         return X
+    
+
+    @staticmethod
+    def _perturb_block(X: list[Variable], block_id: int, chosen_service_types: list[str]) -> tuple[list[Variable], ServiceType]:
+        one_block_x: list[Variable] = []
+        for x in X:
+            if x.block.id == block_id and x.service_type.name in chosen_service_types:
+                one_block_x.append(x)
+        nx = random.choice(one_block_x)
+        delta = random.choice([-1, 1])
+        new_X = []
+        for x in X:
+            if x.block.id == block_id and x.service_type.name == nx.service_type.name and x.brick.area == nx.brick.area:
+                new_X.append(Variable(x.block, x.service_type, x.brick, x.value + delta))
+            else:
+                new_X.append(Variable(x.block, x.service_type, x.brick, x.value))
+        return new_X, nx.service_type
 
     def _generate_indicators(self, blocks, fsis, gsis) -> dict[int, Indicator]:
         """
@@ -492,6 +509,8 @@ class AnnealingOptimizer(BaseMethod):
         blocks_lu: dict[int, LandUse],
         blocks_fsi: dict[int, float],
         blocks_gsi: dict[int, float],
+        block_id: int,
+        chosen_service_types: list[str],
         service_types: dict[str, float],
         t_max: float = 100,
         t_min: float = 1e-3,
@@ -562,12 +581,12 @@ class AnnealingOptimizer(BaseMethod):
                 self.on_iteration(iteration, best_X, indicators, best_value)
 
             # Генерируем новое решение
-            X, st = self._perturb(best_X)
+            X, st = self._perturb_block(best_X, block_id, chosen_service_types)
 
             # Проверка ограничений
             if not self._check_constraints(X, indicators):
                 continue
-
+            
             # recalculate changed provision
             provisions[st.name] = calculate_provision(X, st)
 
