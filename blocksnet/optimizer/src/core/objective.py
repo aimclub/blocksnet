@@ -13,7 +13,7 @@ class Objective(ABC):
     """
 
     def __init__(
-        self, num_params: int, facade: BlocksnetFacade, max_evals: Optional[int]
+        self, num_params: int, facade: BlocksnetFacade, max_evals: Optional[int], penalty_func: Optional[Penalty]
     ):
         """
         Initialize the objective function.
@@ -27,7 +27,10 @@ class Objective(ABC):
         max_evals : Optional[int]
             Maximum number of function evaluations allowed.
         """
-       pass
+        self._num_params: int = num_params
+        self._current_func_evals: int = 0
+        self._max_func_evals: Optional[int] = max_evals
+        self._facade: BlocksnetFacade = facade
 
     def __call__(self, x: ArrayLike) -> tuple[Dict[str, float], float]:
         """

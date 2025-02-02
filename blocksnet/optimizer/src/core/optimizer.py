@@ -156,7 +156,38 @@ class TPEOptimizer(Optimizer):
         - 'tpe_provisions.csv' containing the best objective values and corresponding provisions.
         - 'tpe_trials.csv' containing detailed trial data, such as parameters, objective values, and states.
         """
-        pass
+        provisions_data = [
+            {
+                "best_val": self.metrics.best_values[trial.number],  # Best value achieved in the trial
+                "provisions": trial.user_attrs.get("provisions", None),  # Provisions for the trial
+            }
+            for trial in self._study.trials
+            if trial.value is not None  # Only include valid trials
+        ]
+
+        # Save provisions data to CSV
+        df = pd.DataFrame(provisions_data)
+        df.to_csv("tpe_provisions.csv", index=False)
+        logging.info("Provisions data has been saved to tpe_provisions.csv.")
+
+        trials_data = [
+            {
+                "trial_number": trial.number,  # Trial number
+                "params": trial.params,  # Parameters for the trial
+                "value": trial.value if trial.value is not None else 0,  # Objective value for the trial
+                "penalty": trial.value if trial.value is not None else 0,  # Penalty for the trial
+                "state": trial.state.name,  # State of the trial (e.g., COMPLETE, PRUNED, FAIL)
+                "best_val": self.metrics.best_values[trial.number],  # Best value for the trial
+                "called_obj": self.metrics.called_obj[trial.number],  # Whether the objective was called
+                "func_evals": self.metrics.func_evals_total[trial.number],  # Total function evaluations
+            }
+            for trial in self._study.trials
+        ]
+
+        # Save detailed trial data to CSV
+        df = pd.DataFrame(trials_data)
+        df.to_csv("tpe_trials.csv", index=False)
+        logging.info("All trial data has been saved to tpe_trials.csv.")
 
     def _optuna_objective(self, trial: optuna.Trial):
         """
@@ -172,14 +203,41 @@ class TPEOptimizer(Optimizer):
         float
             The objective value for the trial.
         """
-        pass
 
+        def trial_callback(var_num, low, high):
+            return trial.suggest_int(name=f"x_{var_num}", low=low, high=high)
+
+        n = self._objective.num_params
+        vars_order = np.arange(n, dtype=int)
+
+        self._vars_order(vars_order)
+
+        x = self._constraints.suggest_solution(vars_order, trial_callback)
+
+        value = 0
+        if not self._constraints.check_constraints(x):
+            self.metrics.update_metrics(value, False, 0)
+            logging.info(f"Trial {trial.number}: PRUNED -> Params: x={x}")
+            raise optuna.TrialPruned()  # Stop trial if constraints are violated
+        else:
+            provisions, value = self._objective(x)
+            trial.set_user_attr("provisions", provisions)
+            logging.info(f"Trial {trial.number}: COMPLETE -> Params: x={x}, Value: {value}")
+            self.metrics.update_metrics(value, True, self._objective.current_func_evals)
+        return value
 
     def _run_initial(self):
         """
         Run a single initial optimization trial to start the process.
         """
-        pass
+        n = self._objective.num_params
+        vars_order = np.arange(n, dtype=int)
+
+        self._vars_order(vars_order)
+
+        x = self._constraints.suggest_initial_solution(vars_order)
+
+        self._study.enqueue_trial({f"x_{i}": x[i] for i in range(n)})
 
     def _check_stop(self, study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
         """
@@ -192,7 +250,9 @@ class TPEOptimizer(Optimizer):
         trial : optuna.trial.FrozenTrial
             The current trial being evaluated.
         """
-        pass
+        if not self._objective.check_available_evals():
+            study.stop()  # Stop optimization if max function evaluations are reached
+            logging.info("Optimization stopped due to exceeding maximum function evaluations.")
 
     def run(
         self,
@@ -221,7 +281,34 @@ class TPEOptimizer(Optimizer):
             A tuple containing the best parameters, the best objective value,
             the percentage of successful trials, and the total number of function evaluations.
         """
-        pass
+        n_jobs = 1  # Number of parallel jobs (default is 1)
+
+        # Perform initial optimization runs
+        for _ in range(initial_runs_num):
+            self._run_initial()
+
+        # Start the optimization process
+        self._study.optimize(
+            func=self._optuna_objective,  # Objective function for optimization
+            n_trials=max_runs,  # Maximum number of trials
+            timeout=timeout,  # Timeout for optimization
+            n_jobs=n_jobs,  # Number of parallel jobs
+            gc_after_trial=False,  # Disable garbage collection after each trial
+            show_progress_bar=verbose,  # Display progress bar if verbose is True
+            callbacks=[self._check_stop],  # Callback to check when to stop optimization
+        )
+
+        # Save results if verbose mode is enabled
+        if verbose:
+            self._save_run_results()
+
+        # Return optimization results
+        return (
+            self._study.best_params,  # Best parameters found
+            self._study.best_value,  # Best objective value
+            sum(self.metrics.called_obj) / len(self.metrics.called_obj),  # Success rate of trials
+            self.metrics.func_evals_total[-1],  # Total number of function evaluations
+        )
 
 
 class HEBOOptimizer(Optimizer):
