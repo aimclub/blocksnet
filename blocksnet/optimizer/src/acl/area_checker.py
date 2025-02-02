@@ -32,7 +32,23 @@ class AreaChecker:
         float
             The calculated distance for the specified block.
         """
-        pass
+        block_denom = 0
+        block_numer = 0
+        dist = 0
+
+        # Iterate over all variables in the solution
+        # Calculate the numerator and denominator for the distance metric
+        for x in X:
+            if x.block.id != block_id:
+                continue  # Skip variables not belonging to the current block
+            block_numer += x.brick.area * x.value  # Numerator: area of the brick times its value
+            block_denom += x.brick.area * x.brick.area  # Denominator: area of the brick squared
+
+        # If the denominator is positive, calculate the distance
+        if block_numer > 0:
+            dist += block_numer / np.sqrt(block_denom)
+
+        return dist
 
     def get_distance_for_entire_solution(self, X: List[Variable]) -> float:
         """
@@ -51,4 +67,11 @@ class AreaChecker:
         float
             The total distance of the solution, calculated as the sum of distances for all blocks.
         """
-        pass
+        block_ids = set(x.block.id for x in X)  # Get unique block IDs in the solution
+        total_distance = 0
+
+        # Sum up the distances for all blocks in the solution
+        for block_id in block_ids:
+            total_distance += self.get_distance_by_block(X, block_id)
+
+        return total_distance

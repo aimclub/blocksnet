@@ -142,7 +142,9 @@ class BlockSolution(VariableAdapter):
         """
         super().__init__()
 
-        pass
+        # Get user-defined block land uses
+        for block_id, land_use in blocks_lu.items():
+            self._fill_X_with_block_variables(city, block_id, land_use, service_types)
 
 
 class ServiceSolution(VariableAdapter):
@@ -164,8 +166,9 @@ class ServiceSolution(VariableAdapter):
         """
         super().__init__()
 
-        pass
-
-
-class CitySolution(VariableAdapter):
-    pass  # TODO: Implement city-specific logic
+        # Get blocks land uses from the city model
+        for block in city.blocks:
+            if block.land_use is None:
+                continue
+            # If the block has no chosen services, _fill_X_with_block_variables will add nothing to X, which is acceptable
+            self._fill_X_with_block_variables(city, block.id, block.land_use, service_types)
