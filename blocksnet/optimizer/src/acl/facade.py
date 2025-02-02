@@ -65,7 +65,12 @@ class BlocksnetFacade:
         variable_adapter : VariableAdapter
             Adapter for converting solution variables into domain-specific data.
         """
-        pass
+        self._city: City = city_model
+        self._blocks_lu: Dict[int, LandUse] = blocks_lu
+        self._area_checker: AreaChecker = AreaChecker()
+        self._provision_adapter: ProvisionAdapter = ProvisionAdapter(city_model, blocks_lu)
+        self._converter: VariableAdapter = variable_adapter
+        self._indicators = self._generate_indicators(blocks_lu, blocks_fsi, blocks_gsi)
 
     def _generate_indicators(
         self, blocks: Dict[int, LandUse], fsis: Dict[int, float], gsis: Dict[int, float]
@@ -115,13 +120,18 @@ class BlocksnetFacade:
         float
             The maximum distance.
         """
-        pass
+        X = copy.deepcopy(self._converter.X)
+        for i, x in enumerate(X):
+            X[i].value = self.get_upper_bound_var(i)
+        return self._area_checker.get_distance_for_entire_solution(X)
 
     def get_provisions(self, x: ArrayLike) -> Dict[str, float]:
-        pass
+        X = self._converter(x)
+        return self._provision_adapter.recalculate_all(X, self._indicators)
 
     def get_changed_services_count(self, x: ArrayLike) -> int:
-       pass
+        X = self._converter(x)
+        return len({var.service_type.name for var in X})
 
     def get_upper_bound_var(self, var_num: int) -> int:
         """
@@ -137,13 +147,16 @@ class BlocksnetFacade:
         int
             The upper bound for the variable.
         """
-        pass
+        var = self._converter.X[var_num]
+        block_area = self._indicators[var.block.id].integrated_area
+        return np.floor(block_area / var.brick.area)
 
     def get_var_weight(self, var_num: int) -> int:
-        pass
+        var = self._converter.X[var_num]
+        return var.brick.area
 
     def get_limit(self, block_id: int) -> float:
-        pass
+        return self._indicators[block_id].integrated_area
 
     def get_group_num(self, var_num: int) -> int:
-        pass
+        return self._converter.X[var_num].block.id
