@@ -13,7 +13,7 @@ class Objective(ABC):
     """
 
     def __init__(
-        self, num_params: int, facade: BlocksnetFacade, max_evals: Optional[int], penalty_func: Optional[Penalty]
+        self, num_params: int, facade: BlocksnetFacade, max_evals: Optional[int]
     ):
         """
         Initialize the objective function.
