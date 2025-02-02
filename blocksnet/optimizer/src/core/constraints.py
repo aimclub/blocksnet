@@ -100,8 +100,10 @@ class CapacityConstraints(Constraints):
         num_params : int
             Number of variables in the optimization problem.
         """
-        pass
-    
+        self._upper_bounds = np.array([facade.get_upper_bound_var(var_num) for var_num in range(num_params)])
+        if any(weight <= 0 for weight in self._upper_bounds):
+            raise ValueError("All upper bounds of variables must be positive numbers.")
+
     def suggest_initial_solution(self, permut: ArrayLike) -> ArrayLike:
         """
         Generate an initial solution while respecting upper bounds.
@@ -116,7 +118,11 @@ class CapacityConstraints(Constraints):
         ArrayLike
             Initial feasible solution.
         """
-        pass
+        x = np.zeros(permut.shape[0], dtype=int)
+        for i in range(permut.shape[0]):
+            chosen_val = min(1, self.get_ub(permut[i]))
+            x[permut[i]] = chosen_val
+        return x
 
     def suggest_solution(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
         """
@@ -134,7 +140,13 @@ class CapacityConstraints(Constraints):
         ArrayLike
             Suggested feasible solution.
         """
-        pass
+        x = np.zeros(permut.shape[0], dtype=int)
+        for i in range(permut.shape[0]):
+            lb = 0
+            ub = self.get_ub(permut[i])
+            val = suggest_callback(permut[i], lb, ub)
+            x[permut[i]] = val
+        return x
 
     def get_ub(self, var_num: int) -> int:
         """
@@ -150,7 +162,7 @@ class CapacityConstraints(Constraints):
         int
             Upper bound of the variable.
         """
-        pass
+        return self._upper_bounds[var_num]
 
     def check_constraints(self, x: ArrayLike) -> bool:
         """
@@ -166,7 +178,7 @@ class CapacityConstraints(Constraints):
         bool
             True if constraints are satisfied, otherwise False.
         """
-        pass
+        return np.all(x <= self._upper_bounds)
 
 
 class WeightedConstraints(Constraints):
@@ -185,7 +197,12 @@ class WeightedConstraints(Constraints):
         num_params : int
             Number of variables.
         """
-        pass
+        self._vars_group = np.array([facade.get_group_num(var_num) for var_num in range(num_params)])
+        self._groups_nums = set(self._vars_group)
+        self._groups_limit: Dict[int, float] = {group_num: facade.get_limit(group_num) for group_num in self._groups_nums}
+        self._weights = np.array([facade.get_var_weight(var_num) for var_num in range(num_params)])
+        if any(weight <= 0 for weight in self._weights):
+            raise ValueError("All weights must be positive numbers.")
 
     def suggest_initial_solution(self, permut: ArrayLike) -> ArrayLike:
         """
@@ -201,7 +218,15 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Initial feasible solution.
         """
-        pass
+        group_sums = {group_num: 0 for group_num in self._groups_nums}
+        x = np.zeros(permut.shape[0], dtype=int)
+        for var_num in permut:
+            var_group = self._vars_group[var_num]
+            hi = np.floor((self._groups_limit[var_group] - group_sums[var_group]) / self._weights[var_num])
+            chosen_val = min(1, hi)
+            group_sums[var_group] += self._weights[var_num] * chosen_val
+            x[var_num] = chosen_val
+        return x
 
     def suggest_solution(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
         """
@@ -219,7 +244,17 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Suggested feasible solution.
         """
-        pass
+        group_sums = {group_num: 0 for group_num in self._groups_nums}
+        x = np.zeros(permut.shape[0], dtype=int)
+        for var_num in permut:
+            var_group = self._vars_group[var_num]
+            ub = np.floor((self._groups_limit[var_group] - group_sums[var_group]) / self._weights[var_num])
+            lb = 0
+            ub = max(0, ub)
+            val = suggest_callback(var_num, lb, ub)
+            group_sums[var_group] += self._weights[var_num] * val
+            x[var_num] = val
+        return x
 
     def get_ub(self, var_num: int) -> int:
         """
@@ -235,7 +270,8 @@ class WeightedConstraints(Constraints):
         int
             Upper bound for the variable.
         """
-        pass
+        var_group = self._vars_group[var_num]
+        return int(np.floor(self._groups_limit[var_group] / self._weights[var_num]))
 
     def check_constraints(self, x: ArrayLike) -> bool:
         """
@@ -251,4 +287,6 @@ class WeightedConstraints(Constraints):
         bool
             True if constraints are satisfied, otherwise False.
         """
-        pass
+        group_sums = {group: np.sum(x[self._vars_group == group] * self._weights[self._vars_group == group]) for group in self._groups_nums}
+        return all(group_sums[group] <= self._groups_limit[group] for group in self._groups_nums)
+
