@@ -304,6 +304,9 @@ class Provision(BaseMethod):
 
         selection_range = depth * service_type.accessibility
 
+        demand = gdf.loc[gdf["demand_left"] > 0]
+        capacity = gdf.loc[gdf["capacity_left"] > 0]
+
         def _get_distance(id1: int, id2: int):
             distance = self.city_model.accessibility_matrix.loc[id1, id2]
             return distance if distance > 1 else 1
@@ -312,10 +315,7 @@ class Provision(BaseMethod):
             distance = _get_distance(id1, id2)
             if method == ProvisionMethod.LINEAR:
                 return 1 / distance
-            return 1 / (distance * distance)
-
-        demand = gdf.loc[gdf["demand_left"] > 0]
-        capacity = gdf.loc[gdf["capacity_left"] > 0]
+            return demand.loc[id1, "demand_left"] / (distance * distance)  # * capacity.loc[id2, 'capacity_left']
 
         if self.verbose:
             logger.info(f"Setting an LP problem for accessibility = {selection_range} : {len(demand)}x{len(capacity)}")
@@ -330,7 +330,7 @@ class Provision(BaseMethod):
         ]
 
         # Create the decision variable dictionary
-        x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)
+        x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)  #
 
         # Objective Function
         prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in products)
@@ -366,6 +366,7 @@ class Provision(BaseMethod):
             a = int(name[1])
             b = int(name[2])
             distance = _get_distance(a, b)
+            # value = round(value)
             if value > 0:
                 if distance <= service_type.accessibility:
                     gdf.loc[a, "demand_within"] += value
