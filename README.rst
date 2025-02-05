@@ -267,6 +267,11 @@ project #622280 **“Machine learning algorithms library for the tasks of
 generating value-oriented requirements for urban areas master
 planning”**
 
+This research is financially supported by the Foundation for National
+Technology Initiative's Projects Support as a part of the roadmap
+implementation for the development of the high-tech field of Artificial
+Intelligence for the period up to 2030 (agreement 70-2021-00187)
+
 .. acknowledgments-end
 
 Contacts
