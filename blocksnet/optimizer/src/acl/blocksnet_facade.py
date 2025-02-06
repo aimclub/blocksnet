@@ -12,9 +12,9 @@ from .provision_adapter import ProvisionAdapter
 from .variable_adapter import VariableAdapter
 
 
-class BlocksnetFacade:
+class BlocksNetFacade:
     """
-    The BlocksnetFacade class serves as a high-level interface for managing various 
+    The BlocksNetFacade class serves as a high-level interface for managing various 
     domain-related operations in an urban planning context. It integrates 
     variable adaptation, provision calculations, and area validation.
 
@@ -50,7 +50,7 @@ class BlocksnetFacade:
         variable_adapter: VariableAdapter,
     ) -> None:
         """
-        Initializes the BlocksnetFacade class with the necessary parameters.
+        Initializes the BlocksNetFacade class with the necessary parameters.
 
         Parameters
         ----------

@@ -1,4 +1,4 @@
-from .acl import BlocksnetFacade, BlockSolution, ServiceSolution, VariableAdapter
+from .acl import BlocksNetFacade, BlockSolution, ServiceSolution, VariableAdapter
 from .core import (
     Constraints,
     Objective,
