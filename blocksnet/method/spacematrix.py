@@ -51,7 +51,9 @@ class Spacematrix(BaseMethod):
         -------
         None
         """
-        gdf.plot(column=SM_MORPHOTYPE_COLUMN, legend=True, linewidth=linewidth, figsize=figsize).set_axis_off()
+        ax = gdf.plot(color="#ddd", linewidth=linewidth, figsize=figsize)
+        gdf.plot(column=SM_MORPHOTYPE_COLUMN, legend=True, linewidth=linewidth, ax=ax)
+        ax.set_axis_off()
 
     @staticmethod
     def _get_strelka_morphotypes(blocks) -> gpd.GeoDataFrame:
@@ -145,7 +147,7 @@ class Spacematrix(BaseMethod):
         geopandas.GeoDataFrame
             GeoDataFrame with Spacematrix morphotypes and clusters added.
         """
-        x = blocks[["fsi", "l", "mxi"]].copy()
+        x = blocks[["fsi", "l", "mxi"]].fillna(0).copy()
         scaler = StandardScaler()
         x_scaler = pd.DataFrame(scaler.fit_transform(x))
         kmeans = KMeans(n_clusters=self.number_of_clusters, random_state=self.random_state, n_init="auto").fit(x_scaler)

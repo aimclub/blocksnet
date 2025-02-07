@@ -2,7 +2,7 @@
 This package helps one to automatically generate master plan requirements for urban areas.
 """
 
-import importlib
+import importlib.metadata
 
 __version__ = importlib.metadata.version("blocksnet")
 __author__ = ""

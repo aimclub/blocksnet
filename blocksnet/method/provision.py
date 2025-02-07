@@ -4,6 +4,7 @@ Service type provisions assessment module.
 from loguru import logger
 import geopandas as gpd
 import pandas as pd
+from pydantic import Field
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 from ..models import ServiceType
 from .base_method import BaseMethod
@@ -59,6 +60,8 @@ class Provision(BaseMethod):
     calculate(service_type: ServiceType | str, update_df: pd.DataFrame | None = None, method: ProvisionMethod = ProvisionMethod.GRAVITATIONAL, self_supply: bool = False) -> gpd.GeoDataFrame
         Performs provision assessment for a specified service type and method.
     """
+
+    max_depth: int = Field(gt=0, default=3)
 
     def plot(self, gdf: gpd.GeoDataFrame, linewidth: float = 0.1, figsize: tuple[int, int] = (10, 10)):
         """
@@ -275,7 +278,7 @@ class Provision(BaseMethod):
         gdf: gpd.GeoDataFrame,
         service_type: ServiceType,
         method: ProvisionMethod,
-        selection_range: float | None = None,
+        depth: int = 1,
     ) -> gpd.GeoDataFrame:
         """
         Solves the provision problem using a Linear Programming (LP) solver.
@@ -289,9 +292,8 @@ class Provision(BaseMethod):
             The type of service for which provision is being calculated.
         method : ProvisionMethod
             The method used to calculate provision (LINEAR or GRAVITATIONAL).
-        selection_range : float | None
-            The accessibility range defining maximum distance between living blocks and service blocks
-            in the current problem loop, default None (actually service type accessibility).
+        depth : int
+            Current depth in the loop, default 1.
 
         Returns
         -------
@@ -300,8 +302,10 @@ class Provision(BaseMethod):
             'demand_within', 'demand_without', 'demand_left', and 'capacity_left'.
         """
 
-        if selection_range is None:
-            selection_range = service_type.accessibility
+        selection_range = depth * service_type.accessibility
+
+        demand = gdf.loc[gdf["demand_left"] > 0]
+        capacity = gdf.loc[gdf["capacity_left"] > 0]
 
         def _get_distance(id1: int, id2: int):
             distance = self.city_model.accessibility_matrix.loc[id1, id2]
@@ -311,10 +315,7 @@ class Provision(BaseMethod):
             distance = _get_distance(id1, id2)
             if method == ProvisionMethod.LINEAR:
                 return 1 / distance
-            return 1 / (distance * distance)
-
-        demand = gdf.loc[gdf["demand_left"] > 0]
-        capacity = gdf.loc[gdf["capacity_left"] > 0]
+            return demand.loc[id1, "demand_left"] / (distance * distance)  # * capacity.loc[id2, 'capacity_left']
 
         if self.verbose:
             logger.info(f"Setting an LP problem for accessibility = {selection_range} : {len(demand)}x{len(capacity)}")
@@ -329,7 +330,7 @@ class Provision(BaseMethod):
         ]
 
         # Create the decision variable dictionary
-        x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)
+        x = LpVariable.dicts("Route", products, 0, None, cat=LpInteger)  #
 
         # Objective Function
         prob += lpSum(_get_weight(n, m) * x[n, m] for n, m in products)
@@ -365,6 +366,7 @@ class Provision(BaseMethod):
             a = int(name[1])
             b = int(name[2])
             distance = _get_distance(a, b)
+            # value = round(value)
             if value > 0:
                 if distance <= service_type.accessibility:
                     gdf.loc[a, "demand_within"] += value
@@ -373,8 +375,8 @@ class Provision(BaseMethod):
                 gdf.loc[a, "demand_left"] -= value
                 gdf.loc[b, "capacity_left"] -= value
 
-        if gdf["demand_left"].sum() > 0 and gdf["capacity_left"].sum() > 0:
-            return self._lp_provision(gdf, service_type, method, selection_range * 2)
+        if gdf["demand_left"].sum() > 0 and gdf["capacity_left"].sum() > 0 and depth < self.max_depth:
+            return self._lp_provision(gdf, service_type, method, depth + 1)
         return gdf
 
     def _greedy_provision(self, gdf: gpd.GeoDataFrame, service_type: ServiceType) -> gpd.GeoDataFrame:
