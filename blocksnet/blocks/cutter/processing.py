@@ -61,9 +61,7 @@ def _fill_holes(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = gdf.copy()
     gdf.geometry = gdf.geometry.boundary
     gdf = gdf.explode(index_parts=False)
-    gdf.geometry = gdf.geometry.map(
-        lambda g: shapely.Polygon(g) if not isinstance(g.geom_type, shapely.Point) else np.nan
-    )
+    gdf.geometry = gdf.geometry.map(lambda g: shapely.Polygon(g) if g.geom_type != "Point" else np.nan)
     gdf = gdf.dropna(subset="geometry").reset_index(drop=True)
     return gdf
 
@@ -72,16 +70,12 @@ def _filter_overlapping(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     logger.info("Filtering overlapping geometries")
     gdf = gdf.copy()
     overlaps = gdf.geometry.sindex.query(gdf.geometry, predicate="contains")
-    contains_dict = {x: [] for x in overlaps[0]}
-    for x, y in zip(overlaps[0], overlaps[1]):
-        if x != y:
-            contains_dict[x].append(y)
-    contained_geoms_idxs = list({x for v in contains_dict.values() for x in v})
-    gdf = gdf.drop(contained_geoms_idxs).reset_index(drop=True)
+    contained_geoms_idxs = {y for x, y in zip(overlaps[0], overlaps[1]) if x != y}
+    gdf = gdf.drop(list(contained_geoms_idxs)).reset_index(drop=True)
     return gdf
 
 
-def _filter_bottlenecks(gdf: gpd.GeoDataFrame, min_block_width: float):
+def _filter_bottlenecks(gdf: gpd.GeoDataFrame, min_block_width: float) -> gpd.GeoDataFrame:
     logger.info("Filtering bottlenecks and small blocks")
 
     def _filter_bottlenecks_helper(poly):
@@ -91,7 +85,7 @@ def _filter_bottlenecks(gdf: gpd.GeoDataFrame, min_block_width: float):
             return poly
 
     gdf.geometry = gdf["geometry"].apply(_filter_bottlenecks_helper)
-    gdf = gdf[gdf["geometry"] != shapely.Polygon()]
+    gdf = gdf[~gdf["geometry"].is_empty]
     gdf = gdf.explode(ignore_index=True)
     gdf = gdf[gdf.type == "Polygon"]
 
@@ -104,7 +98,7 @@ def cut_urban_blocks(
     polygons_gdf: gpd.GeoDataFrame | None,
     fill_holes: bool = True,
     min_block_width: float | None = None,
-):
+) -> gpd.GeoDataFrame:
     boundaries_gdf, lines_gdf, polygons_gdf = _validate_and_prepare_geometries(boundaries_gdf, lines_gdf, polygons_gdf)
     boundaries_gdf = _exclude_polygons(boundaries_gdf, polygons_gdf)
     blocks_gdf = _get_enclosures(boundaries_gdf, lines_gdf)
@@ -115,4 +109,4 @@ def cut_urban_blocks(
     if min_block_width is not None:
         blocks_gdf = _filter_bottlenecks(blocks_gdf, min_block_width)
     logger.success("Blocks are successfully cut!")
-    return blocks_gdf.reset_index(drop=True)[["geometry"]].copy()
+    return gpd.GeoDataFrame(blocks_gdf.reset_index(drop=True)[["geometry"]])
