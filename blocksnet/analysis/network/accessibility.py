@@ -1,8 +1,8 @@
 import pandas as pd
-import functools
+from functools import wraps
 from pandera.typing import Series
 from pandera import Field
-from ...utils.validation import DfSchema
+from ...utils.validation import DfSchema, validate_accessibility_matrix
 
 MEDIAN_ACCESSIBILITY_COLUMN = "median_accessibility"
 MAX_ACCESSIBILITY_COLUMN = "max_accessibility"
@@ -13,10 +13,9 @@ RELATIVE_ACCESSIBILITY_COLUMN = "relative_accessibility"
 def _validate_accessibility_matrix(func):
     """Accessibility matrix validation decorator"""
 
-    @functools.wraps(func)
+    @wraps(func)
     def wrapper(accessibility_matrix: pd.DataFrame, *args, **kwargs):
-        if not all(accessibility_matrix.index == accessibility_matrix.columns):
-            raise ValueError("Matrix index and columns must match")
+        validate_accessibility_matrix(accessibility_matrix)
         return func(accessibility_matrix, *args, **kwargs)
 
     return wrapper
@@ -45,8 +44,8 @@ def area_accessibility(accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFra
     if not blocks_df.index.isin(accessibility_matrix.index).all():
         raise ValueError("Block index must be in matrix index")
     blocks_df = AreaAccessibilityBlocksSchema(blocks_df)
-    weights = blocks_df.site_area.values
-    result = (accessibility_matrix.values * weights).sum(axis=1) / weights.sum()
+    weights = blocks_df.site_area
+    result = (accessibility_matrix.mul(weights)).sum(axis=1) / weights.sum()
     return pd.DataFrame(result, index=blocks_df.index, columns=[AREA_ACCESSIBILITY_COLUMN])
 
 

@@ -1,8 +1,6 @@
 from enum import Enum
 import pandas as pd
-from pandera.typing import Series
-from pandera import Field
-from ...utils.validation import DfSchema
+from .schemas import BlocksSchema
 
 MORPHOTYPE_COLUMN = "morphotype"
 
@@ -25,13 +23,6 @@ class HighRiseMorphotype(Enum):
     NON_RESIDENTIAL = "high-rise non-residential"
     SOVIET_MICRODISTRICT = "high-rise soviet microdistrict"
     MODERN_MICRODISTRICT = "high-rise modern microdistrict"
-
-
-class BlocksSchema(DfSchema):
-
-    l: Series[float] = Field(ge=0, default=0)
-    fsi: Series[float] = Field(ge=0, default=0)
-    mxi: Series[float] = Field(ge=0, default=0)
 
 
 def _interpret_high_rise(mxi: float, fsi: float) -> HighRiseMorphotype:

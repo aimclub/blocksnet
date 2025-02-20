@@ -1,10 +1,7 @@
-from enum import Enum
 import pandas as pd
-from pandera.typing import Series
-from pandera import Field
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
-from ...utils.validation import DfSchema
+from .schemas import BlocksSchema
 
 DEFAULT_RANDOM_STATE = 42
 DEFAULT_N_CLUSTERS = 11
@@ -16,13 +13,6 @@ SEPARATOR = " "
 
 def _get_interpretation_column(column):
     return f"{column}_interpretation"
-
-
-class BlocksSchema(DfSchema):
-
-    l: Series[float] = Field(ge=0, default=0)
-    fsi: Series[float] = Field(ge=0, default=0)
-    mxi: Series[float] = Field(ge=0, default=0)
 
 
 INTERPRETATIONS = {

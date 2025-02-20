@@ -21,7 +21,7 @@ class DfSchema(pa.DataFrameModel):
         return list(cls.to_schema().columns.keys())
 
     @classmethod
-    def generate_empty(cls) -> pd.DataFrame:
+    def create_empty(cls) -> pd.DataFrame:
         return pd.DataFrame([], columns=cls._columns())
 
     @pa.dataframe_parser
@@ -38,10 +38,15 @@ class GdfSchema(DfSchema):
         raise NotImplementedError
 
     @classmethod
-    def generate_empty(cls) -> gpd.GeoDataFrame:
-        return gpd.GeoDataFrame([], columns=columns, crs=DEFAULT_CRS)
+    def create_empty(cls) -> gpd.GeoDataFrame:
+        return gpd.GeoDataFrame([], columns=cls._columns(), crs=DEFAULT_CRS)
 
     @pa.check("geometry")
     @classmethod
     def _check_geometry(cls, series) -> pd.Series:
         return series.map(lambda x: any(isinstance(x, geom_type) for geom_type in cls._geometry_types()))
+
+
+def validate_accessibility_matrix(accessibility_matrix: pd.DataFrame):
+    if not all(accessibility_matrix.index == accessibility_matrix.columns):
+        raise ValueError("Matrix index and columns must match")
