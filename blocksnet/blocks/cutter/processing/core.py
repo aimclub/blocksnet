@@ -25,13 +25,13 @@ def _validate_and_process_gdfs(func):
         if lines_gdf is None:
             lines_gdf = LineObjectsSchema.create_empty().to_crs(crs)
         else:
-            lines_gdf = LineObjectsSchema(lines_gdf)
+            lines_gdf = LineObjectsSchema(lines_gdf.explode("geometry", ignore_index=True))
 
         logger.info("Checking polygon objects schema")
         if polygons_gdf is None:
             polygons_gdf = PolygonObjectsSchema.create_empty().to_crs(crs)
         else:
-            polygons_gdf = PolygonObjectsSchema(polygons_gdf)
+            polygons_gdf = PolygonObjectsSchema(polygons_gdf.explode("geometry", ignore_index=True))
 
         for gdf in [lines_gdf, polygons_gdf]:
             assert gdf.crs == crs, "CRS must match for all geodataframes"

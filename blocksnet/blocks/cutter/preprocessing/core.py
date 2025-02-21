@@ -3,7 +3,7 @@ import geopandas as gpd
 import shapely
 from loguru import logger
 from .schemas import RoadsSchema, RailwaysSchema, WaterSchema
-from functools import reduce, wraps
+from functools import wraps
 
 
 def _validate_gdfs(func):
@@ -37,19 +37,19 @@ def preprocess_urban_objects(
     if roads_gdf is None:
         roads_gdf = RoadsSchema.create_empty(crs)
     else:
-        roads_gdf = RoadsSchema(roads_gdf)
+        roads_gdf = RoadsSchema(roads_gdf.explode("geometry", ignore_index=True))
 
     logger.info("Checking railways schema")
     if railways_gdf is None:
         railways_gdf = RailwaysSchema.create_empty(crs)
     else:
-        railways_gdf = RailwaysSchema(railways_gdf)
+        railways_gdf = RailwaysSchema(railways_gdf.explode("geometry", ignore_index=True))
 
     logger.info("Checking water schema")
     if water_gdf is None:
         water_gdf = WaterSchema.create_empty(crs)
     else:
-        water_gdf = WaterSchema(water_gdf)
+        water_gdf = WaterSchema(water_gdf.explode("geometry", ignore_index=True))
 
     polygon_objects = water_gdf[water_gdf.geometry.apply(lambda g: isinstance(g, shapely.Polygon))].copy()
     line_objects = pd.concat(
