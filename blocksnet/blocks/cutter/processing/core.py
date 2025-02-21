@@ -1,36 +1,44 @@
+from functools import wraps
 import pandas as pd
 import geopandas as gpd
 import numpy as np
 import shapely
-from pandera import dataframe_parser
 from loguru import logger
 from shapely.ops import polygonize
 from .schemas import BoundariesSchema, LineObjectsSchema, PolygonObjectsSchema
 
 
-def _validate_and_prepare_geometries(
-    boundaries_gdf: gpd.GeoDataFrame, lines_gdf: gpd.GeoDataFrame | None, polygons_gdf: gpd.GeoDataFrame | None
-) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]:
-    logger.info("Checking boundaries schema")
-    boundaries_gdf = BoundariesSchema(boundaries_gdf)
-    crs = boundaries_gdf.crs
+def _validate_and_process_gdfs(func):
+    @wraps(func)
+    def wrapper(
+        boundaries_gdf: gpd.GeoDataFrame,
+        lines_gdf: gpd.GeoDataFrame | None,
+        polygons_gdf: gpd.GeoDataFrame | None,
+        *args,
+        **kwargs,
+    ):
+        logger.info("Checking boundaries schema")
+        boundaries_gdf = BoundariesSchema(boundaries_gdf)
+        crs = boundaries_gdf.crs
 
-    logger.info("Checking line objects schema")
-    if lines_gdf is None:
-        lines_gdf = LineObjectsSchema.create_empty().to_crs(crs)
-    else:
-        lines_gdf = LineObjectsSchema(lines_gdf)
+        logger.info("Checking line objects schema")
+        if lines_gdf is None:
+            lines_gdf = LineObjectsSchema.create_empty().to_crs(crs)
+        else:
+            lines_gdf = LineObjectsSchema(lines_gdf)
 
-    logger.info("Checking polygon objects schema")
-    if polygons_gdf is None:
-        polygons_gdf = PolygonObjectsSchema.create_empty().to_crs(crs)
-    else:
-        polygons_gdf = PolygonObjectsSchema(polygons_gdf)
+        logger.info("Checking polygon objects schema")
+        if polygons_gdf is None:
+            polygons_gdf = PolygonObjectsSchema.create_empty().to_crs(crs)
+        else:
+            polygons_gdf = PolygonObjectsSchema(polygons_gdf)
 
-    for gdf in [lines_gdf, polygons_gdf]:
-        assert gdf.crs == crs, "CRS must match for all geodataframes"
+        for gdf in [lines_gdf, polygons_gdf]:
+            assert gdf.crs == crs, "CRS must match for all geodataframes"
 
-    return boundaries_gdf, lines_gdf, polygons_gdf
+        return func(boundaries_gdf, lines_gdf, polygons_gdf, *args, **kwargs)
+
+    return wrapper
 
 
 def _exclude_polygons(boundaries_gdf: gpd.GeoDataFrame, polygons_gdf: gpd.GeoDataFrame):
@@ -92,6 +100,7 @@ def _filter_bottlenecks(gdf: gpd.GeoDataFrame, min_block_width: float) -> gpd.Ge
     return gdf
 
 
+@_validate_and_process_gdfs
 def cut_urban_blocks(
     boundaries_gdf: gpd.GeoDataFrame,
     lines_gdf: gpd.GeoDataFrame | None,
@@ -99,7 +108,6 @@ def cut_urban_blocks(
     fill_holes: bool = True,
     min_block_width: float | None = None,
 ) -> gpd.GeoDataFrame:
-    boundaries_gdf, lines_gdf, polygons_gdf = _validate_and_prepare_geometries(boundaries_gdf, lines_gdf, polygons_gdf)
     boundaries_gdf = _exclude_polygons(boundaries_gdf, polygons_gdf)
     blocks_gdf = _get_enclosures(boundaries_gdf, lines_gdf)
     if fill_holes:

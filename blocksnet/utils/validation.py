@@ -38,8 +38,8 @@ class GdfSchema(DfSchema):
         raise NotImplementedError
 
     @classmethod
-    def create_empty(cls) -> gpd.GeoDataFrame:
-        return gpd.GeoDataFrame([], columns=cls._columns(), crs=DEFAULT_CRS)
+    def create_empty(cls, crs=DEFAULT_CRS) -> gpd.GeoDataFrame:
+        return gpd.GeoDataFrame([], columns=cls._columns(), crs=crs)
 
     @pa.check("geometry")
     @classmethod
