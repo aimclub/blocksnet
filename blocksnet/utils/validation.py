@@ -47,6 +47,9 @@ class GdfSchema(DfSchema):
         return series.map(lambda x: any(isinstance(x, geom_type) for geom_type in cls._geometry_types()))
 
 
-def validate_accessibility_matrix(accessibility_matrix: pd.DataFrame):
+def validate_accessibility_matrix(accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame | None = None):
     if not all(accessibility_matrix.index == accessibility_matrix.columns):
         raise ValueError("Matrix index and columns must match")
+    if blocks_df is not None:
+        if not blocks_df.index.isin(accessibility_matrix.index).all():
+            raise ValueError("Block index must be in matrix index")
