@@ -1,2 +1,2 @@
-from .graph import get_graph
+from .graph import get_accessibility_graph
 from .matrix import calculate_accessibility_matrix

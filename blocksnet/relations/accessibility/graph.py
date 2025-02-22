@@ -6,7 +6,9 @@ from .schemas import TerritorySchema
 from .const import IDUEDU_CRS
 
 
-def get_graph(territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs):
+def get_accessibility_graph(
+    territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs
+):
     territory_gdf = TerritorySchema(territory_gdf)
     if territory_gdf.crs.to_epsg() != IDUEDU_CRS:
         logger.info("CRS do not match IDUEDU required crs. Reprojecting.")
