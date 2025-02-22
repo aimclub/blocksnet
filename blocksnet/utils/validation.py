@@ -1,3 +1,4 @@
+from loguru import logger
 import pandera as pa
 import pandas as pd
 import geopandas as gpd
@@ -40,6 +41,13 @@ class GdfSchema(DfSchema):
     @classmethod
     def create_empty(cls, crs=DEFAULT_CRS) -> gpd.GeoDataFrame:
         return gpd.GeoDataFrame([], columns=cls._columns(), crs=crs)
+
+    @pa.dataframe_parser
+    @classmethod
+    def _warn_crs(cls, df):
+        if not df.crs.is_projected:
+            logger.warning(f"CRS is not projected. Current CRS : EPSG:{df.crs.to_epsg()}")
+        return df
 
     @pa.check("geometry")
     @classmethod

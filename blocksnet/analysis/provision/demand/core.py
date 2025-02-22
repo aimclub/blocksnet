@@ -5,6 +5,7 @@ from tqdm import tqdm
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 from .schemas import BlocksSchema
 from ....utils import validation
+from ....config import log_config
 
 DEMAND_COLUMN = "demand"
 DEMAND_LEFT_COLUMN = "demand_left"
@@ -156,7 +157,7 @@ def demand_based_provision(
         _supply_self(blocks_df)
 
     logger.info("Setting and solving an LP problem until max depth or break condition reached")
-    for depth in tqdm(range(1, max_depth + 1)):
+    for depth in tqdm(range(1, max_depth + 1), disable=log_config.disable_tqdm):
         blocks_df = _distribute_demand(blocks_df, accessibility_matrix, accessibility, depth)
         break_condition = blocks_df[DEMAND_LEFT_COLUMN].sum() == 0 or blocks_df[CAPACITY_LEFT_COLUMN].sum() == 0
         if break_condition:
