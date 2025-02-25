@@ -55,7 +55,7 @@ def _clusterize(df: pd.DataFrame, n_clusters: int, random_state: int) -> pd.Data
     return df
 
 
-def get_morphotypes(
+def get_spacematrix_morphotypes(
     blocks_df: pd.DataFrame, n_clusters: int = DEFAULT_N_CLUSTERS, random_state: int = DEFAULT_RANDOM_STATE
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     blocks_df = BlocksSchema(blocks_df)

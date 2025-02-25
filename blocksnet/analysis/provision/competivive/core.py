@@ -16,7 +16,8 @@ CAPACITY_LEFT_COLUMN = "capacity_left"
 CAPACITY_WITHIN_COLUMN = "capacity_within"
 CAPACITY_WITHOUT_COLUMN = "capacity_without"
 
-PROVISION_COLUMN = "provision"
+PROVISION_STRONG_COLUMN = "provision_strong"
+PROVISION_WEAK_COLUMN = "provision_weak"
 
 
 def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int):
@@ -56,9 +57,6 @@ def _supply_self(blocks_df: pd.DataFrame):
 def _get_distance(id1: int, id2: int, accessibility_matrix: pd.DataFrame):
     distance = accessibility_matrix.loc[id1, id2]
     return max(distance, 1)
-
-
-import numpy as np
 
 
 def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, selection_range: int):
@@ -137,35 +135,42 @@ def _distribute_demand(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFra
     return _update_blocks_df(prob, blocks_df, accessibility_matrix, accessibility)
 
 
-def _provision_total(blocks_df: pd.DataFrame):
-    return blocks_df[DEMAND_COLUMN].sum() / blocks_df[DEMAND_COLUMN].sum()
+def _provision_strong_total(blocks_df: pd.DataFrame):
+    return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df[DEMAND_COLUMN].sum()
+
+
+def _provision_weak_total(blocks_df: pd.DataFrame):
+    return (blocks_df[DEMAND_WITHIN_COLUMN].sum() + blocks_df[DEMAND_WITHOUT_COLUMN].sum()) / blocks_df[
+        DEMAND_COLUMN
+    ].sum()
 
 
 @_validate_and_preprocess_input
-def demand_based_provision(
+def competitive_provision(
     blocks_df: pd.DataFrame,
     accessibility_matrix: pd.DataFrame,
     demand: int,
     accessibility: int,
     self_supply: bool = True,
     max_depth: int = 1,
-) -> tuple[pd.DataFrame, float]:
+) -> tuple[pd.DataFrame, float, float]:
 
     blocks_df = _initialize_provision_df(blocks_df, demand)
 
     if self_supply:
         _supply_self(blocks_df)
 
-    logger.info("Setting and solving an LP problem until max depth or break condition reached")
+    logger.info("Setting and solving LP problems until max depth or break condition reached")
     for depth in tqdm(range(1, max_depth + 1), disable=log_config.disable_tqdm):
         blocks_df = _distribute_demand(blocks_df, accessibility_matrix, accessibility, depth)
         break_condition = blocks_df[DEMAND_LEFT_COLUMN].sum() == 0 or blocks_df[CAPACITY_LEFT_COLUMN].sum() == 0
         if break_condition:
             break
 
-    blocks_df[PROVISION_COLUMN] = blocks_df[DEMAND_WITHIN_COLUMN] / blocks_df.demand
-    provision_total = _provision_total(blocks_df)
+    blocks_df[PROVISION_STRONG_COLUMN] = blocks_df[DEMAND_WITHIN_COLUMN] / blocks_df.demand
+    provision_strong_total = _provision_strong_total(blocks_df)
+    provision_weak_total = _provision_weak_total(blocks_df)
 
     logger.success("Provision assessment finished")
 
-    return blocks_df, provision_total
+    return blocks_df, provision_strong_total, provision_weak_total

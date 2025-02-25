@@ -62,7 +62,7 @@ def _interpret_block(series: pd.Series) -> Enum:
     return _interpret_low_rise(mxi, fsi)
 
 
-def get_morphotypes(blocks_df: pd.DataFrame) -> pd.DataFrame:
+def get_strelka_morphotypes(blocks_df: pd.DataFrame) -> pd.DataFrame:
     blocks_df = BlocksSchema(blocks_df)
     # get morphotypes
     developed_blocks_df = blocks_df[blocks_df.fsi > 0].copy()

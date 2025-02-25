@@ -19,14 +19,14 @@ LIVING_AREA_DEMAND = 20
 
 def _restore_population(blocks_df: pd.DataFrame):
     if "population" not in blocks_df.columns:
-        logger.info("population not in columns, restoring")
+        logger.warning("The population is not in columns, restoring")
         if "living_area" in blocks_df.columns:
             blocks_df["population"] = blocks_df["living_area"] // LIVING_AREA_DEMAND
 
 
 def _restore_business_area(blocks_df: pd.DataFrame):
     if "business_area" not in blocks_df.columns:
-        logger.info("business_area not in columns, restoring")
+        logger.warning("The business_area is not in columns, restoring")
         if "living_area" in blocks_df.columns and "build_floor_area" in blocks_df.columns:
             blocks_df["business_area"] = blocks_df["build_floor_area"] - blocks_df["living_area"]
 

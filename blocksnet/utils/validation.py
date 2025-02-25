@@ -19,7 +19,7 @@ class DfSchema(pa.DataFrameModel):
 
     @classmethod
     def _check_instance(cls, df):
-        if not isinstance(df, gpd.GeoDataFrame):
+        if not isinstance(df, pd.DataFrame):
             raise ValueError("An instance of DataFrame must be provided.")
 
     @classmethod
