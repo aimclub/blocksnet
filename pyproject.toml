@@ -19,7 +19,7 @@ dependencies = [
     "matplotlib==3.7.1",
     "networkit>=11.0,<12.0",
     "networkx>=3.1,<4.0",
-    "numpy==1.23.5",
+    "numpy>=1.25.0,<2.0.0",
     "osmnx>=1.6.0,<2.0.0",
     "pandas>=2.0.0,<3.0.0",
     "pandera==0.20.2",

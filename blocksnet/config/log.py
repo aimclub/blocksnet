@@ -1,9 +1,12 @@
 import os
 import sys
+from tqdm import tqdm
 from loguru import logger
 from iduedu import config as iduedu_config
 
 LOGGER_LEVELS = {"TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"}
+
+tqdm.pandas()
 
 
 class LogConfig:
