@@ -3,8 +3,6 @@ import networkx as nx
 from loguru import logger
 from .schemas import BlocksSchema
 
-BUFFER_SIZE = 0
-
 
 def _generate_adjacency_nodes(blocks_gdf: gpd.GeoDataFrame) -> list[int]:
     logger.info("Generating nodes.")
@@ -19,7 +17,7 @@ def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) ->
     return [(u, v) for u, v in sjoin_gdf["index_right"].to_dict().items()]
 
 
-def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = BUFFER_SIZE) -> nx.Graph:
+def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0) -> nx.Graph:
 
     blocks_gdf = BlocksSchema(blocks_gdf)
 
