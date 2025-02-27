@@ -39,7 +39,7 @@ def shared_provision(
     blocks_df: pd.DataFrame,
     accessibility_matrix: pd.DataFrame,
     accessibility: int,
-) -> tuple[pd.DataFrame, float, float]:
+) -> pd.DataFrame:
 
     blocks_df = _initialize_provision_df(blocks_df)
 

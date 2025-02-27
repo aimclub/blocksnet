@@ -1,1 +1,1 @@
-from .core import *
+from .core import calculate_development_indicators
