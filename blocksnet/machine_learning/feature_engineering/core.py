@@ -6,6 +6,8 @@ from ...config import log_config
 from .schemas import BlocksSchema
 from . import utils
 
+X_COLUMN = "x"
+Y_COLUMN = "y"
 AREA_COLUMN = "area"
 LENGTH_COLUMN = "length"
 CORNERS_COUNT_COLUMN = "corners_count"
@@ -32,6 +34,8 @@ def _calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
 def _calculate_usual_features(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     logger.info("Calculating usual features.")
     blocks_gdf = blocks_gdf.copy()
+    blocks_gdf[X_COLUMN] = blocks_gdf.representative_point().x
+    blocks_gdf[Y_COLUMN] = blocks_gdf.representative_point().y
     blocks_gdf[AREA_COLUMN] = blocks_gdf.area
     blocks_gdf[LENGTH_COLUMN] = blocks_gdf.length
     blocks_gdf[CORNERS_COUNT_COLUMN] = blocks_gdf.geometry.apply(lambda g: len(g.exterior.coords))
