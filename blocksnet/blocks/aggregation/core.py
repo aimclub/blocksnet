@@ -5,6 +5,7 @@ from tqdm import tqdm
 from .schemas import BlocksSchema
 from ...config import log_config
 
+COUNT_COLUMN = "count"
 OBJECT_INDEX_COLUMN = "_object_index"
 BLOCK_ID_COLUMN = "_block_id"
 INTERSECTION_AREA_COLUMN = "_intersection_area"
@@ -17,6 +18,12 @@ def _validate_input(blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFrame)
     if blocks_gdf.crs != objects_gdf.crs:
         logger.warning("CRS of objects_gdf and blocks_gdf do not match. Reprojecting. ")
         objects_gdf.to_crs(blocks_gdf.crs, inplace=True)
+    if COUNT_COLUMN in objects_gdf.columns:
+        logger.warning(
+            f"Column {COUNT_COLUMN} found in objects_gdf. It will be taken into account and might affect the result."
+        )
+    else:
+        objects_gdf[COUNT_COLUMN] = 1
 
 
 def _intersect_objects_with_blocks(objects_gdf: gpd.GeoDataFrame, blocks_gdf: gpd.GeoDataFrame):
@@ -39,22 +46,8 @@ def _label_intersections_with_blocks(intersections_gdf: gpd.GeoDataFrame, blocks
     return intersections_gdf.drop(columns=["geometry"]).rename({"index_right": "_block_id"}, axis=1)
 
 
-# def _initialize_columns(blocks_gdf : gpd.GeoDataFrame, objects_gdf : gpd.GeoDataFrame):
-#     logger.info('Initializing columns.')
-#     blocks_gdf = blocks_gdf.copy()
-
-#     for col in objects_gdf.columns:
-#         if col == 'geometry':
-#             continue
-#         dtype = objects_gdf[col].dtype
-#         if pd.api.types.is_numeric_dtype(dtype):
-#             blocks_gdf[col] = 0
-
-#     return blocks_gdf
-
-
 def _get_agg_dict(objects_gdf: gpd.GeoDataFrame):
-    agg_dict = {}
+    agg_dict = {COUNT_COLUMN: "sum"}
     for col in objects_gdf.columns:
         if col == "geometry" or col in [OBJECT_INDEX_COLUMN, INTERSECTION_AREA_COLUMN, BLOCK_ID_COLUMN]:
             continue
