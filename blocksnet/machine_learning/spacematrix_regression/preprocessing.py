@@ -5,10 +5,9 @@ import torch
 from torch_geometric.data import Data
 from sklearn.preprocessing import StandardScaler
 from sklearn.model_selection import train_test_split
-from blocksnet import land_use
 from .schemas import BlocksSchema, BlocksLandUseSchema, BlocksIndicatorsSchema
 from ..feature_engineering import generate_geometry_features
-from ...land_use.enum import LandUse
+from ...common.enums import LandUse
 
 
 def split_train_and_test(y: torch.Tensor, train_size: float = 0.8) -> tuple[torch.Tensor, torch.Tensor]:

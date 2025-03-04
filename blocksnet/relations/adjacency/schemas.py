@@ -1,5 +1,5 @@
 import shapely
-from ...utils.validation import GdfSchema
+from ...common.validation import GdfSchema
 
 
 class BlocksSchema(GdfSchema):

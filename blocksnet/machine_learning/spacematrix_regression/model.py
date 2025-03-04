@@ -3,7 +3,7 @@ import torch.nn.functional as F
 from torch_geometric.nn import SAGEConv
 from tqdm import tqdm
 from loguru import logger
-from ...config import log_config
+from ...common.config import log_config
 
 
 class Model(torch.nn.Module):

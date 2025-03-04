@@ -1,7 +1,7 @@
 import shapely
 from pandera.typing import Series
 from pandera import Field, parser
-from ...utils.validation import GdfSchema
+from ...common.validation import GdfSchema
 
 
 class BlocksSchema(GdfSchema):

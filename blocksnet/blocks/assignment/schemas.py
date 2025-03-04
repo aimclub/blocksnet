@@ -1,6 +1,6 @@
 import shapely
 from pandera.typing import Series
-from ...utils.validation import GdfSchema
+from ...common.validation import GdfSchema
 
 
 class BlocksSchema(GdfSchema):
@@ -9,9 +9,9 @@ class BlocksSchema(GdfSchema):
         return {shapely.Polygon}
 
 
-class ZonesSchema(GdfSchema):
+class FunctionalZonesSchema(GdfSchema):
 
-    zone: Series[str]
+    functional_zone: Series[str]
 
     @classmethod
     def _geometry_types(cls):

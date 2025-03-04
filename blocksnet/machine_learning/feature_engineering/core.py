@@ -2,7 +2,7 @@ import geopandas as gpd
 import shapely
 from loguru import logger
 from torch import log_
-from ...config import log_config
+from ...common.config import log_config
 from .schemas import BlocksSchema
 from . import utils
 

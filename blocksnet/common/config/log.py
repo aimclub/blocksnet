@@ -1,4 +1,3 @@
-import os
 import sys
 from tqdm import tqdm
 from loguru import logger

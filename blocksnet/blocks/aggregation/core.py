@@ -3,7 +3,7 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 from .schemas import BlocksSchema
-from ...config import log_config
+from ...common.config import log_config
 
 COUNT_COLUMN = "count"
 OBJECT_INDEX_COLUMN = "_object_index"

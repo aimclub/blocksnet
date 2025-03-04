@@ -4,8 +4,8 @@ from loguru import logger
 from tqdm import tqdm
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 from .schemas import BlocksSchema
-from ....utils import validation
-from ....config import log_config
+from ....common import validation
+from ....common.config import log_config
 
 DEMAND_COLUMN = "demand"
 DEMAND_LEFT_COLUMN = "demand_left"
@@ -39,7 +39,7 @@ def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int):
 def _validate_and_preprocess_input(func):
     @wraps(func)
     def wrapper(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, *args, **kwargs):
-        validation.validate_accessibility_matrix(accessibility_matrix, blocks_df)
+        validation.validate_matrix(accessibility_matrix, blocks_df)
         blocks_df = BlocksSchema(blocks_df)
         return func(blocks_df, accessibility_matrix, *args, **kwargs)
 
