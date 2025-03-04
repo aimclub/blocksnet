@@ -31,7 +31,7 @@ class DfSchema(pa.DataFrameModel):
         if df.columns.nlevels > 1:
             raise ValueError("Columns must not be multi-leveled.")
         # Вызов стандартной валидации
-        return super().validate(df, **kwargs)
+        return super().validate(df, **kwargs).copy()
 
     @classmethod
     def _columns(cls) -> list:

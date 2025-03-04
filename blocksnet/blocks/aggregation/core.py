@@ -4,6 +4,7 @@ from loguru import logger
 from tqdm import tqdm
 from .schemas import BlocksSchema
 from ...common.config import log_config
+from ...common.validation import ensure_crs
 
 COUNT_COLUMN = "count"
 OBJECT_INDEX_COLUMN = "_object_index"
@@ -15,9 +16,7 @@ def _validate_input(blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFrame)
     logger.info("Validating input.")
     if not isinstance(objects_gdf, gpd.GeoDataFrame):
         raise ValueError("objects_gdf must be an instance of GeoDataFrame.")
-    if blocks_gdf.crs != objects_gdf.crs:
-        logger.warning("CRS of objects_gdf and blocks_gdf do not match. Reprojecting. ")
-        objects_gdf.to_crs(blocks_gdf.crs, inplace=True)
+    ensure_crs(blocks_gdf, objects_gdf)
     if COUNT_COLUMN in objects_gdf.columns:
         logger.warning(
             f"Column {COUNT_COLUMN} found in objects_gdf. It will be taken into account and might affect the result."
@@ -47,7 +46,7 @@ def _label_intersections_with_blocks(intersections_gdf: gpd.GeoDataFrame, blocks
 
 
 def _get_agg_dict(objects_gdf: gpd.GeoDataFrame):
-    agg_dict = {COUNT_COLUMN: "sum"}
+    agg_dict = {}
     for col in objects_gdf.columns:
         if col == "geometry" or col in [OBJECT_INDEX_COLUMN, INTERSECTION_AREA_COLUMN, BLOCK_ID_COLUMN]:
             continue

@@ -1,56 +1,59 @@
 import geopandas as gpd
-import shapely
+import pandas as pd
 from loguru import logger
 from .schemas import BlocksSchema, FunctionalZonesSchema
 from ...common.enums import LandUse
+from ...common.spatial import sjoin_intersections
+from ...common.validation import ensure_crs
 
+FZ_SHARES_COLUMN = "fz_shares"
+FZ_SHARE_COLUMN = "fz_share"
+LU_SHARES_COLUMN = "lu_shares"
+LU_SHARE_COLUMN = "lu_share"
 LAND_USE_COLUMN = "land_use"
-SHARES_COLUMN = "shares"
 
 
-def _ensure_crs(blocks_gdf: gpd.GeoDataFrame, functional_zones_gdf: gpd.GeoDataFrame):
-    if blocks_gdf.crs != functional_zones_gdf.crs:
-        logger.warning("CRS of functional_zones_gdf and blocks_gdf do not match. Reprojecting.")
-        functional_zones_gdf.set_crs(blocks_gdf.crs, inplace=True)
+def _get_shares(intersections_gdf: gpd.GeoDataFrame, column: str) -> pd.Series:
+    grouped = intersections_gdf.groupby(["index_left", column]).agg({"share_left": "sum"}).reset_index()
+    series = grouped.groupby("index_left").apply(
+        lambda df: dict(zip(df[column], df["share_left"])), include_groups=False
+    )
+    return series
 
 
 def assign_land_use(
     blocks_gdf: gpd.GeoDataFrame,
     functional_zones_gdf: gpd.GeoDataFrame,
     rules: dict[str, LandUse],
-    min_intersection_share: float = 0.3,
 ):
 
     blocks_gdf = BlocksSchema(blocks_gdf)
     functional_zones_gdf = FunctionalZonesSchema(functional_zones_gdf)
+    ensure_crs(blocks_gdf, functional_zones_gdf)
 
-    _ensure_crs(blocks_gdf, functional_zones_gdf)
-
-    logger.info("Intersecting geometries")
-
-    sjoin_gdf = blocks_gdf.sjoin(functional_zones_gdf, predicate="intersects")
-
-    def _get_shares(series):
-        block_i = series.name
-        block_geometry = series.geometry
-        block_area = block_geometry.area
-        gdf = sjoin_gdf[sjoin_gdf.index == block_i]
-        shares = {}
-        for zone_i in gdf["index_right"]:
-            land_use = functional_zones_gdf.loc[zone_i, LAND_USE_COLUMN]
-            zone_geometry = functional_zones_gdf.loc[zone_i, "geometry"]
-            intersection_geometry = shapely.intersection(zone_geometry, block_geometry)
-            intersection_area = intersection_geometry.area
-            intersection_share = intersection_area / block_area
-            if intersection_share >= min_intersection_share:
-                shares[land_use] = intersection_area / block_area
-        return shares
-
-    logger.info("Calculating shares")
-
-    blocks_gdf[SHARES_COLUMN] = blocks_gdf.apply(_get_shares, axis=1)
-    blocks_gdf[LAND_USE_COLUMN] = blocks_gdf[SHARES_COLUMN].apply(
-        lambda shares: max(shares, key=shares.get) if len(shares) > 0 else None
+    functional_zones_gdf[LAND_USE_COLUMN] = functional_zones_gdf.functional_zone.apply(
+        lambda fz: rules[fz].value if fz in rules else None
     )
-    logger.success("Shares calculated")
+
+    logger.info("Overlaying geometries.")
+    intersections_gdf = sjoin_intersections(blocks_gdf, functional_zones_gdf)
+
+    logger.info("Calculating shares.")
+    blocks_gdf[FZ_SHARES_COLUMN] = _get_shares(intersections_gdf, "functional_zone")
+    blocks_gdf[FZ_SHARE_COLUMN] = blocks_gdf[FZ_SHARES_COLUMN].apply(
+        lambda s: max(s.values()) if isinstance(s, dict) else None
+    )
+    blocks_gdf["functional_zone"] = blocks_gdf[FZ_SHARES_COLUMN].apply(
+        lambda s: max(s, key=s.get) if isinstance(s, dict) else None
+    )
+
+    blocks_gdf[LU_SHARES_COLUMN] = _get_shares(intersections_gdf, LAND_USE_COLUMN)
+    blocks_gdf[LU_SHARE_COLUMN] = blocks_gdf[LU_SHARES_COLUMN].apply(
+        lambda s: max(s.values()) if isinstance(s, dict) else None
+    )
+    blocks_gdf[LAND_USE_COLUMN] = blocks_gdf[LU_SHARES_COLUMN].apply(
+        lambda s: max(s, key=s.get) if isinstance(s, dict) else None
+    )
+
+    logger.success("Shares calculated.")
     return blocks_gdf
