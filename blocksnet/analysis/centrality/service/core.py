@@ -12,7 +12,12 @@ SERVICE_CENTRALITY_COLUMN = "service_centrality"
 
 
 def service_centrality(
-    accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame, services_dfs: list[pd.DataFrame] = []
+    accessibility_matrix: pd.DataFrame,
+    blocks_df: pd.DataFrame,
+    services_dfs: list[pd.DataFrame] = [],
+    diversity_weight: float = 1,
+    density_weight: float = 1,
+    connectivity_weight: float = 1,
 ):
     validate_matrix(accessibility_matrix, blocks_df)
     blocks_df = BlocksSchema(blocks_df)
@@ -28,6 +33,11 @@ def service_centrality(
     blocks_df = blocks_df.fillna(0)
     scaler = MinMaxScaler()
     normalized = scaler.fit_transform(blocks_df[[SHANNON_DIVERSITY_COLUMN, DENSITY_COLUMN, CONNECTIVITY_COLUMN]])
-    blocks_df[SERVICE_CENTRALITY_COLUMN] = [np.sum(arr) / 3 for arr in normalized]
+
+    sum_weight = diversity_weight + density_weight + connectivity_weight
+    blocks_df[SERVICE_CENTRALITY_COLUMN] = [
+        (diversity_weight * arr[0] + density_weight * arr[1] + connectivity_weight * arr[2]) / sum_weight
+        for arr in normalized
+    ]
 
     return blocks_df[[SHANNON_DIVERSITY_COLUMN, DENSITY_COLUMN, CONNECTIVITY_COLUMN, SERVICE_CENTRALITY_COLUMN]].copy()
