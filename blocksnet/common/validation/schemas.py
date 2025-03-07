@@ -35,10 +35,11 @@ class DfSchema(pa.DataFrameModel):
 
     @classmethod
     def validate(cls, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        df = df.copy()
         cls._check_instance(df)
         cls._check_multi(df)
-        df = cls._preprocess(df.copy())
-        return super().validate(df, **kwargs)
+        df = cls._preprocess(df)
+        return super().validate(df, **kwargs).copy()
 
     @classmethod
     def _columns(cls) -> list:
