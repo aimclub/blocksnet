@@ -23,15 +23,22 @@ class DfSchema(pa.DataFrameModel):
             raise ValueError("An instance of DataFrame must be provided.")
 
     @classmethod
-    def validate(cls, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        cls._check_instance(df)
-        # Проверка мультииндекса и колонок
+    def _check_multi(cls, df):
         if df.index.nlevels > 1:
             raise ValueError("Index must not be multi-leveled.")
         if df.columns.nlevels > 1:
             raise ValueError("Columns must not be multi-leveled.")
-        # Вызов стандартной валидации
-        return super().validate(df, **kwargs).copy()
+
+    @classmethod
+    def _preprocess(cls, df: pd.DataFrame) -> pd.DataFrame:
+        return df
+
+    @classmethod
+    def validate(cls, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+        cls._check_instance(df)
+        cls._check_multi(df)
+        df = cls._preprocess(df.copy())
+        return super().validate(df, **kwargs)
 
     @classmethod
     def _columns(cls) -> list:
@@ -64,6 +71,11 @@ class GdfSchema(DfSchema):
             raise ValueError("An instance of GeoDataFrame must be provided.")
 
     @classmethod
+    def _preprocess(cls, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        return gdf
+
+    @pa.dataframe_parser
+    @classmethod
     def _warn_crs(cls, df):
         current_crs = df.crs
         if not current_crs.is_projected:
@@ -71,13 +83,7 @@ class GdfSchema(DfSchema):
             logger.warning(
                 f"Current CRS {current_crs.to_epsg()} is not projected. It might cause problems when carrying out spatial operations. Recommended: EPSG:{recommended_crs.to_epsg()}."
             )
-
-    @classmethod
-    def validate(cls, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-        cls._check_instance(df)
-        cls._warn_crs(df)
-        # Вызов стандартной валидации
-        return super().validate(df, **kwargs)
+        return df
 
     @pa.check("geometry")
     @classmethod
