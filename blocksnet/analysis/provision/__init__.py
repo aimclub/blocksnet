@@ -1,2 +1,3 @@
-from .competivive import competitive_provision
-from .shared import shared_provision
+from .competivive import *
+from .shared import *
+from .diversity import *
