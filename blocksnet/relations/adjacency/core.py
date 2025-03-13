@@ -21,7 +21,7 @@ def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0)
 
     blocks_gdf = BlocksSchema(blocks_gdf)
 
-    adj_graph = nx.Graph(None, crs=blocks_gdf.crs)
+    adj_graph = nx.Graph(None)
 
     nodes = _generate_adjacency_nodes(blocks_gdf)
     adj_graph.add_nodes_from(nodes)

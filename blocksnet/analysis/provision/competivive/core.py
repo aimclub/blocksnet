@@ -98,18 +98,20 @@ def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame,
     return prob
 
 
-def _update_blocks_df(prob: LpProblem, blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, accessibility: int):
+def _postprocess_lp_problem(
+    prob: LpProblem, blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, accessibility: int
+) -> tuple[pd.DataFrame, list[tuple]]:
     blocks_df = blocks_df.copy()
+    links = []
 
     for var in prob.variables():
         value = var.value()
         name = var.name.replace("(", "").replace(")", "").replace(",", "").split("_")
-        # if name[2] == "dummy":
-        #     continue
+        if name[2] == "dummy":
+            continue
         a = int(name[1])
         b = int(name[2])
         distance = _get_distance(a, b, accessibility_matrix)
-        # value = round(value)
         if value > 0:
             if distance <= accessibility:
                 blocks_df.loc[a, DEMAND_WITHIN_COLUMN] += value
@@ -119,11 +121,14 @@ def _update_blocks_df(prob: LpProblem, blocks_df: pd.DataFrame, accessibility_ma
                 blocks_df.loc[b, CAPACITY_WITHOUT_COLUMN] += value
             blocks_df.loc[a, DEMAND_LEFT_COLUMN] -= value
             blocks_df.loc[b, CAPACITY_LEFT_COLUMN] -= value
+            links.append((a, b, value))
 
-    return blocks_df
+    return blocks_df, links
 
 
-def _distribute_demand(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, accessibility: int, depth: int):
+def _distribute_demand(
+    blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, accessibility: int, depth: int
+) -> tuple[pd.DataFrame, list[tuple]]:
 
     blocks_df = blocks_df.copy()
     selection_range = depth * accessibility
@@ -132,14 +137,14 @@ def _distribute_demand(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFra
 
     prob.solve(PULP_CBC_CMD(msg=False))
 
-    return _update_blocks_df(prob, blocks_df, accessibility_matrix, accessibility)
+    return _postprocess_lp_problem(prob, blocks_df, accessibility_matrix, accessibility)
 
 
-def _provision_strong_total(blocks_df: pd.DataFrame):
+def provision_strong_total(blocks_df: pd.DataFrame):
     return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df[DEMAND_COLUMN].sum()
 
 
-def _provision_weak_total(blocks_df: pd.DataFrame):
+def provision_weak_total(blocks_df: pd.DataFrame):
     return (blocks_df[DEMAND_WITHIN_COLUMN].sum() + blocks_df[DEMAND_WITHOUT_COLUMN].sum()) / blocks_df[
         DEMAND_COLUMN
     ].sum()
@@ -153,24 +158,25 @@ def competitive_provision(
     accessibility: int,
     self_supply: bool = True,
     max_depth: int = 1,
-) -> tuple[pd.DataFrame, float, float]:
+) -> tuple[pd.DataFrame, pd.DataFrame]:
 
     blocks_df = _initialize_provision_df(blocks_df, demand)
 
     if self_supply:
         _supply_self(blocks_df)
 
+    links = []
     logger.info("Setting and solving LP problems until max depth or break condition reached")
     for depth in tqdm(range(1, max_depth + 1), disable=log_config.disable_tqdm):
-        blocks_df = _distribute_demand(blocks_df, accessibility_matrix, accessibility, depth)
+        blocks_df, depth_links = _distribute_demand(blocks_df, accessibility_matrix, accessibility, depth)
+        links.extend(depth_links)
         break_condition = blocks_df[DEMAND_LEFT_COLUMN].sum() == 0 or blocks_df[CAPACITY_LEFT_COLUMN].sum() == 0
         if break_condition:
             break
 
     blocks_df[PROVISION_STRONG_COLUMN] = blocks_df[DEMAND_WITHIN_COLUMN] / blocks_df.demand
-    provision_strong_total = _provision_strong_total(blocks_df)
-    provision_weak_total = _provision_weak_total(blocks_df)
 
     logger.success("Provision assessment finished")
 
-    return blocks_df, provision_strong_total, provision_weak_total
+    links_df = pd.DataFrame(links, columns=["source", "target", "value"]).groupby(["source", "target"]).agg("sum")
+    return blocks_df, links_df
