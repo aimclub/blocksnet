@@ -12,7 +12,7 @@ class BlocksSchema(DfSchema):
     mxi: Series[float] = Field(ge=0, default=0)
 
     @classmethod
-    def _preprocess(cls, gdf: gpd.GeoDataFrame):
+    def _before_validate(cls, gdf: gpd.GeoDataFrame):
         if not "l" in gdf.columns:
             logger.warning("Column l not found in columns. Calculating from fsi and gsi.")
             if not "fsi" in gdf.columns:

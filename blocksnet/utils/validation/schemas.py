@@ -30,16 +30,24 @@ class DfSchema(pa.DataFrameModel):
             raise ValueError("Columns must not be multi-leveled.")
 
     @classmethod
-    def _preprocess(cls, df: pd.DataFrame) -> pd.DataFrame:
+    def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
+        return df
+
+    @classmethod
+    def _after_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
         return df
 
     @classmethod
     def validate(cls, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
+
         df = df.copy()
         cls._check_instance(df)
         cls._check_multi(df)
-        df = cls._preprocess(df)
-        return super().validate(df, **kwargs).copy()
+
+        df = cls._before_validate(df)
+        df = super().validate(df, **kwargs)
+        df = cls._after_validate(df)
+        return df.copy()
 
     @classmethod
     def _columns(cls) -> list:
@@ -72,7 +80,7 @@ class GdfSchema(DfSchema):
             raise ValueError("An instance of GeoDataFrame must be provided.")
 
     @classmethod
-    def _preprocess(cls, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    def _before_validate(cls, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         return gdf
 
     @pa.dataframe_parser
