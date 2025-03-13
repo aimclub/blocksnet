@@ -33,8 +33,6 @@ def max_accessibility(accessibility_matrix: pd.DataFrame, out: bool = True) -> p
 
 @validate_accessibility_matrix
 def area_accessibility(accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame):
-    if not blocks_df.index.isin(accessibility_matrix.index).all():
-        raise ValueError("Block index must be in matrix index")
     blocks_df = AreaAccessibilityBlocksSchema(blocks_df)
     weights = blocks_df.site_area
     result = (accessibility_matrix.mul(weights)).sum(axis=1) / weights.sum()
