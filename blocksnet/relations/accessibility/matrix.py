@@ -1,11 +1,12 @@
 import geopandas as gpd
 import networkx as nx
+import pandas as pd
 import iduedu as ie
 import pyproj
 import pyproj.exceptions
-from loguru import logger
 from .const import CRS_KEY, WEIGHT_KEY, X_KEY, Y_KEY
 from .schemas import BlocksSchema
+from ...utils.validation import validate_matrix
 
 
 def _validate_crs(graph: nx.Graph):
@@ -46,3 +47,20 @@ def calculate_accessibility_matrix(
     blocks_gdf.geometry = blocks_gdf.representative_point()
     accessibility_matrix = ie.get_adj_matrix_gdf_to_gdf(blocks_gdf, blocks_gdf, graph, weight_key, *args, **kwargs)
     return accessibility_matrix
+
+
+def get_accessibility_context(
+    accessibility_matrix: pd.DataFrame,
+    blocks_df: pd.DataFrame,
+    accessibility: float,
+    out: bool = True,
+    keep: bool = True,
+):
+    validate_matrix(accessibility_matrix, blocks_df)
+    if not out:
+        accessibility_matrix = accessibility_matrix.transpose()
+    acc_mx = accessibility_matrix[blocks_df.index]
+    if not keep:
+        acc_mx = acc_mx[~acc_mx.index.isin(blocks_df.index)]
+    mask = (acc_mx <= accessibility).any(axis=1)
+    return list(acc_mx[mask].index)

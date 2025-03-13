@@ -1,7 +1,9 @@
 import geopandas as gpd
+import pandas as pd
 import networkx as nx
 from loguru import logger
 from .schemas import BlocksSchema
+from ...utils.validation import validate_graph
 
 
 def _generate_adjacency_nodes(blocks_gdf: gpd.GeoDataFrame) -> list[int]:
@@ -33,3 +35,12 @@ def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0)
         f"Adjacency graph successfully generated: {len(adj_graph.nodes)} nodes, {len(adj_graph.edges)} edges"
     )
     return adj_graph
+
+
+def get_adjacency_context(adjacency_graph: nx.Graph, blocks_df: pd.DataFrame, keep: bool = True):
+    validate_graph(adjacency_graph, blocks_df)
+    blocks_ids = set(blocks_df.index)
+    neighbors = {node for block_id in blocks_ids for node in adjacency_graph.neighbors(block_id)}
+    if keep:
+        neighbors = neighbors | blocks_ids
+    return adjacency_graph.subgraph(neighbors)
