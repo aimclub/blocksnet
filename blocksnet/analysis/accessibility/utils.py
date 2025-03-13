@@ -1,6 +1,6 @@
 import pandas as pd
 from functools import wraps
-from ....common import validation
+from ...common import validation
 
 
 def validate_accessibility_matrix(func):
