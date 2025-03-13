@@ -1,7 +1,5 @@
 import shapely
-import pandas as pd
-from pandera import dataframe_parser
-from ...common.validation import GdfSchema
+from ...utils.validation import GdfSchema
 
 
 class BlocksSchema(GdfSchema):

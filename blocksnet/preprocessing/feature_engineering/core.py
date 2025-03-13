@@ -1,8 +1,7 @@
 import geopandas as gpd
 import shapely
 from loguru import logger
-from torch import log_
-from ...common.config import log_config
+from ...config import log_config
 from .schemas import BlocksSchema
 from . import utils
 
@@ -81,13 +80,22 @@ def _generate_combinations(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return df
 
 
-def generate_geometry_features(blocks_gdf: gpd.GeoDataFrame, centerlines: bool = False, combinations: bool = False):
+def generate_geometry_features(
+    blocks_gdf: gpd.GeoDataFrame,
+    radiuses: bool = False,
+    aspect_ratios: bool = False,
+    centerlines: bool = False,
+    combinations: bool = False,
+):
 
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     blocks_gdf = _calculate_usual_features(blocks_gdf)
-    blocks_gdf = _calculate_radiuses(blocks_gdf)
-    blocks_gdf = _calculate_aspect_ratios(blocks_gdf)
+
+    if radiuses:
+        blocks_gdf = _calculate_radiuses(blocks_gdf)
+    if aspect_ratios:
+        blocks_gdf = _calculate_aspect_ratios(blocks_gdf)
     if centerlines:
         blocks_gdf = _calculate_centerlines(blocks_gdf)
 

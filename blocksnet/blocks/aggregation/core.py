@@ -3,8 +3,8 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 from .schemas import BlocksSchema
-from ...common.config import log_config
-from ...common.validation import ensure_crs
+from ...config import log_config
+from ...utils.validation import ensure_crs
 
 COUNT_COLUMN = "count"
 OBJECT_INDEX_COLUMN = "_object_index"

@@ -1,20 +1,20 @@
 import shapely
 
 
-def calculate_outer_radius(polygon: shapely.Polygon):
+def calculate_outer_radius(polygon: shapely.Polygon) -> float:
     center = polygon.centroid
     corners = [shapely.Point(coord) for coord in polygon.exterior.coords]
     return max(center.distance(corner) for corner in corners)
 
 
-def calculate_inner_radius(polygon: shapely.Polygon):
+def calculate_inner_radius(polygon: shapely.Polygon) -> float:
     center = polygon.representative_point()
     corners = [shapely.Point(coord) for coord in polygon.exterior.coords]
     side_centers = [shapely.MultiPoint([corners[i], corners[i + 1]]).centroid for i in range(len(corners) - 1)]
     return min(center.distance(point) for point in side_centers)
 
 
-def calculate_aspect_ratio(polygon: shapely.Polygon):
+def calculate_aspect_ratio(polygon: shapely.Polygon) -> float:
     rectangle = polygon.minimum_rotated_rectangle
     rectangle_coords = list(rectangle.exterior.coords)
     side_lengths = [

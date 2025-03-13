@@ -4,8 +4,8 @@ from loguru import logger
 from tqdm import tqdm
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
 from .schemas import BlocksSchema
-from ....common import validation
-from ....common.config import log_config
+from ....utils import validation
+from ....config import log_config
 
 DEMAND_COLUMN = "demand"
 DEMAND_LEFT_COLUMN = "demand_left"

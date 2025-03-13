@@ -2,9 +2,9 @@ import geopandas as gpd
 import pandas as pd
 from loguru import logger
 from .schemas import BlocksSchema, FunctionalZonesSchema
-from ...common.enums import LandUse
-from ...common.spatial import sjoin_intersections
-from ...common.validation import ensure_crs
+from ...enums import LandUse
+from ...utils.spatial import sjoin_intersections
+from ...utils.validation import ensure_crs
 
 FZ_SHARES_COLUMN = "fz_shares"
 FZ_SHARE_COLUMN = "fz_share"

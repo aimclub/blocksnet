@@ -2,7 +2,7 @@ import geopandas as gpd
 from loguru import logger
 from pandera.typing import Series
 from pandera import Field
-from ...common.validation import DfSchema
+from ...utils.validation import DfSchema
 
 
 class BlocksSchema(DfSchema):

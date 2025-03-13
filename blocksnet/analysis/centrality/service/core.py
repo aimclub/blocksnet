@@ -4,7 +4,7 @@ from sklearn.preprocessing import MinMaxScaler
 from .schemas import BlocksSchema
 from ...provision.diversity.core import shannon_diversity, COUNT_COLUMN, SHANNON_DIVERSITY_COLUMN
 from ...accessibility.core import mean_accessibility, MEAN_ACCESSIBILITY_COLUMN
-from ....common.validation import validate_matrix
+from ....utils.validation import validate_matrix
 
 CONNECTIVITY_COLUMN = "connectivity"
 DENSITY_COLUMN = "density"

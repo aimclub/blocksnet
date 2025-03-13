@@ -5,7 +5,7 @@ from tqdm import tqdm
 from loguru import logger
 from shapely.geometry.base import BaseGeometry
 from concurrent.futures import ThreadPoolExecutor
-from ...common.config import log_config
+from ...config import log_config
 from . import utils, const
 
 AREA_COLUMN = "area"

@@ -1,7 +1,7 @@
 import pandas as pd
 from pandera import Field
 from pandera.typing import Series
-from ....common.validation import DfSchema
+from ....utils.validation import DfSchema
 
 
 class BlocksSchema(DfSchema):

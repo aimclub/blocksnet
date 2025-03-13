@@ -2,8 +2,8 @@ import pandas as pd
 import shapely
 from pandera import Field, parser, dataframe_check
 from pandera.typing import Series
-from ...common.enums import LandUse
-from ...common.validation import DfSchema, GdfSchema
+from ...enums import LandUse
+from ...utils.validation import DfSchema, GdfSchema
 
 
 class BlocksSchema(GdfSchema):

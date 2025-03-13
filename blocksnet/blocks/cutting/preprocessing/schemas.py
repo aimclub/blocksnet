@@ -1,5 +1,5 @@
 import shapely
-from ....common.validation import GdfSchema
+from ....utils.validation import GdfSchema
 
 
 class RoadsSchema(GdfSchema):

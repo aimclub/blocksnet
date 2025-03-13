@@ -4,8 +4,8 @@ from loguru import logger
 from tqdm import tqdm
 import numpy as np
 from .schemas import BlocksSchema
-from ....common import validation
-from ....common.config import log_config
+from ....utils import validation
+from ....config import log_config
 
 CAPACITY_WITHIN_COLUMN = "capacity_within"
 POPULATION_WITHIN_COLUMN = "population_within"
@@ -28,10 +28,6 @@ def _validate_and_preprocess_input(func):
         return func(blocks_df, accessibility_matrix, *args, **kwargs)
 
     return wrapper
-
-
-# def _provision_total(blocks_df: pd.DataFrame):
-#     return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df[DEMAND_COLUMN].sum()
 
 
 @_validate_and_preprocess_input

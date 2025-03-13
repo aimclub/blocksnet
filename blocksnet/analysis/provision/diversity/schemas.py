@@ -1,6 +1,6 @@
 from pandera.typing import Series
 from pandera import Field
-from ....common.validation import DfSchema
+from ....utils.validation import DfSchema
 
 
 class BlocksServicesSchema(DfSchema):
