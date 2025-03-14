@@ -55,7 +55,7 @@ def get_accessibility_context(
     accessibility: float,
     out: bool = True,
     keep: bool = True,
-):
+) -> pd.DataFrame:
     validate_matrix(accessibility_matrix, blocks_df)
     if not out:
         accessibility_matrix = accessibility_matrix.transpose()
@@ -63,4 +63,5 @@ def get_accessibility_context(
     if not keep:
         acc_mx = acc_mx[~acc_mx.index.isin(blocks_df.index)]
     mask = (acc_mx <= accessibility).any(axis=1)
-    return list(acc_mx[mask].index)
+    blocks_ids = list(acc_mx[mask].index)
+    return accessibility_matrix.loc[blocks_ids, blocks_ids].copy()

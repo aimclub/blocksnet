@@ -26,6 +26,9 @@ class LandUseConfig:
         if not allowed and allow:
             self.adjacency_rules.add_edge(lu_a, lu_b)
 
+    def get_adjacency_rule(self, lu_a: LandUse, lu_b: LandUse) -> bool:
+        return self.adjacency_rules.has_edge(lu_a, lu_b)
+
     def set_probability(self, lu_a: LandUse, lu_b: LandUse, probability: float):
         if probability < 0 or probability > 1:
             raise ValueError("probability must be in range [0,1]")
