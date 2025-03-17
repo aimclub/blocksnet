@@ -10,7 +10,7 @@ class BlocksSchema(DfSchema):
     footprint_area: Series[float] = Field(ge=0)
     build_floor_area: Series[float] = Field(ge=0)
     living_area: Series[float] = Field(ge=0)
-    business_area: Series[float] = Field(ge=0)
+    non_living_area: Series[float] = Field(ge=0)
 
     # @dataframe_check
     # @classmethod
@@ -23,7 +23,7 @@ class BlocksSchema(DfSchema):
     # @dataframe_check
     # @classmethod
     # def _validate_la_and_ba(cls, df: pd.DataFrame) -> pd.DataFrame:
-    #     la_and_ba = all(df.living_area + df.business_area <= df.build_floor_area)
+    #     la_and_ba = all(df.living_area + df.non_living_area <= df.build_floor_area)
     #     if not la_and_ba:
-    #         raise ValueError("living_area + business_area must be less than or equal to build_floor_area.")
+    #         raise ValueError("living_area + non_living_area must be less than or equal to build_floor_area.")
     #     return la_and_ba
