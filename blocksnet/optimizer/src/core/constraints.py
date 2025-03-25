@@ -4,7 +4,7 @@ from typing import Callable, Dict
 import numpy as np
 from numpy.typing import ArrayLike
 
-from blocksnet.optimizer.src.acl import BlocksnetFacade
+from blocksnet.optimizer.src.acl import BlocksNetFacade
 
 
 class Constraints(ABC):
@@ -89,13 +89,13 @@ class CapacityConstraints(Constraints):
     variable values do not exceed their predefined upper bounds.
     """
 
-    def __init__(self, facade: BlocksnetFacade, num_params: int):
+    def __init__(self, facade: BlocksNetFacade, num_params: int):
         """
         Initialize capacity constraints with upper bounds for each variable.
 
         Parameters
         ----------
-        facade : BlocksnetFacade
+        facade : BlocksNetFacade
             Interface providing constraint data.
         num_params : int
             Number of variables in the optimization problem.
@@ -186,13 +186,13 @@ class WeightedConstraints(Constraints):
     Implements constraints based on weighted limits for grouped variables.
     """
 
-    def __init__(self, facade: BlocksnetFacade, num_params: int):
+    def __init__(self, facade: BlocksNetFacade, num_params: int):
         """
         Initializes WeightedConstraints with variable groups, group limits, and variable weights.
 
         Parameters
         ----------
-        facade : BlocksnetFacade
+        facade : BlocksNetFacade
             Interface providing constraint data.
         num_params : int
             Number of variables.

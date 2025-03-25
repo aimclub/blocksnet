@@ -4,7 +4,7 @@ from typing import Dict, Optional
 import numpy as np
 from numpy.typing import ArrayLike
 
-from blocksnet.optimizer.src.acl import BlocksnetFacade
+from blocksnet.optimizer.src.acl import BlocksNetFacade
 
 
 class Objective(ABC):
@@ -13,7 +13,7 @@ class Objective(ABC):
     """
 
     def __init__(
-        self, num_params: int, facade: BlocksnetFacade, max_evals: Optional[int]
+        self, num_params: int, facade: BlocksNetFacade, max_evals: Optional[int]
     ):
         """
         Initialize the objective function.
@@ -22,7 +22,7 @@ class Objective(ABC):
         ----------
         num_params : int
             Number of parameters in the optimization problem.
-        facade : BlocksnetFacade
+        facade : BlocksNetFacade
             The facade providing access to data related to the optimization problem.
         max_evals : Optional[int]
             Maximum number of function evaluations allowed.
@@ -30,7 +30,7 @@ class Objective(ABC):
         self._num_params: int = num_params
         self._current_func_evals: int = 0
         self._max_func_evals: Optional[int] = max_evals
-        self._facade: BlocksnetFacade = facade
+        self._facade: BlocksNetFacade = facade
 
     def __call__(self, x: ArrayLike) -> tuple[Dict[str, float], float]:
         """
@@ -109,7 +109,7 @@ class WeightedObjective(Objective):
     def __init__(
         self,
         num_params: int,
-        facade: BlocksnetFacade,
+        facade: BlocksNetFacade,
         max_evals: int,
         weights: Dict[str, float],
     ):
@@ -120,7 +120,7 @@ class WeightedObjective(Objective):
         ----------
         num_params : int
             Number of parameters in the problem.
-        facade : BlocksnetFacade
+        facade : BlocksNetFacade
             The facade providing access to data.
         max_evals : int
             Maximum number of function evaluations.
