@@ -65,7 +65,7 @@ class ServicesOptimizer:
             services_df = self._get_services_df(blocks_ids, service_type)
             _, demand, accessibility = service_types_config[service_type].values()
 
-            provision_df, _ = competitive_provision(blocks_df.join(services_df), acc_mx, demand, accessibility)
+            provision_df, _ = competitive_provision(blocks_df.join(services_df), acc_mx, accessibility, demand)
 
             context_acc_mx = get_accessibility_context(acc_mx, provision_df.loc[blocks_ids], accessibility, out=False)
             provisions_dfs[service_type] = provision_df.loc[context_acc_mx.index]
@@ -136,7 +136,7 @@ class ServicesOptimizer:
                     old_provision_df = provisions_dfs[service_type]
                     old_provision_df.loc[delta_df.index, "capacity"] += delta_df["total_capacity"]
                     new_provision_df, _ = competitive_provision(
-                        old_provision_df, self.accessibility_matrix, demand, accessibility
+                        old_provision_df, self.accessibility_matrix, accessibility, demand
                     )
                     provisions_dfs[service_type] = new_provision_df
 

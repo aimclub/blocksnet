@@ -7,7 +7,8 @@ from .schemas import BlocksSchema
 from ....utils import validation
 from ....config import log_config
 
-DEMAND_COLUMN = "demand"
+POPULATION_COLUMN = "population"
+
 DEMAND_LEFT_COLUMN = "demand_left"
 DEMAND_WITHIN_COLUMN = "demand_within"
 DEMAND_WITHOUT_COLUMN = "demand_without"
@@ -19,13 +20,28 @@ CAPACITY_WITHOUT_COLUMN = "capacity_without"
 PROVISION_STRONG_COLUMN = "provision_strong"
 PROVISION_WEAK_COLUMN = "provision_weak"
 
+SOURCE_COLUMN = "source"
+TARGET_COLUMN = "target"
+VALUE_COLUMN = "value"
 
-def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int):
+
+def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int | None):
     logger.info("Initializing provision DataFrame")
-    blocks_df[DEMAND_COLUMN] = blocks_df.population.apply(lambda p: round(p / 1000 * demand))
+    blocks_df = blocks_df.copy()
+
+    if not "demand" in blocks_df.columns:
+        logger.warning("No demand in columns. Imputing using population column and demand parameter")
+        if not POPULATION_COLUMN in blocks_df.columns:
+            raise ValueError(f"No {POPULATION_COLUMN} in columns")
+        if demand is None:
+            raise ValueError(f"Cant impute demand without known normative demand")
+        blocks_df["demand"] = blocks_df.population.apply(lambda p: round(p / 1000 * demand))
+
+    blocks_df = BlocksSchema(blocks_df)
+
     blocks_df = blocks_df.assign(
         **{
-            DEMAND_LEFT_COLUMN: blocks_df[DEMAND_COLUMN],
+            DEMAND_LEFT_COLUMN: blocks_df.demand,
             DEMAND_WITHIN_COLUMN: 0,
             DEMAND_WITHOUT_COLUMN: 0,
             CAPACITY_LEFT_COLUMN: blocks_df.capacity,
@@ -36,19 +52,9 @@ def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int):
     return blocks_df
 
 
-def _validate_and_preprocess_input(func):
-    @wraps(func)
-    def wrapper(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, *args, **kwargs):
-        validation.validate_matrix(accessibility_matrix, blocks_df)
-        blocks_df = BlocksSchema(blocks_df)
-        return func(blocks_df, accessibility_matrix, *args, **kwargs)
-
-    return wrapper
-
-
 def _supply_self(blocks_df: pd.DataFrame):
     logger.info("Supplying blocks with own capacities")
-    supply = blocks_df.apply(lambda s: min(s[DEMAND_COLUMN], s.capacity), axis=1)
+    supply = blocks_df.apply(lambda s: min(s.demand, s.capacity), axis=1)
     blocks_df[DEMAND_WITHIN_COLUMN] += supply
     blocks_df[DEMAND_LEFT_COLUMN] -= supply
     blocks_df[CAPACITY_LEFT_COLUMN] -= supply
@@ -141,25 +147,23 @@ def _distribute_demand(
 
 
 def provision_strong_total(blocks_df: pd.DataFrame):
-    return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df[DEMAND_COLUMN].sum()
+    return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df.demand.sum()
 
 
 def provision_weak_total(blocks_df: pd.DataFrame):
-    return (blocks_df[DEMAND_WITHIN_COLUMN].sum() + blocks_df[DEMAND_WITHOUT_COLUMN].sum()) / blocks_df[
-        DEMAND_COLUMN
-    ].sum()
+    return (blocks_df[DEMAND_WITHIN_COLUMN].sum() + blocks_df[DEMAND_WITHOUT_COLUMN].sum()) / blocks_df.demand.sum()
 
 
-@_validate_and_preprocess_input
 def competitive_provision(
     blocks_df: pd.DataFrame,
     accessibility_matrix: pd.DataFrame,
-    demand: int,
     accessibility: int,
+    demand: int | None = None,
     self_supply: bool = True,
     max_depth: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
+    validation.validate_matrix(accessibility_matrix, blocks_df)
     blocks_df = _initialize_provision_df(blocks_df, demand)
 
     if self_supply:
@@ -175,8 +179,15 @@ def competitive_provision(
             break
 
     blocks_df[PROVISION_STRONG_COLUMN] = blocks_df[DEMAND_WITHIN_COLUMN] / blocks_df.demand
+    blocks_df[PROVISION_WEAK_COLUMN] = (
+        blocks_df[DEMAND_WITHIN_COLUMN] + blocks_df[DEMAND_WITHOUT_COLUMN]
+    ) / blocks_df.demand
 
     logger.success("Provision assessment finished")
 
-    links_df = pd.DataFrame(links, columns=["source", "target", "value"]).groupby(["source", "target"]).agg("sum")
+    links_df = (
+        pd.DataFrame(links, columns=[SOURCE_COLUMN, TARGET_COLUMN, VALUE_COLUMN])
+        .groupby([SOURCE_COLUMN, TARGET_COLUMN])
+        .agg("sum")
+    )
     return blocks_df, links_df
