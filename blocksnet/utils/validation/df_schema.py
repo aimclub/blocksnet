@@ -17,6 +17,11 @@ class DfSchema(pa.DataFrameModel):
             raise ValueError("An instance of DataFrame must be provided.")
 
     @classmethod
+    def _check_len(cls, df):
+        if len(df) == 0:
+            raise ValueError("Rows count must be greater than 0")
+
+    @classmethod
     def _check_multi(cls, df):
         if df.index.nlevels > 1:
             raise ValueError("Index must not be multi-leveled.")
@@ -36,6 +41,7 @@ class DfSchema(pa.DataFrameModel):
 
         df = df.copy()
         cls._check_instance(df)
+        cls._check_len(df)
         cls._check_multi(df)
 
         df = cls._before_validate(df)
