@@ -49,11 +49,6 @@ def relative_accessibility(accessibility_matrix: pd.DataFrame, i: int, out: bool
 
 
 __all__ = [
-    "MEDIAN_ACCESSIBILITY_COLUMN",
-    "MEAN_ACCESSIBILITY_COLUMN",
-    "MAX_ACCESSIBILITY_COLUMN",
-    "AREA_ACCESSIBILITY_COLUMN",
-    "RELATIVE_ACCESSIBILITY_COLUMN",
     "median_accessibility",
     "mean_accessibility",
     "max_accessibility",

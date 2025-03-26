@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 from loguru import logger
 from .schemas import BlocksServicesSchema
+from ....utils.validation import ensure_crs
 
 COUNT_COLUMN = "count"
 SHANNON_DIVERSITY_COLUMN = "shannon_diversity"
