@@ -26,6 +26,9 @@ class ServiceTypesConfig:
         service_types = row[row].index
         return list(service_types)
 
+    def __iter__(self):
+        return iter(self.service_types.index)
+
     def get_service_type(self, service_type: str) -> dict:
         row = self.service_types.loc[service_type]
         return row.to_dict()
