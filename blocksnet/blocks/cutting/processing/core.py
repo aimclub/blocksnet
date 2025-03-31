@@ -43,7 +43,7 @@ def _validate_and_process_gdfs(func):
 
 def _exclude_polygons(boundaries_gdf: gpd.GeoDataFrame, polygons_gdf: gpd.GeoDataFrame):
     logger.info("Excluding polygon objects from blocks")
-    polygons_gdf = gpd.GeoDataFrame(geometry=[polygons_gdf.unary_union], crs=polygons_gdf.crs)
+    polygons_gdf = gpd.GeoDataFrame(geometry=[polygons_gdf.union_all()], crs=polygons_gdf.crs)
     return boundaries_gdf.overlay(polygons_gdf, how="difference")
 
 
@@ -53,7 +53,7 @@ def _get_enclosures(boundaries_gdf: gpd.GeoDataFrame, lines_gdf: gpd.GeoDataFram
         pd.concat([lines_gdf.geometry, boundaries_gdf.boundary]).explode(ignore_index=True).reset_index(drop=True)
     )
 
-    unioned = barriers.unary_union
+    unioned = barriers.union_all()
     polygons = polygonize(unioned)
     # return gpd.GeoDataFrame(geometry=list(polygons), crs=boundaries_gdf.crs)
     enclosures = gpd.GeoSeries(list(polygons), crs=lines_gdf.crs)

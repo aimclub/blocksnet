@@ -13,7 +13,7 @@ def get_accessibility_graph(
     if territory_gdf.crs.to_epsg() != IDUEDU_CRS:
         logger.warning("CRS do not match IDUEDU required crs. Reprojecting.")
         territory_gdf = territory_gdf.to_crs(IDUEDU_CRS)
-    geometry = territory_gdf.unary_union
+    geometry = territory_gdf.union_all()
     if graph_type == "drive":
         return ie.get_drive_graph(polygon=geometry, *args, **kwargs)
     if graph_type == "walk":

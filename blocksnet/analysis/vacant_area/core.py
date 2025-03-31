@@ -30,7 +30,7 @@ FETCH_FUNCS = [
 
 
 def _fetch_occupied_areas(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    geometry = blocks_gdf.buffer(const.BLOCKS_BUFFER).to_crs(4326).unary_union
+    geometry = blocks_gdf.buffer(const.BLOCKS_BUFFER).to_crs(4326).union_all()
     occupied_gdfs = []
 
     logger.info("Fetching OSM geometries.")
@@ -42,7 +42,7 @@ def _fetch_occupied_areas(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
             occupied_gdfs.append(gdf)
 
     occupied_gdf = pd.concat(occupied_gdfs).to_crs(blocks_gdf.crs)
-    occupied_gdf = gpd.GeoDataFrame(geometry=[occupied_gdf.unary_union], crs=blocks_gdf.crs)
+    occupied_gdf = gpd.GeoDataFrame(geometry=[occupied_gdf.union_all()], crs=blocks_gdf.crs)
     return occupied_gdf
 
 

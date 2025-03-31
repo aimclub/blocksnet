@@ -14,21 +14,21 @@ requires-python = ">=3.10"
 license = { file = "LICENCE.md" }
 
 dependencies = [
+    "numpy>=2.0.0,<3.0.0",
     "geopandas>=1.0.0,<2.0.0",
+    "pandas>=2.2.2,<3.0.0",
+    "pyarrow>=19.0.0,<20.0.0",
     "loguru>=0.7.0,<1.0.0",
-    "matplotlib==3.7.1",
+    "matplotlib>=3.9.0,<4.0.0",
     "networkx>=3.1,<4.0",
-    "numpy>=2.1.0,<3.0.0",
     "osmnx>=2.0.0,<3.0.0",
-    "pandas>=2.0.0,<3.0.0",
     "pandera==0.20.2",
     "PuLP==2.7.0",
     "pymoo>=0.6.0,<1.0.0",
-    "pyarrow==12.0.0",
     "pydantic>=2.0.0,<3.0.0",
-    "scikit-learn==1.2.2",
+    "scikit-learn>=1.4.2,<2.0.0",
     "scipy>=1.10.1,<2.0.0",
-    "shapely>=2.0.0",
+    "shapely>=2.0.0,<3.0.0",
     "tqdm>=4.66.0,<5.0.0",
     "iduedu==0.4.0",
 ]
