@@ -17,11 +17,11 @@ ASPECT_RATIO_COLUMN = "aspect_ratio"
 
 
 def _calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
-    logger.info("Calculating centerlines.")
+    logger.info("Calculating centerlines")
     try:
         import pygeoops
     except ImportError:
-        raise ImportError("PyGeoOps package is required but not installed.")
+        raise ImportError("PyGeoOps package is required but not installed")
     blocks_gdf = blocks_gdf.copy()
     if log_config.disable_tqdm:
         blocks_gdf[CENTERLINE_LENGTH_COLUMN] = blocks_gdf.geometry.apply(pygeoops.centerline).length
@@ -31,7 +31,7 @@ def _calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
 
 
 def _calculate_usual_features(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    logger.info("Calculating usual features.")
+    logger.info("Calculating usual features")
     blocks_gdf = blocks_gdf.copy()
     blocks_gdf[X_COLUMN] = blocks_gdf.representative_point().x
     blocks_gdf[Y_COLUMN] = blocks_gdf.representative_point().y
@@ -42,7 +42,7 @@ def _calculate_usual_features(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    logger.info("Calculating radiuses.")
+    logger.info("Calculating radiuses")
     blocks_gdf = blocks_gdf.copy()
     if log_config.disable_tqdm:
         blocks_gdf[OUTER_RADIUS_COLUMN] = blocks_gdf.geometry.apply(utils.calculate_outer_radius)
@@ -54,7 +54,7 @@ def _calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _calculate_aspect_ratios(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    logger.info("Calculating radiuses.")
+    logger.info("Calculating radiuses")
     blocks_gdf = blocks_gdf.copy()
     if log_config.disable_tqdm:
         blocks_gdf[ASPECT_RATIO_COLUMN] = blocks_gdf.geometry.apply(utils.calculate_aspect_ratio)
@@ -64,11 +64,11 @@ def _calculate_aspect_ratios(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _generate_combinations(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    logger.info("Generating combinations.")
+    logger.info("Generating combinations")
     try:
         import featuretools as ft
     except ImportError:
-        raise ImportError("Featuretools package is required but not installed.")
+        raise ImportError("Featuretools package is required but not installed")
 
     blocks_df = blocks_gdf.drop(columns=["geometry"]).copy()
     blocks_df["ft_index"] = blocks_df.index

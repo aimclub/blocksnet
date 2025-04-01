@@ -10,11 +10,3 @@ class BlocksSchema(DfSchema):
     fsi: Series[float] = Field(ge=0)
     gsi: Series[float] = Field(ge=0, le=1)
     mxi: Series[float] = Field(ge=0, le=1, default=0)
-
-    @dataframe_check
-    @classmethod
-    def _validate_fsi_and_gsi(cls, df: pd.DataFrame) -> bool:
-        fsi_ge_gsi = all(df.fsi >= df.gsi)
-        if not fsi_ge_gsi:
-            raise ValueError("FSI must be greater than or equal to GSI.")
-        return fsi_ge_gsi

@@ -13,7 +13,7 @@ def _validate_gdfs(func):
     ):
         gdfs = [gdf for gdf in [roads_gdf, railways_gdf, water_gdf] if gdf is not None]
         if len(gdfs) == 0:
-            raise ValueError("At least one GeoDataFrame must be passed.")
+            raise ValueError("At least one GeoDataFrame must be passed")
 
         all_crs = {gdf.crs for gdf in gdfs}
         if len(all_crs) > 1:

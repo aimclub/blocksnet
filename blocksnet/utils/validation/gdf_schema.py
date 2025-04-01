@@ -23,7 +23,7 @@ class GdfSchema(DfSchema):
     @classmethod
     def _check_instance(cls, df):
         if not isinstance(df, gpd.GeoDataFrame):
-            raise ValueError("An instance of GeoDataFrame must be provided.")
+            raise ValueError("An instance of GeoDataFrame must be provided")
 
     @pa.dataframe_parser
     @classmethod
@@ -32,7 +32,7 @@ class GdfSchema(DfSchema):
         if not current_crs.is_projected:
             recommended_crs = df.estimate_utm_crs()
             logger.warning(
-                f"Current CRS {current_crs.to_epsg()} is not projected. It might cause problems when carrying out spatial operations. Recommended: EPSG:{recommended_crs.to_epsg()}."
+                f"Current CRS {current_crs.to_epsg()} is not projected. It might cause problems when carrying out spatial operations. Recommended: EPSG:{recommended_crs.to_epsg()}"
             )
         return df
 

@@ -20,7 +20,7 @@ def _concat_dfs(dfs: list[pd.DataFrame] | dict[str, pd.DataFrame]):
 
     for df in dfs:
         if not all(df.index == dfs[0].index):
-            logger.warning("Index do not perfectly match. This might cause troubles and invalid results.")
+            logger.warning("Index do not perfectly match. This might cause troubles and invalid results")
 
     dfs = [BlocksServicesSchema(df) for df in dfs]
     df = pd.concat(dfs, axis=1)

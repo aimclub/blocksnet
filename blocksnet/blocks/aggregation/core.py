@@ -14,7 +14,7 @@ def _preprocess_input(blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFram
     objects_gdf["geometry"] = objects_gdf.representative_point()
     if OBJECTS_COUNT_COLUMN in objects_gdf.columns:
         logger.warning(
-            f"Column {OBJECTS_COUNT_COLUMN} found in objects_gdf. It will be taken into account and might affect the result."
+            f"Column {OBJECTS_COUNT_COLUMN} found in objects_gdf. It will be taken into account and might affect the result"
         )
     else:
         objects_gdf[OBJECTS_COUNT_COLUMN] = 1

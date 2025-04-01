@@ -33,7 +33,7 @@ def _fetch_occupied_areas(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     geometry = blocks_gdf.buffer(const.BLOCKS_BUFFER).to_crs(4326).union_all()
     occupied_gdfs = []
 
-    logger.info("Fetching OSM geometries.")
+    logger.info("Fetching OSM geometries")
     with ThreadPoolExecutor(max_workers=len(FETCH_FUNCS)) as executor:
         futures = {executor.submit(func, geometry): func for func in FETCH_FUNCS}
         occupied_gdfs = []
@@ -49,7 +49,7 @@ def _fetch_occupied_areas(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 def _generate_features(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     vacant_gdf = vacant_gdf.copy()
 
-    logger.info("Generating geometries features.")
+    logger.info("Generating geometries features")
     vacant_gdf[AREA_COLUMN] = vacant_gdf.area
     vacant_gdf[MRR_AREA_COLUMN] = vacant_gdf.geometry.apply(lambda g: g.minimum_rotated_rectangle.area)
     vacant_gdf[LENGTH_COLUMN] = vacant_gdf.geometry.apply(lambda g: g.length)
@@ -62,7 +62,7 @@ def _generate_features(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 def _filter_vacant_areas(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     vacant_gdf = vacant_gdf.copy()
 
-    logger.info("Filtering geometries.")
+    logger.info("Filtering geometries")
     vacant_gdf = vacant_gdf.loc[vacant_gdf[AREA_COLUMN] >= const.AREA_MIN]
     vacant_gdf = vacant_gdf.loc[vacant_gdf[AREA_TO_MRR_AREA_COLUMN] >= const.AREA_TO_MRR_AREA_MIN]
     vacant_gdf = vacant_gdf.loc[vacant_gdf[AREA_TO_LENGTH_COLUMN] >= const.AREA_TO_LENGTH_MIN]

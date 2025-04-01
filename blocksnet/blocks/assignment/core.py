@@ -41,7 +41,7 @@ def assign_land_use(
     )
     functional_zones_gdf = functional_zones_gdf[~functional_zones_gdf[LAND_USE_COLUMN].isna()]
 
-    logger.info("Overlaying geometries.")
+    logger.info("Overlaying geometries")
     intersections_gdf = sjoin_intersections(blocks_gdf, functional_zones_gdf)
 
     blocks_gdf[[lu.value for lu in LandUse]] = 0.0
@@ -52,5 +52,5 @@ def assign_land_use(
     blocks_gdf[SHARE_COLUMN] = np.nan
     blocks_gdf.loc[shares_df.index, [LAND_USE_COLUMN, SHARE_COLUMN]] = _choose_largest(shares_df)
 
-    logger.success("Shares calculated.")
+    logger.success("Shares calculated")
     return blocks_gdf

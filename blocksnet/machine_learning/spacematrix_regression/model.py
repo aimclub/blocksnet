@@ -32,7 +32,7 @@ def train_model(
     model=None,
 ) -> tuple[Model, list[float]]:
     if model is None:
-        logger.warning("No model is provided. Initializing.")
+        logger.warning("No model is provided. Initializing")
         input_size = x.shape[1]
         output_size = y.shape[1]
         model = Model(input_size, output_size)
@@ -70,7 +70,7 @@ def plot_losses(losses: list[float]):
     try:
         from matplotlib import pyplot as plt
     except ImportError:
-        raise ImportError("MatPlotLib package is required but not installed.")
+        raise ImportError("MatPlotLib package is required but not installed")
 
     plt.figure(figsize=(10, 5))
     plt.plot(losses[0:], label="Training Loss")

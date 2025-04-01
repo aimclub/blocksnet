@@ -7,12 +7,12 @@ from ...utils.validation import validate_graph
 
 
 def _generate_adjacency_nodes(blocks_gdf: gpd.GeoDataFrame) -> list[int]:
-    logger.info("Generating nodes.")
+    logger.info("Generating nodes")
     return blocks_gdf.index.to_list()
 
 
 def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) -> list[tuple[int, int]]:
-    logger.info("Generating edges.")
+    logger.info("Generating edges")
     blocks_gdf.geometry = blocks_gdf.buffer(buffer_size)
     sjoin_gdf = blocks_gdf.sjoin(blocks_gdf, predicate="intersects")
     sjoin_gdf = sjoin_gdf[sjoin_gdf.index != sjoin_gdf["index_right"]]

@@ -14,7 +14,7 @@ class DfSchema(pa.DataFrameModel):
     @classmethod
     def _check_instance(cls, df):
         if not isinstance(df, pd.DataFrame):
-            raise ValueError("An instance of DataFrame must be provided.")
+            raise ValueError("An instance of DataFrame must be provided")
 
     @classmethod
     def _check_len(cls, df):
@@ -24,9 +24,9 @@ class DfSchema(pa.DataFrameModel):
     @classmethod
     def _check_multi(cls, df):
         if df.index.nlevels > 1:
-            raise ValueError("Index must not be multi-leveled.")
+            raise ValueError("Index must not be multi-leveled")
         if df.columns.nlevels > 1:
-            raise ValueError("Columns must not be multi-leveled.")
+            raise ValueError("Columns must not be multi-leveled")
 
     @classmethod
     def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:

@@ -64,7 +64,7 @@ def initialize_edge_index(adjacency_graph: nx.Graph) -> torch.Tensor:
 def initialize_y(blocks_gdf: gpd.GeoDataFrame) -> torch.Tensor:
     columns = blocks_gdf.columns
     if not ("fsi" in columns and "gsi" in columns and "mxi" in columns):
-        raise ValueError("Columns must contain fsi, gsi and mxi.")
+        raise ValueError("Columns must contain fsi, gsi and mxi")
     df = BlocksIndicatorsSchema(blocks_gdf)
     return torch.tensor(df.values, dtype=torch.float)
 
