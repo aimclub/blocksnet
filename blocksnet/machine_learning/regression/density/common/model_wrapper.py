@@ -12,12 +12,12 @@ class ModelWrapper:
         self.model = model_class(n_features, n_targets, *args, **kwargs)
 
     def load_model(self, file_path: str):
-        state_dict = self.model.state_dict()
-        torch.save(state_dict, file_path)
-
-    def save_model(self, file_path: str):
         state_dict = torch.load(file_path, weights_only=True)
         self.model.load_state_dict(state_dict)
+
+    def save_model(self, file_path: str):
+        state_dict = self.model.state_dict()
+        torch.save(state_dict, file_path)
 
     def _train_model(self, data: Data, epochs: int, learning_rate: float, weight_decay: float):
         model = self.model
