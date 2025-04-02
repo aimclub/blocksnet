@@ -54,7 +54,7 @@ def _calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _calculate_aspect_ratios(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
-    logger.info("Calculating radiuses")
+    logger.info("Calculating aspect ratios")
     blocks_gdf = blocks_gdf.copy()
     if log_config.disable_tqdm:
         blocks_gdf[ASPECT_RATIO_COLUMN] = blocks_gdf.geometry.apply(utils.calculate_aspect_ratio)

@@ -22,17 +22,17 @@ class ModelWrapper:
     def _train_model(self, data: Data, epochs: int, learning_rate: float, weight_decay: float):
         model = self.model
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
-        pbar = tqdm(range(epochs), disable=log_config.disable_tqdm, desc="Current loss : ....")
+        pbar = tqdm(range(epochs), disable=log_config.disable_tqdm, desc="Current loss : ......")
         losses = []
         model.train()
         for _ in pbar:
             optimizer.zero_grad()
             out = model(data)
-            loss = F.mse_loss(out[data.train_mask], data.y[data.train_mask])
+            loss = F.huber_loss(out[data.train_mask], data.y[data.train_mask], reduction="mean", delta=0.05)
             loss.backward()
             optimizer.step()
             losses.append(loss.item())
-            pbar.set_description(f"Current loss : {loss.item():.3f}")
+            pbar.set_description(f"Current loss : {loss.item():.5f}")
         return losses
 
     def _evaluate_model(self, data: Data):
@@ -44,5 +44,5 @@ class ModelWrapper:
 
     def _test_model(self, data: Data):
         out = self._evaluate_model(data)
-        loss = F.mse_loss(out[data.test_mask], data.y[data.test_mask])
+        loss = F.huber_loss(out[data.test_mask], data.y[data.test_mask], reduction="mean", delta=0.05)
         return loss.item()
