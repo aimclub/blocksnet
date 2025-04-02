@@ -3,16 +3,18 @@ import torch.nn.functional as F
 from torch_geometric.nn import SAGEConv
 from tqdm import tqdm
 from loguru import logger
-from ...config import log_config
+from .....config import log_config
 
 
-class Model(torch.nn.Module):
+class SageModel(torch.nn.Module):
     def __init__(self, input_size: int, output_size: int, hidden_layer_size: int = 8):
-        super(Model, self).__init__()
+        super(SageModel, self).__init__()
         self.conv1 = SAGEConv(input_size, hidden_layer_size)
         self.conv2 = SAGEConv(hidden_layer_size, output_size)
 
-    def forward(self, x, edge_index):
+    def forward(self, data):
+        x = data.x
+        edge_index = data.edge_index
         x = F.relu(self.conv1(x, edge_index))
         x = self.conv2(x, edge_index)
         gsi = torch.sigmoid(x[:, 1])
@@ -30,12 +32,12 @@ def train_model(
     learning_rate: float = 3e-4,
     weight_decay: float = 5e-4,
     model=None,
-) -> tuple[Model, list[float]]:
+) -> tuple[SageModel, list[float]]:
     if model is None:
         logger.warning("No model is provided. Initializing")
         input_size = x.shape[1]
         output_size = y.shape[1]
-        model = Model(input_size, output_size)
+        model = SageModel(input_size, output_size)
 
     optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     losses = []
@@ -79,12 +81,3 @@ def plot_losses(losses: list[float]):
     plt.legend()
     plt.title("Training Loss over Epochs")
     plt.show()
-
-
-__all__ = [
-    "Model",
-    "train_model",
-    "test_model",
-    "eval_model",
-    "plot_losses",
-]

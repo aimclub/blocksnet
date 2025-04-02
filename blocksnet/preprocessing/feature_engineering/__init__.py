@@ -1,1 +1,1 @@
-from .core import generate_geometry_features
+from .core import generate_geometries_features

@@ -1,5 +1,6 @@
 import pandera as pa
 import pandas as pd
+from loguru import logger
 from pandera.typing import Index
 
 
@@ -29,6 +30,13 @@ class DfSchema(pa.DataFrameModel):
             raise ValueError("Columns must not be multi-leveled")
 
     @classmethod
+    def _reset_index_name(cls, df):
+        index_name = df.index.name
+        if index_name is not None:
+            df.index.name = None
+            # logger.warning(f'{cls.__name__} Got name in index : {index_name}. Resetting index name')
+
+    @classmethod
     def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
         return df
 
@@ -43,6 +51,7 @@ class DfSchema(pa.DataFrameModel):
         cls._check_instance(df)
         cls._check_len(df)
         cls._check_multi(df)
+        cls._reset_index_name(df)
 
         df = cls._before_validate(df)
         df = super().validate(df, **kwargs)

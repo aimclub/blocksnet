@@ -80,7 +80,7 @@ def _generate_combinations(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     return df
 
 
-def generate_geometry_features(
+def generate_geometries_features(
     blocks_gdf: gpd.GeoDataFrame,
     radiuses: bool = False,
     aspect_ratios: bool = False,
