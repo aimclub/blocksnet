@@ -68,6 +68,9 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
     def train(self, data, epochs: int = 1_000, learning_rate: float = 3e-4, weight_decay: float = 5e-4):
         return self._train_model(data, epochs=epochs, learning_rate=learning_rate, weight_decay=weight_decay)
 
+    def test(self, data):
+        return self._test_model(data)
+
     def evaluate(self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph) -> gpd.GeoDataFrame:
         validate_graph(adjacency_graph, blocks_gdf)
 

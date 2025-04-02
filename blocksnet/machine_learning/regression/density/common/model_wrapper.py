@@ -41,3 +41,8 @@ class ModelWrapper:
         with torch.no_grad():
             out = model(data)
         return out
+
+    def _test_model(self, data: Data):
+        out = self._evaluate_model(data)
+        loss = F.mse_loss(out[data.test_mask], data.y[data.test_mask])
+        return loss.item()
