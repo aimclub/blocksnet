@@ -1,0 +1,4 @@
+
+
+class CapacityChecker:
+    pass
