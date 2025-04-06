@@ -10,13 +10,27 @@ from .schemas import BlocksSchema, BlocksGeometriesSchema, BlocksLandUseSchema, 
 from ....preprocessing.feature_engineering import generate_geometries_features
 from ....utils.validation import validate_graph
 
+from pathlib import Path
+
+CURRENT_DIRECTORY = Path(__file__).parent
+MODELS_DIRECTORY = CURRENT_DIRECTORY / "models"
+MODEL_PATH = str(MODELS_DIRECTORY / "model.pt")
+SCALER_PATH = str(MODELS_DIRECTORY / "scaler.pkl")
+
 
 class DensityRegressor(ModelWrapper, ScalerWrapper):
-    def __init__(self, model_class: type[torch.nn.Module] = SageModel, *args, **kwargs):
+    def __init__(
+        self,
+        model_class: type[torch.nn.Module] = SageModel,
+        model_path: str = MODEL_PATH,
+        scaler_path: str = SCALER_PATH,
+        *args,
+        **kwargs,
+    ):
         n_features = len(BlocksLandUseSchema._columns()) + len(BlocksGeometriesSchema._columns())
         n_targets = len(BlocksDensitiesSchema._columns())
-        ModelWrapper.__init__(self, n_features, n_targets, model_class, *args, **kwargs)
-        ScalerWrapper.__init__(self)
+        ModelWrapper.__init__(self, n_features, n_targets, model_class, model_path, *args, **kwargs)
+        ScalerWrapper.__init__(self, scaler_path)
 
     def _features_from_land_use(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
         df = BlocksLandUseSchema(blocks_gdf)
