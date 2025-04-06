@@ -13,6 +13,6 @@ def land_use_shares(blocks_df: pd.DataFrame, area: float | None = None) -> dict[
     for lu in shares:
         df = blocks_df[blocks_df.land_use == lu]
         share = df.site_area.sum() / area
-        shares[lu] = share
+        shares[lu] = float(share)
 
     return shares
