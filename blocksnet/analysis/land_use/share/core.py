@@ -3,7 +3,7 @@ from .schemas import BlocksSchema
 from ....enums.land_use import LandUse
 
 
-def land_use_shares(blocks_df: pd.DataFrame, area: float | None = None) -> dict[LandUse, float]:
+def calculate_land_use_shares(blocks_df: pd.DataFrame, area: float | None = None) -> dict[LandUse, float]:
     blocks_df = BlocksSchema(blocks_df)
 
     if area is None:
