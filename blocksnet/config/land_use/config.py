@@ -12,12 +12,16 @@ class LandUseConfig:
         possibility_matrix: pd.DataFrame = POSSIBILITY_MATRIX,
         area_ranges: pd.DataFrame = AREA_RANGES,
         ratio_ranges: pd.DataFrame = RATIO_RANGES,
+        fsi_ranges: pd.DataFrame = FSI_RANGES,
+        gsi_ranges: pd.DataFrame = GSI_RANGES,
     ):
         self.adjacency_rules = adjacency_rules
         self.probability_matrix = probability_matrix
         self.possibility_matrix = possibility_matrix
         self.area_ranges = area_ranges
         self.ratio_ranges = ratio_ranges
+        self.fsi_ranges = FSI_RANGES
+        self.gsi_ranges = GSI_RANGES
 
     def set_adjacency_rule(self, lu_a: LandUse, lu_b: LandUse, allow: bool):
         allowed = self.adjacency_rules.has_edge(lu_a, lu_b)
