@@ -50,16 +50,19 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         return torch.tensor(df.values, dtype=torch.float)
 
     def get_train_data(
-        self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph, train_size: float = 0.8, fit_scaler: bool = True
-    ) -> Data:
+        self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph, train_size: float = 0.8, fit_scaler: bool = True,
+    train_indices=None, test_indices=None) -> Data:
         validate_graph(adjacency_graph, blocks_gdf)
         x = self._initialize_x(blocks_gdf, fit_scaler)
         edge_index = self._initialize_edge_index(adjacency_graph)
         y = self._initialize_y(blocks_gdf)
 
-        train_indices, test_indices = train_test_split(range(len(blocks_gdf)), train_size=train_size)
         train_mask = torch.zeros(len(y), dtype=torch.bool)
         test_mask = torch.zeros(len(y), dtype=torch.bool)
+
+        if train_indices is None and test_indices is None:
+            train_indices, test_indices = train_test_split(range(len(blocks_gdf)), train_size=train_size)
+
         train_mask[train_indices] = True
         test_mask[test_indices] = True
 
