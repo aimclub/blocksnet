@@ -6,10 +6,11 @@ import torch.nn.functional as F
 
 
 class ModelWrapper:
-    def __init__(self, n_features, n_targets, model_class: type[torch.nn.Module], *args, **kwargs):
+    def __init__(self, n_features, n_targets, model_class: type[torch.nn.Module], path: str, *args, **kwargs):
         self.n_features = n_features
         self.n_targets = n_targets
         self.model = model_class(n_features, n_targets, *args, **kwargs)
+        self.load_model(path)
 
     def load_model(self, file_path: str):
         state_dict = torch.load(file_path, weights_only=True)
