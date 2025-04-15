@@ -33,6 +33,7 @@ dependencies = [
     "iduedu==0.4.1",
     "torch",
     'torch_geometric',
+    "optuna",
 ]
 
 classifiers = [
@@ -62,6 +63,7 @@ dev = [
     "pytest-cov==4.1.0",
     "build",
     "twine",
+    "optuna",
 ]
 docs = [
     "docutils>=0.18.1,<0.19",

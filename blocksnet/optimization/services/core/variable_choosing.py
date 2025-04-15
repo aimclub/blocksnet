@@ -4,7 +4,7 @@ from typing import Callable, Dict
 import numpy as np
 from numpy.typing import ArrayLike
 
-from blocksnet.optimization.services.acl import BlocksNetFacade
+from blocksnet.optimization.services.acl import Facade
 
 
 class VariableChooser(ABC):
@@ -17,17 +17,17 @@ class VariableChooser(ABC):
 
     Attributes
     ----------
-    _facade : BlocksNetFacade
+    _facade : Facade
         The facade instance providing access to city data and optimization methods.
     """
 
-    def __init__(self, facade: BlocksNetFacade):
+    def __init__(self, facade: Facade):
         """
         Initialize the VariableChooser with a facade instance.
 
         Parameters
         ----------
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to city data and optimization methods.
         """
         self._facade = facade
@@ -85,13 +85,13 @@ class WeightChooser(VariableChooser):
         Dictionary mapping service types to their selection weights.
     """
 
-    def __init__(self, facade: BlocksNetFacade, weights: Dict[str, float], num_top: int = 5):
+    def __init__(self, facade: Facade, weights: Dict[str, float], num_top: int = 5):
         """
         Initialize the WeightChooser with service weights and selection parameters.
 
         Parameters
         ----------
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to city data.
         weights : Dict[str, float]
             Dictionary mapping service types to their selection weights.
@@ -151,13 +151,13 @@ class GradientChooser(VariableChooser):
         Total number of variables in the optimization problem.
     """
 
-    def __init__(self, facade: BlocksNetFacade, num_params: int, num_top: int = 5):
+    def __init__(self, facade: Facade, num_params: int, num_top: int = 5):
         """
         Initialize the GradientChooser with selection parameters.
 
         Parameters
         ----------
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to city data.
         num_params : int
             Total number of variables in the optimization problem.

@@ -4,7 +4,7 @@ from typing import Dict, Optional
 import numpy as np
 from numpy.typing import ArrayLike
 
-from blocksnet.optimization.services.acl import BlocksNetFacade
+from blocksnet.optimization.services.acl import Facade
 
 
 class Penalty(ABC):
@@ -54,16 +54,16 @@ class DistancePenalty(Penalty):
     Implementation of a distance-based penalty function used in optimization problems.
     """
 
-    def __init__(self, facade: BlocksNetFacade):
+    def __init__(self, facade: Facade):
         """
         Initialize the distance penalty function with the given facade for data access.
 
         Parameters
         ----------
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to data related to the optimization problem.
         """
-        self._facade: BlocksNetFacade = facade
+        self._facade: Facade = facade
         self._lambda = 0.1
 
     def _calc(self, x: ArrayLike) -> float:
@@ -91,7 +91,7 @@ class Objective(ABC):
     """
 
     def __init__(
-        self, num_params: int, facade: BlocksNetFacade, max_evals: Optional[int], penalty_func: Optional[Penalty]
+        self, num_params: int, facade: Facade, max_evals: Optional[int], penalty_func: Optional[Penalty]
     ):
         """
         Initialize the objective function.
@@ -100,7 +100,7 @@ class Objective(ABC):
         ----------
         num_params : int
             Number of parameters in the optimization problem.
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to data related to the optimization problem.
         max_evals : Optional[int]
             Maximum number of function evaluations allowed.
@@ -110,7 +110,7 @@ class Objective(ABC):
         self._num_params: int = num_params
         self._current_func_evals: int = 0
         self._max_func_evals: Optional[int] = max_evals
-        self._facade: BlocksNetFacade = facade
+        self._facade: Facade = facade
         self._penalty: Penalty = DistancePenalty(facade) if penalty_func is None else penalty_func
         self._x_init = np.zeros(num_params)
 
@@ -208,7 +208,7 @@ class ThresholdObjective(Objective):
     """
 
     def __init__(
-        self, num_params: int, facade: BlocksNetFacade, max_evals: int, penalty_func: Optional[Penalty] = None
+        self, num_params: int, facade: Facade, max_evals: int, penalty_func: Optional[Penalty] = None
     ):
         """
         Initialize the threshold objective function.
@@ -217,7 +217,7 @@ class ThresholdObjective(Objective):
         ----------
         num_params : int
             Number of parameters.
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to data.
         max_evals : int
             Maximum number of function evaluations.
@@ -256,7 +256,7 @@ class WeightedObjective(Objective):
     def __init__(
         self,
         num_params: int,
-        facade: BlocksNetFacade,
+        facade: Facade,
         max_evals: int,
         weights: Dict[str, float],
         penalty_func: Penalty = None,
@@ -268,7 +268,7 @@ class WeightedObjective(Objective):
         ----------
         num_params : int
             Number of parameters in the problem.
-        facade : BlocksNetFacade
+        facade : Facade
             The facade providing access to data.
         max_evals : int
             Maximum number of function evaluations.

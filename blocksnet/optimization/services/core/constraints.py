@@ -4,7 +4,7 @@ from typing import Callable, Dict, Optional
 import numpy as np
 from numpy.typing import ArrayLike
 
-from blocksnet.optimization.services.acl import BlocksNetFacade
+from blocksnet.optimization.services.acl import Facade
 
 
 class Constraints(ABC):
@@ -108,13 +108,13 @@ class CapacityConstraints(Constraints):
     variable values do not exceed their predefined upper bounds.
     """
 
-    def __init__(self, facade: BlocksNetFacade, num_params: int):
+    def __init__(self, facade: Facade, num_params: int):
         """
         Initialize capacity constraints with upper bounds for each variable.
 
         Parameters
         ----------
-        facade : BlocksnetFacade
+        facade : Facade
             Interface providing constraint data.
         num_params : int
             Number of variables in the optimization problem.
@@ -215,14 +215,6 @@ class CapacityConstraints(Constraints):
             [self._facade.get_upper_bound_var(var_num) for var_num in range(self._num_params)]
         )
 
-    def decrease_ubs(self):
-        """
-        Decrease the upper bounds of variables by the defined coefficient,
-        with a minimum bound to prevent values from becoming too small.
-        """
-        for i in range(self._num_params):
-            self._upper_bounds[i] = max(self._upper_bounds[i] / self._decrease_ub_coef, min(10, self._upper_bounds[i]))
-
 
 class WeightedConstraints(Constraints):
     """
@@ -230,14 +222,14 @@ class WeightedConstraints(Constraints):
     """
 
     def __init__(
-        self, facade: BlocksNetFacade, num_params: int, priority: Optional[Dict] = None, decrease_ub_coef: int = 2
+        self, facade: Facade, num_params: int, priority: Optional[Dict] = None, decrease_ub_coef: int = 2
     ):
         """
         Initializes WeightedConstraints with variable groups, group limits, and variable weights.
 
         Parameters
         ----------
-        facade : BlocksnetFacade
+        facade : Facade
             Interface providing constraint data.
         num_params : int
             Number of variables.

@@ -131,7 +131,7 @@ class VariableAdapter(ABC):
             raise ValueError("Solution contains NaN values.")
 
         for var, val in zip(self._X, solution):
-            var.count = val
+            var.count = int(val)    
 
     def __call__(self, solution: ArrayLike) -> List[Variable]:
         """

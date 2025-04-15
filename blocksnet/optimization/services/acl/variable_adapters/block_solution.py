@@ -8,23 +8,32 @@ from .variable_adapter import VariableAdapter
 class BlockSolution(VariableAdapter):
     """
     Class for adapting a solution vector specifically for block-level data in the city.
+
+    This adapter handles the conversion between optimization variables and block-level
+    service allocation solutions, taking into account land use constraints.
     """
 
-    def __init__(self, blocks_lu: Dict[int, LandUse], service_types: Set[str]):
+    def __init__(self, blocks_lu: Dict[int, LandUse]):
         """
         Initializes the BlockSolution adapter with the city and the land use data for blocks.
 
         Parameters
         ----------
-        city : City
-            The city model instance that provides the blocks and service types.
         blocks_lu : Dict[int, LandUse]
             A dictionary mapping block IDs to their corresponding land use types.
-        service_types : Optional[Set[ServiceType]], optional
-            The set of service types for the blocks, by default None.
         """
         super().__init__()
+        self._blocks_lu: Dict[int, LandUse] = blocks_lu
 
-        # Get user-defined block land uses
-        for block_id, land_use in blocks_lu.items():
-            self._fill_X_with_block_variables(block_id, land_use, service_types)
+    def add_service_type_vars(self, service_type: str):
+        """
+        Add variables for a specific service type to all applicable blocks based on their land use.
+
+        Parameters
+        ----------
+        service_type : str
+            The service type identifier for which variables should be created.
+            This service type must be compatible with the land use types of the blocks.
+        """
+        for block_id, land_use in self._blocks_lu.items():
+            self._fill_X_with_block_variables(block_id, land_use, {service_type})

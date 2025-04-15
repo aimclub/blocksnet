@@ -17,7 +17,7 @@ class CapacityChecker:
     """
 
     def __init__(
-        self, block_ids: List[int], accessibility_matrix: pd.DataFrame, provision_dfs: Dict[str, pd.DataFrame]
+        self, block_ids: List[int], accessibility_matrix: pd.DataFrame
     ):
         """
         Initialize the CapacityChecker with block demand data.
@@ -28,27 +28,49 @@ class CapacityChecker:
             List of block IDs to be included in the checker.
         accessibility_matrix : pd.DataFrame
             DataFrame representing accessibility between blocks, used to determine service coverage.
-        provision_dfs : Dict[str, pd.DataFrame]
-            Dictionary mapping service types to their provision DataFrames containing demand information.
         """
         self._demands: Dict[int, Dict[str, float]] = {block_id: {} for block_id in block_ids}
-        self._left_demands: Dict[int, Dict[str, float]] = {block_id: {} for block_id in block_ids}
-        
-        # Calculate initial demand for each block and service type
-        for block_id in block_ids:
-            for st, prov_df in provision_dfs.items():
-                # Calculate total demand with 20% buffer
-                block_demand = self.get_demand(block_id, st, accessibility_matrix, prov_df) * 1.2
-                
-                self._demands[block_id][st] = block_demand
-                self._left_demands[block_id][st] = block_demand
+        self._accessibility_matrix = accessibility_matrix
 
-    def get_demand(self, block_id: int, service: str, accessibility_matrix: pd.DataFrame, provision_df: pd.DataFrame) -> float:
-                # Get accessibility threshold for this service type
+    def add_service_type(self, st: str, provision_df: pd.DataFrame):
+        """
+        Add a service type and its provision data to the capacity checker.
+
+        Parameters
+        ----------
+        st : str
+            Service type identifier to be added.
+        provision_df : pd.DataFrame
+            DataFrame containing provision data for the service type, including demand information.
+        """
+        for block_id in self._demands.keys():
+            # Calculate total demand with 20% buffer
+            block_demand = self.get_demand(block_id, st, provision_df) * 1.2
+            self._demands[block_id][st] = block_demand
+
+    def get_demand(self, block_id: int, service: str, provision_df: pd.DataFrame) -> float:
+        """
+        Calculate the total demand for a service in a given block's accessible area.
+
+        Parameters
+        ----------
+        block_id : int
+            ID of the block to calculate demand for.
+        service : str
+            Service type identifier.
+        provision_df : pd.DataFrame
+            DataFrame containing provision data for the service.
+
+        Returns
+        -------
+        float
+            Total calculated demand for the service in the accessible area around the block.
+        """
+        # Get accessibility threshold for this service type
         _, _, accessibility = service_types_config[service].values()
                 
         # Find blocks within accessibility range
-        nearest_blocks = accessibility_matrix.index[accessibility_matrix[block_id] <= accessibility]
+        nearest_blocks = self._accessibility_matrix.index[self._accessibility_matrix[block_id] <= accessibility]
         
         # Calculate total demand with 20% buffer
         return provision_df[provision_df.index.isin(nearest_blocks)][DEMAND_LEFT_COLUMN].sum()
