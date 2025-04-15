@@ -1,5 +1,6 @@
 import torch
 from torch_geometric.data import Data
+import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
 import pandas as pd
 import geopandas as gpd
@@ -7,8 +8,8 @@ import networkx as nx
 from loguru import logger
 from .common import SageModel, ModelWrapper, ScalerWrapper
 from .schemas import BlocksSchema, BlocksGeometriesSchema, BlocksLandUseSchema, BlocksDensitiesSchema
-from ....preprocessing.feature_engineering import generate_geometries_features
-from ....utils.validation import validate_graph
+from blocksnet.preprocessing.feature_engineering import generate_geometries_features
+from blocksnet.utils.validation import validate_graph
 
 from pathlib import Path
 
@@ -55,6 +56,7 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         return torch.tensor(df.values, dtype=torch.float)
 
     def _initialize_edge_index(self, adjacency_graph: nx.Graph) -> torch.Tensor:
+        adjacency_graph = nx.convert_node_labels_to_integers(adjacency_graph)
         edges_list = list(adjacency_graph.edges)
         edges_tensor = torch.tensor(edges_list, dtype=torch.long)
         return edges_tensor.t().contiguous()
@@ -64,26 +66,48 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         return torch.tensor(df.values, dtype=torch.float)
 
     def get_train_data(
-        self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph, train_size: float = 0.8, fit_scaler: bool = True
+        self,
+        blocks_gdf: gpd.GeoDataFrame,
+        adjacency_graph: nx.Graph,
+        fit_scaler: bool = True,
+        test: float | list[int] = 0.2,
     ) -> Data:
         validate_graph(adjacency_graph, blocks_gdf)
         x = self._initialize_x(blocks_gdf, fit_scaler)
         edge_index = self._initialize_edge_index(adjacency_graph)
         y = self._initialize_y(blocks_gdf)
 
-        train_indices, test_indices = train_test_split(range(len(blocks_gdf)), train_size=train_size)
         train_mask = torch.zeros(len(y), dtype=torch.bool)
         test_mask = torch.zeros(len(y), dtype=torch.bool)
+
+        if isinstance(test, float):
+            train_indices, test_indices = train_test_split(range(len(blocks_gdf)), test_size=test)
+        else:
+            train_index = blocks_gdf[~blocks_gdf.index.isin(test)].index
+            test_index = blocks_gdf[blocks_gdf.index.isin(test)].index
+            train_indices = blocks_gdf.index.get_indexer(train_index)
+            test_indices = blocks_gdf.index.get_indexer(test_index)
+
         train_mask[train_indices] = True
         test_mask[test_indices] = True
 
         return Data(x=x, edge_index=edge_index, y=y, train_mask=train_mask, test_mask=test_mask)
 
-    def train(self, data, epochs: int = 1_000, learning_rate: float = 3e-4, weight_decay: float = 5e-4):
-        return self._train_model(data, epochs=epochs, learning_rate=learning_rate, weight_decay=weight_decay)
+    def train(
+        self,
+        data,
+        epochs: int = 1_000,
+        learning_rate: float = 3e-4,
+        weight_decay: float = 5e-4,
+        loss_fn=F.huber_loss,
+        **kwargs,
+    ):
+        return self._train_model(
+            data, epochs=epochs, learning_rate=learning_rate, weight_decay=weight_decay, loss_fn=loss_fn, **kwargs
+        )
 
-    def test(self, data):
-        return self._test_model(data)
+    def test(self, data, loss_fn=F.huber_loss, **kwargs):
+        return self._test_model(data, loss_fn=loss_fn, **kwargs)
 
     def evaluate(self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph) -> gpd.GeoDataFrame:
         validate_graph(adjacency_graph, blocks_gdf)
