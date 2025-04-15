@@ -1,1 +1,1 @@
-from .core import land_use_shares
+from .core import calculate_land_use_shares
