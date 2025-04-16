@@ -20,11 +20,11 @@ class UnitsSchema(DfSchema):
     site_area: Series[float] = Field(ge=0)
     build_floor_area: Series[float] = Field(ge=0)
 
-    @classmethod
-    def _before_validate(cls, df: pd.DataFrame):
-        if "parking_area" in df:
-            df["site_area"] += df["parking_area"]
-        return df
+    # @classmethod
+    # def _before_validate(cls, df: pd.DataFrame):
+    #     if "parking_area" in df:
+    #         df["site_area"] += df["parking_area"]
+    #     return df
 
 
 class LandUseSchema(DfSchema):

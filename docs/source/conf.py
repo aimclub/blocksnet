@@ -101,6 +101,7 @@ autodoc_default_options = {
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
+    "private_methods": False,
     "exclude-members": "model_config, model_fields, model_post_init, maketrans",
 }
 autoclass_content = "class"
