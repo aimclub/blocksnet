@@ -98,7 +98,7 @@ autodoc_default_options = {
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
-    # "imported-members": False,
+    "imported-members": True,
     "private_methods": False,
     "exclude-members": "model_config, model_fields, model_post_init, maketrans",
 }
@@ -106,3 +106,30 @@ autoclass_content = "class"
 autodoc_typehints = "signature"
 autodoc_typehints_format = "short"
 autodoc_mock_imports = ["objgraph", "pandera", "pydantic", "memory_profiler", "gprof2dot", "snakeviz"]
+
+
+def skip_foreign_objects(app, what, name, obj, skip, options):
+
+    if not hasattr(obj, "__module__"):
+        return skip
+
+    module_name = obj.__module__
+
+    # skip non blocksnet things
+    if not module_name.startswith("blocksnet."):
+        return True
+
+    try:
+        current_module = app.env.temp_data["autodoc:module"]
+        is_same_or_child = module_name.startswith(current_module)
+        if not is_same_or_child:
+            return True
+
+    except (KeyError, AttributeError):
+        pass
+
+    return skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_foreign_objects)
