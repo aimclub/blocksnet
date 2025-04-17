@@ -25,7 +25,7 @@ copyright = "2023-{}, IDU".format(datetime.datetime.now().year)
 author = "IDU"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+release = "1.0.dev0"
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -78,10 +78,7 @@ html_theme = "sphinx_rtd_theme"
 
 # -- Extension configuration -------------------------------------------------
 
-# autodoc_inherit_docstrings = False
-# napoleon_google_docstring = True
-# napoleon_include_init_with_doc = True
-napoleon_google_docstring = True
+napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = True
@@ -93,7 +90,7 @@ napoleon_use_ivar = True
 napoleon_use_keyword = True
 napoleon_use_param = True
 napoleon_use_rtype = True
-napoleon_attr_annotations = False
+napoleon_attr_annotations = True
 
 autodoc_default_options = {
     "members": True,
@@ -101,10 +98,11 @@ autodoc_default_options = {
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
+    # "imported-members": False,
     "private_methods": False,
     "exclude-members": "model_config, model_fields, model_post_init, maketrans",
 }
 autoclass_content = "class"
 autodoc_typehints = "signature"
 autodoc_typehints_format = "short"
-autodoc_mock_imports = ["objgraph", "memory_profiler", "gprof2dot", "snakeviz"]
+autodoc_mock_imports = ["objgraph", "pandera", "pydantic", "memory_profiler", "gprof2dot", "snakeviz"]
