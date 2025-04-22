@@ -84,10 +84,10 @@
     "accessibility": 30,
     "land_use": ["residential", "business", "recreation"],
     "units": [
-      { "capacity": 50, "site_area": 2000, "build_floor_area": 1200.0, "parking_area": 125.0 },
-      { "capacity": 150, "site_area": 3500, "build_floor_area": 2000.0, "parking_area": 220.0 },
-      { "capacity": 300, "site_area": 6000, "build_floor_area": 3500.0, "parking_area": 500.0 },
-      { "capacity": 700, "site_area": 10000, "build_floor_area": 5500.0, "parking_area": 500.0 }
+      { "capacity": 150, "site_area": 2000, "build_floor_area": 1200.0, "parking_area": 125.0 },
+      { "capacity": 250, "site_area": 3500, "build_floor_area": 2000.0, "parking_area": 220.0 },
+      { "capacity": 500, "site_area": 6000, "build_floor_area": 3500.0, "parking_area": 500.0 },
+      { "capacity": 1000, "site_area": 10000, "build_floor_area": 5500.0, "parking_area": 500.0 }
     ]
   },
   {
@@ -140,10 +140,10 @@
     "accessibility": 60,
     "land_use": ["residential", "business", "recreation"],
     "units": [
-      { "capacity": 350, "site_area": 1000.0, "build_floor_area": 700.0, "parking_area": 0 },
-      { "capacity": 680, "site_area": 2000.0, "build_floor_area": 1400.0, "parking_area": 0 },
-      { "capacity": 350, "site_area": 0, "build_floor_area": 700.0, "parking_area": 1300.0 },
-      { "capacity": 760, "site_area": 0, "build_floor_area": 1700.0, "parking_area": 2000.0 }
+      { "capacity": 450, "site_area": 1000.0, "build_floor_area": 700.0, "parking_area": 0 },
+      { "capacity": 780, "site_area": 2000.0, "build_floor_area": 1400.0, "parking_area": 0 },
+      { "capacity": 450, "site_area": 0, "build_floor_area": 700.0, "parking_area": 1300.0 },
+      { "capacity": 860, "site_area": 0, "build_floor_area": 1700.0, "parking_area": 2000.0 }
     ]
   },
   {
@@ -179,7 +179,7 @@
     "code": "4.4",
     "name": "supermarket",
     "name_ru": "универсам/супермаркет/гипермаркет",
-    "demand": 800,
+    "demand": 600,
     "accessibility": 15,
     "land_use": ["residential", "business", "industrial"],
     "units": [
@@ -224,7 +224,7 @@
     "code": "4.3",
     "name": "market",
     "name_ru": "рынок",
-    "demand": 800,
+    "demand": 150,
     "accessibility": 30,
     "land_use": ["residential", "business", "industrial", "agriculture"],
     "units": [
@@ -375,13 +375,13 @@
     "code": "3.2.2",
     "name": "multifunctional_center",
     "name_ru": "мфц",
-    "demand": 300,
+    "demand": 80,
     "accessibility": 20,
     "land_use": ["residential", "business", "recreation"],
     "units": [
-      { "capacity": 80, "site_area": 0, "build_floor_area": 700.0, "parking_area": 400.0 },
-      { "capacity": 100, "site_area": 0, "build_floor_area": 1000.0, "parking_area": 600.0 },
-      { "capacity": 200, "site_area": 0, "build_floor_area": 1200.0, "parking_area": 700.0 }
+      { "capacity": 150, "site_area": 0, "build_floor_area": 700.0, "parking_area": 400.0 },
+      { "capacity": 300, "site_area": 0, "build_floor_area": 1000.0, "parking_area": 600.0 },
+      { "capacity": 500, "site_area": 0, "build_floor_area": 1200.0, "parking_area": 700.0 }
     ]
   },
   {
