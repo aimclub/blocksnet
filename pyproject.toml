@@ -4,35 +4,32 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "blocksnet"
-version = "0.1.0"
+version = "1.0.dev0"
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
-description = "Package provides methods of master plan requirements automated generation for urban areas"
+description = "Package provides methods to autimatically generate master plan requirements for urban areas"
 readme = "README.rst"
 requires-python = ">=3.10"
 license = { file = "LICENCE.md" }
 
 dependencies = [
-    "geopandas>=0.13.0,<1.0.0",
+    "numpy>=2.0.0,<3.0.0",
+    "pandas>=2.2.2,<3.0.0",
+    "geopandas>=1.0.0,<2.0.0",
+    "shapely>=2.0.6,<3.0.0",
     "loguru>=0.7.0,<1.0.0",
-    "matplotlib==3.7.1",
-    "networkit>=11.0,<12.0",
-    "networkx>=3.1,<4.0",
-    "numpy==1.23.5",
-    "osmnx>=1.6.0,<2.0.0",
-    "pandas>=2.0.0,<3.0.0",
-    "pandera==0.20.2",
-    "PuLP==2.7.0",
-    "pyarrow==12.0.0",
+    "tqdm>=4.66.0,<5.0.0",
+    "pyarrow>=19.0.0,<20.0.0",
     "pydantic>=2.0.0,<3.0.0",
-    "scikit-learn==1.2.2",
+    "pandera==0.20.2",
+    "scikit-learn>=1.4.2,<2.0.0",
     "scipy>=1.10.1,<2.0.0",
-    "shapely==2.0.1",
-    "tqdm>=4.65.0,<5.0.0",
-    "voronoi-diagram-for-polygons==0.1.6",
-    "momepy==0.7.0",
-    "iduedu==0.1.2",
+    "PuLP==2.7.0",
+    "pymoo>=0.6.0,<1.0.0",
+    "networkx>=3.1,<4.0",
+    "osmnx>=2.0.0,<3.0.0",
+    "iduedu==0.4.1",
 ]
 
 classifiers = [
@@ -47,22 +44,17 @@ include = ["blocksnet*"]
 
 
 [project.optional-dependencies]
-dev = [
-    "black[jupyter]>=22",
+ml = ["torch", "torch_geometric"]
+opt = ["optuna", "hebo"]
+full = ["blocksnet[ml, opt]"]
+
+ipynb = [
     "mapclassify==2.6.1",       #jupyter maps
-    "folium==0.14.0",           #jupyter maps
     "matplotlib-inline==0.1.6", #jupyter plots
-    "ipykernel",
-    "jupyter",
-    "ipywidgets",
-    "isort>=5.6",
-    "pylint>=2.17",
-    "pre-commit>=3.1",
-    "pytest==7.4.3",
-    "pytest-cov==4.1.0",
-    "build",
-    "twine"
+    "folium==0.14.0",           #jupyter maps
+    "matplotlib>=3.9.0,<4.0.0",
 ]
+tests = ["pytest==7.4.3", "pytest-cov==4.1.0"]
 docs = [
     "docutils>=0.18.1,<0.19",
     "sphinx==6.2.1",
@@ -74,6 +66,18 @@ docs = [
     "myst_parser>=3.0.0,<4.0.0",
     "sphinx_rtd_theme>=1.2.0,<2.0.0",
     "pandoc>=2.0.0,<3.0.0",
+]
+dev = [
+    "blocksnet[full,ipynb,tests,docs]",
+    "black[jupyter]>=22",
+    "ipykernel",
+    "jupyter",
+    "ipywidgets",
+    "isort>=5.6",
+    "pylint>=2.17",
+    "pre-commit>=3.1",
+    "build",
+    "twine",
 ]
 
 
