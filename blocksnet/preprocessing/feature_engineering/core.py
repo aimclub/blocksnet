@@ -1,7 +1,8 @@
 import geopandas as gpd
-import shapely
+import pandas as pd
+from sklearn.preprocessing import PolynomialFeatures
 from loguru import logger
-from ...config import log_config
+from blocksnet.config import log_config
 from .schemas import BlocksSchema
 from . import utils
 
@@ -77,7 +78,15 @@ def _generate_combinations(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     df, _ = ft.dfs(
         entityset=es, target_dataframe_name="", max_depth=1, trans_primitives=["multiply_numeric", "divide_numeric"]
     )
-    return df
+    return df.drop(columns=[col for col in blocks_df.columns if col != "ft_index"])
+
+
+def _generate_polynomial(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    blocks_df = blocks_gdf.drop(columns=["geometry"])
+    poly = PolynomialFeatures(degree=2, include_bias=False, interaction_only=False)
+    features = poly.fit_transform(blocks_df)
+    features_names = poly.get_feature_names_out(blocks_df.columns)
+    return pd.DataFrame(features, index=blocks_df.index, columns=features_names).drop(columns=blocks_df.columns)
 
 
 def generate_geometries_features(
@@ -101,6 +110,7 @@ def generate_geometries_features(
 
     if combinations:
         combinations_df = _generate_combinations(blocks_gdf)
-        blocks_gdf = blocks_gdf[["geometry"]].join(combinations_df)
+        polynomial_df = _generate_polynomial(blocks_gdf)
+        blocks_gdf = blocks_gdf.join(combinations_df).join(polynomial_df)
 
     return blocks_gdf
