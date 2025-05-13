@@ -1,2 +1,2 @@
 from .density import DensityRegressor
-from .ser import IndicatorRegressor
+from .social import IndicatorRegressor
