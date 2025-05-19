@@ -11,12 +11,16 @@ def _generate_adjacency_nodes(blocks_gdf: gpd.GeoDataFrame) -> list[int]:
     return blocks_gdf.index.to_list()
 
 
-def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) -> list[tuple[int, int]]:
+def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) -> set[tuple[int, int]]:
     logger.info("Generating edges")
     blocks_gdf.geometry = blocks_gdf.buffer(buffer_size)
     sjoin_gdf = blocks_gdf.sjoin(blocks_gdf, predicate="intersects")
-    sjoin_gdf = sjoin_gdf[sjoin_gdf.index != sjoin_gdf["index_right"]]
-    return [(u, v) for u, v in sjoin_gdf["index_right"].to_dict().items()]
+    sjoin_gdf = sjoin_gdf[sjoin_gdf.index != sjoin_gdf["index_right"]].reset_index()
+    pairs = set()
+    for _, row in sjoin_gdf.iterrows():
+        a, b = row["index"], row["index_right"]
+        pairs.add(tuple(sorted((int(a), b))))
+    return pairs
 
 
 def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0) -> nx.Graph:

@@ -16,10 +16,6 @@ class BlocksSchema(GdfSchema):
 class BlocksGeometriesSchema(DfSchema):
     area: Series[float] = Field(ge=0)
     length: Series[float] = Field(ge=0)
-    # outer_radius : Series[float] = Field(ge=0)
-    # inner_radius : Series[float] = Field(ge=0)
-    # centerline_length : Series[float] = Field(ge=0)
-    # aspect_ratio : Series[float] = Field(ge=0)
 
 
 class BlocksLandUseSchema(DfSchema):
@@ -42,6 +38,6 @@ class BlocksLandUseSchema(DfSchema):
 
 class BlocksDensitiesSchema(DfSchema):
 
-    fsi: Series[float] = Field(ge=0, default=0)
-    gsi: Series[float] = Field(ge=0, le=1, default=0)
+    fsi: Series[float] = Field(gt=0, default=0)
+    gsi: Series[float] = Field(gt=0, le=1, default=0)
     mxi: Series[float] = Field(ge=0, le=1, default=0)
