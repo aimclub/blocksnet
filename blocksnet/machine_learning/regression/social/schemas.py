@@ -3,20 +3,16 @@ import pandas as pd
 from pandera import Field
 from pandera.typing import Series
 from loguru import logger
-from ....enums import LandUse
-from ....utils.validation import DfSchema, GdfSchema, LandUseSchema
-
-
-class BlocksSchema(GdfSchema):
-    @classmethod
-    def _geometry_types(cls):
-        return {shapely.Polygon}
+from ....utils.validation import DfSchema
 
 class TechnicalIndicatorsSchema(DfSchema):
-    residential: Series[float] = Field(ge=0, le=1)
-    business: Series[float] = Field(ge=0, le=1)
-    recreation: Series[float] = Field(ge=0, le=1)
-    industrial: Series[float] = Field(ge=0, le=1)
-    transport: Series[float] = Field(ge=0, le=1)
-    special: Series[float] = Field(ge=0, le=1)
-    agriculture: Series[float] = Field(ge=0, le=1)
+    footprint_area: Series[float] = Field(ge=0)
+    build_floor_area: Series[float] = Field(ge=0)
+    living_area: Series[float] = Field(ge=0)
+    non_living_area: Series[float] = Field(ge=0)
+    population: Series[float] = Field(ge=0)
+    site_area: Series[float] = Field(ge=0)
+    residential: Series[float] = Field(ge=0)
+    recreation: Series[float] = Field(ge=0)
+    industrial: Series[float] = Field(ge=0)
+    special: Series[float] = Field(ge=0)
