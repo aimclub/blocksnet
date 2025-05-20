@@ -22,7 +22,7 @@ class ModelWrapper:
         self.base_params = kwargs
         base_model = GradientBoostingRegressor(random_state=42, **kwargs)
         self.model = MultiOutputRegressor(base_model)
-        
+
         if model_path:
             self.load_model(model_path)
 
@@ -162,9 +162,9 @@ class ModelWrapper:
         )
 
         # Ensure arrays are 1D for single-output case
-        mean = np.atleast_1d(mean[0])
-        pi_lower = np.atleast_1d(pi_lower[0])
-        pi_upper = np.atleast_1d(pi_upper[0])
+        mean = np.squeeze(mean)
+        pi_lower = np.squeeze(pi_lower)
+        pi_upper = np.squeeze(pi_upper)
 
         return pd.DataFrame(
             {
