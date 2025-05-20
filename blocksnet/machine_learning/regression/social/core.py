@@ -141,7 +141,8 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         y_train: pd.DataFrame,
         bootstrap_loop_count: int = 200,
         alpha: float = 0.05,
-        random_state: int = 42
+        random_state: int = 42,
+        inverse_transform: bool = False
     ) -> pd.DataFrame:
         """
         Predict with confidence and prediction intervals for a single observation.
@@ -158,7 +159,7 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
             DataFrame with predictions, confidence intervals, and prediction intervals.
         """
         return self._predict_with_intervals(
-            x_single, x_train, y_train, bootstrap_loop_count, alpha, random_state
+            x_single, x_train, y_train, bootstrap_loop_count, alpha, random_state, inverse_transform
         )
 
     def plot_prediction_intervals(

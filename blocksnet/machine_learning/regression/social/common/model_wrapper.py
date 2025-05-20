@@ -133,7 +133,8 @@ class ModelWrapper:
         y_train: pd.DataFrame,
         bootstrap_loop_count: int = 200,
         alpha: float = 0.05,
-        random_state: int = 42
+        random_state: int = 42,
+        inverse_transform: bool = False
     ) -> pd.DataFrame:
         """
         Predict with bootstrap confidence and prediction intervals for a single observation.
@@ -160,11 +161,21 @@ class ModelWrapper:
             alpha=alpha,
             random_state=random_state
         )
+        
+        if inverse_transform:
+            mean = self.inverse_transform_Y(mean)
+            ci_lower = self.inverse_transform_Y(np.expand_dims(ci_lower, 0))
+            ci_upper = self.inverse_transform_Y(np.expand_dims(ci_upper, 0))
+            ci_lower = np.squeeze(ci_lower)
+            ci_upper = np.squeeze(ci_upper)
+            pi_lower = self.inverse_transform_Y(pi_lower)
+            pi_upper = self.inverse_transform_Y(pi_upper)
 
         # Ensure arrays are 1D for single-output case
         mean = np.squeeze(mean)
         pi_lower = np.squeeze(pi_lower)
         pi_upper = np.squeeze(pi_upper)
+
 
         return pd.DataFrame(
             {
