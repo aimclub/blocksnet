@@ -6,12 +6,12 @@ import numpy as np
 
 from loguru import logger
 from .common import ModelWrapper, ScalerWrapper
-from .schemas import TechnicalIndicatorsSchema, SotialIndicatorsSchema
+from .schemas import TechnicalIndicatorsSchema
 import numpy as np
 import matplotlib.pyplot as plt
 
 
-class IndicatorRegressor(ModelWrapper, ScalerWrapper):
+class SocialRegressor(ModelWrapper, ScalerWrapper):
     def __init__(self, *args, **kwargs):
         ModelWrapper.__init__(self, *args, **kwargs)
         ScalerWrapper.__init__(self)
@@ -39,7 +39,7 @@ class IndicatorRegressor(ModelWrapper, ScalerWrapper):
         if fit_scaler:
             logger.info("Fitting the scaler")
             self.scaler_X.fit(X)
-        X = self.scaler_X.fit_transform(X)
+        X = self.scaler_X.transform(X)
 
         X = pd.DataFrame(X, columns=X_columns, index=X_index)
 
@@ -67,9 +67,8 @@ class IndicatorRegressor(ModelWrapper, ScalerWrapper):
         if fit_scaler:
             logger.info("Fitting the scaler")
             self.scaler_Y.fit(Y)
-        Y = self.scaler_Y.fit_transform(Y) 
+        Y = self.scaler_Y.transform(Y) 
         Y = pd.DataFrame(Y, columns=Y_columns, index=Y_index)
-
 
         return Y
 

@@ -1,1 +1,1 @@
-from .core import IndicatorRegressor
+from .core import SocialRegressor
