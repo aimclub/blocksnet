@@ -42,6 +42,8 @@ classifiers = [
 [tool.setuptools.packages.find]
 include = ["blocksnet*"]
 
+[tool.setuptools.package-data]
+blocksnet = ["*.json", "*.pt", "*.pkl", "*.cbm"]
 
 [project.optional-dependencies]
 fe = ['pygeoops', 'featuretools']
