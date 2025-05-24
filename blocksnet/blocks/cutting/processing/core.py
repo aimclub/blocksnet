@@ -6,6 +6,7 @@ import shapely
 from loguru import logger
 from shapely.ops import polygonize
 from .schemas import BoundariesSchema, LineObjectsSchema, PolygonObjectsSchema
+from blocksnet.utils.validation import ensure_crs
 
 
 def _validate_and_process_gdfs(func):
@@ -23,18 +24,17 @@ def _validate_and_process_gdfs(func):
 
         logger.info("Checking line objects schema")
         if lines_gdf is None:
-            lines_gdf = LineObjectsSchema.create_empty().to_crs(crs)
+            lines_gdf = LineObjectsSchema.create_empty(crs)
         else:
-            lines_gdf = LineObjectsSchema(lines_gdf.explode("geometry", ignore_index=True))
+            lines_gdf = LineObjectsSchema(lines_gdf).explode("geometry", ignore_index=True)
 
         logger.info("Checking polygon objects schema")
         if polygons_gdf is None:
-            polygons_gdf = PolygonObjectsSchema.create_empty().to_crs(crs)
+            polygons_gdf = PolygonObjectsSchema.create_empty(crs)
         else:
-            polygons_gdf = PolygonObjectsSchema(polygons_gdf.explode("geometry", ignore_index=True))
+            polygons_gdf = PolygonObjectsSchema(polygons_gdf).explode("geometry", ignore_index=True)
 
-        for gdf in [lines_gdf, polygons_gdf]:
-            assert gdf.crs == crs, "CRS must match for all geodataframes"
+        ensure_crs(boundaries_gdf, lines_gdf, polygons_gdf)
 
         return func(boundaries_gdf, lines_gdf, polygons_gdf, *args, **kwargs)
 
@@ -112,7 +112,6 @@ def cut_urban_blocks(
     blocks_gdf = _get_enclosures(boundaries_gdf, lines_gdf)
     if fill_holes:
         blocks_gdf = _fill_holes(blocks_gdf)
-
     blocks_gdf = _filter_overlapping(blocks_gdf)
     if min_block_width is not None:
         blocks_gdf = _filter_bottlenecks(blocks_gdf, min_block_width)
