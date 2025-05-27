@@ -5,17 +5,20 @@ from pandera.typing import Series
 from loguru import logger
 from ....utils.validation import DfSchema
 
+
 class TechnicalIndicatorsSchema(DfSchema):
     longitude: Series[float]
     latitude: Series[float]
     population: Series[float] = Field(ge=0)
-    area: Series[float] = Field(ge=0)
+    site_area: Series[float] = Field(ge=0)
+    # buidlings parameters
     is_living: Series[bool]
     footprint_area: Series[float] = Field(ge=0)
     build_floor_area: Series[float] = Field(ge=0)
     living_area: Series[float] = Field(ge=0)
     non_living_area: Series[float] = Field(ge=0)
     buildings_count: Series[float] = Field(ge=0)
+    # land use areas
     agriculture: Series[float] = Field(ge=0)
     industrial: Series[float] = Field(ge=0)
     recreation: Series[float] = Field(ge=0)
@@ -24,7 +27,8 @@ class TechnicalIndicatorsSchema(DfSchema):
     business: Series[float] = Field(ge=0)
     transport: Series[float] = Field(ge=0)
 
-class SocialIndicatorsScheme(DfSchema):
+
+class SocialIndicatorsSchema(DfSchema):
     nursing_home_count: Series[float] = Field(ge=0)
     hotel_count: Series[float] = Field(ge=0)
     theatre_count: Series[float] = Field(ge=0)

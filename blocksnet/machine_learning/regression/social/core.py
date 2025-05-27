@@ -1,194 +1,96 @@
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from loguru import logger
 from sklearn.model_selection import train_test_split
-from .common import ModelWrapper, ScalerWrapper
-from .schemas import TechnicalIndicatorsSchema, SocialIndicatorsScheme
+from .common import ModelWrapper
+from .schemas import TechnicalIndicatorsSchema, SocialIndicatorsSchema
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 
-class SocialRegressor(ModelWrapper, ScalerWrapper):
+from pathlib import Path
 
-    def __init__(self, model_path=None, *args, **kwargs):
+CURRENT_DIRECTORY = Path(__file__).parent
+MODELS_DIRECTORY = CURRENT_DIRECTORY / "models"
+MODEL_PATH = str(MODELS_DIRECTORY / "model.pickle")
+
+
+class SocialRegressor(ModelWrapper):
+    def __init__(self, model_path: str = MODEL_PATH, *args, **kwargs):
         ModelWrapper.__init__(self, model_path, *args, **kwargs)
-        ScalerWrapper.__init__(self)
 
-    def _initialize_features(self, data: pd.DataFrame, scaler, scale_data: bool) -> pd.DataFrame:
-        """
-        Initialize and preprocess feature data by handling infinities, NaNs, and scaling.
+    def _initialize_x(self, data: pd.DataFrame) -> pd.DataFrame:
+        return TechnicalIndicatorsSchema(data)
 
-        Args:
-            data: Input DataFrame containing features or targets.
-            scaler: Scaler instance for transforming data.
-            scale_data: Whether to fit the scaler to the data.
+    def _initialize_y(self, data: pd.DataFrame) -> pd.DataFrame:
+        return SocialIndicatorsSchema(data)
 
-        Returns:
-            Processed DataFrame with scaled features.
-        """
-
-        data = data.dropna(axis=1, how='all')
-
-        columns = data.columns
-        index = data.index
-
-        # Scale the data if required
-        if scale_data:
-            logger.info("Fitting scaler to data")
-            scaler.fit(data)
-            data = scaler.transform(data)
-
-        scaled_data = pd.DataFrame(data, columns=columns, index=index)
-        return scaled_data.fillna(0)
-    
     def get_train_data(
-        self,
-        data: pd.DataFrame,
-        train_size: float = 0.8,
-        scale_data: bool = True
+        self, data: pd.DataFrame, train_size: float = 0.8, drop_na: bool = True
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
-        """
-        Prepare training and testing data by preprocessing and splitting.
 
-        Args:
-            data: DataFrame with technical indicators and social indicators.
-            train_size: Proportion of data to use for training (default: 0.8).
-            scale_data: Whether to fit the scalers to the data.
+        if drop_na:
+            data = data.dropna(axis=1, how="all")
+        x = self._initialize_x(data)
+        y = self._initialize_y(data)
 
-        Returns:
-            Tuple of (x_train, x_test, y_train, y_test) DataFrames.
-        """
-        technical_indicators = TechnicalIndicatorsSchema(data)
-        social_indicators = SocialIndicatorsScheme(data)
-        
-        x = self._initialize_features(technical_indicators, self.scaler_x, scale_data)
-        y = self._initialize_features(social_indicators, self.scaler_y, scale_data)
-
-        x_train, x_test, y_train, y_test = train_test_split(
-            x, y, train_size=train_size, random_state=42
-        )
+        x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=train_size, random_state=42)
 
         return x_train, x_test, y_train, y_test
 
     def train(self, x_train: pd.DataFrame, y_train: pd.DataFrame, confidence_level: float = 95.0):
-        """
-        Train the model with quantile regression for median, lower, and upper quantiles.
-
-        Args:
-            x_train: Training features.
-            y_train: Training targets.
-            confidence_level: Desired confidence level for prediction intervals as a percentage (default: 95.0 for 95%).
-
-        """
         self._train_model(x_train, y_train, confidence_level)
 
+    def evaluate(self, data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
-    def evaluate(self, x: pd.DataFrame, inverse_transform: bool = False) -> pd.DataFrame:
-        """
-        Predict median values (quantile 0.5) for the input data.
-
-        Args:
-            x: Input features.
-            inverse_transform: Whether to apply inverse scaling to predictions.
-
-        Returns:
-            DataFrame with median predictions.
-        """
-        predictions = self._predict_median(x)
-
-        if inverse_transform:
-            predictions = self.inverse_transform_y(predictions)
-
-        return pd.DataFrame(predictions, columns=SocialIndicatorsScheme._columns(), index=x.index)
-
-    def evaluate_with_intervals(
-        self, x: pd.DataFrame,
-        inverse_transform: bool = False,
-        scale_data: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
-        """
-        Predict with median and prediction intervals using pre-trained quantile models.
-
-        Args:
-            x: Input features.
-            inverse_transform: Whether to apply inverse scaling to predictions.
-
-        Returns:
-            Tuple of two DataFrames:
-            1. DataFrame with columns '{target_name}' for median predictions
-            2. DataFrame with columns '{target_name}' for prediction intervals as tuples (lower, upper)
-        """
-        prediction, pi_lower, pi_upper = self._predict_with_intervals(x)
-        
-        if inverse_transform:
-            prediction = self.inverse_transform_y(prediction)
-            pi_lower = self.inverse_transform_y(pi_lower)
-            pi_upper = self.inverse_transform_y(pi_upper)
+        x = self._initialize_x(data)
+        y_pred, pi_lower, pi_upper = self._evaluate_model(x)
 
         # Create separate DataFrames for predictions and intervals
-        pred_df = {}
-        pi_df = {}
-        
-        for idx, target_name in enumerate(SocialIndicatorsScheme._columns()):
-            pred_df[target_name] = prediction[:, idx]
-            pi_df[target_name] = [(np.round(lo, 3).item(), np.round(hi, 3).item()) for lo, hi in zip(pi_lower[:, idx], pi_upper[:, idx])]
-        
-        # Create DataFrames
-        pred_df = pd.DataFrame(pred_df, index=x.index)
-        pi_df = pd.DataFrame(pi_df, index=x.index)
+        columns = SocialIndicatorsSchema._columns()
+        pred_df = pd.DataFrame(y_pred, index=x.index, columns=columns)
+        pi_lower_df = pd.DataFrame(pi_lower, index=x.index, columns=columns)
+        pi_upper_df = pd.DataFrame(pi_upper, index=x.index, columns=columns)
 
-        return pred_df.round(3), pi_df.round(3)
+        return pred_df, pi_lower_df, pi_upper_df
 
     def calculate_interval_stats(
-        self, pred_df: pd.DataFrame, pi_df: pd.DataFrame, y_true: pd.DataFrame = None
+        self, y_pred: pd.DataFrame, pi_lower_df: pd.DataFrame, pi_upper_df: pd.DataFrame, y_test: pd.DataFrame = None
     ) -> pd.DataFrame:
-        """
-        Calculate statistics and metrics for prediction intervals.
 
-        Args:
-            pred_df: DataFrame with columns '{target_name}' for median predictions.
-            pi_df: DataFrame with columns '{target_name}' for prediction intervals as tuples (lower, upper).
-            y_true: Optional true values to calculate coverage percentage and regression metrics.
-
-        Returns:
-            DataFrame with index 'y' containing coverage percentage, mean interval width,
-            MSE, RMSE, MAE, and R² for each target.
-        """
         stats_df = {}
-        
-        for target_name in SocialIndicatorsScheme._columns():
+
+        for target_name in SocialIndicatorsSchema._columns():
             # Extract lower and upper bounds from interval tuples
-            intervals = pi_df[target_name].apply(lambda x: np.array(x))
-            pi_lower = np.array([interval[0] for interval in intervals])
-            pi_upper = np.array([interval[1] for interval in intervals])
+            pi_lower = pi_lower_df[target_name].values
+            pi_upper = pi_upper_df[target_name].values
             interval_widths = pi_upper - pi_lower
             mean_width = np.mean(interval_widths)
-            
+
             # Initialize metrics
             coverage = np.nan
             mse = np.nan
             rmse = np.nan
             mae = np.nan
             r2 = np.nan
-            
+
             # Calculate metrics if true values are provided
-            if y_true is not None and target_name in y_true.columns:
-                y_values = y_true[target_name].values
-                pred_values = pred_df[target_name].values
-                
+            if y_test is not None and target_name in y_test.columns:
+                y_values = y_test[target_name].values
+                pred_values = y_pred[target_name].values
+
                 # Coverage: percentage of true values within intervals
                 coverage = np.mean((y_values >= pi_lower) & (y_values <= pi_upper)) * 100
-                
+
                 # Regression metrics
                 mse = mean_squared_error(y_values, pred_values)
                 rmse = np.sqrt(mse)
                 mae = mean_absolute_error(y_values, pred_values)
                 r2 = r2_score(y_values, pred_values)
-                
+
             stats_df[target_name] = [coverage, mean_width, mse, rmse, mae, r2]
-        
+
         # Create stats DataFrame
         stats_df = pd.DataFrame(
-            stats_df,
-            index=['coverage_percentage', 'mean_interval_width', 'mse', 'rmse', 'mae', 'r2']
-        ).rename_axis('y')
-        
-        return stats_df.T.round(3)
+            stats_df, index=["coverage_percentage", "mean_interval_width", "mse", "rmse", "mae", "r2"]
+        ).rename_axis("y")
+
+        return stats_df.T
