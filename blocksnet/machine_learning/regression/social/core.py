@@ -63,8 +63,6 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         x = self._initialize_features(technical_indicators, self.scaler_x, scale_data)
         y = self._initialize_features(social_indicators, self.scaler_y, scale_data)
 
-        self.y_columns_names = y.columns.values
-        # Split data into training and testing sets
         x_train, x_test, y_train, y_test = train_test_split(
             x, y, train_size=train_size, random_state=42
         )
@@ -83,19 +81,8 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         """
         self._train_model(x_train, y_train, confidence_level)
 
-    def evaluate(self, x_test: pd.DataFrame) -> tuple[np.ndarray]:
-        """
-        Evaluate the model on test data using median predictions.
 
-        Args:
-            x_test: Test features.
-
-        Returns:
-            Tuple of median predictions and mean squared error.
-        """
-        return self._evaluate_model(x_test)
-
-    def predict(self, x: pd.DataFrame, inverse_transform: bool = False) -> pd.DataFrame:
+    def evaluate(self, x: pd.DataFrame, inverse_transform: bool = False) -> pd.DataFrame:
         """
         Predict median values (quantile 0.5) for the input data.
 
@@ -106,18 +93,17 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         Returns:
             DataFrame with median predictions.
         """
-        if isinstance(x, pd.Series):
-            x = x.to_frame().T
-        x = self._initialize_features(x, self.scaler_x, scale_data=False)
         predictions = self._predict_median(x)
+
         if inverse_transform:
             predictions = self.inverse_transform_y(predictions)
-        return pd.DataFrame(predictions, columns=self.model_median.estimators_[0].feature_names_out_, index=x.index)
 
+        return pd.DataFrame(predictions, columns=SocialIndicatorsScheme._columns(), index=x.index)
 
-    def predict_with_intervals(
-        self, x: pd.DataFrame, inverse_transform: bool = False
-    ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    def evaluate_with_intervals(
+        self, x: pd.DataFrame,
+        inverse_transform: bool = False,
+        scale_data: bool = False) -> tuple[pd.DataFrame, pd.DataFrame]:
         """
         Predict with median and prediction intervals using pre-trained quantile models.
 
@@ -128,11 +114,8 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         Returns:
             Tuple of two DataFrames:
             1. DataFrame with columns '{target_name}' for median predictions
-            2. DataFrame with columns '{target_name}' for prediction intervals in format '[lower, upper]'
+            2. DataFrame with columns '{target_name}' for prediction intervals as tuples (lower, upper)
         """
-        if isinstance(x, pd.Series):
-            x = x.to_frame().T
-        x = self._initialize_features(x, self.scaler_x, scale_data=False)
         prediction, pi_lower, pi_upper = self._predict_with_intervals(x)
         
         if inverse_transform:
@@ -144,17 +127,15 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         pred_df = {}
         pi_df = {}
         
-        for idx, target_name in enumerate(self.y_columns_names):
+        for idx, target_name in enumerate(SocialIndicatorsScheme._columns()):
             pred_df[target_name] = prediction[:, idx]
-            pi_df[target_name] = [
-                f"[{lo:.4f}, {hi:.4f}]" for lo, hi in zip(pi_lower[:, idx], pi_upper[:, idx])
-            ]
+            pi_df[target_name] = [(np.round(lo, 3).item(), np.round(hi, 3).item()) for lo, hi in zip(pi_lower[:, idx], pi_upper[:, idx])]
         
         # Create DataFrames
         pred_df = pd.DataFrame(pred_df, index=x.index)
         pi_df = pd.DataFrame(pi_df, index=x.index)
 
-        return pred_df.round(3), pi_df
+        return pred_df.round(3), pi_df.round(3)
 
     def calculate_interval_stats(
         self, pred_df: pd.DataFrame, pi_df: pd.DataFrame, y_true: pd.DataFrame = None
@@ -164,7 +145,7 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
 
         Args:
             pred_df: DataFrame with columns '{target_name}' for median predictions.
-            pi_df: DataFrame with columns '{target_name}' for prediction intervals in format '[lower, upper]'.
+            pi_df: DataFrame with columns '{target_name}' for prediction intervals as tuples (lower, upper).
             y_true: Optional true values to calculate coverage percentage and regression metrics.
 
         Returns:
@@ -173,11 +154,11 @@ class SocialRegressor(ModelWrapper, ScalerWrapper):
         """
         stats_df = {}
         
-        for target_name in self.y_columns_names:
-            # Extract lower and upper bounds from interval strings
-            intervals = pi_df[target_name].str.extract(r'\[([-\d.]+),\s*([-\d.]+)\]').astype(float)
-            pi_lower = intervals[0].values
-            pi_upper = intervals[1].values
+        for target_name in SocialIndicatorsScheme._columns():
+            # Extract lower and upper bounds from interval tuples
+            intervals = pi_df[target_name].apply(lambda x: np.array(x))
+            pi_lower = np.array([interval[0] for interval in intervals])
+            pi_upper = np.array([interval[1] for interval in intervals])
             interval_widths = pi_upper - pi_lower
             mean_width = np.mean(interval_widths)
             

@@ -3,7 +3,6 @@ import pandas as pd
 import joblib
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
-from sklearn.metrics import mean_squared_error
 
 class ModelWrapper:
     """Base class for managing a multi-output regression model with quantile regression."""
@@ -19,14 +18,19 @@ class ModelWrapper:
         """
        
         self.base_params = kwargs
-        print(self.base_params)
-        self.model_median = MultiOutputRegressor(
-            GradientBoostingRegressor(random_state=42, **kwargs)
-        )
+
         self.model_lower = None  # To be initialized during training
         self.model_upper = None  # To be initialized during training
         if model_path:
             self.load_model(model_path)
+            print('Loaded model with following parameters')
+            print(self.model_median.estimators_[0].get_params())
+        else:
+            print('Model initialized with following parameters')
+            print(self.base_params)
+            self.model_median = MultiOutputRegressor(
+                GradientBoostingRegressor(random_state=42, **kwargs)
+            )
 
     def save_model(self, filepath: str) -> None:
         """
@@ -95,21 +99,6 @@ class ModelWrapper:
             )
         )
         self.model_upper.fit(x_train, y_train)
-
-    def _evaluate_model(self, x_test: pd.DataFrame) -> tuple[np.ndarray, np.ndarray]:
-        """
-        Evaluate the model on test data using median predictions.
-
-        Args:
-            x_test: Test features.
-            y_test: Test targets.
-
-        Returns:
-            Tuple of median predictions and mean squared error.
-        """
-        y_pred = self.model_median.predict(x_test)
-
-        return y_pred
 
     def _predict_median(self, x: pd.DataFrame) -> np.ndarray:
         """
