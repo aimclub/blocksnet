@@ -1,12 +1,14 @@
-import pandas as pd
-import numpy as np
-from loguru import logger
-from sklearn.model_selection import train_test_split
-from .common import ModelWrapper
-from .schemas import TechnicalIndicatorsSchema, SocialIndicatorsSchema
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-
 from pathlib import Path
+
+import numpy as np
+import pandas as pd
+from loguru import logger
+from sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score
+from sklearn.model_selection import train_test_split
+
+from .common import ModelWrapper
+from .schemas import SocialIndicatorsSchema, TechnicalIndicatorsSchema
+
 
 CURRENT_DIRECTORY = Path(__file__).parent
 MODELS_DIRECTORY = CURRENT_DIRECTORY / "models"

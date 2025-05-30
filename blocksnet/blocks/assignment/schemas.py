@@ -1,5 +1,6 @@
 import shapely
 from pandera.typing import Series
+
 from ...utils.validation import GdfSchema
 
 

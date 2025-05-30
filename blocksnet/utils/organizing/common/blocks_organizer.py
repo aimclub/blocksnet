@@ -1,7 +1,9 @@
 from functools import singledispatchmethod
+
 import geopandas as gpd
 import pandas as pd
 from loguru import logger
+
 from ...validation import ensure_crs
 
 

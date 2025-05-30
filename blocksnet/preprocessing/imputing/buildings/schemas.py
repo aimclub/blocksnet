@@ -2,6 +2,7 @@ import shapely
 from loguru import logger
 from pandera import Field
 from pandera.typing import Series
+
 from ....utils.validation import GdfSchema
 
 

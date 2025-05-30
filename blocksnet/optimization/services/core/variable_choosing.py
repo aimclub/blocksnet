@@ -121,19 +121,20 @@ class WeightChooser(VariableChooser):
         # Group services by block and sort by weight
         block_services = {
             self._facade.get_var_block_id(var_num): sorted(
-                self._facade.get_block_services(self._facade.get_var_block_id(var_num)),
-                key=lambda x: -self._weights[x]
+                self._facade.get_block_services(self._facade.get_var_block_id(var_num)), key=lambda x: -self._weights[x]
             )
             for var_num in permut
         }
 
         # Select top N services per block
-        return np.array([
-            var_num
-            for var_num in permut
-            if self._facade.get_service_name(var_num)
-               in block_services[self._facade.get_var_block_id(var_num)][:self._num_top]
-        ])
+        return np.array(
+            [
+                var_num
+                for var_num in permut
+                if self._facade.get_service_name(var_num)
+                in block_services[self._facade.get_var_block_id(var_num)][: self._num_top]
+            ]
+        )
 
 
 class GradientChooser(VariableChooser):
@@ -187,10 +188,7 @@ class GradientChooser(VariableChooser):
         """
         # Get trial data and filter variables with remaining capacity
         first_trial, last_trial = trials_data_callback()
-        new_permut = np.array([
-            var_num for var_num in permut 
-            if self._facade.get_upper_bound_var(var_num) > 0
-        ])
+        new_permut = np.array([var_num for var_num in permut if self._facade.get_upper_bound_var(var_num) > 0])
         weights = [self._facade.get_var_weight(var_num) for var_num in range(self._num_params)]
 
         # Initialize data structures for tracking service improvements
@@ -203,22 +201,22 @@ class GradientChooser(VariableChooser):
             var_block = self._facade.get_var_block_id(var_num)
             var_service = self._facade.get_service_name(var_num)
             diff = last_trial[1][var_num] - first_trial[1][var_num]
-            
+
             if var_service not in service_increment[var_block]:
                 service_increment[var_block][var_service] = 0.0
                 block_services[var_block].append(var_service)
-            
+
             service_increment[var_block][var_service] += diff * weights[var_num]
 
         # Define sorting key based on provision improvement per resource invested
         def gradient_sortkey(x):
             if service_increment[block_id][x] == 0:
                 return 0
-            
+
             provision_diff = last_trial[0]
             if first_trial[0] is not None:
                 provision_diff -= first_trial[0]
-            
+
             return -provision_diff / service_increment[block_id][x]
 
         # Sort services by their efficiency (provision improvement per resource)
@@ -226,9 +224,11 @@ class GradientChooser(VariableChooser):
             block_services[block_id].sort(key=gradient_sortkey)
 
         # Select top N most efficient services per block
-        return np.array([
-            var_num
-            for var_num in new_permut
-            if self._facade.get_service_name(var_num)
-               in block_services[self._facade.get_var_block_id(var_num)][:self._num_top]
-        ])
+        return np.array(
+            [
+                var_num
+                for var_num in new_permut
+                if self._facade.get_service_name(var_num)
+                in block_services[self._facade.get_var_block_id(var_num)][: self._num_top]
+            ]
+        )

@@ -199,7 +199,9 @@ class WeightedConstraints(Constraints):
         """
         self._vars_group = np.array([facade.get_group_num(var_num) for var_num in range(num_params)])
         self._groups_nums = set(self._vars_group)
-        self._groups_limit: Dict[int, float] = {group_num: facade.get_limit(group_num) for group_num in self._groups_nums}
+        self._groups_limit: Dict[int, float] = {
+            group_num: facade.get_limit(group_num) for group_num in self._groups_nums
+        }
         self._weights = np.array([facade.get_var_weight(var_num) for var_num in range(num_params)])
         if any(weight <= 0 for weight in self._weights):
             raise ValueError("All weights must be positive numbers.")
@@ -287,6 +289,8 @@ class WeightedConstraints(Constraints):
         bool
             True if constraints are satisfied, otherwise False.
         """
-        group_sums = {group: np.sum(x[self._vars_group == group] * self._weights[self._vars_group == group]) for group in self._groups_nums}
+        group_sums = {
+            group: np.sum(x[self._vars_group == group] * self._weights[self._vars_group == group])
+            for group in self._groups_nums
+        }
         return all(group_sums[group] <= self._groups_limit[group] for group in self._groups_nums)
-

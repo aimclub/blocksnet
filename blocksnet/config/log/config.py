@@ -1,7 +1,9 @@
 import sys
-from tqdm import tqdm
-from loguru import logger
+
 from iduedu import config as iduedu_config
+from loguru import logger
+from tqdm import tqdm
+
 
 LOGGER_LEVELS = {"TRACE", "DEBUG", "INFO", "SUCCESS", "WARNING", "ERROR", "CRITICAL"}
 

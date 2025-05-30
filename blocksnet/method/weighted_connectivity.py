@@ -1,7 +1,9 @@
 import geopandas as gpd
-from .base_method import BaseMethod
 import numpy as np
 import pandas as pd
+
+from .base_method import BaseMethod
+
 
 CONNECTIVITY_COLUMN = "weighted_connectivity"
 

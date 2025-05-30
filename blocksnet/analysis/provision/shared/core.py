@@ -1,11 +1,14 @@
 from functools import wraps
+
+import numpy as np
 import pandas as pd
 from loguru import logger
 from tqdm import tqdm
-import numpy as np
-from .schemas import BlocksSchema
-from ....utils import validation
+
 from ....config import log_config
+from ....utils import validation
+from .schemas import BlocksSchema
+
 
 CAPACITY_WITHIN_COLUMN = "capacity_within"
 POPULATION_WITHIN_COLUMN = "population_within"

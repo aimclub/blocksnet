@@ -1,11 +1,14 @@
 from functools import wraps
+
 import pandas as pd
 from loguru import logger
+from pulp import PULP_CBC_CMD, LpInteger, LpMaximize, LpProblem, LpVariable, lpSum
 from tqdm import tqdm
-from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
-from .schemas import BlocksSchema
-from ....utils import validation
+
 from ....config import log_config
+from ....utils import validation
+from .schemas import BlocksSchema
+
 
 POPULATION_COLUMN = "population"
 

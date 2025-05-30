@@ -1,4 +1,5 @@
 import random
+
 import numpy as np
 from pymoo.core.sampling import Sampling as PymooSampling
 

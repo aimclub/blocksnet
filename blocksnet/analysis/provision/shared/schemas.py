@@ -1,5 +1,6 @@
-from pandera.typing import Series
 from pandera import Field
+from pandera.typing import Series
+
 from ....utils.validation import DfSchema
 
 

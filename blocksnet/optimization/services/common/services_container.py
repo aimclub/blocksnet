@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field, InstanceOf
 import pandas as pd
+from pydantic import BaseModel, Field, InstanceOf
 
 
 class ServicesContainer(BaseModel):

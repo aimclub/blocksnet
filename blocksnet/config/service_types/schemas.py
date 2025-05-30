@@ -1,8 +1,10 @@
 import pandas as pd
 from pandera import Field
-from pandera.typing import Series, Index
-from ...utils.validation import DfSchema
+from pandera.typing import Index, Series
+
 from ...enums import LandUse
+from ...utils.validation import DfSchema
+
 
 SERVICE_TYPE_NAME_REGEX = r"^[a-z]+([_-][a-z]+)*$"
 

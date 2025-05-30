@@ -1,7 +1,9 @@
 import torch
 from torch_geometric.data import Data
 from tqdm import tqdm
+
 from .....config import log_config
+
 
 TRAIN_LOSS_TEXT = "Train loss"
 TEST_LOSS_TEXT = "Test loss"

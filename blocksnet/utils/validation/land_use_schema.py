@@ -1,8 +1,9 @@
 import pandas as pd
-from pandera import Field, parser, check
+from pandera import Field, check, parser
 from pandera.typing import Series
-from .df_schema import DfSchema
+
 from ...enums import LandUse
+from .df_schema import DfSchema
 
 
 class LandUseSchema(DfSchema):

@@ -1,4 +1,5 @@
 import shapely
+
 from ....utils.validation import GdfSchema
 
 

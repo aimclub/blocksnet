@@ -1,6 +1,8 @@
 from catboost import CatBoostClassifier
 from sklearn.metrics import accuracy_score
+
 from .....config import log_config
+
 
 TRAIN_LOSS_TEXT = "Train loss"
 TEST_LOSS_TEXT = "Test loss"

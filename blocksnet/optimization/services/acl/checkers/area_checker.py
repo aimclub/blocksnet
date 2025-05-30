@@ -53,10 +53,10 @@ class AreaChecker:
         for var in X:
             if var.block_id != block_id:
                 continue  # Skip variables not belonging to the current block
-            
+
             # Calculate numerator: sum of (area * count) for all variables in block
             block_numer += var.total_build_floor_area + var.total_site_area
-            
+
             # Calculate denominator: sum of (area^2) for all variables in block
             block_denom += (var.build_floor_area + var.site_area) ** 2
 
@@ -133,7 +133,7 @@ class AreaChecker:
         """
         block_ids = set(var.block_id for var in X)
         block_sums = {block_id: 0 for block_id in block_ids}
-        
+
         # Calculate total used area for each block
         for var in X:
             block_sums[var.block_id] += var.total_build_floor_area + var.total_site_area

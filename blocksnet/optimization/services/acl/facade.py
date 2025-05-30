@@ -57,12 +57,10 @@ class Facade:
         )
         self._blocks_service_types: Set[str] = set(st for st in blocks_service_types)
         self._chosen_service_types: Set[str] = set()
-        
+
         # Initialize provision adapter
-        self._provision_adapter: ProvisionAdapter = ProvisionAdapter(
-            blocks_lu, accessibility_matrix, blocks_df
-        )
-        
+        self._provision_adapter: ProvisionAdapter = ProvisionAdapter(blocks_lu, accessibility_matrix, blocks_df)
+
         # Initial provisions
         self._start_provisions: Dict[str, float] = {}
 
@@ -86,7 +84,7 @@ class Facade:
             Dictionary mapping service types to their initial provision values.
         """
         return self._start_provisions
-    
+
     def solution_to_services_df(self, solution: Dict[str, int]) -> pd.DataFrame:
         """
         Convert a solution dictionary to a DataFrame of service allocations.
@@ -126,7 +124,7 @@ class Facade:
         ]
         df = pd.DataFrame(list(xs))
         return df[df["count"] != 0]
-    
+
     def add_service_type(self, name: str, weight: float, services_df: pd.DataFrame) -> None:
         """
         Add a service type to the optimization problem.
@@ -142,7 +140,7 @@ class Facade:
         """
         if name not in self._blocks_service_types:
             return
-        
+
         services_df = ServicesSchema(services_df)
         services_container = ServicesContainer(name=name, weight=weight, services_df=services_df)
         self._provision_adapter.add_service_type(services_container)
@@ -151,7 +149,7 @@ class Facade:
 
         if provision_df is None:
             return
-        
+
         prov = self._provision_adapter.calculate_provision(name)
 
         if abs(prov - 1.0) > 1e-10:
@@ -177,7 +175,7 @@ class Facade:
         """
         X = self._converter(x)
         return self._area_checker.check_constraints(X)
-    
+
     def get_max_capacity(self, block_id: int, service: str) -> float:
         """
         Get the maximum capacity for a service type in a block.
@@ -195,10 +193,10 @@ class Facade:
             Maximum capacity for the specified service in the given block.
         """
         return self._capacity_checker.get_demand(
-            block_id, 
-            service, 
+            block_id,
+            service,
             self._provision_adapter._accessibility_matrix,
-            self._provision_adapter.get_provision_df(service)
+            self._provision_adapter.get_provision_df(service),
         )
 
     def get_max_capacities(self, block_id: int) -> Dict[str, float]:
@@ -296,20 +294,17 @@ class Facade:
         """
         X_diff = self._converter(x - x_init)
         services_vars_diff = {
-            st: np.array([var.count for var in X_diff if var.service_type == st]) 
-            for st in self._chosen_service_types
+            st: np.array([var.count for var in X_diff if var.service_type == st]) for st in self._chosen_service_types
         }
 
         X = self._converter(x)
         services_vars = {
-            st: np.array([var.count for var in X if var.service_type == st]) 
-            for st in self._chosen_service_types
+            st: np.array([var.count for var in X if var.service_type == st]) for st in self._chosen_service_types
         }
 
         changed_services = self._chosen_service_types.copy()
         for st in services_vars.keys():
-            if (np.count_nonzero(services_vars[st]) == 0 or 
-                np.count_nonzero(services_vars_diff[st]) == 0):
+            if np.count_nonzero(services_vars[st]) == 0 or np.count_nonzero(services_vars_diff[st]) == 0:
                 changed_services.discard(st)
 
         return changed_services
@@ -334,10 +329,7 @@ class Facade:
         changed_services = self.get_changed_services(x_init, x)
 
         vars_df = self._converter._variables_to_df(X)
-        provisions = {
-            st: self._provision_adapter.calculate_provision(st, vars_df) 
-            for st in changed_services
-        }
+        provisions = {st: self._provision_adapter.calculate_provision(st, vars_df) for st in changed_services}
 
         init_services = self._init_provisions.keys() - changed_services
         for st in init_services:
@@ -361,10 +353,7 @@ class Facade:
         """
         X = self._converter(x)
         vars_df = self._converter._variables_to_df(X)
-        provisions = {
-            st: self._provision_adapter.calculate_provision(st, vars_df) 
-            for st in self._chosen_service_types
-        }
+        provisions = {st: self._provision_adapter.calculate_provision(st, vars_df) for st in self._chosen_service_types}
 
         if np.count_nonzero(x) != 0:
             self._init_provisions = provisions

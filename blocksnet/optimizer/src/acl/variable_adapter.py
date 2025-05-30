@@ -1,8 +1,8 @@
 from abc import ABC
 from typing import Dict, List, Optional, Set
 
-from numpy.typing import ArrayLike
 import numpy as np
+from numpy.typing import ArrayLike
 
 from blocksnet import City, ServiceType
 from blocksnet.method.annealing_optimizer import LandUse, Variable

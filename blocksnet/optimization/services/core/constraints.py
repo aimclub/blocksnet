@@ -221,9 +221,7 @@ class WeightedConstraints(Constraints):
     Implements constraints based on weighted limits for grouped variables.
     """
 
-    def __init__(
-        self, facade: Facade, num_params: int, priority: Optional[Dict] = None, decrease_ub_coef: int = 2
-    ):
+    def __init__(self, facade: Facade, num_params: int, priority: Optional[Dict] = None, decrease_ub_coef: int = 2):
         """
         Initializes WeightedConstraints with variable groups, group limits, and variable weights.
 

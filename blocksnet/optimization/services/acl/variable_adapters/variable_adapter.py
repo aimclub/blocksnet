@@ -14,7 +14,7 @@ class VariableAdapter(ABC):
     """
     Abstract base class for adapting a solution vector (numpy array) to city-level data,
     allowing interaction with city blocks, land use, and service types.
-    
+
     This class handles the solution vector and maps it to the corresponding city variables,
     providing methods for conversion between array representations and variable objects.
     """
@@ -131,7 +131,7 @@ class VariableAdapter(ABC):
             raise ValueError("Solution contains NaN values.")
 
         for var, val in zip(self._X, solution):
-            var.count = int(val)    
+            var.count = int(val)
 
     def __call__(self, solution: ArrayLike) -> List[Variable]:
         """

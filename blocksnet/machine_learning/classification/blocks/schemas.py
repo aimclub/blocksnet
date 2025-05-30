@@ -1,8 +1,10 @@
-import shapely
 import pandas as pd
+import shapely
 from pandera import Field, parser
 from pandera.typing import Series
-from blocksnet.utils.validation import GdfSchema, DfSchema
+
+from blocksnet.utils.validation import DfSchema, GdfSchema
+
 from .common import BlockCategory
 
 

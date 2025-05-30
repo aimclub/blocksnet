@@ -1,5 +1,7 @@
 import pandas as pd
+
 from .service_types import SERVICE_TYPES
+
 
 data = [
     {"service_type": service_type_name, **unit}

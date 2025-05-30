@@ -1,5 +1,7 @@
 import pandas as pd
+
 from ....enums import LandUse
+
 
 fsi_ranges = {
     LandUse.RESIDENTIAL: (0.5, 3.0),

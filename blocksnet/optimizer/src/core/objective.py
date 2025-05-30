@@ -12,9 +12,7 @@ class Objective(ABC):
     Abstract base class defining the objective function for optimization problems.
     """
 
-    def __init__(
-        self, num_params: int, facade: BlocksNetFacade, max_evals: Optional[int]
-    ):
+    def __init__(self, num_params: int, facade: BlocksNetFacade, max_evals: Optional[int]):
         """
         Initialize the objective function.
 
@@ -154,8 +152,9 @@ class PenaltyObjective(Objective):
     pass
 
 
-class ThresholdObjective(Objective): # TODO: implement when get Thresholds for integral function
+class ThresholdObjective(Objective):  # TODO: implement when get Thresholds for integral function
     """
     Implementation of an objective function with a threshold, used for optimization problems with constraints.
     """
+
     pass

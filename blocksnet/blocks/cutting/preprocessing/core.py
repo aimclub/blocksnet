@@ -1,10 +1,13 @@
-import pandas as pd
+from functools import wraps
+
 import geopandas as gpd
+import pandas as pd
 import shapely
 from loguru import logger
-from .schemas import RoadsSchema, RailwaysSchema, WaterSchema
-from functools import wraps
+
 from blocksnet.utils.validation import ensure_crs
+
+from .schemas import RailwaysSchema, RoadsSchema, WaterSchema
 
 
 def _validate_gdfs(func):

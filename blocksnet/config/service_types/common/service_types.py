@@ -1,5 +1,7 @@
-import pandas as pd
 from pathlib import Path
+
+import pandas as pd
+
 
 CURRENT_DIRECTORY = Path(__file__).parent
 JSON_FILENAME = "default.json"

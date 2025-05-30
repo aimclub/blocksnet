@@ -16,9 +16,7 @@ class CapacityChecker:
     and verifies that solutions don't exceed demand capacities for different service types.
     """
 
-    def __init__(
-        self, block_ids: List[int], accessibility_matrix: pd.DataFrame
-    ):
+    def __init__(self, block_ids: List[int], accessibility_matrix: pd.DataFrame):
         """
         Initialize the CapacityChecker with block demand data.
 
@@ -68,10 +66,10 @@ class CapacityChecker:
         """
         # Get accessibility threshold for this service type
         _, _, accessibility = service_types_config[service].values()
-                
+
         # Find blocks within accessibility range
         nearest_blocks = self._accessibility_matrix.index[self._accessibility_matrix[block_id] <= accessibility]
-        
+
         # Calculate total demand with 20% buffer
         return provision_df[provision_df.index.isin(nearest_blocks)][DEMAND_LEFT_COLUMN].sum()
 
@@ -109,13 +107,13 @@ class CapacityChecker:
         """
         # Create a copy of demands to track remaining capacity
         block_demands = self._demands.copy()
-        
+
         for var in X:
             # Subtract this variable's capacity from the remaining demand
             block_demands[var.block_id][var.service_type] -= var.total_capacity
-            
+
             # Check if we've exceeded capacity for this service type
             if block_demands[var.block_id][var.service_type] < 0:
                 return False
-                
+
         return True

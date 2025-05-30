@@ -1,10 +1,12 @@
-from loguru import logger
-import pandera as pa
-import pandas as pd
 import geopandas as gpd
-from shapely.geometry.base import BaseGeometry
+import pandas as pd
+import pandera as pa
+from loguru import logger
 from pandera.typing.geopandas import GeoSeries
+from shapely.geometry.base import BaseGeometry
+
 from .df_schema import DfSchema
+
 
 DEFAULT_CRS = 4326
 

@@ -1,5 +1,7 @@
-import pandas as pd
 from functools import wraps
+
+import pandas as pd
+
 from ...utils import validation
 
 

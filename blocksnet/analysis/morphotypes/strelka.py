@@ -1,6 +1,9 @@
 from enum import Enum
+
 import pandas as pd
+
 from .schemas import BlocksSchema
+
 
 MORPHOTYPE_COLUMN = "morphotype"
 

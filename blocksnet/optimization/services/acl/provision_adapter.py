@@ -13,19 +13,14 @@ from blocksnet.relations import get_accessibility_context
 class ProvisionAdapter:
     """
     Adapter class for calculating and managing service provisions across urban blocks.
-    
+
     This class handles service provision calculations based on:
     - Block land use characteristics
     - Service accessibility matrices
     - Service capacity distributions
     """
 
-    def __init__(
-        self,
-        blocks_lus: Dict[int, LandUse],
-        accessibility_matrix: pd.DataFrame,
-        blocks_df: pd.DataFrame
-    ):
+    def __init__(self, blocks_lus: Dict[int, LandUse], accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame):
         """
         Initialize the ProvisionAdapter with necessary data structures.
 
@@ -34,7 +29,7 @@ class ProvisionAdapter:
         blocks_lus : Dict[int, LandUse]
             Dictionary mapping block IDs to their land use types.
         accessibility_matrix : pd.DataFrame
-            Square DataFrame representing accessibility between blocks, where index and 
+            Square DataFrame representing accessibility between blocks, where index and
             columns are block IDs and values represent accessibility measures.
         blocks_df : pd.DataFrame
             DataFrame containing block geometries and attributes, indexed by block ID.
@@ -52,7 +47,7 @@ class ProvisionAdapter:
         ----------
         services_container : ServicesContainer
             Container object holding service configuration and capacity data.
-            
+
         Notes
         -----
         - Temporarily suppresses logging during calculation for cleaner output
@@ -69,27 +64,21 @@ class ProvisionAdapter:
 
         blocks_ids = list(self._blocks_lus)
         services_df = services_container.services_df.copy()
-        
+
         # Initialize capacities
         services_df.loc[blocks_ids, "capacity"] = 0
-        
+
         # Get service type parameters
         _, demand, accessibility = service_types_config[services_container.name].values()
 
         # Calculate initial competitive provision
         provision_df, _ = competitive_provision(
-            self._blocks_df.join(services_df), 
-            self._accessibility_matrix, 
-            accessibility, 
-            demand
+            self._blocks_df.join(services_df), self._accessibility_matrix, accessibility, demand
         )
 
         # Get accessibility context for relevant blocks
         context_acc_mx = get_accessibility_context(
-            self._accessibility_matrix, 
-            provision_df.loc[blocks_ids], 
-            accessibility, 
-            out=False
+            self._accessibility_matrix, provision_df.loc[blocks_ids], accessibility, out=False
         )
 
         # Store provision data for accessible blocks
@@ -149,23 +138,20 @@ class ProvisionAdapter:
 
             # Filter for relevant service type
             variables_df = variables_df[variables_df.service_type == service_type]
-            
+
             # Aggregate capacity updates by block
             delta_df = variables_df.groupby("block_id").agg({"total_capacity": "sum"})
 
             # Get service type parameters
             _, demand, accessibility = service_types_config[service_type].values()
-            
+
             # Update capacities and recalculate provision
             old_provision_df = self.provisions_dfs[service_type]
             old_provision_df.loc[delta_df.index, "capacity"] += delta_df["total_capacity"]
             new_provision_df, _ = competitive_provision(
-                old_provision_df, 
-                self._accessibility_matrix, 
-                accessibility, 
-                demand
+                old_provision_df, self._accessibility_matrix, accessibility, demand
             )
-            
+
             # Restore logging and return provision score
             log_config.set_disable_tqdm(disable_tqdm)
             log_config.set_logger_level(log_level)

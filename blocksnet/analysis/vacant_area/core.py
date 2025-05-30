@@ -1,12 +1,15 @@
+from concurrent.futures import ThreadPoolExecutor
+
 import geopandas as gpd
 import pandas as pd
-from .schemas import BlocksSchema
-from tqdm import tqdm
 from loguru import logger
 from shapely.geometry.base import BaseGeometry
-from concurrent.futures import ThreadPoolExecutor
+from tqdm import tqdm
+
 from ...config import log_config
-from . import utils, const
+from . import const, utils
+from .schemas import BlocksSchema
+
 
 AREA_COLUMN = "area"
 MRR_AREA_COLUMN = "mrr_area"

@@ -1,7 +1,9 @@
 import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.preprocessing import StandardScaler
+
 from .schemas import BlocksSchema
+
 
 DEFAULT_RANDOM_STATE = 42
 DEFAULT_N_CLUSTERS = 11

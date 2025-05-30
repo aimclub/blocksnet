@@ -1,14 +1,16 @@
 import pandas as pd
 from loguru import logger
 from tqdm import tqdm
-from .common import ServicesContainer, Variable, SimulatedAnnealing
-from .schemas import BlocksSchema, ServicesSchema
-from ...utils.validation import validate_matrix
-from ...config import service_types_config, log_config
-from ...enums import LandUse
-from ...analysis.provision import competitive_provision, provision_strong_total
-from ...relations import get_accessibility_context
+
 from blocksnet.analysis import provision
+
+from ...analysis.provision import competitive_provision, provision_strong_total
+from ...config import log_config, service_types_config
+from ...enums import LandUse
+from ...relations import get_accessibility_context
+from ...utils.validation import validate_matrix
+from .common import ServicesContainer, SimulatedAnnealing, Variable
+from .schemas import BlocksSchema, ServicesSchema
 
 
 class ServicesOptimizer:

@@ -1,8 +1,11 @@
-import pandas as pd
-import numpy as np
-from loguru import logger
 from functools import wraps
+
+import numpy as np
+import pandas as pd
+from loguru import logger
+
 from .schemas import BlocksSchema
+
 
 FSI_COLUMN = "fsi"
 GSI_COLUMN = "gsi"

@@ -14,8 +14,8 @@ from .variable_adapter import VariableAdapter
 
 class BlocksNetFacade:
     """
-    The BlocksNetFacade class serves as a high-level interface for managing various 
-    domain-related operations in an urban planning context. It integrates 
+    The BlocksNetFacade class serves as a high-level interface for managing various
+    domain-related operations in an urban planning context. It integrates
     variable adaptation, provision calculations, and area validation.
 
     Responsibilities

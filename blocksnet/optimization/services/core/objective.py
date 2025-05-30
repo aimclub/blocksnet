@@ -90,9 +90,7 @@ class Objective(ABC):
     Abstract base class defining the objective function for optimization problems.
     """
 
-    def __init__(
-        self, num_params: int, facade: Facade, max_evals: Optional[int], penalty_func: Optional[Penalty]
-    ):
+    def __init__(self, num_params: int, facade: Facade, max_evals: Optional[int], penalty_func: Optional[Penalty]):
         """
         Initialize the objective function.
 
@@ -207,9 +205,7 @@ class ThresholdObjective(Objective):
     Implementation of an objective function with a threshold, used for optimization problems with constraints.
     """
 
-    def __init__(
-        self, num_params: int, facade: Facade, max_evals: int, penalty_func: Optional[Penalty] = None
-    ):
+    def __init__(self, num_params: int, facade: Facade, max_evals: int, penalty_func: Optional[Penalty] = None):
         """
         Initialize the threshold objective function.
 
@@ -229,7 +225,7 @@ class ThresholdObjective(Objective):
     def evaluate(self, x):  # TODO: implement when get algo
         """
         Evaluate the objective function for a given solution.
-        
+
         This is a placeholder for a future implementation that will evaluate solutions
         based on whether they meet certain thresholds for service provisions.
         When implemented, it will calculate the objective value by comparing provision

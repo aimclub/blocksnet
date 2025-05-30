@@ -1,5 +1,7 @@
 import networkx as nx
+
 from ....enums import LandUse
+
 
 adjacency_rules_list = [
     # self adjacency

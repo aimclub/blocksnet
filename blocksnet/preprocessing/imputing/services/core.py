@@ -1,6 +1,8 @@
 import geopandas as gpd
 import pandas as pd
+
 from blocksnet.config import service_types_config
+
 from .schemas import ServicesSchema
 
 

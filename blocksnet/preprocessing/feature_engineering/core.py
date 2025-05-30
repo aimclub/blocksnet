@@ -1,10 +1,13 @@
 import geopandas as gpd
 import pandas as pd
-from sklearn.preprocessing import PolynomialFeatures
 from loguru import logger
+from sklearn.preprocessing import PolynomialFeatures
+
 from blocksnet.config import log_config
-from .schemas import BlocksSchema
+
 from . import utils
+from .schemas import BlocksSchema
+
 
 X_COLUMN = "x"
 Y_COLUMN = "y"

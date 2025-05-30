@@ -1,7 +1,8 @@
 import geopandas as gpd
 from loguru import logger
-from pandera.typing import Series
 from pandera import Field
+from pandera.typing import Series
+
 from ...utils.validation import DfSchema
 
 
