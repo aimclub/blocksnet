@@ -1,5 +1,5 @@
-Welcome to BlocksNet documentation!
-===================================
+BlocksNet
+=========
 
 .. include:: ../../README.rst
    :start-after: .. logo-start

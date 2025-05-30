@@ -139,7 +139,6 @@ dmypy.json
 # *.pickle
 # *.parquet
 # *.geojson
-*.pkl
 *.graphml
 *.csv
 /blocksnet/output_data
