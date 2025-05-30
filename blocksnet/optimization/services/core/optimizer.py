@@ -153,7 +153,6 @@ class TPEOptimizer(Optimizer):
             consider_endpoints=True,
             n_startup_trials=0,
             n_ei_candidates=200,
-            seed=227,
         )
         self._study = optuna.create_study(direction=optuna.study.StudyDirection.MAXIMIZE, sampler=sampler)
 
@@ -161,8 +160,6 @@ class TPEOptimizer(Optimizer):
         self._vars_order = NeutralOrder() if vars_order is None else vars_order
 
         self._vars_chooser = WeightChooser() if vars_chooser is None else vars_chooser
-
-        self._first_x = np.zeros(self._objective.num_params)
 
         # Set up logging for the optimization process
         logging.basicConfig(filename="OptunaOptimizer.log", level=logging.INFO, filemode="w")
@@ -194,9 +191,7 @@ class TPEOptimizer(Optimizer):
         trials_data = [
             {
                 "trial_number": trial.number,  # Trial number
-                "params": {
-                    var: val + self._first_x[int(var[2:])] for var, val in trial.params.items()
-                },  # Parameters for the trial
+                "params": trial.params,
                 "value": trial.value if trial.value is not None else 0,  # Objective value for the trial
                 "penalty": trial.value if trial.value is not None else 0,  # Penalty for the trial
                 "state": trial.state.name,  # State of the trial (e.g., COMPLETE, PRUNED, FAIL)
@@ -232,9 +227,23 @@ class TPEOptimizer(Optimizer):
             val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)
             return val
 
+        def trial_callback_fixed(var_num):
+            last_trial = []
+            for i in range(len(self._study.trials) - 1, -1, -1):
+                trial_val = self._study.trials[i].value if self._study.trials[i].value is not None else 0
+                if trial_val > 0:
+                    if len(last_trial) == 0:
+                        last_trial = self._study.trials[i].user_attrs.get("params", [])
+                        break
+            val = trial.suggest_int(name=f"x_{var_num}", low=last_trial[var_num], high=last_trial[var_num])
+            return val
+
+        def trial_callback_null(var_num):
+            return 0
+
         def trials_data_callback():
             n = self._objective.num_params
-            first_trial = [self._objective(np.zeros(n))[1], np.zeros(n)]
+            second_last_trial = [self._objective(np.zeros(n))[1], np.zeros(n)]
             last_trial = []
             for i in range(len(self._study.trials) - 1, -1, -1):
                 trial_val = self._study.trials[i].value if self._study.trials[i].value is not None else 0
@@ -244,31 +253,37 @@ class TPEOptimizer(Optimizer):
                         for var, val in self._study.trials[i].params.items():
                             x[int(var[2:])] = val
                         last_trial = [self._study.trials[i].value, x]
-                        break
                     else:
                         x = np.zeros(n)
                         for var, val in self._study.trials[i].params.items():
                             x[int(var[2:])] = val
-                        first_trial = [self._study.trials[i].value, x]
+                        second_last_trial = [self._study.trials[i].value, x]
                         break
 
             if len(last_trial) == 0:
                 last_trial = [self._objective(np.zeros(n)), np.zeros(n)]
             else:
-                last_trial[1] = last_trial[1] + self._first_x
+                last_trial[1] = last_trial[1]
 
-            return first_trial, last_trial
+            return second_last_trial, last_trial
 
         n = self._objective.num_params
         vars_order = np.arange(n, dtype=int)
 
         self._vars_order(vars_order)
         if trial.number > 0:
-            vars = self._vars_chooser(vars_order, trials_data_callback)
+            vars_opt, vars_fixed = self._vars_chooser(vars_order, trials_data_callback)
         else:
-            vars = vars_order
+            vars_opt = vars_order
+            vars_fixed = []
 
-        x = self._first_x.copy() + self._constraints.suggest_solution(vars, trial_callback)
+        vars_null = [i for i in range(n) if i not in vars_opt and i not in vars_fixed]
+
+        x = (
+            self._constraints.suggest_solution(vars_opt, trial_callback)
+            + self._constraints.suggest_fixed(vars_fixed, trial_callback_fixed)
+            + self._constraints.suggest_fixed(vars_null, trial_callback_null)
+        )
 
         value = 0
         if not self._constraints.check_constraints(x):
@@ -289,14 +304,11 @@ class TPEOptimizer(Optimizer):
         else:
             provisions, value = self._objective(x)
             trial.set_user_attr("provisions", provisions)
+            trial.set_user_attr("params", list(x))
             logging.info(
                 f"Trial {trial.number}: COMPLETE -> Params: x={x}, Value: {value}, Func evals: {self._objective.current_func_evals}"
             )
             self.metrics.update_metrics(value, True, self._objective.current_func_evals)
-
-        if trial.number == 0:
-            self._objective.set_init_solution(x)
-            self._constraints.update_ubs(x)
         return value
 
     def _run_initial(self):
@@ -310,9 +322,8 @@ class TPEOptimizer(Optimizer):
         vars = vars_order
 
         x = self._constraints.suggest_initial_solution(vars)
-        self._first_x = x
 
-        self._study.enqueue_trial({f"x_{i}": 0 for i in range(n)})
+        self._study.enqueue_trial({f"x_{i}": x[i] for i in range(n)})
 
     def _check_stop(self, study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
         """
@@ -325,7 +336,7 @@ class TPEOptimizer(Optimizer):
         trial : optuna.trial.FrozenTrial
             The current trial being evaluated.
         """
-        if not self._objective.check_available_evals():
+        if not self._objective.check_available_evals() or not self._objective.check_optimize_need():
             study.stop()  # Stop optimization if max function evaluations are reached
             logging.info("Optimization stopped due to exceeding maximum function evaluations.")
 
@@ -377,13 +388,9 @@ class TPEOptimizer(Optimizer):
         if verbose:
             self._save_run_results()
 
-        best_x = {f"x_{var}": self._first_x[var] for var in range(self._objective.num_params)}
-
-        for var, val in self._study.best_params.items():
-            best_x[var] += val
         # Return optimization results
         return (
-            best_x,  # Best parameters found
+            self._study.best_params,  # Best parameters found
             self._study.best_value,  # Best objective value
             sum(self.metrics.called_obj) / len(self.metrics.called_obj),  # Success rate of trials
             self.metrics.func_evals_total[-1],  # Total number of function evaluations

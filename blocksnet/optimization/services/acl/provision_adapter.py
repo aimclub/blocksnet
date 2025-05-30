@@ -4,6 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from blocksnet.analysis.provision import competitive_provision, provision_strong_total
+from blocksnet.analysis.provision.competivive.core import CAPACITY_LEFT_COLUMN, DEMAND_LEFT_COLUMN, DEMAND_WITHIN_COLUMN
 from blocksnet.config import log_config, service_types_config
 from blocksnet.enums import LandUse
 from blocksnet.optimization.services.common import ServicesContainer
@@ -35,9 +36,11 @@ class ProvisionAdapter:
             DataFrame containing block geometries and attributes, indexed by block ID.
         """
         self._accessibility_matrix: pd.DataFrame = accessibility_matrix
-        self._blocks_df = blocks_df
+        self._blocks_df = blocks_df.copy()
+        self._blocks_df.loc[list(blocks_lus.keys()), "population"] = 0
         self._blocks_lus = blocks_lus
-        self.provisions_dfs: Dict[str, pd.DataFrame] = {}
+        self.last_provisions_dfs = {}
+        self.start_provisions_dfs = {}
 
     def add_service_type(self, services_container: ServicesContainer) -> None:
         """
@@ -84,28 +87,24 @@ class ProvisionAdapter:
         # Store provision data for accessible blocks
         provision_df = provision_df.loc[context_acc_mx.index]
         if provision_df.demand.sum() > 0:
-            self.provisions_dfs[services_container.name] = provision_df.loc[context_acc_mx.index]
+            self.start_provisions_dfs[services_container.name] = provision_df
+            self.last_provisions_dfs[services_container.name] = provision_df
 
         # Restore original logging settings
         log_config.set_disable_tqdm(disable_tqdm)
         log_config.set_logger_level(log_level)
 
-    def get_provision_df(self, service_type: str) -> Optional[pd.DataFrame]:
-        """
-        Retrieve the provision dataframe for a specific service type.
+    def get_last_provision_df(self, service_type: str) -> pd.DataFrame:
+        if service_type not in self.last_provisions_dfs.keys():
+            return None
 
-        Parameters
-        ----------
-        service_type : str
-            The service type identifier (must match keys in provisions_dfs).
+        return self.last_provisions_dfs[service_type].copy()
 
-        Returns
-        -------
-        Optional[pd.DataFrame]
-            Provision dataframe if service type exists, None otherwise.
-            The dataframe contains columns for demand, capacity and provision metrics.
-        """
-        return self.provisions_dfs.get(service_type)
+    def get_start_provision_df(self, service_type: str) -> pd.DataFrame:
+        if service_type not in self.start_provisions_dfs.keys():
+            return None
+
+        return self.start_provisions_dfs[service_type].copy()
 
     def calculate_provision(
         self,
@@ -136,7 +135,6 @@ class ProvisionAdapter:
             log_config.set_disable_tqdm(True)
             log_config.set_logger_level("ERROR")
 
-            # Filter for relevant service type
             variables_df = variables_df[variables_df.service_type == service_type]
 
             # Aggregate capacity updates by block
@@ -146,16 +144,28 @@ class ProvisionAdapter:
             _, demand, accessibility = service_types_config[service_type].values()
 
             # Update capacities and recalculate provision
-            old_provision_df = self.provisions_dfs[service_type]
+            old_provision_df = self.get_start_provision_df(service_type)
+            old_provision_df["demand"] = self.get_start_provision_df(service_type)[DEMAND_LEFT_COLUMN]
+
+            if old_provision_df["demand"].sum() == 0:
+                return 1.0
+
+            old_provision_df["capacity"] = self.get_start_provision_df(service_type)[CAPACITY_LEFT_COLUMN]
             old_provision_df.loc[delta_df.index, "capacity"] += delta_df["total_capacity"]
+
             new_provision_df, _ = competitive_provision(
                 old_provision_df, self._accessibility_matrix, accessibility, demand
             )
 
+            new_provision_df["demand"] = self.get_start_provision_df(service_type)["demand"]
+            new_provision_df[DEMAND_WITHIN_COLUMN] += self.get_start_provision_df(service_type)[DEMAND_WITHIN_COLUMN]
+
             # Restore logging and return provision score
             log_config.set_disable_tqdm(disable_tqdm)
             log_config.set_logger_level(log_level)
+
+            self.last_provisions_dfs[service_type] = new_provision_df
             return float(provision_strong_total(new_provision_df))
 
         # Return current provision if no updates provided
-        return float(provision_strong_total(self.get_provision_df(service_type)))
+        return float(provision_strong_total(self.get_last_provision_df(service_type)))

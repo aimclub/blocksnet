@@ -66,6 +66,10 @@ class Constraints(ABC):
         pass
 
     @abstractmethod
+    def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+        pass
+
+    @abstractmethod
     def get_ub(self, var_num: int) -> int:
         """
         Get the upper bound for a given variable.
@@ -79,18 +83,6 @@ class Constraints(ABC):
         -------
         int
             Upper bound of the variable.
-        """
-        pass
-
-    @abstractmethod
-    def update_ubs(self, x: ArrayLike):
-        """
-        Update the upper bounds of variables based on the current solution.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Current solution array.
         """
         pass
 
@@ -169,6 +161,13 @@ class CapacityConstraints(Constraints):
             x[var_num] = val
         return x
 
+    def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+        x = np.zeros(self._num_params, dtype=int)
+        for var_num in permut:
+            val = suggest_callback(var_num)
+            x[var_num] = val
+        return x
+
     def get_ub(self, var_num: int) -> int:
         """
         Get the upper bound for a specific variable.
@@ -201,20 +200,6 @@ class CapacityConstraints(Constraints):
         """
         return np.all(x <= self._upper_bounds)
 
-    def update_ubs(self, x: ArrayLike):
-        """
-        Update the upper bounds of variables based on the current solution.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Current solution array.
-        """
-        self._facade.update_area(x)
-        self._upper_bounds = np.array(
-            [self._facade.get_upper_bound_var(var_num) for var_num in range(self._num_params)]
-        )
-
 
 class WeightedConstraints(Constraints):
     """
@@ -244,9 +229,9 @@ class WeightedConstraints(Constraints):
         self._facade = facade
         self._block_ids = set(self._vars_block)
         self._vars_limit: Dict[int, float] = {
-            var_num: facade.get_limit_var(var_num) for var_num in range(self._num_params)
+            var_num: facade.get_limits_var(var_num) for var_num in range(self._num_params)
         }
-        self._weights = np.array([facade.get_var_weight(var_num) for var_num in range(num_params)])
+        self._weights = np.array([facade.get_var_weights(var_num) for var_num in range(num_params)])
         self._priority: Dict[Dict] = {block_id: {} for block_id in self._block_ids}
         for block_id in self._block_ids:
             if priority is None:
@@ -264,20 +249,6 @@ class WeightedConstraints(Constraints):
                 service: priority[service] / total_priority for service in facade.get_block_services(block_id)
             }
 
-    def update_ubs(self, x: ArrayLike):
-        """
-        Update the upper bounds of variables based on the current solution.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Current solution array.
-        """
-        self._facade.update_area(x)
-        self._upper_bounds = np.array(
-            [self._facade.get_upper_bound_var(var_num) for var_num in range(self._num_params)]
-        )
-
     def suggest_initial_solution1(self, permut: ArrayLike) -> ArrayLike:
         """
         Suggests an initial solution while ensuring group weight limits are respected.
@@ -293,23 +264,30 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Initial feasible solution.
         """
-        block_sums = {block_id: 0 for block_id in self._block_ids}
+        block_sums = {block_id: np.zeros(self._weights.shape[1]) for block_id in self._block_ids}
         block_services_sums = {
-            block_id: {service: 0 for service in self._priority[block_id].keys()} for block_id in self._block_ids
+            block_id: {service: np.zeros(self._weights.shape[1]) for service in self._priority[block_id].keys()}
+            for block_id in self._block_ids
         }
         x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
             var_block = self._vars_block[var_num]
             var_service = self._vars_services[var_num]
 
-            chosen_val = np.floor(
-                (
-                    self._vars_limit[var_num] * self._priority[var_block][var_service]
-                    - block_services_sums[var_block][var_service]
-                )
-                / self._weights[var_num]
+            chosen_val = min(
+                [
+                    np.floor(
+                        (
+                            self._vars_limit[var_num][i] * self._priority[var_block][var_service]
+                            - block_services_sums[var_block][var_service][i]
+                        )
+                        / weight
+                    )
+                    for i, weight in enumerate(self._weights[var_num])
+                ]
             )
             chosen_val = max(chosen_val, 0)
+            chosen_val = min(chosen_val, self.get_ub(var_num))
 
             block_sums[var_block] += self._weights[var_num] * chosen_val
             block_services_sums[var_block][var_service] += self._weights[var_num] * chosen_val
@@ -331,7 +309,7 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Initial feasible solution.
         """
-        block_sums = {block_id: 0 for block_id in self._block_ids}
+        block_sums = {block_id: np.zeros(self._weights.shape[1]) for block_id in self._block_ids}
         added_services = set()
         x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
@@ -340,7 +318,11 @@ class WeightedConstraints(Constraints):
             if var_service in added_services:
                 chosen_val = 0
             else:
-                chosen_val = np.floor((self._vars_limit[var_num] - block_sums[var_block]) / self._weights[var_num])
+                chosen_val = min(
+                    np.floor((self._vars_limit[var_num][i] - block_sums[var_block][0]) / weight)
+                    for i, weight in enumerate(self._weights[var_num])
+                )
+                chosen_val = max(0, chosen_val)
                 chosen_val = min(chosen_val, self.get_ub(var_num))
                 chosen_val = min(1, chosen_val)
                 if chosen_val > 0:
@@ -376,13 +358,25 @@ class WeightedConstraints(Constraints):
             x[var_num] = val
         return x
 
+    def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+        x = np.zeros(self._num_params, dtype=int)
+        for var_num in permut:
+            val = suggest_callback(var_num)
+            x[var_num] = val
+        return x
+
     def decrease_ubs(self):
         """
         Decrease the upper bounds of variables by the defined coefficient,
         with a minimum bound to prevent values from becoming too small.
         """
         for i in range(self._num_params):
-            self._upper_bounds[i] = max(self._upper_bounds[i] / self._decrease_ub_coef, min(10, self._upper_bounds[i]))
+            self._upper_bounds[i] = int(
+                max(
+                    np.ceil(self._upper_bounds[i] / self._decrease_ub_coef),
+                    np.ceil(self._facade.get_upper_bound_var(i) / 10),
+                )
+            )
 
     def get_ub(self, var_num: int) -> int:
         """

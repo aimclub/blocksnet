@@ -1,11 +1,10 @@
 from abc import ABC
-from typing import List, Optional, Set
+from typing import List
 
 import numpy as np
 import pandas as pd
 from numpy.typing import ArrayLike
 
-from blocksnet.config.service_types.config import service_types_config
 from blocksnet.enums import LandUse
 from blocksnet.optimization.services.common.variable import Variable
 
@@ -71,67 +70,16 @@ class VariableAdapter(ABC):
 
     @property
     def X(self) -> List[Variable]:
-        """
-        Get the list of variables representing the current city-level data.
+        pass
 
-        Returns
-        -------
-        List[Variable]
-            The list of variables representing the current solution.
-        """
-        return self._X
+    def add_service_type_vars(self, service_type: str):
+        pass
 
-    def _fill_X_with_block_variables(self, block_id: int, land_use: LandUse, service_types: Optional[Set[str]] = None):
-        """
-        Populate the variables list with service variables for a specific block.
-
-        Parameters
-        ----------
-        block_id : int
-            ID of the block to process.
-        land_use : LandUse
-            Land use type of the block.
-        service_types : Optional[Set[str]], optional
-            Set of service types to include. If None, all valid services for the land use will be included.
-        """
-        chosen_service_types = set(service_types_config[land_use])
-
-        if service_types is not None:
-            chosen_service_types = chosen_service_types & service_types
-
-        units = service_types_config.units
-
-        for _, unit in units[units.service_type.isin(chosen_service_types)].iterrows():
-            x = Variable(block_id=block_id, **unit)
-            self._X.append(x)
+    def add_variables(self, block_id: int, land_use: LandUse, service_type: str):
+        pass
 
     def _inject_solution_to_X(self, solution: ArrayLike):
-        """
-        Map a numpy array representing a solution vector to the internal list of variables.
-
-        Parameters
-        ----------
-        solution : ArrayLike
-            Numpy array representing the solution vector to be injected.
-
-        Raises
-        ------
-        ValueError
-            If the solution is not a 1D array or contains NaN values.
-        ArrayLengthError
-            If the solution length doesn't match the number of variables.
-        """
-        if len(solution.shape) != 1:
-            raise ValueError("Solution must be a 1D array.")
-
-        if len(solution) != len(self._X):
-            raise self.ArrayLengthError(len(self._X), len(solution))
-
-        if np.any(np.isnan(solution)):  # Check NaNs
-            raise ValueError("Solution contains NaN values.")
-
-        for var, val in zip(self._X, solution):
-            var.count = int(val)
+        pass
 
     def __call__(self, solution: ArrayLike) -> List[Variable]:
         """
@@ -159,4 +107,4 @@ class VariableAdapter(ABC):
         int
             The number of variables.
         """
-        return len(self._X)
+        return len(self.X)

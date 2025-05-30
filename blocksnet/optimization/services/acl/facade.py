@@ -49,7 +49,7 @@ class Facade:
         """
         validate_matrix(accessibility_matrix, blocks_df)
         self._blocks_lu: Dict[int, LandUse] = blocks_lu
-        self._area_checker: AreaChecker = AreaChecker(blocks_df)
+        self._area_checker: AreaChecker = AreaChecker(blocks_lu, blocks_df)
 
         # Determine valid service types based on land use
         blocks_service_types: Set[str] = reduce(
@@ -71,7 +71,7 @@ class Facade:
             self._provision_adapter._accessibility_matrix,
         )
         self.num_params = 0
-        self._init_provisions: Dict[str, float] = {st: 0 for st in self._blocks_service_types}
+        self._last_provisions: Dict[str, float] = {}
 
     @property
     def start_provisions(self) -> Dict[str, float]:
@@ -84,6 +84,18 @@ class Facade:
             Dictionary mapping service types to their initial provision values.
         """
         return self._start_provisions
+
+    @property
+    def last_provisions(self) -> Dict[str, float]:
+        """
+        Get the last trial's provision values for all service types.
+
+        Returns
+        -------
+        Dict[str, float]
+            Dictionary mapping service types to their initial provision values.
+        """
+        return self._last_provisions
 
     def solution_to_services_df(self, solution: Dict[str, int]) -> pd.DataFrame:
         """
@@ -123,6 +135,8 @@ class Facade:
             for x in X
         ]
         df = pd.DataFrame(list(xs))
+        if len(xs) == 0:
+            return df
         return df[df["count"] != 0]
 
     def add_service_type(self, name: str, weight: float, services_df: pd.DataFrame) -> None:
@@ -145,7 +159,7 @@ class Facade:
         services_container = ServicesContainer(name=name, weight=weight, services_df=services_df)
         self._provision_adapter.add_service_type(services_container)
 
-        provision_df = self._provision_adapter.get_provision_df(name)
+        provision_df = self._provision_adapter.get_start_provision_df(name)
 
         if provision_df is None:
             return
@@ -153,11 +167,12 @@ class Facade:
         prov = self._provision_adapter.calculate_provision(name)
 
         if abs(prov - 1.0) > 1e-10:
-            self._capacity_checker.add_service_type(name, self._provision_adapter.get_provision_df(name))
+            self._capacity_checker.add_service_type(name, self._provision_adapter.get_start_provision_df(name))
             self._converter.add_service_type_vars(name)
             self.num_params = len(self._converter)
             self._chosen_service_types.add(name)
-            self._start_provisions[name] = prov
+        self._start_provisions[name] = prov
+        self._last_provisions[name] = prov
 
     def check_constraints(self, x: ArrayLike) -> bool:
         """
@@ -174,7 +189,7 @@ class Facade:
             True if all constraints are satisfied, False otherwise.
         """
         X = self._converter(x)
-        return self._area_checker.check_constraints(X)
+        return self._area_checker.check_constraints(X) and self._capacity_checker.check_constraints(X)
 
     def get_max_capacity(self, block_id: int, service: str) -> float:
         """
@@ -193,10 +208,7 @@ class Facade:
             Maximum capacity for the specified service in the given block.
         """
         return self._capacity_checker.get_demand(
-            block_id,
-            service,
-            self._provision_adapter._accessibility_matrix,
-            self._provision_adapter.get_provision_df(service),
+            block_id, service, self._provision_adapter.get_start_provision_df(service)
         )
 
     def get_max_capacities(self, block_id: int) -> Dict[str, float]:
@@ -215,18 +227,6 @@ class Facade:
         """
         services = self.get_block_services(block_id)
         return {st: self.get_max_capacity(block_id, st) for st in services}
-
-    def update_area(self, x: ArrayLike) -> None:
-        """
-        Update area allocations based on a solution.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Solution vector containing updated area allocations.
-        """
-        X = self._converter(x)
-        self._area_checker.update_area(X)
 
     def get_distance(self, x: ArrayLike) -> float:
         """
@@ -276,7 +276,7 @@ class Facade:
         chosen_service_types = set(st for st in set(service_types_config[self._blocks_lu[block_id]]))
         return chosen_service_types & self._chosen_service_types
 
-    def get_changed_services(self, x_init: ArrayLike, x: ArrayLike) -> Set[str]:
+    def get_changed_services(self, x_last: ArrayLike, x: ArrayLike) -> Set[str]:
         """
         Identify services that changed between two solutions.
 
@@ -292,7 +292,7 @@ class Facade:
         Set[str]
             Set of service types that changed between solutions.
         """
-        X_diff = self._converter(x - x_init)
+        X_diff = self._converter(x - x_last)
         services_vars_diff = {
             st: np.array([var.count for var in X_diff if var.service_type == st]) for st in self._chosen_service_types
         }
@@ -304,12 +304,15 @@ class Facade:
 
         changed_services = self._chosen_service_types.copy()
         for st in services_vars.keys():
-            if np.count_nonzero(services_vars[st]) == 0 or np.count_nonzero(services_vars_diff[st]) == 0:
-                changed_services.discard(st)
+            if (
+                np.count_nonzero(services_vars[st]) == 0 or np.count_nonzero(services_vars_diff[st]) == 0
+            ):  # all zeros or all same as last
+                if st in changed_services:
+                    changed_services.remove(st)
 
         return changed_services
 
-    def get_provisions(self, x_init: ArrayLike, x: ArrayLike) -> Dict[str, float]:
+    def get_provisions(self, x_last: ArrayLike, x: ArrayLike) -> Dict[str, float]:
         """
         Calculate provisions for changed services between solutions.
 
@@ -326,14 +329,20 @@ class Facade:
             Dictionary mapping changed service types to their provision values.
         """
         X = self._converter(x)
-        changed_services = self.get_changed_services(x_init, x)
+        changed_services = self.get_changed_services(x_last, x)
 
         vars_df = self._converter._variables_to_df(X)
         provisions = {st: self._provision_adapter.calculate_provision(st, vars_df) for st in changed_services}
 
-        init_services = self._init_provisions.keys() - changed_services
-        for st in init_services:
-            provisions[st] = self._init_provisions[st]
+        fixed_services = self._last_provisions.keys() - changed_services
+
+        for st in fixed_services:
+            if sum(var.count for var in X if var.service_type == st) == 0:
+                provisions[st] = self._start_provisions[st]
+            else:
+                provisions[st] = self._last_provisions[st]
+
+        self._last_provisions = provisions
 
         return provisions
 
@@ -355,8 +364,8 @@ class Facade:
         vars_df = self._converter._variables_to_df(X)
         provisions = {st: self._provision_adapter.calculate_provision(st, vars_df) for st in self._chosen_service_types}
 
-        if np.count_nonzero(x) != 0:
-            self._init_provisions = provisions
+        if np.count_nonzero(x) != 0:  # first trial (not null)
+            self._last_provisions = provisions
 
         return provisions
 
@@ -379,7 +388,7 @@ class Facade:
         demand_ub = self._capacity_checker.get_ub_var(var)
         return min(demand_ub, area_ub)
 
-    def get_var_weight(self, var_num: int) -> float:
+    def get_var_weights(self, var_num: int) -> ArrayLike:
         """
         Get the weight for a variable.
 
@@ -394,9 +403,9 @@ class Facade:
             Weight value (sum of build_floor_area and site_area).
         """
         var = self._converter.X[var_num]
-        return var.build_floor_area + var.site_area
+        return [var.site_area, var.build_floor_area, var.capacity]
 
-    def get_limit_var(self, var_num: int) -> float:
+    def get_limits_var(self, var_num: int) -> float:
         """
         Get the area limit for a variable's block.
 
@@ -411,7 +420,10 @@ class Facade:
             Area limit for the variable's block.
         """
         var = self._converter.X[var_num]
-        return self._area_checker.areas[var.block_id]
+        site_area_limit = self._area_checker.site_areas[var.block_id]
+        build_floor_area_limit = self._area_checker.build_floor_areas[var.block_id]
+        capacity_limit = self._capacity_checker._demands[var.block_id][var.service_type]
+        return [site_area_limit, build_floor_area_limit, capacity_limit]
 
     def get_var_block_id(self, var_num: int) -> int:
         """

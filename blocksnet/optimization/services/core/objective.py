@@ -110,7 +110,7 @@ class Objective(ABC):
         self._max_func_evals: Optional[int] = max_evals
         self._facade: Facade = facade
         self._penalty: Penalty = DistancePenalty(facade) if penalty_func is None else penalty_func
-        self._x_init = np.zeros(num_params)
+        self._x_last = np.zeros(num_params)
 
     def __call__(self, x: ArrayLike) -> tuple[Dict[str, float], float]:
         """
@@ -185,9 +185,6 @@ class Objective(ABC):
         """
         return self._penalty(x)
 
-    def set_init_solution(self, x_init: ArrayLike):
-        self._x_init = x_init
-
     def check_available_evals(self):
         """
         Check if more function evaluations can be performed.
@@ -198,6 +195,9 @@ class Objective(ABC):
             True if more evaluations can be performed, otherwise False.
         """
         return self._current_func_evals < self._max_func_evals
+
+    def check_optimize_need(self):
+        return any(abs(value - 1.0) > 1e-8 for value in self._facade.last_provisions.values())
 
 
 class ThresholdObjective(Objective):
@@ -293,15 +293,12 @@ class WeightedObjective(Objective):
 
         if np.count_nonzero(x) == 0:
             provisions = self._facade.start_provisions
-        elif np.count_nonzero(self._x_init) == 0:  # initial
-            provisions = self._facade.get_all_provisions(x)
-            changed_services = self._facade._chosen_service_types
-            self._current_func_evals += len(changed_services)
-            self._x_init = x
         else:
-            provisions = self._facade.get_provisions(self._x_init, x)
-            changed_services = self._facade.get_changed_services(self._x_init, x)
+            provisions = self._facade.get_provisions(self._x_last, x)
+            changed_services = self._facade.get_changed_services(self._x_last, x)
             self._current_func_evals += len(changed_services)
+
+        self._x_last = x
 
         services = self._weights.keys() & provisions.keys()
         obj_value = sum(provisions[st] * self._weights[st] for st in services)

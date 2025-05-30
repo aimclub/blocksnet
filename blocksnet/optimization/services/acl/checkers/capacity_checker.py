@@ -1,3 +1,4 @@
+import copy
 from typing import Dict, List
 
 import numpy as np
@@ -43,8 +44,11 @@ class CapacityChecker:
         """
         for block_id in self._demands.keys():
             # Calculate total demand with 20% buffer
-            block_demand = self.get_demand(block_id, st, provision_df) * 1.2
-            self._demands[block_id][st] = block_demand
+            block_demand = self.get_demand(block_id, st, provision_df)
+            units = service_types_config.units
+            block_demand += max([unit.capacity for _, unit in units[units.service_type == st].iterrows()])
+
+            self._demands[block_id][st] = max(block_demand, 0)
 
     def get_demand(self, block_id: int, service: str, provision_df: pd.DataFrame) -> float:
         """
@@ -70,7 +74,6 @@ class CapacityChecker:
         # Find blocks within accessibility range
         nearest_blocks = self._accessibility_matrix.index[self._accessibility_matrix[block_id] <= accessibility]
 
-        # Calculate total demand with 20% buffer
         return provision_df[provision_df.index.isin(nearest_blocks)][DEMAND_LEFT_COLUMN].sum()
 
     def get_ub_var(self, var: Variable) -> int:
@@ -106,7 +109,7 @@ class CapacityChecker:
             False if any service exceeds its demand capacity.
         """
         # Create a copy of demands to track remaining capacity
-        block_demands = self._demands.copy()
+        block_demands = copy.deepcopy(self._demands)
 
         for var in X:
             # Subtract this variable's capacity from the remaining demand
