@@ -67,6 +67,21 @@ class Constraints(ABC):
 
     @abstractmethod
     def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+        """
+        Suggest a solution with fixed values determined by the callback function.
+
+        Parameters
+        ----------
+        permut : ArrayLike
+            Array representing the order of variables.
+        suggest_callback : Callable
+            Function that determines fixed values of variables.
+
+        Returns
+        -------
+        ArrayLike
+            Suggested solution with fixed values.
+        """
         pass
 
     @abstractmethod
@@ -95,6 +110,19 @@ class Constraints(ABC):
 
     @abstractmethod
     def correct_X(self, x: ArrayLike) -> ArrayLike:
+        """
+        Correct the solution array to ensure it meets all constraints.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            Solution array to be corrected.
+
+        Returns
+        -------
+        ArrayLike
+            Corrected solution array that meets all constraints.
+        """
         pass
 
 
@@ -166,6 +194,21 @@ class CapacityConstraints(Constraints):
         return x
 
     def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+        """
+        Suggest a solution with fixed values determined by the callback function.
+
+        Parameters
+        ----------
+        permut : ArrayLike
+            Array representing the order of variables.
+        suggest_callback : Callable
+            Function that determines fixed values of variables.
+
+        Returns
+        -------
+        ArrayLike
+            Suggested solution with fixed values.
+        """
         x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
             val = suggest_callback(var_num)
@@ -205,6 +248,19 @@ class CapacityConstraints(Constraints):
         return np.all(x <= self._upper_bounds)
 
     def correct_X(self, x: ArrayLike) -> ArrayLike:
+        """
+        Correct the solution array to ensure it meets all constraints.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            Solution array to be corrected.
+
+        Returns
+        -------
+        ArrayLike
+            Corrected solution array that meets all constraints.
+        """
         return self._facade.get_X(x)
 
 
@@ -377,6 +433,21 @@ class WeightedConstraints(Constraints):
         return x
 
     def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+        """
+        Suggest a solution with fixed values determined by the callback function.
+
+        Parameters
+        ----------
+        permut : ArrayLike
+            Array representing the order of variables.
+        suggest_callback : Callable
+            Function that determines fixed values of variables.
+
+        Returns
+        -------
+        ArrayLike
+            Suggested solution with fixed values.
+        """
         x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
             val = suggest_callback(var_num)
@@ -429,4 +500,17 @@ class WeightedConstraints(Constraints):
         return self._facade.check_constraints(x)
 
     def correct_X(self, x: ArrayLike) -> ArrayLike:
+        """
+        Correct the solution array to ensure it meets all constraints.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            Solution array to be corrected.
+
+        Returns
+        -------
+        ArrayLike
+            Corrected solution array that meets all constraints.
+        """
         return self._facade.get_X(x)

@@ -38,14 +38,17 @@ class OptimizerMetrics:
 
     @property
     def best_values(self):
+        """Get the list of best objective values."""
         return self._best_values
 
     @property
     def called_obj(self):
+        """Get the list indicating whether objective was called in each trial."""
         return self._called_obj
 
     @property
     def func_evals_total(self):
+        """Get the list of total function evaluations."""
         return self._func_evals_total
 
     def update_metrics(self, obj_value: float, called_obj: bool, func_evals: int) -> None:
@@ -92,6 +95,7 @@ class Optimizer(ABC):
 
     @property
     def metrics(self):
+        """Get the optimizer metrics object."""
         return self._metrics
 
     @abstractmethod
@@ -144,6 +148,8 @@ class TPEOptimizer(Optimizer):
             The constraints that the solution must satisfy.
         vars_order : VariablesOrder, optional
             The order in which variables are optimized (default is NeutralOrder).
+        vars_chooser : VariableChooser, optional
+            The strategy for choosing variables (default is WeightChooser).
         """
         super().__init__(objective, constraints)
 
@@ -158,7 +164,6 @@ class TPEOptimizer(Optimizer):
 
         # Set variable ordering method
         self._vars_order = NeutralOrder() if vars_order is None else vars_order
-
         self._vars_chooser = WeightChooser() if vars_chooser is None else vars_chooser
 
         # Set up logging for the optimization process
@@ -209,6 +214,14 @@ class TPEOptimizer(Optimizer):
         logging.info("All trial data has been saved to tpe_trials.csv.")
 
     def get_last_trial(self) -> optuna.Trial | optuna.trial.FrozenTrial | None:
+        """
+        Get the last successful trial from the study.
+
+        Returns
+        -------
+        optuna.Trial | optuna.trial.FrozenTrial | None
+            The last successful trial object, or None if no successful trials exist.
+        """
         last_trial = None
         for _trial in reversed(self._study.trials):
             trial_val = _trial.value if _trial.value is not None else 0
@@ -234,6 +247,7 @@ class TPEOptimizer(Optimizer):
         """
 
         def trial_callback(var_num, low, high):
+            """Callback function for suggesting variable values during optimization."""
             if var_num in vars_opt:
                 val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)
             elif var_num in vars_fixed:
@@ -248,6 +262,7 @@ class TPEOptimizer(Optimizer):
             return val
 
         def trial_callback_fixed(var_num):
+            """Callback function for fixed variable values."""
             last_trial = []
             for i in range(len(self._study.trials) - 1, -1, -1):
                 trial_val = self._study.trials[i].value if self._study.trials[i].value is not None else 0
@@ -259,9 +274,11 @@ class TPEOptimizer(Optimizer):
             return val
 
         def trial_callback_null(var_num):
+            """Callback function returning zero for unused variables."""
             return 0
 
         def trials_data_callback():
+            """Callback function to get data from previous trials."""
             n = self._objective.num_params
             second_last_trial = [self._objective(np.zeros(n))[1], np.zeros(n)]
             last_trial = []
@@ -312,14 +329,6 @@ class TPEOptimizer(Optimizer):
             logging.info(
                 f"Trial {trial.number}: PRUNED -> Params: x={x}, Func evals: {self._objective.current_func_evals}"
             )
-
-            # last_pruned = 0
-            # for i in range(len(self._study.trials) - 1, -1, -1):
-            #     if self._study.trials[i].state is optuna.trial.TrialState.COMPLETE:
-            #         break
-            #     last_pruned += 1
-            # if last_pruned >= 5:
-            #     self._constraints.decrease_ubs()
             raise optuna.TrialPruned()  # Stop trial if constraints are violated
         else:
             provisions, value = self._objective(x)
@@ -385,8 +394,11 @@ class TPEOptimizer(Optimizer):
         Returns
         -------
         tuple[dict, float, float, int]
-            A tuple containing the best parameters, the best objective value,
-            the percentage of successful trials, and the total number of function evaluations.
+            A tuple containing:
+            - dict: Best parameters found
+            - float: Best objective value
+            - float: Percentage of successful trials
+            - int: Total number of function evaluations
         """
         n_jobs = 1  # Number of parallel jobs (default is 1)
 

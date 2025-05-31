@@ -12,6 +12,8 @@ from .optimizer import Optimizer
 class HEBOOptimizer(Optimizer):
     """
     HEBO-based optimizer for black-box function optimization.
+    Uses the HEBO (Heteroscedastic Evolutionary Bayesian Optimization) algorithm
+    to optimize objective functions with constraints.
     """
 
     def __init__(self, objective: Objective, constraints: Constraints):
@@ -48,11 +50,14 @@ class HEBOOptimizer(Optimizer):
         ----------
         X : pd.DataFrame
             A dataframe containing parameter values to be evaluated.
+            Each row represents a parameter combination, columns represent parameters.
 
         Returns
         -------
         pd.DataFrame
             A dataframe containing the corresponding objective values.
+            The dataframe has a single column 'fval' with negative objective values
+            (since HEBO performs minimization).
         """
         results = []
         for _, row in X.iterrows():
@@ -69,31 +74,34 @@ class HEBOOptimizer(Optimizer):
                 logging.info(f"Evaluated: x={x}, value={value}")
         return pd.DataFrame(results, columns=["fval"])
 
-    def run(self, max_runs: int, timeout: float, verbose: bool = True) -> tuple[dict, float, float, int]:
+    def run(self, max_runs: int, timeout: float, verbose: bool = True) -> tuple[float, float, int]:
         """
         Run the HEBO optimization process.
 
         Parameters
         ----------
         max_runs : int
-            Maximum number of optimization runs.
+            Maximum number of optimization iterations.
         timeout : float
-            Timeout in seconds for the optimization.
+            Timeout in seconds for the optimization (currently unused).
         verbose : bool, optional
             Whether to print progress during optimization (default is True).
 
         Returns
         -------
-        tuple[dict, float, float, int]
-            A tuple containing the best parameters, the best objective value,
-            the percentage of successful trials, and the total number of function evaluations.
+        tuple[float, float, int]
+            A tuple containing:
+            - Best objective value found (float)
+            - Success rate (float): percentage of trials that satisfied constraints
+            - Total number of function evaluations (int)
         """
         for n_run in range(max_runs):
             rec = self._optimizer.suggest(n_suggestions=2)  # TODO: вот здесь можно делать отбор решений
 
             result = self._evaluate(rec)
             self._optimizer.observe(rec, result.to_numpy())
-            print("After %d iterations, best obj is %.2f" % (n_run, -self._optimizer.y.max()))
+            if verbose:
+                print("After %d iterations, best obj is %.2f" % (n_run, -self._optimizer.y.max()))
 
         best_value = -self._optimizer.y.max()
         success_rate = sum(self.metrics.called_obj) / len(self.metrics.called_obj)

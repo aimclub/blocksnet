@@ -46,12 +46,14 @@ class VariableChooser(ABC):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices for optimization
+            - Array of variable indices to be set to zero
         """
         pass
 
-    def __call__(self, x: ArrayLike, trials_data_callback: Callable) -> ArrayLike:
+    def __call__(self, x: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
         Callable interface for variable selection.
 
@@ -64,19 +66,36 @@ class VariableChooser(ABC):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices for optimization
+            - Array of variable indices to be set to zero
         """
         return self._choose(x, trials_data_callback)
 
 
 class SimpleChooser(VariableChooser):
+    """
+    Simple variable chooser that selects all variables in the given permutation.
+
+    This is a basic implementation that doesn't perform any prioritization,
+    simply returning all variables in the input permutation.
+    """
+
     def __init__(self, facade: Facade):
+        """
+        Initialize the SimpleChooser.
+
+        Parameters
+        ----------
+        facade : Facade
+            The facade providing access to city data and optimization methods.
+        """
         super().__init__(facade)
 
     def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
-        Select variables based on service type weights.
+        Select all variables in the given permutation.
 
         Parameters
         ----------
@@ -87,10 +106,11 @@ class SimpleChooser(VariableChooser):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices, prioritizing higher-weighted services.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - All variables from the input permutation
+            - Empty array (no variables to set to zero)
         """
-
         return permut, np.array([])
 
 
@@ -139,8 +159,10 @@ class WeightChooser(VariableChooser):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices, prioritizing higher-weighted services.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices, prioritizing higher-weighted services
+            - Array of variable indices for services with medium priority
         """
         services = set()
         for var_num in permut:
@@ -148,20 +170,27 @@ class WeightChooser(VariableChooser):
             services.add(var_service)
         # Group services by block and sort by weight
         services_list = list(services)
-        services_list.sort(lambda x: -self._weights[x])
+        services_list.sort(key=lambda x: -self._weights[x])
 
         n = len(permut)
         opt_threshold = min(int(np.ceil(n / 3)), self._num_top)
         null_threshold = min(int(np.ceil(n / 4)), self._num_top)
 
-        return np.array(
-            [var_num for var_num in permut if self._facade.get_service_name(var_num) in services_list[:opt_threshold]]
-        ), np.array(
-            [
-                var_num
-                for var_num in permut
-                if self._facade.get_service_name(var_num) in services_list[opt_threshold:-null_threshold]
-            ]
+        return (
+            np.array(
+                [
+                    var_num
+                    for var_num in permut
+                    if self._facade.get_service_name(var_num) in services_list[:opt_threshold]
+                ]
+            ),
+            np.array(
+                [
+                    var_num
+                    for var_num in permut
+                    if self._facade.get_service_name(var_num) in services_list[opt_threshold:-null_threshold]
+                ]
+            ),
         )
 
 
@@ -210,9 +239,11 @@ class GradientChooser(VariableChooser):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices, prioritizing services with highest
-            provision improvement per resource invested.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices, prioritizing services with highest
+              provision improvement per resource invested
+            - Array of variable indices for services with medium priority
         """
         # Get trial data and filter variables with remaining capacity
         second_last_trial, last_trial = trials_data_callback()
@@ -253,12 +284,15 @@ class GradientChooser(VariableChooser):
         null_threshold = min(int(np.ceil(n / 4)), self._num_top)
 
         # Select top N services per block
-        return np.array(
-            [var_num for var_num in permut if self._facade.get_service_name(var_num) in services[:opt_threshold]]
-        ), np.array(
-            [
-                var_num
-                for var_num in permut
-                if self._facade.get_service_name(var_num) in services[opt_threshold:-null_threshold]
-            ]
+        return (
+            np.array(
+                [var_num for var_num in permut if self._facade.get_service_name(var_num) in services[:opt_threshold]]
+            ),
+            np.array(
+                [
+                    var_num
+                    for var_num in permut
+                    if self._facade.get_service_name(var_num) in services[opt_threshold:-null_threshold]
+                ]
+            ),
         )
