@@ -19,6 +19,19 @@ class ProvisionAdapter:
     - Block land use characteristics
     - Service accessibility matrices
     - Service capacity distributions
+
+    Attributes
+    ----------
+    _accessibility_matrix : pd.DataFrame
+        Accessibility matrix between blocks
+    _blocks_df : pd.DataFrame
+        DataFrame containing block geometries and attributes
+    _blocks_lus : Dict[int, LandUse]
+        Dictionary mapping block IDs to land use types
+    last_provisions_dfs : Dict[str, pd.DataFrame]
+        Stores the most recent provision calculations by service type
+    start_provisions_dfs : Dict[str, pd.DataFrame]
+        Stores initial provision calculations by service type
     """
 
     def __init__(self, blocks_lus: Dict[int, LandUse], accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame):
@@ -94,13 +107,39 @@ class ProvisionAdapter:
         log_config.set_disable_tqdm(disable_tqdm)
         log_config.set_logger_level(log_level)
 
-    def get_last_provision_df(self, service_type: str) -> pd.DataFrame:
+    def get_last_provision_df(self, service_type: str) -> Optional[pd.DataFrame]:
+        """
+        Retrieve the most recent provision DataFrame for a service type.
+
+        Parameters
+        ----------
+        service_type : str
+            The service type identifier
+
+        Returns
+        -------
+        Optional[pd.DataFrame]
+            Copy of the last provision DataFrame, or None if not found
+        """
         if service_type not in self.last_provisions_dfs.keys():
             return None
 
         return self.last_provisions_dfs[service_type].copy()
 
-    def get_start_provision_df(self, service_type: str) -> pd.DataFrame:
+    def get_start_provision_df(self, service_type: str) -> Optional[pd.DataFrame]:
+        """
+        Retrieve the initial provision DataFrame for a service type.
+
+        Parameters
+        ----------
+        service_type : str
+            The service type identifier
+
+        Returns
+        -------
+        Optional[pd.DataFrame]
+            Copy of the initial provision DataFrame, or None if not found
+        """
         if service_type not in self.start_provisions_dfs.keys():
             return None
 
@@ -117,9 +156,10 @@ class ProvisionAdapter:
         Parameters
         ----------
         service_type : str
-            The service type identifier to calculate provision for.
-        variables_df : Optional[pd.DataFrame]
-            DataFrame containing capacity updates of variables
+            The service type identifier to calculate provision for
+        variables_df : Optional[pd.DataFrame], default=None
+            DataFrame containing capacity updates of variables. If provided,
+            will recalculate provisions based on updated capacities.
 
         Returns
         -------
@@ -127,6 +167,11 @@ class ProvisionAdapter:
             The total provision score (0-1) representing how well demand is met:
             - 1.0 indicates all demand is perfectly satisfied
             - Lower values indicate unmet demand
+
+        Notes
+        -----
+        - When variables_df is provided, temporarily suppresses logging during updates
+        - Updates last_provisions_dfs with new calculations if variables_df is provided
         """
         if variables_df is not None:
             # Temporarily suppress logging during updates

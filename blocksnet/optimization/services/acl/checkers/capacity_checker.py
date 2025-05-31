@@ -68,6 +68,8 @@ class CapacityChecker:
             Total calculated demand for the service in the accessible area around the block.
         """
         # Get accessibility threshold for this service type
+        # Note: The actual implementation uses service_types_config[service].values()
+        # while the comment suggests getting threshold, capacity, accessibility
         _, _, accessibility = service_types_config[service].values()
 
         # Find blocks within accessibility range
@@ -82,7 +84,8 @@ class CapacityChecker:
         Parameters
         ----------
         var : Variable
-            The service variable to calculate upper bound for.
+            The service variable to calculate upper bound for. Must have block_id, service_type,
+            and capacity attributes.
 
         Returns
         -------
@@ -99,7 +102,8 @@ class CapacityChecker:
         Parameters
         ----------
         X : List[Variable]
-            List of Variable objects representing the solution.
+            List of Variable objects representing the solution. Each variable must have
+            block_id, service_type, and total_capacity attributes.
 
         Returns
         -------
