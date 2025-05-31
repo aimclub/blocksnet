@@ -70,6 +70,30 @@ class VariableChooser(ABC):
         return self._choose(x, trials_data_callback)
 
 
+class SimpleChooser(VariableChooser):
+    def __init__(self, facade: Facade):
+        super().__init__(facade)
+
+    def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
+        """
+        Select variables based on service type weights.
+
+        Parameters
+        ----------
+        permut : ArrayLike
+            Permutation of variable indices to consider.
+        trials_data_callback : Callable
+            Unused in this implementation (maintained for interface consistency).
+
+        Returns
+        -------
+        ArrayLike
+            Array of selected variable indices, prioritizing higher-weighted services.
+        """
+
+        return permut, np.array([])
+
+
 class WeightChooser(VariableChooser):
     """
     Variable selection strategy based on predefined service type weights.

@@ -93,6 +93,10 @@ class Constraints(ABC):
         """
         pass
 
+    @abstractmethod
+    def correct_X(self, x: ArrayLike) -> ArrayLike:
+        pass
+
 
 class CapacityConstraints(Constraints):
     """
@@ -200,6 +204,9 @@ class CapacityConstraints(Constraints):
         """
         return np.all(x <= self._upper_bounds)
 
+    def correct_X(self, x: ArrayLike) -> ArrayLike:
+        return self._facade.get_X(x)
+
 
 class WeightedConstraints(Constraints):
     """
@@ -249,7 +256,7 @@ class WeightedConstraints(Constraints):
                 service: priority[service] / total_priority for service in facade.get_block_services(block_id)
             }
 
-    def suggest_initial_solution1(self, permut: ArrayLike) -> ArrayLike:
+    def suggest_initial_solution(self, permut: ArrayLike) -> ArrayLike:
         """
         Suggests an initial solution while ensuring group weight limits are respected.
         This is an alternative implementation that distributes capacity according to service priorities.
@@ -284,6 +291,7 @@ class WeightedConstraints(Constraints):
                         / weight
                     )
                     for i, weight in enumerate(self._weights[var_num])
+                    if weight > 0
                 ]
             )
             chosen_val = max(chosen_val, 0)
@@ -294,7 +302,7 @@ class WeightedConstraints(Constraints):
             x[var_num] = chosen_val
         return x
 
-    def suggest_initial_solution(self, permut: ArrayLike) -> ArrayLike:
+    def suggest_initial_solution1(self, permut: ArrayLike) -> ArrayLike:
         """
         Generate an initial solution while respecting upper bounds and ensuring
         at most one variable per service is selected in each block.
@@ -319,8 +327,9 @@ class WeightedConstraints(Constraints):
                 chosen_val = 0
             else:
                 chosen_val = min(
-                    np.floor((self._vars_limit[var_num][i] - block_sums[var_block][0]) / weight)
+                    np.floor((self._vars_limit[var_num][i] - block_sums[var_block][i]) / weight)
                     for i, weight in enumerate(self._weights[var_num])
+                    if weight > 0
                 )
                 chosen_val = max(0, chosen_val)
                 chosen_val = min(chosen_val, self.get_ub(var_num))
@@ -347,15 +356,24 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Suggested feasible solution.
         """
+        block_sums = {block_id: np.zeros(self._weights.shape[1]) for block_id in self._block_ids}
         x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
+            var_block = self._vars_block[var_num]
             lb = 0
-            ub = self.get_ub(var_num)
+            ub = min(
+                np.floor((self._vars_limit[var_num][i] - block_sums[var_block][i]) / weight)
+                for i, weight in enumerate(self._weights[var_num])
+                if weight > 0
+            )
+            ub = min(ub, self.get_ub(var_num))
             if ub < lb:
                 val = 0
             else:
                 val = suggest_callback(var_num, lb, ub)
             x[var_num] = val
+            block_sums[var_block] += self._weights[var_num] * val
+
         return x
 
     def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
@@ -409,3 +427,6 @@ class WeightedConstraints(Constraints):
             True if constraints are satisfied, otherwise False.
         """
         return self._facade.check_constraints(x)
+
+    def correct_X(self, x: ArrayLike) -> ArrayLike:
+        return self._facade.get_X(x)

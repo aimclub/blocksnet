@@ -208,6 +208,16 @@ class TPEOptimizer(Optimizer):
         df.to_csv("tpe_trials.csv", index=False)
         logging.info("All trial data has been saved to tpe_trials.csv.")
 
+    def get_last_trial(self) -> optuna.Trial | optuna.trial.FrozenTrial | None:
+        last_trial = None
+        for _trial in reversed(self._study.trials):
+            trial_val = _trial.value if _trial.value is not None else 0
+            if trial_val > 0:
+                if last_trial is None:
+                    last_trial = _trial
+                    break
+        return last_trial
+
     def _optuna_objective(self, trial: optuna.Trial):
         """
         The objective function used by Optuna during the optimization process.
@@ -224,7 +234,17 @@ class TPEOptimizer(Optimizer):
         """
 
         def trial_callback(var_num, low, high):
-            val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)
+            if var_num in vars_opt:
+                val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)
+            elif var_num in vars_fixed:
+                last_trial = self.get_last_trial()
+                val = trial.suggest_int(
+                    name=f"x_{var_num}",
+                    low=last_trial.user_attrs.get("params")[var_num],
+                    high=last_trial.user_attrs.get("params")[var_num],
+                )
+            else:
+                val = trial.suggest_int(name=f"x_{var_num}", low=0, high=0)
             return val
 
         def trial_callback_fixed(var_num):
@@ -267,23 +287,23 @@ class TPEOptimizer(Optimizer):
 
             return second_last_trial, last_trial
 
+        last_trial_suggested = (
+            False if self.get_last_trial() is None else self.get_last_trial().user_attrs.get("suggested", True)
+        )
         n = self._objective.num_params
         vars_order = np.arange(n, dtype=int)
+        vars_opt = vars_order
+        vars_fixed = []
 
         self._vars_order(vars_order)
         if trial.number > 0:
-            vars_opt, vars_fixed = self._vars_chooser(vars_order, trials_data_callback)
-        else:
-            vars_opt = vars_order
-            vars_fixed = []
+            if last_trial_suggested:
+                vars_opt = []
+                vars_fixed = vars_order
+            else:
+                vars_opt, vars_fixed = self._vars_chooser(vars_order, trials_data_callback)
 
-        vars_null = [i for i in range(n) if i not in vars_opt and i not in vars_fixed]
-
-        x = (
-            self._constraints.suggest_solution(vars_opt, trial_callback)
-            + self._constraints.suggest_fixed(vars_fixed, trial_callback_fixed)
-            + self._constraints.suggest_fixed(vars_null, trial_callback_null)
-        )
+        x = self._constraints.suggest_solution(vars_order, trial_callback)
 
         value = 0
         if not self._constraints.check_constraints(x):
@@ -293,18 +313,19 @@ class TPEOptimizer(Optimizer):
                 f"Trial {trial.number}: PRUNED -> Params: x={x}, Func evals: {self._objective.current_func_evals}"
             )
 
-            last_pruned = 0
-            for i in range(len(self._study.trials) - 1, -1, -1):
-                if self._study.trials[i].state is optuna.trial.TrialState.COMPLETE:
-                    break
-                last_pruned += 1
-            if last_pruned >= 5:
-                self._constraints.decrease_ubs()
+            # last_pruned = 0
+            # for i in range(len(self._study.trials) - 1, -1, -1):
+            #     if self._study.trials[i].state is optuna.trial.TrialState.COMPLETE:
+            #         break
+            #     last_pruned += 1
+            # if last_pruned >= 5:
+            #     self._constraints.decrease_ubs()
             raise optuna.TrialPruned()  # Stop trial if constraints are violated
         else:
             provisions, value = self._objective(x)
             trial.set_user_attr("provisions", provisions)
-            trial.set_user_attr("params", list(x))
+            trial.set_user_attr("suggested", not last_trial_suggested)
+            trial.set_user_attr("params", [var.count for var in self._constraints.correct_X(x)])
             logging.info(
                 f"Trial {trial.number}: COMPLETE -> Params: x={x}, Value: {value}, Func evals: {self._objective.current_func_evals}"
             )
