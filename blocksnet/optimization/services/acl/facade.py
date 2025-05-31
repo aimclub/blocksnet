@@ -28,10 +28,10 @@ class Facade:
 
     def __init__(
         self,
+        var_adapter: VariableAdapter,
         accessibility_matrix: pd.DataFrame,
         blocks_df: gpd.GeoDataFrame,
         blocks_lu: Dict[int, LandUse],
-        var_adapter: VariableAdapter,
     ) -> None:
         """
         Initialize the Facade with required data structures.
@@ -191,6 +191,10 @@ class Facade:
         X = self._converter(x)
         return self._area_checker.check_constraints(X) and self._capacity_checker.check_constraints(X)
 
+    def get_X(self, x: ArrayLike) -> ArrayLike:
+        self._converter(x)
+        return self._converter.X
+
     def get_max_capacity(self, block_id: int, service: str) -> float:
         """
         Get the maximum capacity for a service type in a block.
@@ -207,9 +211,7 @@ class Facade:
         float
             Maximum capacity for the specified service in the given block.
         """
-        return self._capacity_checker.get_demand(
-            block_id, service, self._provision_adapter.get_start_provision_df(service)
-        )
+        return self._capacity_checker.get_demand(block_id, service)
 
     def get_max_capacities(self, block_id: int) -> Dict[str, float]:
         """
@@ -294,19 +296,19 @@ class Facade:
         """
         X_diff = self._converter(x - x_last)
         services_vars_diff = {
-            st: np.array([var.count for var in X_diff if var.service_type == st]) for st in self._chosen_service_types
+            st: np.array([var.count for var in X_diff if var.service_type == st and var.count > 0])
+            for st in self._chosen_service_types
         }
 
         X = self._converter(x)
         services_vars = {
-            st: np.array([var.count for var in X if var.service_type == st]) for st in self._chosen_service_types
+            st: np.array([var.count for var in X if var.service_type == st and var.count > 0])
+            for st in self._chosen_service_types
         }
 
         changed_services = self._chosen_service_types.copy()
         for st in services_vars.keys():
-            if (
-                np.count_nonzero(services_vars[st]) == 0 or np.count_nonzero(services_vars_diff[st]) == 0
-            ):  # all zeros or all same as last
+            if len(services_vars[st]) == 0 or len(services_vars_diff[st]) == 0:  # all zeros or all same as init
                 if st in changed_services:
                     changed_services.remove(st)
 
@@ -386,6 +388,10 @@ class Facade:
         var = self._converter.X[var_num]
         area_ub = self._area_checker.get_ub_var(var)
         demand_ub = self._capacity_checker.get_ub_var(var)
+        if demand_ub == -1:
+            return area_ub
+        if area_ub == -1:
+            return demand_ub
         return min(demand_ub, area_ub)
 
     def get_var_weights(self, var_num: int) -> ArrayLike:

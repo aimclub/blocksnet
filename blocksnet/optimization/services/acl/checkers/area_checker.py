@@ -27,11 +27,13 @@ class AreaChecker:
             DataFrame containing block information, must include 'site_area' column.
         """
         self._bfa_coef = 0.3
-        self._sa_coef = 0.2
+        self._sa_coef = 0.8
         self.site_areas = {block_id: cols["site_area"] for block_id, cols in blocks_df.iterrows()}
         self.build_floor_areas = {block_id: cols["site_area"] for block_id, cols in blocks_df.iterrows()}
         for block_id, land_use in blocks_lu.items():
-            alpha = fsi_ranges[land_use][1] * self._bfa_coef  # fsi_max * bfa_coef
+            alpha = fsi_ranges[land_use][1] * (
+                self._bfa_coef if land_use == LandUse.RESIDENTIAL else 1.0
+            )  # fsi_max * bfa_coef
             beta = alpha - gsi_ranges[land_use][0] + self._sa_coef  # alpha - gsi_min + sa_coef
             self.site_areas[block_id] *= beta
             self.build_floor_areas[block_id] *= alpha

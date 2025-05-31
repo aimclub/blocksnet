@@ -43,7 +43,6 @@ class CapacityChecker:
             DataFrame containing provision data for the service type, including demand information.
         """
         for block_id in self._demands.keys():
-            # Calculate total demand with 20% buffer
             block_demand = self.get_demand(block_id, st, provision_df)
             units = service_types_config.units
             block_demand += max([unit.capacity for _, unit in units[units.service_type == st].iterrows()])
