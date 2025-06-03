@@ -47,8 +47,7 @@ version_scheme = "post-release"
 local_scheme = "no-local-version"
 
 [project.optional-dependencies]
-fe = ['pygeoops', 'featuretools']
-ml = ["blocksnet[fe]", "torch", "torch_geometric", 'catboost']
+ml = ["pygeoops", "featuretools", "torch", "torch_geometric", 'catboost']
 opt = ["optuna", "hebo"]
 full = ["blocksnet[ml, opt]"]
 
@@ -58,6 +57,7 @@ ipynb = [
     "folium==0.14.0",           #jupyter maps
     "matplotlib>=3.9.0,<4.0.0",
 ]
+
 tests = ["pytest==7.4.3", "pytest-cov==4.1.0"]
 docs = [
     "docutils>=0.18.1,<0.19",
