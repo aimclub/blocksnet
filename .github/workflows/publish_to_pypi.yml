@@ -33,7 +33,9 @@ jobs:
       - name: Determine branch
         id: branch
         run: |
+          git fetch --all
           BRANCH=$(git branch -r --contains "$GITHUB_SHA" | grep -E 'origin/(main|develop)' | sed 's|origin/||' | head -n 1)
+          echo "Detected branch: $BRANCH"
           echo "branch=$BRANCH" >> $GITHUB_OUTPUT
 
       - name: Publish to TestPyPI
