@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64.0"]
+requires = ["setuptools>=64.0", "setuptools_scm[toml]>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "blocksnet"
-version = "1.0.dev0"
+dynamic = ["version"]
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
@@ -41,6 +41,10 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 include = ["blocksnet*"]
+
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
 
 [project.optional-dependencies]
 fe = ['pygeoops', 'featuretools']
