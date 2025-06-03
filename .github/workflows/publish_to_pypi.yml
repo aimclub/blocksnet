@@ -4,9 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - main
-      - develop
 
 jobs:
   publish:
@@ -34,9 +31,15 @@ jobs:
         id: branch
         run: |
           git fetch --all
-          BRANCH=$(git branch -r --contains "$GITHUB_SHA" | grep -E 'origin/(main|develop)' | sed 's|origin/||' | head -n 1)
-          echo "Detected branch: $BRANCH"
-          echo "branch=$BRANCH" >> $GITHUB_OUTPUT
+          for B in main develop; do
+            if git merge-base --is-ancestor "$GITHUB_SHA" origin/$B; then
+              echo "branch=$B" >> $GITHUB_OUTPUT
+              echo "Detected branch: $B"
+              exit 0
+            fi
+          done
+          echo "branch=unknown" >> $GITHUB_OUTPUT
+          echo "Detected branch: unknown"
 
       - name: Publish to TestPyPI
         if: ${{ steps.branch.outputs.branch == 'develop' }}
