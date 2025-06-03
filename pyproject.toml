@@ -11,7 +11,7 @@ authors = [
 description = "Package provides methods to autimatically generate master plan requirements for urban areas"
 readme = "README.rst"
 requires-python = ">=3.10"
-license = { file = "LICENCE.md" }
+license = { file = "LICENCE" }
 
 dependencies = [
     "numpy>=2.0.0,<3.0.0",
