@@ -99,19 +99,44 @@ def _filter_bottlenecks(gdf: gpd.GeoDataFrame, min_block_width: float) -> gpd.Ge
 
     return gdf
 
+def _filter_water_objects(
+    water_gdf: gpd.GeoDataFrame,
+    blocks_gdf: gpd.GeoDataFrame
+) -> gpd.GeoDataFrame:
+    logger.info("Filtering water objects that border two or more blocks")
+
+    if water_gdf.empty or len(blocks_gdf) < 2:
+        return gpd.GeoDataFrame(geometry=[], crs=water_gdf.crs)
+    
+    water_gdf = water_gdf.reset_index(drop=True)
+    joined = gpd.sjoin(water_gdf, blocks_gdf, how="inner", predicate="intersects")
+
+    water_counts = joined.groupby(level=0).size()
+    valid_water_indices = water_counts[water_counts >= 2].index
+    result = water_gdf.loc[valid_water_indices]
+
+    return result
 
 @_validate_and_process_gdfs
 def cut_urban_blocks(
     boundaries_gdf: gpd.GeoDataFrame,
     lines_gdf: gpd.GeoDataFrame | None,
     polygons_gdf: gpd.GeoDataFrame | None,
+    water_gdf : gpd.GeoDataFrame | None,
     fill_holes: bool = True,
     min_block_width: float | None = None,
 ) -> gpd.GeoDataFrame:
     boundaries_gdf = _exclude_polygons(boundaries_gdf, polygons_gdf)
     blocks_gdf = _get_enclosures(boundaries_gdf, lines_gdf)
+
+    if water_gdf is not None and not water_gdf.empty:
+        valid_water_bodies = _filter_water_objects(water_gdf, blocks_gdf)
+        boundaries_gdf = _exclude_polygons(boundaries_gdf, valid_water_bodies)
+        blocks_gdf = _get_enclosures(boundaries_gdf, lines_gdf)
+
     if fill_holes:
         blocks_gdf = _fill_holes(blocks_gdf)
+
     blocks_gdf = _filter_overlapping(blocks_gdf)
     if min_block_width is not None:
         blocks_gdf = _filter_bottlenecks(blocks_gdf, min_block_width)

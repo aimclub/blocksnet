@@ -64,7 +64,7 @@ def preprocess_urban_objects(
 
     ensure_crs(roads_gdf, railways_gdf, water_gdf)
 
-    objects_gdf = pd.concat([roads_gdf, railways_gdf, water_gdf])
+    objects_gdf = pd.concat([roads_gdf, railways_gdf])
     polygons_gdf = objects_gdf[
         objects_gdf.geometry.apply(lambda g: isinstance(g, shapely.Polygon) or isinstance(g, shapely.MultiPolygon))
     ].reset_index(drop=True)
@@ -74,4 +74,4 @@ def preprocess_urban_objects(
         )
     ].reset_index(drop=True)
 
-    return lines_gdf, polygons_gdf
+    return lines_gdf, polygons_gdf, water_gdf
