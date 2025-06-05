@@ -1,0 +1,58 @@
+name: Publish to PyPI
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  publish:
+    name: Publish to PyPI or TestPyPI
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install build tools
+        run: |
+          python -m pip install --upgrade pip
+          pip install build twine
+
+      - name: Build the package
+        run: python -m build .
+
+      - name: Determine branch
+        id: branch
+        run: |
+          git fetch --all
+          for B in main develop; do
+            if git merge-base --is-ancestor "$GITHUB_SHA" origin/$B; then
+              echo "branch=$B" >> $GITHUB_OUTPUT
+              echo "Detected branch: $B"
+              exit 0
+            fi
+          done
+          echo "branch=unknown" >> $GITHUB_OUTPUT
+          echo "Detected branch: unknown"
+
+      - name: Publish to TestPyPI
+        if: ${{ steps.branch.outputs.branch == 'develop' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+        run: |
+            python3 -m twine upload --repository testpypi dist/*
+
+      - name: Publish to PyPI
+        if: ${{ steps.branch.outputs.branch == 'main' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+            python3 -m twine upload dist/*
