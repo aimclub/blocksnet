@@ -1,8 +1,6 @@
 import random
-
-from ...config import land_use_config
 from ...enums import LandUse
-
+from ...config import land_use_config
 
 LAND_USE_LIST = list(LandUse)
 

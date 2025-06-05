@@ -1,10 +1,9 @@
-import networkx as nx
 import numpy as np
 import pandas as pd
-
-from ....config import land_use_config
-from ....enums import LandUse
+import networkx as nx
 from ..utils import reverse_transform_lu
+from ....enums import LandUse
+from ....config import land_use_config
 
 
 def share_fitness(solution, blocks_df: pd.DataFrame, target_shares: dict[LandUse, float]):

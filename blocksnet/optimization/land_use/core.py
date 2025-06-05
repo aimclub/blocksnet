@@ -1,17 +1,16 @@
-import networkx as nx
 import pandas as pd
-from pymoo.algorithms.moo.nsga2 import NSGA2
+import networkx as nx
 from pymoo.operators.crossover.ux import UniformCrossover
-from pymoo.operators.repair.rounding import RoundingRepair
-from pymoo.optimize import minimize
 from pymoo.termination import get_termination
-
-from ...enums import LandUse
-from ...relations import get_adjacency_context
-from ...utils.validation import validate_graph
-from . import common, utils
+from pymoo.algorithms.moo.nsga2 import NSGA2
+from pymoo.optimize import minimize
+from pymoo.operators.repair.rounding import RoundingRepair
+from . import common
 from .schemas import BlocksSchema
-
+from . import utils
+from ...utils.validation import validate_graph
+from ...relations import get_adjacency_context
+from ...enums import LandUse
 
 SOLUTION_COLUMN = "solution"
 OBJECTIVES_COLUMN = "objectives"

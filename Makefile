@@ -7,11 +7,11 @@ format:
 	isort ${SOURCE_DIR}
 	black ${SOURCE_DIR}
 
+venv: #then source .venv/bin/activate
+	python3 -m venv .venv
+
 install:
 	pip install .
-
-venv: #then source .venv/bin/activate
-	python -m venv .venv
 
 install-dev:
 	pip install -e '.[dev]'
@@ -19,20 +19,8 @@ install-dev:
 install-docs:
 	pip install -e '.[docs]'
 
-build:
-	python3.10 -m build .
-
-clean:
-	rm -rf ./build ./dist ./blocksnet.egg-info
-
-update-pypi: clean build
-	python3 -m twine upload dist/*
-
-update-test-pypi: clean build
-	python3 -m twine upload --repository testpypi dist/*
-
-test:
+tests:
 	pytest tests
 
-test-cov:
+tests-cov:
 	pytest tests --cov
