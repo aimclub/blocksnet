@@ -1,10 +1,9 @@
-import joblib
 import numpy as np
 import pandas as pd
-from loguru import logger
+import joblib
 from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.multioutput import MultiOutputRegressor
-
+from loguru import logger
 
 MODEL_MEDIAN_KEY = "model_median"
 MODEL_LOWER_KEY = "model_lower"

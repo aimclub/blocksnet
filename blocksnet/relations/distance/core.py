@@ -1,7 +1,6 @@
 import geopandas as gpd
 import numpy as np
 from scipy.spatial import distance_matrix
-
 from .schemas import BlocksSchema
 
 

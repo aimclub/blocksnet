@@ -1,9 +1,7 @@
 import pickle
-
 import geopandas as gpd
-
-from .common import BlocksOrganizer
 from .schemas import BlocksSchema
+from .common import BlocksOrganizer
 
 
 class DataOrganizer(BlocksOrganizer):

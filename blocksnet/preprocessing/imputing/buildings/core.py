@@ -1,5 +1,4 @@
 import geopandas as gpd
-
 from .schemas import BuildingsSchema
 
 

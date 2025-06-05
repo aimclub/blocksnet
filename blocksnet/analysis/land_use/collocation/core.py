@@ -1,11 +1,9 @@
 import networkx as nx
 import pandas as pd
 from tqdm import tqdm
-
-from ....config import land_use_config, log_config
-from ....utils.validation import validate_graph
 from .schemas import BlocksSchema
-
+from ....utils.validation import validate_graph
+from ....config import land_use_config, log_config
 
 COLLOCATION_COLUMN = "collocation"
 

@@ -1,13 +1,12 @@
 import geopandas as gpd
-import iduedu as ie
 import networkx as nx
 import pandas as pd
+import iduedu as ie
 import pyproj
 import pyproj.exceptions
-
-from ...utils.validation import validate_matrix
 from .const import CRS_KEY, WEIGHT_KEY, X_KEY, Y_KEY
 from .schemas import BlocksSchema
+from ...utils.validation import validate_matrix
 
 
 def _validate_crs(graph: nx.Graph):

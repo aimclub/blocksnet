@@ -1,12 +1,10 @@
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
-
-from ....utils.validation import validate_matrix
-from ...accessibility.core import MEAN_ACCESSIBILITY_COLUMN, mean_accessibility
-from ...provision.diversity.core import COUNT_COLUMN, SHANNON_DIVERSITY_COLUMN, shannon_diversity
 from .schemas import BlocksSchema
-
+from ...provision.diversity.core import shannon_diversity, COUNT_COLUMN, SHANNON_DIVERSITY_COLUMN
+from ...accessibility.core import mean_accessibility, MEAN_ACCESSIBILITY_COLUMN
+from ....utils.validation import validate_matrix
 
 CONNECTIVITY_COLUMN = "connectivity"
 DENSITY_COLUMN = "density"

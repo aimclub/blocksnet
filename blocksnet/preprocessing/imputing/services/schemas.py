@@ -1,8 +1,7 @@
-import pandas as pd
 import shapely
+import pandas as pd
 from pandera import Field
 from pandera.typing import Series
-
 from blocksnet.utils.validation import GdfSchema
 
 

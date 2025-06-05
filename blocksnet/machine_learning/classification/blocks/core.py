@@ -1,15 +1,11 @@
 from pathlib import Path
-
 import geopandas as gpd
-import numpy as np
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
-
+from .common import ModelWrapper, BlockCategory
+from .schemas import BlocksSchema, BlocksCategoriesSchema
 from blocksnet.preprocessing.feature_engineering import generate_geometries_features
-
-from .common import BlockCategory, ModelWrapper
-from .schemas import BlocksCategoriesSchema, BlocksSchema
-
 
 CATEGORY_COLUMN = "category"
 PROBABILITY_COLUMN = "probability"
@@ -38,9 +34,11 @@ class BlocksClassifier(ModelWrapper):
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test, random_state=seed, *args, **kwargs)
         return x_train, x_test, y_train, y_test
 
-    def train(self): ...
+    def train(self):
+        ...
 
-    def test(self): ...
+    def test(self):
+        ...
 
     def evaluate(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
         x = self._initialize_x(blocks_gdf)

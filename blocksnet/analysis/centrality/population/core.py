@@ -1,13 +1,11 @@
+import pandas as pd
 import geopandas as gpd
 import networkx as nx
 import numpy as np
-import pandas as pd
 from scipy.spatial import cKDTree
 from shapely import Point
 from sklearn.preprocessing import MinMaxScaler
-
 from .schemas import BlocksSchema
-
 
 DEGREE_CENTRALITY_COLUMN = "degree_centrality"
 POPULATION_NORMALIZED_COLUMN = "population_normalized"

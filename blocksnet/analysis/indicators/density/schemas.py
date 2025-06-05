@@ -1,8 +1,7 @@
 import pandas as pd
-from loguru import logger
 from pandera import Field
 from pandera.typing import Series
-
+from loguru import logger
 from ....utils.validation import DfSchema
 
 

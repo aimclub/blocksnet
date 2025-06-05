@@ -1,7 +1,6 @@
 import pandas as pd
 from pandera import Field
 from pandera.typing import Series
-
 from ....utils.validation import DfSchema
 
 

@@ -1,8 +1,6 @@
-from typing import Callable
-
 import geopandas as gpd
 import osmnx as ox
-
+from typing import Callable
 from . import const
 
 

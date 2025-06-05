@@ -1,10 +1,8 @@
 from functools import singledispatchmethod
-
 import pandas as pd
-
-from ...enums import LandUse
 from .common import SERVICE_TYPES, UNITS
-from .schemas import LandUseSchema, ServiceTypesSchema, UnitsSchema
+from .schemas import ServiceTypesSchema, UnitsSchema, LandUseSchema
+from ...enums import LandUse
 
 
 class ServiceTypesConfig:

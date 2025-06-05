@@ -2,12 +2,10 @@ import geopandas as gpd
 import numpy as np
 import pandas as pd
 from loguru import logger
-
+from .schemas import BlocksSchema, FunctionalZonesSchema
 from ...enums import LandUse
 from ...utils.spatial import sjoin_intersections
 from ...utils.validation import ensure_crs
-from .schemas import BlocksSchema, FunctionalZonesSchema
-
 
 LAND_USE_COLUMN = "land_use"
 SHARE_COLUMN = "share"

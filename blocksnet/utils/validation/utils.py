@@ -1,5 +1,5 @@
-import geopandas as gpd
 import networkx as nx
+import geopandas as gpd
 import pandas as pd
 from loguru import logger
 

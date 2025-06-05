@@ -1,20 +1,17 @@
-from pathlib import Path
-
+import torch
+from torch_geometric.data import Data
+import torch.nn.functional as F
+from sklearn.model_selection import train_test_split
+import pandas as pd
 import geopandas as gpd
 import networkx as nx
-import pandas as pd
-import torch
-import torch.nn.functional as F
 from loguru import logger
-from sklearn.model_selection import train_test_split
-from torch_geometric.data import Data
-
+from .common import SageModel, ModelWrapper, ScalerWrapper
+from .schemas import BlocksSchema, BlocksGeometriesSchema, BlocksLandUseSchema, BlocksDensitiesSchema
 from blocksnet.preprocessing.feature_engineering import generate_geometries_features
 from blocksnet.utils.validation import validate_graph
 
-from .common import ModelWrapper, SageModel, ScalerWrapper
-from .schemas import BlocksDensitiesSchema, BlocksGeometriesSchema, BlocksLandUseSchema, BlocksSchema
-
+from pathlib import Path
 
 CURRENT_DIRECTORY = Path(__file__).parent
 MODELS_DIRECTORY = CURRENT_DIRECTORY / "models"

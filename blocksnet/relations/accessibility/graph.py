@@ -1,11 +1,9 @@
 from typing import Literal
-
 import geopandas as gpd
 import iduedu as ie
 from loguru import logger
-
-from .const import IDUEDU_CRS
 from .schemas import TerritorySchema
+from .const import IDUEDU_CRS
 
 
 def get_accessibility_graph(

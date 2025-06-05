@@ -1,7 +1,5 @@
 import pandas as pd
-
 from ....enums import LandUse
-
 
 ratio_ranges = {
     LandUse.RESIDENTIAL: (1, 3),

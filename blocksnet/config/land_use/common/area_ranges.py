@@ -1,7 +1,5 @@
 import pandas as pd
-
 from ....enums import LandUse
-
 
 area_ranges = {
     LandUse.RESIDENTIAL: (2_000, 100_000),

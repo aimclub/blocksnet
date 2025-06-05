@@ -1,15 +1,12 @@
 from functools import wraps
-
+import pandas as pd
 import geopandas as gpd
 import numpy as np
-import pandas as pd
 import shapely
 from loguru import logger
 from shapely.ops import polygonize
-
-from blocksnet.utils.validation import ensure_crs
-
 from .schemas import BoundariesSchema, LineObjectsSchema, PolygonObjectsSchema
+from blocksnet.utils.validation import ensure_crs
 
 
 def _validate_and_process_gdfs(func):

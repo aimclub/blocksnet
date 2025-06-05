@@ -1,8 +1,7 @@
-import networkx as nx
 import pandas as pd
-
-from ...enums import LandUse
+import networkx as nx
 from .common import *
+from ...enums import LandUse
 
 
 class LandUseConfig:

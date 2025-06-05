@@ -1,5 +1,5 @@
-import pandas as pd
 import pandera as pa
+import pandas as pd
 from loguru import logger
 from pandera.typing import Index
 

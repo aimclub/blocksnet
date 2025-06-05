@@ -2,10 +2,8 @@ import geopandas as gpd
 import pandas as pd
 from loguru import logger
 from tqdm import tqdm
-
-from ...utils.validation import ensure_crs
 from .schemas import BlocksSchema
-
+from ...utils.validation import ensure_crs
 
 OBJECTS_COUNT_COLUMN = "objects_count"
 

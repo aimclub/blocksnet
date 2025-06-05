@@ -1,9 +1,8 @@
-import pandas as pd
 import shapely
-from loguru import logger
+import pandas as pd
 from pandera import Field
 from pandera.typing import Series
-
+from loguru import logger
 from ....utils.validation import DfSchema
 
 

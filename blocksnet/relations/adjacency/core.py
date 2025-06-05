@@ -1,10 +1,9 @@
 import geopandas as gpd
-import networkx as nx
 import pandas as pd
+import networkx as nx
 from loguru import logger
-
-from ...utils.validation import validate_graph
 from .schemas import BlocksSchema
+from ...utils.validation import validate_graph
 
 
 def _generate_adjacency_nodes(blocks_gdf: gpd.GeoDataFrame) -> list[int]:

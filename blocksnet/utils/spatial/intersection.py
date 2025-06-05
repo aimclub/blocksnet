@@ -1,6 +1,5 @@
 import geopandas as gpd
 
-
 INDEX_LEFT_COLUMN = "index_left"
 INDEX_RIGHT_COLUMN = "index_right"
 INTERSECTION_AREA_COLUMN = "intersection_area"

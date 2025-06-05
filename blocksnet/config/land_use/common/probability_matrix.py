@@ -1,7 +1,5 @@
 import pandas as pd
-
 from ....enums import LandUse
-
 
 transition_probabilities = {
     LandUse.RESIDENTIAL: [0.7, 0.15, 0.02, 0.03, 0.05, 0.03, 0.02],

@@ -1,9 +1,7 @@
 import pandas as pd
-
-from blocksnet.analysis.indicators.development.core import LIVING_AREA_COLUMN, calculate_development_indicators
-from blocksnet.config import land_use_config
 from blocksnet.enums.land_use import LandUse
-
+from blocksnet.config import land_use_config
+from blocksnet.analysis.indicators.development.core import calculate_development_indicators, LIVING_AREA_COLUMN
 
 SHARE_COLUMN = "share"
 

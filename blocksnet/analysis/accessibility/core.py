@@ -1,9 +1,7 @@
 import numpy as np
 import pandas as pd
-
 from .schemas import AreaAccessibilityBlocksSchema
 from .utils import validate_accessibility_matrix
-
 
 MEDIAN_ACCESSIBILITY_COLUMN = "median_accessibility"
 MEAN_ACCESSIBILITY_COLUMN = "mean_accessibility"
