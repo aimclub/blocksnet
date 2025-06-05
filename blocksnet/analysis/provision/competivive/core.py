@@ -3,9 +3,9 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
+from blocksnet.relations import validate_accessibility_matrix
+from blocksnet.config import log_config
 from .schemas import BlocksSchema
-from ....utils import validation
-from ....config import log_config
 
 POPULATION_COLUMN = "population"
 
@@ -163,7 +163,7 @@ def competitive_provision(
     max_depth: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
-    validation.validate_matrix(accessibility_matrix, blocks_df)
+    validate_accessibility_matrix(accessibility_matrix, blocks_df)
     blocks_df = _initialize_provision_df(blocks_df, demand)
 
     if self_supply:
