@@ -11,12 +11,6 @@ class BlocksSchema(LandUseSchema):
     site_area: Series[float] = Field(ge=0)
 
 
-class NodesSchema(GdfSchema):
-    @classmethod
-    def _geometry_types(cls):
-        return {shapely.Point}
-
-
 def validate_od_matrix(od_mx: pd.DataFrame, graph: nx.Graph):
     if not isinstance(od_mx, pd.DataFrame):
         raise ValueError("Origin destination matrix must be an instance of pd.DataFrame")

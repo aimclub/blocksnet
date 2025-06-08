@@ -50,7 +50,7 @@ local_scheme = "no-local-version"
 
 [project.optional-dependencies]
 ml = ["pygeoops", "featuretools", "torch", "torch_geometric", 'catboost']
-opt = ["optuna", "hebo"]
+opt = ["optuna>=4.1.0,<5.0.0"]
 full = ["blocksnet[ml, opt]"]
 
 ipynb = [
