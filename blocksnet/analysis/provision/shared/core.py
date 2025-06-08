@@ -4,8 +4,8 @@ from loguru import logger
 from tqdm import tqdm
 import numpy as np
 from .schemas import BlocksSchema
-from ....utils import validation
-from ....config import log_config
+from blocksnet.relations import validate_accessibility_matrix
+from blocksnet.config import log_config
 
 CAPACITY_WITHIN_COLUMN = "capacity_within"
 POPULATION_WITHIN_COLUMN = "population_within"
@@ -23,7 +23,7 @@ def _initialize_provision_df(blocks_df: pd.DataFrame):
 def _validate_and_preprocess_input(func):
     @wraps(func)
     def wrapper(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, *args, **kwargs):
-        validation.validate_matrix(accessibility_matrix, blocks_df)
+        validate_accessibility_matrix(accessibility_matrix, blocks_df)
         blocks_df = BlocksSchema(blocks_df)
         return func(blocks_df, accessibility_matrix, *args, **kwargs)
 

@@ -5,12 +5,11 @@ from pymoo.termination import get_termination
 from pymoo.algorithms.moo.nsga2 import NSGA2
 from pymoo.optimize import minimize
 from pymoo.operators.repair.rounding import RoundingRepair
-from . import common
+from blocksnet.relations import get_adjacency_context, validate_adjacency_graph
+from blocksnet.enums import LandUse
 from .schemas import BlocksSchema
+from . import common
 from . import utils
-from ...utils.validation import validate_graph
-from ...relations import get_adjacency_context
-from ...enums import LandUse
 
 SOLUTION_COLUMN = "solution"
 OBJECTIVES_COLUMN = "objectives"
@@ -21,7 +20,7 @@ OBJECTIVES = {"share_mse": common.share_fitness, "adjacency_penalty": common.adj
 
 class LandUseOptimizer:
     def __init__(self, blocks_df: pd.DataFrame, adjacency_graph: nx.Graph):
-        validate_graph(adjacency_graph, blocks_df)
+        validate_adjacency_graph(adjacency_graph, blocks_df)
         self.blocks_df = BlocksSchema(blocks_df)
         self.adjacency_graph = adjacency_graph
 
