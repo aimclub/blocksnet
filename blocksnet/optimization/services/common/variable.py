@@ -1,5 +1,5 @@
-from pydantic import BaseModel, Field
 import pandas as pd
+from pydantic import BaseModel, Field
 
 
 class Variable(BaseModel):
