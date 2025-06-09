@@ -1,0 +1,40 @@
+import geopandas as gpd
+import numpy as np
+import hdbscan
+from shapely import convex_hull
+
+def clusters(buildings_gdf : gpd.GeoDataFrame):
+    builds_gdf = buildings_gdf.copy()
+    builds_gdf['center'] = builds_gdf.geometry.centroid
+    coords = np.array([[point.x, point.y] for point in builds_gdf.center])
+
+    clusterer = hdbscan.HDBSCAN(min_cluster_size=10, gen_min_span_tree=True)
+    labels = clusterer.fit_predict(coords)
+    builds_gdf["cluster"] = labels
+
+    return builds_gdf
+
+def make_convex_hulls(clustered_gdf : gpd.GeoDataFrame):
+    clusters = clustered_gdf['cluster'].unique()
+    convex_hulls = []
+
+    for cluster_id in clusters:
+        if cluster_id == -1:
+            continue
+
+        cluster_points = clustered_gdf[clustered_gdf["cluster"] == cluster_id]
+
+        if len(cluster_points) < 2:
+            continue 
+        
+        combined = cluster_points.union_all()
+        hull = convex_hull(combined)
+
+        convex_hulls.append({
+            "cluster": cluster_id,
+            "geometry": hull
+        })
+    
+    hull_gdf = gpd.GeoDataFrame(convex_hulls, crs=clustered_gdf.crs)
+
+    return hull_gdf
