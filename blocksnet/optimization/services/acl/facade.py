@@ -12,6 +12,7 @@ from blocksnet.enums import LandUse
 from blocksnet.optimization.services.acl.checkers import AreaChecker, CapacityChecker
 from blocksnet.optimization.services.acl.variable_adapters import VariableAdapter
 from blocksnet.optimization.services.common import ServicesContainer
+from blocksnet.optimization.services.common.variable import Variable
 from blocksnet.optimization.services.schemas import ServicesSchema
 from blocksnet.utils.validation import validate_matrix
 
