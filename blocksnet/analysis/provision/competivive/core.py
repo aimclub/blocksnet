@@ -62,7 +62,7 @@ def _supply_self(blocks_df: pd.DataFrame):
 
 def _get_distance(id1: int, id2: int, accessibility_matrix: pd.DataFrame):
     distance = accessibility_matrix.loc[id1, id2]
-    return max(distance, 1)
+    return distance
 
 
 def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, selection_range: int):
@@ -72,7 +72,9 @@ def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame,
 
     def _get_weight(id1: int, id2: int):
         distance = _get_distance(id1, id2, accessibility_matrix)
-        return demand_blocks.loc[id1, DEMAND_LEFT_COLUMN] / (distance**2)
+        demand = demand_blocks.loc[id1, DEMAND_LEFT_COLUMN]
+        capacity = capacity_blocks.loc[id2, CAPACITY_LEFT_COLUMN]
+        return (demand * capacity) / (distance + 1)
 
     prob = LpProblem("Provision", LpMaximize)
     products = [
