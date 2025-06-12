@@ -45,7 +45,7 @@ classifiers = [
 include = ["blocksnet*"]
 
 [tool.setuptools_scm]
-version_scheme = "post-release"
+version_scheme = "guess-next-dev"
 local_scheme = "no-local-version"
 
 [project.optional-dependencies]
