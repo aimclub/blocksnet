@@ -3,7 +3,7 @@ name: Publish to PyPI
 on:
   push:
     tags:
-      - 'v*'
+      - "v*"
 
 jobs:
   publish:
@@ -17,7 +17,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: "3.10"
 
       - name: Install build tools
         run: |
@@ -41,18 +41,18 @@ jobs:
           echo "branch=unknown" >> $GITHUB_OUTPUT
           echo "Detected branch: unknown"
 
-      - name: Publish to TestPyPI
-        if: ${{ steps.branch.outputs.branch == 'develop' }}
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
-        run: |
-            python3 -m twine upload --repository testpypi dist/*
-
-      - name: Publish to PyPI
-        if: ${{ steps.branch.outputs.branch == 'main' }}
+      - name: Publish pre-release version to PyPI from develop branch
+        if: ${{ (contains(github.ref_name, '.dev') || contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc')) && steps.branch.outputs.branch == 'develop' }}
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
         run: |
-            python3 -m twine upload dist/*
+          python3 -m twine upload dist/*
+
+      - name: Publish release version to PyPI from main branch
+        if: ${{ !(contains(github.ref_name, '.dev') || contains(github.ref_name, 'a') || contains(github.ref_name, 'b') || contains(github.ref_name, 'rc')) && steps.branch.outputs.branch == 'main' }}
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          python3 -m twine upload dist/*
