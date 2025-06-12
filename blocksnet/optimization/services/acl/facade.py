@@ -14,7 +14,7 @@ from blocksnet.optimization.services.acl.variable_adapters import VariableAdapte
 from blocksnet.optimization.services.common import ServicesContainer
 from blocksnet.optimization.services.common.variable import Variable
 from blocksnet.optimization.services.schemas import ServicesSchema
-from blocksnet.utils.validation import validate_matrix
+from blocksnet.relations.accessibility import validate_accessibility_matrix
 
 from .provision_adapter import ProvisionAdapter
 
@@ -60,7 +60,7 @@ class Facade:
         ValueError
             If accessibility_matrix and blocks_df dimensions don't match.
         """
-        validate_matrix(accessibility_matrix, blocks_df)
+        validate_accessibility_matrix(accessibility_matrix, blocks_df)
         self._blocks_lu = blocks_lu
         self._area_checker = AreaChecker(blocks_lu, blocks_df)
 
