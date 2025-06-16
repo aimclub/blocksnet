@@ -74,16 +74,8 @@ def nearest_point(*points, ref_point: Point):
 
 def extend_roads_to_boundary(
     roads: gpd.GeoDataFrame,
-    # boundary_geom: Polygon | MultiPolygon | LineString | MultiLineString,
     cluster_boundaries: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
-
-    # if isinstance(boundary_geom, (Polygon, MultiPolygon)):
-    #     global_boundary = boundary_geom.boundary
-    # elif isinstance(boundary_geom, (LineString, MultiLineString)):
-    #     global_boundary = boundary_geom
-    # else:
-    #     raise TypeError("boundary_geom should  be Polygon/MultiPolygon or LineString/MultiLineString")
 
     cluster_boundaries_pols = cluster_boundaries[cluster_boundaries.geometry.geom_type.isin(['Polygon', 'MultiPolygon'])]
 
@@ -96,13 +88,8 @@ def extend_roads_to_boundary(
     if isinstance(combined_cluster_poly, (MultiPolygon, GeometryCollection)):
         combined_cluster_poly_filt = [geom for geom in combined_cluster_poly.geoms if isinstance(geom, Polygon)]
     else:
-        # Если это просто Polygon
         combined_cluster_poly_filt = [combined_cluster_poly] if isinstance(combined_cluster_poly, Polygon) else []
 
-    # combined_cluster_poly_filt = [
-    #     geom for geom in combined_cluster_poly.geoms
-    #     if isinstance(geom, (Polygon, MultiPolygon))
-    # ]
     combined_cluster_poly_filt = gpd.GeoDataFrame(geometry=combined_cluster_poly_filt, crs=roads.crs)
 
 

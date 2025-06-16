@@ -286,7 +286,7 @@ def cut_urban_blocks(
             lines_gdf=lines_gdf
         ), axis=1)
 
-        cut_blocks_list = results.tolist()  # список GeoDataFrame'ов
+        cut_blocks_list = results.tolist() 
         cut_blocks_gdf = gpd.GeoDataFrame(pd.concat(cut_blocks_list, ignore_index=True), crs=cut_blocks_list[0].crs)
 
         final_gdf = gpd.GeoDataFrame(

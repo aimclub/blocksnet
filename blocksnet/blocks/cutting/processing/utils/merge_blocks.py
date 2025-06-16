@@ -16,7 +16,6 @@ def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         if merge_candidates.empty:
             break
 
-        # Создаем пространственный индекс для валидных блоков
         valid_sindex = valid_blocks.sindex
         
         merged_any = False
@@ -27,14 +26,12 @@ def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
                 continue
                 
             target_geom = row.geometry
-            # Находим потенциальных соседей через пространственный индекс
             possible_matches_idx = list(valid_sindex.query(target_geom, predicate="intersects"))
             possible_matches = valid_blocks.iloc[possible_matches_idx]
             
             if possible_matches.empty:
                 continue
                 
-            # Векторизованный расчет длины пересечений
             def get_shared_length(intersection):
                 if isinstance(intersection, LineString):
                     return intersection.length
@@ -48,16 +45,13 @@ def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
             if shared_lengths.empty or shared_lengths.max() == 0:
                 continue
                 
-            # Находим индекс блока с максимальной длиной пересечения
             matched_idx = possible_matches.index[shared_lengths.argmax()]
             
-            # Объединяем геометрии
             new_geom = unary_union([target_geom, gdf.at[matched_idx, 'geometry']])
             gdf.at[matched_idx, 'geometry'] = new_geom
             drop_indices.append(idx)
             merged_any = True
             
-            # Прерываем цикл после первого успешного слияния
             if merged_any:
                 break
                 
@@ -73,7 +67,6 @@ def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     gdf = gdf.copy()
     
-    # Векторизованная проверка наличия зданий
     buildings_sindex = buildings.sindex
     gdf["has_buildings"] = gpd.GeoSeries(gdf.geometry).apply(
         lambda geom: len(buildings_sindex.query(geom, predicate="intersects")) > 0
@@ -86,7 +79,6 @@ def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gp
         if empty_blocks.empty:
             break
             
-        # Создаем пространственный индекс для пустых блоков
         empty_sindex = empty_blocks.sindex
         merged_any = False
         drop_indices = []
@@ -96,7 +88,6 @@ def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gp
                 continue
                 
             target_geom = row.geometry
-            # Находим потенциальных соседей через пространственный индекс
             possible_matches_idx = list(empty_sindex.query(target_geom, predicate="intersects"))
             possible_matches = empty_blocks.iloc[possible_matches_idx]
             possible_matches = possible_matches[possible_matches.index != idx]
@@ -104,7 +95,6 @@ def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gp
             if possible_matches.empty:
                 continue
                 
-            # Векторизованный расчет длины пересечений
             def get_shared_length(intersection):
                 if isinstance(intersection, LineString):
                     return intersection.length
@@ -118,16 +108,13 @@ def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gp
             if shared_lengths.empty or shared_lengths.max() == 0:
                 continue
                 
-            # Находим индекс блока с максимальной длиной пересечения
             matched_idx = possible_matches.index[shared_lengths.argmax()]
             
-            # Объединяем геометрии
             new_geom = unary_union([target_geom, gdf.at[matched_idx, 'geometry']])
             gdf.at[matched_idx, 'geometry'] = new_geom
             drop_indices.append(idx)
             merged_any = True
             
-            # Прерываем цикл после первого успешного слияния
             if merged_any:
                 break
                 
