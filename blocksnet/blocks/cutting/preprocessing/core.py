@@ -42,21 +42,21 @@ def preprocess_urban_objects(
     crs = {gdf.crs for gdf in [roads_gdf, railways_gdf, water_gdf] if gdf is not None}.pop()
 
     logger.info("Checking roads schema")
-    if roads_gdf is None:
+    if roads_gdf is None or roads_gdf.empty:
         logger.warning("Roads GeoDataFrame is None. Creating empty")
         roads_gdf = RoadsSchema.create_empty(crs)
     else:
         roads_gdf = RoadsSchema(roads_gdf)
 
     logger.info("Checking railways schema")
-    if railways_gdf is None:
+    if railways_gdf is None or railways_gdf.empty:
         logger.warning("Railways GeoDataFrame is None. Creating empty")
         railways_gdf = RailwaysSchema.create_empty(crs)
     else:
         railways_gdf = RailwaysSchema(railways_gdf)
 
     logger.info("Checking water schema")
-    if water_gdf is None:
+    if water_gdf is None or water_gdf.empty:
         logger.warning("Water GeoDataFrame is None. Creating empty")
         water_gdf = WaterSchema.create_empty(crs)
     else:

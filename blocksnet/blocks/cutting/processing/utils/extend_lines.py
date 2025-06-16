@@ -4,47 +4,22 @@ from shapely.geometry import (
     LineString,
     MultiLineString,
     Polygon,
-    MultiPolygon
+    MultiPolygon,
+    GeometryCollection
 )
 from shapely.ops import unary_union
 from shapely.strtree import STRtree
-from tqdm import tqdm
 
-def extend_line(start_point : Point, direct_point : Point, extend_len : float):
-    dx =  - direct_point.x + start_point.x
-    dy =  - direct_point.y + start_point.y
+# def extend_line(start_point : Point, direct_point : Point, extend_len : float):
+#     dx =  - direct_point.x + start_point.x
+#     dy =  - direct_point.y + start_point.y
 
-    extended_point = Point(start_point.x + dx*extend_len, 
-                              start_point.y + dy*extend_len)
+#     extended_point = Point(start_point.x + dx*extend_len, 
+#                               start_point.y + dy*extend_len)
     
-    extension_line = LineString([start_point, extended_point])
+#     extension_line = LineString([start_point, extended_point])
 
-    return extension_line
-
-def get_first_intersection(geom, reference_line):
-    if geom.is_empty:
-        # print('none')
-        return None
-        
-    if geom.geom_type == "Point":
-        return geom
-    elif geom.geom_type == "MultiPoint":
-        start_point = Point(reference_line.coords[0])
-        return min(geom.geoms, key=lambda p: p.distance(start_point))
-    elif geom.geom_type == "GeometryCollection":
-        for item in geom.geoms:
-            if item.geom_type == "Point":
-                return item
-            elif item.geom_type == "MultiPoint":
-                start_point = Point(reference_line.coords[0])
-                return min(item.geoms, key=lambda p: p.distance(start_point))
-    return None
-
-from shapely.geometry import Point, LineString, MultiLineString, Polygon, MultiPolygon
-from shapely.ops import unary_union
-from shapely.strtree import STRtree
-import geopandas as gpd
-from tqdm import tqdm
+#     return extension_line
 
 
 def extend_line(p1: Point, p2: Point, length: float) -> LineString:
@@ -57,11 +32,29 @@ def extend_line(p1: Point, p2: Point, length: float) -> LineString:
     return LineString([p1, new_point])
 
 
+# def get_first_intersection(geom, reference_line):
+#     if geom.is_empty:
+#         return None
+        
+#     if geom.geom_type == "Point":
+#         return geom
+#     elif geom.geom_type == "MultiPoint":
+#         start_point = Point(reference_line.coords[0])
+#         return min(geom.geoms, key=lambda p: p.distance(start_point))
+#     elif geom.geom_type == "GeometryCollection":
+#         for item in geom.geoms:
+#             if item.geom_type == "Point":
+#                 return item
+#             elif item.geom_type == "MultiPoint":
+#                 start_point = Point(reference_line.coords[0])
+#                 return min(item.geoms, key=lambda p: p.distance(start_point))
+#     return None
+
+
 def get_first_intersection(geometry, ref_line):
     if geometry.is_empty:
         return None
     if geometry.geom_type in ["Point", "LineString"]:
-        # Проверяем, что пересечение лежит на линии расширения
         if ref_line.distance(geometry) < 1e-8:
             return geometry
         return None
@@ -81,33 +74,47 @@ def nearest_point(*points, ref_point: Point):
 
 def extend_roads_to_boundary(
     roads: gpd.GeoDataFrame,
-    boundary_geom: Polygon | MultiPolygon | LineString | MultiLineString,
+    # boundary_geom: Polygon | MultiPolygon | LineString | MultiLineString,
     cluster_boundaries: gpd.GeoDataFrame
 ) -> gpd.GeoDataFrame:
 
-    # Определение глобальной границы
-    if isinstance(boundary_geom, (Polygon, MultiPolygon)):
-        global_boundary = boundary_geom.boundary
-    elif isinstance(boundary_geom, (LineString, MultiLineString)):
-        global_boundary = boundary_geom
-    else:
-        raise TypeError("boundary_geom должен быть Polygon/MultiPolygon или LineString/MultiLineString")
+    # if isinstance(boundary_geom, (Polygon, MultiPolygon)):
+    #     global_boundary = boundary_geom.boundary
+    # elif isinstance(boundary_geom, (LineString, MultiLineString)):
+    #     global_boundary = boundary_geom
+    # else:
+    #     raise TypeError("boundary_geom should  be Polygon/MultiPolygon or LineString/MultiLineString")
 
-    # Объединяем кластеры
-    combined_cluster_poly = unary_union(cluster_boundaries.geometry)
+    cluster_boundaries_pols = cluster_boundaries[cluster_boundaries.geometry.geom_type.isin(['Polygon', 'MultiPolygon'])]
+
+    if cluster_boundaries_pols.empty:
+        return gpd.GeoDataFrame(geometry=[], crs=roads.crs)
+    
+    combined_cluster_poly = unary_union(cluster_boundaries_pols.geometry)
     combined_boundary = unary_union(cluster_boundaries.boundary)
 
-    # Обрезаем дороги по границам кластера
-    roads_clipped = gpd.clip(roads, combined_cluster_poly)
+    if isinstance(combined_cluster_poly, (MultiPolygon, GeometryCollection)):
+        combined_cluster_poly_filt = [geom for geom in combined_cluster_poly.geoms if isinstance(geom, Polygon)]
+    else:
+        # Если это просто Polygon
+        combined_cluster_poly_filt = [combined_cluster_poly] if isinstance(combined_cluster_poly, Polygon) else []
 
-    # Пространственный индекс для ускорения поиска пересечений
+    # combined_cluster_poly_filt = [
+    #     geom for geom in combined_cluster_poly.geoms
+    #     if isinstance(geom, (Polygon, MultiPolygon))
+    # ]
+    combined_cluster_poly_filt = gpd.GeoDataFrame(geometry=combined_cluster_poly_filt, crs=roads.crs)
+
+
+    roads_clipped = gpd.clip(roads,  combined_cluster_poly_filt)
+
     road_geoms = list(roads_clipped.geometry)
     str_tree = STRtree(road_geoms)
 
     extend_len = 1000
     extended_lines = []
 
-    for road in tqdm(road_geoms):
+    for road in road_geoms:
         if isinstance(road, MultiLineString):
             clipped_roads = list(road.geoms)
         elif isinstance(road, LineString):
@@ -129,7 +136,6 @@ def extend_roads_to_boundary(
             start_b_inter = get_first_intersection(start_line.intersection(combined_boundary), start_line)
             end_b_inter = get_first_intersection(end_line.intersection(combined_boundary), end_line)
 
-            # Получаем индексы ближайших дорог из индекса
             nearby_start_indices = str_tree.query(start_line)
             nearby_start_roads = [road_geoms[i] for i in nearby_start_indices if not road_geoms[i].equals(clipped_road)]
 

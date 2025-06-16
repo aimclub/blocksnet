@@ -35,6 +35,9 @@ def make_convex_hulls(clustered_gdf : gpd.GeoDataFrame):
             "geometry": hull
         })
     
-    hull_gdf = gpd.GeoDataFrame(convex_hulls, crs=clustered_gdf.crs)
+    if not convex_hulls:
+        return gpd.GeoDataFrame(columns=["cluster", "geometry"], geometry="geometry", crs=clustered_gdf.crs)
+    
+    hull_gdf = gpd.GeoDataFrame(convex_hulls, geometry='geometry', crs=clustered_gdf.crs)
 
     return hull_gdf
