@@ -26,7 +26,5 @@ def calculate_aspect_ratio(polygon: shapely.Polygon) -> float:
         for i in range(1, 5)
     ]
     length_1, length_2 = side_lengths[0], side_lengths[1]
-    if min(length_1, length_2) <= 1e-9:
-        return 1.0
     aspect_ratio = max(length_1, length_2) / min(length_1, length_2)
     return aspect_ratio

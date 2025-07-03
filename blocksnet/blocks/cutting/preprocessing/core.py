@@ -56,7 +56,7 @@ def preprocess_urban_objects(
         railways_gdf = RailwaysSchema(railways_gdf)
 
     logger.info("Checking water schema")
-    if water_gdf is None or water_gdf.empty:
+    if water_gdf is None or railways_gdf.empty:
         logger.warning("Creating empty water")
         water_gdf = WaterSchema.create_empty(crs)
     else:
