@@ -1,14 +1,16 @@
+from typing import Callable
+
 import pandas as pd
 from loguru import logger
 from tqdm import tqdm
-from .common import ServicesContainer, Variable, SimulatedAnnealing
-from .schemas import BlocksSchema, ServicesSchema
-from ...utils.validation import validate_matrix
-from ...config import service_types_config, log_config
-from ...enums import LandUse
+
 from ...analysis.provision import competitive_provision, provision_strong_total
+from ...config import log_config, service_types_config
+from ...enums import LandUse
 from ...relations import get_accessibility_context
-from blocksnet.analysis import provision
+from ...utils.validation import validate_matrix
+from .common import ServicesContainer, SimulatedAnnealing, Variable
+from .schemas import BlocksSchema, ServicesSchema
 
 
 class ServicesOptimizer:
@@ -17,6 +19,7 @@ class ServicesOptimizer:
         self.blocks_df = BlocksSchema(blocks_df)
         self.accessibility_matrix = accessibility_matrix
         self.services_containers = {}
+        self.on_iteration: Callable = None
 
     def add_service_type(self, name: str, weight: float, services_df: pd.DataFrame):
         services_df = ServicesSchema(services_df)
@@ -143,12 +146,15 @@ class ServicesOptimizer:
                 log_config.set_disable_tqdm(disable_tqdm)
                 log_config.set_logger_level(log_level)
 
-            return sum(
+            val = sum(
                 [
                     provision_strong_total(provision_df) * self.service_types[service_type]
                     for service_type, provision_df in provisions_dfs.items()
                 ]
             )
+            if self.on_iteration is not None:
+                self.on_iteration(val)
+            return val
 
         def constraint(X: list[int]) -> bool:
             update_variables(X)

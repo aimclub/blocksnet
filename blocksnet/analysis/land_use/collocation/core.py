@@ -2,8 +2,8 @@ import networkx as nx
 import pandas as pd
 from tqdm import tqdm
 from .schemas import BlocksSchema
-from ....utils.validation import validate_graph
-from ....config import land_use_config, log_config
+from blocksnet.config import land_use_config, log_config
+from blocksnet.relations import validate_adjacency_graph
 
 COLLOCATION_COLUMN = "collocation"
 
@@ -11,7 +11,7 @@ COLLOCATION_COLUMN = "collocation"
 def land_use_collocation(adjacency_graph: nx.Graph, blocks_df: pd.DataFrame):
 
     blocks_df = BlocksSchema(blocks_df)
-    validate_graph(adjacency_graph, blocks_df)
+    validate_adjacency_graph(adjacency_graph, blocks_df)
 
     def collocation(series: pd.Series):
 

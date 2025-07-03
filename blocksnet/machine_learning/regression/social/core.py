@@ -10,7 +10,7 @@ from pathlib import Path
 
 CURRENT_DIRECTORY = Path(__file__).parent
 MODELS_DIRECTORY = CURRENT_DIRECTORY / "models"
-MODEL_PATH = str(MODELS_DIRECTORY / "model.pickle")
+MODEL_PATH = str(MODELS_DIRECTORY / "model.pkl")
 
 
 class SocialRegressor(ModelWrapper):

@@ -34,12 +34,14 @@ def _validate_and_process_gdfs(func):
 
         logger.info("Checking line objects schema")
         if lines_gdf is None or lines_gdf.empty:
+            logger.warning("Creating empty line objects")
             lines_gdf = LineObjectsSchema.create_empty(crs)
         else:
             lines_gdf = LineObjectsSchema(lines_gdf).explode("geometry", ignore_index=True)
 
         logger.info("Checking polygon objects schema")
         if polygons_gdf is None or polygons_gdf.empty:
+            logger.warning("Creating empty polygon objects")
             polygons_gdf = PolygonObjectsSchema.create_empty(crs)
         else:
             polygons_gdf = PolygonObjectsSchema(polygons_gdf).explode("geometry", ignore_index=True)

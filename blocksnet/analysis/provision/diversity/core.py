@@ -2,7 +2,6 @@ import pandas as pd
 import numpy as np
 from loguru import logger
 from .schemas import BlocksServicesSchema
-from ....utils.validation import ensure_crs
 
 COUNT_COLUMN = "count"
 SHANNON_DIVERSITY_COLUMN = "shannon_diversity"
@@ -30,6 +29,8 @@ def _concat_dfs(dfs: list[pd.DataFrame] | dict[str, pd.DataFrame]):
 
 
 def shannon_diversity(blocks_dfs: list[pd.DataFrame]):
+    if len(blocks_dfs) == 0:
+        raise ValueError("At least one DataFrame must be provided in list")
     blocks_df = _concat_dfs(blocks_dfs)
     blocks_df[COUNT_COLUMN] = blocks_df.apply(sum, axis=1)
     blocks_df[SHANNON_DIVERSITY_COLUMN] = blocks_df.apply(_shannon_index, axis=1)

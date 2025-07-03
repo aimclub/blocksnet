@@ -4,6 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 
 from blocksnet.analysis.provision import competitive_provision, provision_strong_total
+from blocksnet.analysis.provision.competivive.core import CAPACITY_LEFT_COLUMN, DEMAND_LEFT_COLUMN, DEMAND_WITHIN_COLUMN
 from blocksnet.config import log_config, service_types_config
 from blocksnet.enums import LandUse
 from blocksnet.optimization.services.common import ServicesContainer
@@ -13,19 +14,27 @@ from blocksnet.relations import get_accessibility_context
 class ProvisionAdapter:
     """
     Adapter class for calculating and managing service provisions across urban blocks.
-    
+
     This class handles service provision calculations based on:
     - Block land use characteristics
     - Service accessibility matrices
     - Service capacity distributions
+
+    Attributes
+    ----------
+    _accessibility_matrix : pd.DataFrame
+        Accessibility matrix between blocks
+    _blocks_df : pd.DataFrame
+        DataFrame containing block geometries and attributes
+    _blocks_lus : Dict[int, LandUse]
+        Dictionary mapping block IDs to land use types
+    last_provisions_dfs : Dict[str, pd.DataFrame]
+        Stores the most recent provision calculations by service type
+    start_provisions_dfs : Dict[str, pd.DataFrame]
+        Stores initial provision calculations by service type
     """
 
-    def __init__(
-        self,
-        blocks_lus: Dict[int, LandUse],
-        accessibility_matrix: pd.DataFrame,
-        blocks_df: pd.DataFrame
-    ):
+    def __init__(self, blocks_lus: Dict[int, LandUse], accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame):
         """
         Initialize the ProvisionAdapter with necessary data structures.
 
@@ -34,15 +43,17 @@ class ProvisionAdapter:
         blocks_lus : Dict[int, LandUse]
             Dictionary mapping block IDs to their land use types.
         accessibility_matrix : pd.DataFrame
-            Square DataFrame representing accessibility between blocks, where index and 
+            Square DataFrame representing accessibility between blocks, where index and
             columns are block IDs and values represent accessibility measures.
         blocks_df : pd.DataFrame
             DataFrame containing block geometries and attributes, indexed by block ID.
         """
         self._accessibility_matrix: pd.DataFrame = accessibility_matrix
-        self._blocks_df = blocks_df
+        self._blocks_df = blocks_df.copy()
+        self._blocks_df.loc[list(blocks_lus.keys()), "population"] = 0
         self._blocks_lus = blocks_lus
-        self.provisions_dfs: Dict[str, pd.DataFrame] = {}
+        self.last_provisions_dfs = {}
+        self.start_provisions_dfs = {}
 
     def add_service_type(self, services_container: ServicesContainer) -> None:
         """
@@ -52,7 +63,7 @@ class ProvisionAdapter:
         ----------
         services_container : ServicesContainer
             Container object holding service configuration and capacity data.
-            
+
         Notes
         -----
         - Temporarily suppresses logging during calculation for cleaner output
@@ -69,54 +80,70 @@ class ProvisionAdapter:
 
         blocks_ids = list(self._blocks_lus)
         services_df = services_container.services_df.copy()
-        
+
         # Initialize capacities
         services_df.loc[blocks_ids, "capacity"] = 0
-        
+
         # Get service type parameters
         _, demand, accessibility = service_types_config[services_container.name].values()
 
         # Calculate initial competitive provision
         provision_df, _ = competitive_provision(
-            self._blocks_df.join(services_df), 
-            self._accessibility_matrix, 
-            accessibility, 
-            demand
+            self._blocks_df.join(services_df), self._accessibility_matrix, accessibility, demand
         )
 
         # Get accessibility context for relevant blocks
         context_acc_mx = get_accessibility_context(
-            self._accessibility_matrix, 
-            provision_df.loc[blocks_ids], 
-            accessibility, 
-            out=False
+            self._accessibility_matrix, provision_df.loc[blocks_ids], accessibility, out=False
         )
 
         # Store provision data for accessible blocks
         provision_df = provision_df.loc[context_acc_mx.index]
         if provision_df.demand.sum() > 0:
-            self.provisions_dfs[services_container.name] = provision_df.loc[context_acc_mx.index]
+            self.start_provisions_dfs[services_container.name] = provision_df
+            self.last_provisions_dfs[services_container.name] = provision_df
 
         # Restore original logging settings
         log_config.set_disable_tqdm(disable_tqdm)
         log_config.set_logger_level(log_level)
 
-    def get_provision_df(self, service_type: str) -> Optional[pd.DataFrame]:
+    def get_last_provision_df(self, service_type: str) -> Optional[pd.DataFrame]:
         """
-        Retrieve the provision dataframe for a specific service type.
+        Retrieve the most recent provision DataFrame for a service type.
 
         Parameters
         ----------
         service_type : str
-            The service type identifier (must match keys in provisions_dfs).
+            The service type identifier
 
         Returns
         -------
         Optional[pd.DataFrame]
-            Provision dataframe if service type exists, None otherwise.
-            The dataframe contains columns for demand, capacity and provision metrics.
+            Copy of the last provision DataFrame, or None if not found
         """
-        return self.provisions_dfs.get(service_type)
+        if service_type not in self.last_provisions_dfs.keys():
+            return None
+
+        return self.last_provisions_dfs[service_type].copy()
+
+    def get_start_provision_df(self, service_type: str) -> Optional[pd.DataFrame]:
+        """
+        Retrieve the initial provision DataFrame for a service type.
+
+        Parameters
+        ----------
+        service_type : str
+            The service type identifier
+
+        Returns
+        -------
+        Optional[pd.DataFrame]
+            Copy of the initial provision DataFrame, or None if not found
+        """
+        if service_type not in self.start_provisions_dfs.keys():
+            return None
+
+        return self.start_provisions_dfs[service_type].copy()
 
     def calculate_provision(
         self,
@@ -129,9 +156,10 @@ class ProvisionAdapter:
         Parameters
         ----------
         service_type : str
-            The service type identifier to calculate provision for.
-        variables_df : Optional[pd.DataFrame]
-            DataFrame containing capacity updates of variables
+            The service type identifier to calculate provision for
+        variables_df : Optional[pd.DataFrame], default=None
+            DataFrame containing capacity updates of variables. If provided,
+            will recalculate provisions based on updated capacities.
 
         Returns
         -------
@@ -139,6 +167,11 @@ class ProvisionAdapter:
             The total provision score (0-1) representing how well demand is met:
             - 1.0 indicates all demand is perfectly satisfied
             - Lower values indicate unmet demand
+
+        Notes
+        -----
+        - When variables_df is provided, temporarily suppresses logging during updates
+        - Updates last_provisions_dfs with new calculations if variables_df is provided
         """
         if variables_df is not None:
             # Temporarily suppress logging during updates
@@ -147,29 +180,37 @@ class ProvisionAdapter:
             log_config.set_disable_tqdm(True)
             log_config.set_logger_level("ERROR")
 
-            # Filter for relevant service type
             variables_df = variables_df[variables_df.service_type == service_type]
-            
+
             # Aggregate capacity updates by block
             delta_df = variables_df.groupby("block_id").agg({"total_capacity": "sum"})
 
             # Get service type parameters
             _, demand, accessibility = service_types_config[service_type].values()
-            
+
             # Update capacities and recalculate provision
-            old_provision_df = self.provisions_dfs[service_type]
+            old_provision_df = self.get_start_provision_df(service_type)
+            old_provision_df["demand"] = self.get_start_provision_df(service_type)[DEMAND_LEFT_COLUMN]
+
+            if old_provision_df["demand"].sum() == 0:
+                return 1.0
+
+            old_provision_df["capacity"] = self.get_start_provision_df(service_type)[CAPACITY_LEFT_COLUMN]
             old_provision_df.loc[delta_df.index, "capacity"] += delta_df["total_capacity"]
+
             new_provision_df, _ = competitive_provision(
-                old_provision_df, 
-                self._accessibility_matrix, 
-                accessibility, 
-                demand
+                old_provision_df, self._accessibility_matrix, accessibility, demand
             )
-            
+
+            new_provision_df["demand"] = self.get_start_provision_df(service_type)["demand"]
+            new_provision_df[DEMAND_WITHIN_COLUMN] += self.get_start_provision_df(service_type)[DEMAND_WITHIN_COLUMN]
+
             # Restore logging and return provision score
             log_config.set_disable_tqdm(disable_tqdm)
             log_config.set_logger_level(log_level)
+
+            self.last_provisions_dfs[service_type] = new_provision_df
             return float(provision_strong_total(new_provision_df))
 
         # Return current provision if no updates provided
-        return float(provision_strong_total(self.get_provision_df(service_type)))
+        return float(provision_strong_total(self.get_last_provision_df(service_type)))

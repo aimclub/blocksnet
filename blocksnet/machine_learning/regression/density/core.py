@@ -9,7 +9,7 @@ from loguru import logger
 from .common import SageModel, ModelWrapper, ScalerWrapper
 from .schemas import BlocksSchema, BlocksGeometriesSchema, BlocksLandUseSchema, BlocksDensitiesSchema
 from blocksnet.preprocessing.feature_engineering import generate_geometries_features
-from blocksnet.utils.validation import validate_graph
+from blocksnet.relations import validate_adjacency_graph
 
 from pathlib import Path
 
@@ -72,7 +72,7 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         fit_scaler: bool = True,
         test: float | list[int] = 0.2,
     ) -> Data:
-        validate_graph(adjacency_graph, blocks_gdf)
+        validate_adjacency_graph(adjacency_graph, blocks_gdf)
         x = self._initialize_x(blocks_gdf, fit_scaler)
         edge_index = self._initialize_edge_index(adjacency_graph)
         y = self._initialize_y(blocks_gdf)
@@ -110,7 +110,7 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         return self._test_model(data, loss_fn=loss_fn, **kwargs)
 
     def evaluate(self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph) -> gpd.GeoDataFrame:
-        validate_graph(adjacency_graph, blocks_gdf)
+        validate_adjacency_graph(adjacency_graph, blocks_gdf)
 
         x = self._initialize_x(blocks_gdf, fit_scaler=False)
         edge_index = self._initialize_edge_index(adjacency_graph)

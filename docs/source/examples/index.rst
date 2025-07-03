@@ -7,4 +7,4 @@ Actually to do
    :glob:
    :maxdepth: 1
 
-   organizer
+   pipeline

@@ -1,14 +1,16 @@
+import networkx as nx
 from typing import Literal
-import geopandas as gpd
 import iduedu as ie
+import geopandas as gpd
 from loguru import logger
 from .schemas import TerritorySchema
-from .const import IDUEDU_CRS
+
+IDUEDU_CRS = 4326
 
 
 def get_accessibility_graph(
     territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs
-):
+) -> nx.Graph:
     territory_gdf = TerritorySchema(territory_gdf)
     if territory_gdf.crs.to_epsg() != IDUEDU_CRS:
         logger.warning("CRS do not match IDUEDU required crs. Reprojecting")
