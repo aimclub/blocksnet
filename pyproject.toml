@@ -1,17 +1,17 @@
 [build-system]
-requires = ["setuptools>=64.0"]
+requires = ["setuptools>=64.0", "setuptools_scm[toml]>=8.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "blocksnet"
-version = "1.0.dev0"
+dynamic = ["version"]
 authors = [
     # { name = "", email = "" }, # TODO add authors
 ]
 description = "Package provides methods to autimatically generate master plan requirements for urban areas"
 readme = "README.rst"
 requires-python = ">=3.10"
-license = { file = "LICENCE.md" }
+license = { file = "LICENCE" }
 
 dependencies = [
     "numpy>=2.0.0,<3.0.0",
@@ -30,8 +30,7 @@ dependencies = [
     "networkx>=3.1,<4.0",
     "osmnx>=2.0.0,<3.0.0",
     "iduedu==0.4.1",
-    "torch>=1.10.0",
-    "torch-geometric>=2.0.0",
+    "optuna==4.1.0",
 ]
 
 classifiers = [
@@ -44,10 +43,13 @@ classifiers = [
 [tool.setuptools.packages.find]
 include = ["blocksnet*"]
 
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
+
 [project.optional-dependencies]
-fe = ['pygeoops', 'featuretools']
-ml = ["blocksnet[fe]", "torch", "torch_geometric", 'catboost']
-opt = ["optuna", "hebo"]
+ml = ["pygeoops", "featuretools", "torch", "torch_geometric", 'catboost']
+opt = ["optuna>=4.1.0,<5.0.0"]
 full = ["blocksnet[ml, opt]"]
 
 ipynb = [
@@ -56,6 +58,7 @@ ipynb = [
     "folium==0.14.0",           #jupyter maps
     "matplotlib>=3.9.0,<4.0.0",
 ]
+
 tests = ["pytest==7.4.3", "pytest-cov==4.1.0"]
 docs = [
     "docutils>=0.18.1,<0.19",

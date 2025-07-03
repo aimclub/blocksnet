@@ -3,9 +3,9 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 from pulp import PULP_CBC_CMD, LpMaximize, LpProblem, LpVariable, lpSum, LpInteger
+from blocksnet.relations import validate_accessibility_matrix
+from blocksnet.config import log_config
 from .schemas import BlocksSchema
-from ....utils import validation
-from ....config import log_config
 
 POPULATION_COLUMN = "population"
 
@@ -62,7 +62,7 @@ def _supply_self(blocks_df: pd.DataFrame):
 
 def _get_distance(id1: int, id2: int, accessibility_matrix: pd.DataFrame):
     distance = accessibility_matrix.loc[id1, id2]
-    return max(distance, 1)
+    return distance
 
 
 def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, selection_range: int):
@@ -72,7 +72,9 @@ def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame,
 
     def _get_weight(id1: int, id2: int):
         distance = _get_distance(id1, id2, accessibility_matrix)
-        return demand_blocks.loc[id1, DEMAND_LEFT_COLUMN] / (distance**2)
+        demand = demand_blocks.loc[id1, DEMAND_LEFT_COLUMN]
+        capacity = capacity_blocks.loc[id2, CAPACITY_LEFT_COLUMN]
+        return (demand * capacity) / (distance + 1)
 
     prob = LpProblem("Provision", LpMaximize)
     products = [
@@ -163,7 +165,7 @@ def competitive_provision(
     max_depth: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
-    validation.validate_matrix(accessibility_matrix, blocks_df)
+    validate_accessibility_matrix(accessibility_matrix, blocks_df)
     blocks_df = _initialize_provision_df(blocks_df, demand)
 
     if self_supply:

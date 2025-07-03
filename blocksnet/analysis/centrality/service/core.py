@@ -1,10 +1,9 @@
-import numpy as np
 import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from .schemas import BlocksSchema
-from ...provision.diversity.core import shannon_diversity, COUNT_COLUMN, SHANNON_DIVERSITY_COLUMN
-from ...accessibility.core import mean_accessibility, MEAN_ACCESSIBILITY_COLUMN
-from ....utils.validation import validate_matrix
+from blocksnet.analysis.provision.diversity.core import shannon_diversity, COUNT_COLUMN, SHANNON_DIVERSITY_COLUMN
+from blocksnet.analysis.accessibility.core import mean_accessibility, MEAN_ACCESSIBILITY_COLUMN
+from blocksnet.relations.accessibility import validate_accessibility_matrix
 
 CONNECTIVITY_COLUMN = "connectivity"
 DENSITY_COLUMN = "density"
@@ -19,7 +18,7 @@ def service_centrality(
     density_weight: float = 1,
     connectivity_weight: float = 1,
 ):
-    validate_matrix(accessibility_matrix, blocks_df)
+    validate_accessibility_matrix(accessibility_matrix, blocks_df)
     blocks_df = BlocksSchema(blocks_df)
 
     accessibility_df = mean_accessibility(accessibility_matrix, out=False)[[MEAN_ACCESSIBILITY_COLUMN]]

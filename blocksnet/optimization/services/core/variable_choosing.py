@@ -33,7 +33,7 @@ class VariableChooser(ABC):
         self._facade = facade
 
     @abstractmethod
-    def _choose(self, x: ArrayLike, trials_data_callback: Callable) -> ArrayLike:
+    def _choose(self, x: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
         Abstract method for implementing variable selection logic.
 
@@ -46,12 +46,14 @@ class VariableChooser(ABC):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices for optimization
+            - Array of variable indices to be set to zero
         """
         pass
 
-    def __call__(self, x: ArrayLike, trials_data_callback: Callable) -> ArrayLike:
+    def __call__(self, x: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
         Callable interface for variable selection.
 
@@ -64,10 +66,52 @@ class VariableChooser(ABC):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices for optimization
+            - Array of variable indices to be set to zero
         """
         return self._choose(x, trials_data_callback)
+
+
+class SimpleChooser(VariableChooser):
+    """
+    Simple variable chooser that selects all variables in the given permutation.
+
+    This is a basic implementation that doesn't perform any prioritization,
+    simply returning all variables in the input permutation.
+    """
+
+    def __init__(self, facade: Facade):
+        """
+        Initialize the SimpleChooser.
+
+        Parameters
+        ----------
+        facade : Facade
+            The facade providing access to city data and optimization methods.
+        """
+        super().__init__(facade)
+
+    def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
+        """
+        Select all variables in the given permutation.
+
+        Parameters
+        ----------
+        permut : ArrayLike
+            Permutation of variable indices to consider.
+        trials_data_callback : Callable
+            Unused in this implementation (maintained for interface consistency).
+
+        Returns
+        -------
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - All variables from the input permutation
+            - Empty array (no variables to set to zero)
+        """
+        return permut, np.array([])
 
 
 class WeightChooser(VariableChooser):
@@ -102,7 +146,7 @@ class WeightChooser(VariableChooser):
         self._num_top = num_top
         self._weights = weights
 
-    def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> ArrayLike:
+    def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
         Select variables based on service type weights.
 
@@ -115,25 +159,39 @@ class WeightChooser(VariableChooser):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices, prioritizing higher-weighted services.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices, prioritizing higher-weighted services
+            - Array of variable indices for services with medium priority
         """
+        services = set()
+        for var_num in permut:
+            var_service = self._facade.get_service_name(var_num)
+            services.add(var_service)
         # Group services by block and sort by weight
-        block_services = {
-            self._facade.get_var_block_id(var_num): sorted(
-                self._facade.get_block_services(self._facade.get_var_block_id(var_num)),
-                key=lambda x: -self._weights[x]
-            )
-            for var_num in permut
-        }
+        services_list = list(services)
+        services_list.sort(key=lambda x: -self._weights[x])
 
-        # Select top N services per block
-        return np.array([
-            var_num
-            for var_num in permut
-            if self._facade.get_service_name(var_num)
-               in block_services[self._facade.get_var_block_id(var_num)][:self._num_top]
-        ])
+        n = len(permut)
+        opt_threshold = min(int(np.ceil(n / 3)), self._num_top)
+        null_threshold = min(int(np.ceil(n / 4)), self._num_top)
+
+        return (
+            np.array(
+                [
+                    var_num
+                    for var_num in permut
+                    if self._facade.get_service_name(var_num) in services_list[:opt_threshold]
+                ]
+            ),
+            np.array(
+                [
+                    var_num
+                    for var_num in permut
+                    if self._facade.get_service_name(var_num) in services_list[opt_threshold:-null_threshold]
+                ]
+            ),
+        )
 
 
 class GradientChooser(VariableChooser):
@@ -168,7 +226,7 @@ class GradientChooser(VariableChooser):
         self._num_top = num_top
         self._num_params = num_params
 
-    def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> ArrayLike:
+    def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
         Select variables based on gradient information from previous trials.
 
@@ -181,54 +239,60 @@ class GradientChooser(VariableChooser):
 
         Returns
         -------
-        ArrayLike
-            Array of selected variable indices, prioritizing services with highest
-            provision improvement per resource invested.
+        tuple[ArrayLike, ArrayLike]
+            Tuple containing:
+            - Array of selected variable indices, prioritizing services with highest
+              provision improvement per resource invested
+            - Array of variable indices for services with medium priority
         """
         # Get trial data and filter variables with remaining capacity
-        first_trial, last_trial = trials_data_callback()
-        new_permut = np.array([
-            var_num for var_num in permut 
-            if self._facade.get_upper_bound_var(var_num) > 0
-        ])
-        weights = [self._facade.get_var_weight(var_num) for var_num in range(self._num_params)]
+        second_last_trial, last_trial = trials_data_callback()
+        new_permut = np.array([var_num for var_num in permut if self._facade.get_upper_bound_var(var_num) > 0])
+        weights = [self._facade.get_var_weights(var_num)[0] for var_num in range(self._num_params)]
 
         # Initialize data structures for tracking service improvements
-        block_ids = {self._facade.get_var_block_id(var_num) for var_num in range(self._num_params)}
-        block_services = {block_id: [] for block_id in block_ids}
-        service_increment = {block_id: dict() for block_id in block_ids}
+        services = []
+        service_increment = {}
 
         # Calculate total resource investment and provision improvement per service
         for var_num in new_permut:
-            var_block = self._facade.get_var_block_id(var_num)
             var_service = self._facade.get_service_name(var_num)
-            diff = last_trial[1][var_num] - first_trial[1][var_num]
-            
-            if var_service not in service_increment[var_block]:
-                service_increment[var_block][var_service] = 0.0
-                block_services[var_block].append(var_service)
-            
-            service_increment[var_block][var_service] += diff * weights[var_num]
+            diff = last_trial[1][var_num] - second_last_trial[1][var_num]
+
+            if var_service not in service_increment:
+                service_increment[var_service] = 0.0
+                services.append(var_service)
+
+            service_increment[var_service] += diff * weights[var_num]
 
         # Define sorting key based on provision improvement per resource invested
         def gradient_sortkey(x):
-            if service_increment[block_id][x] == 0:
+            if service_increment[x] == 0:
                 return 0
-            
+
             provision_diff = last_trial[0]
-            if first_trial[0] is not None:
-                provision_diff -= first_trial[0]
-            
-            return -provision_diff / service_increment[block_id][x]
+            if second_last_trial[0] is not None:
+                provision_diff -= second_last_trial[0]
+
+            return -provision_diff / service_increment[x]
 
         # Sort services by their efficiency (provision improvement per resource)
-        for block_id in block_services:
-            block_services[block_id].sort(key=gradient_sortkey)
+        services.sort(key=gradient_sortkey)
 
-        # Select top N most efficient services per block
-        return np.array([
-            var_num
-            for var_num in new_permut
-            if self._facade.get_service_name(var_num)
-               in block_services[self._facade.get_var_block_id(var_num)][:self._num_top]
-        ])
+        n = len(permut)
+        opt_threshold = min(int(np.ceil(n / 3)), self._num_top)
+        null_threshold = min(int(np.ceil(n / 4)), self._num_top)
+
+        # Select top N services per block
+        return (
+            np.array(
+                [var_num for var_num in permut if self._facade.get_service_name(var_num) in services[:opt_threshold]]
+            ),
+            np.array(
+                [
+                    var_num
+                    for var_num in permut
+                    if self._facade.get_service_name(var_num) in services[opt_threshold:-null_threshold]
+                ]
+            ),
+        )

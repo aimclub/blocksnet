@@ -1,3 +1,4 @@
+import copy
 from typing import Dict, List
 
 import numpy as np
@@ -16,9 +17,7 @@ class CapacityChecker:
     and verifies that solutions don't exceed demand capacities for different service types.
     """
 
-    def __init__(
-        self, block_ids: List[int], accessibility_matrix: pd.DataFrame
-    ):
+    def __init__(self, block_ids: List[int], accessibility_matrix: pd.DataFrame):
         """
         Initialize the CapacityChecker with block demand data.
 
@@ -44,9 +43,11 @@ class CapacityChecker:
             DataFrame containing provision data for the service type, including demand information.
         """
         for block_id in self._demands.keys():
-            # Calculate total demand with 20% buffer
-            block_demand = self.get_demand(block_id, st, provision_df) * 1.2
-            self._demands[block_id][st] = block_demand
+            block_demand = self.get_demand(block_id, st, provision_df)
+            units = service_types_config.units
+            block_demand += max([unit.capacity for _, unit in units[units.service_type == st].iterrows()])
+
+            self._demands[block_id][st] = max(block_demand, 0)
 
     def get_demand(self, block_id: int, service: str, provision_df: pd.DataFrame) -> float:
         """
@@ -67,12 +68,13 @@ class CapacityChecker:
             Total calculated demand for the service in the accessible area around the block.
         """
         # Get accessibility threshold for this service type
+        # Note: The actual implementation uses service_types_config[service].values()
+        # while the comment suggests getting threshold, capacity, accessibility
         _, _, accessibility = service_types_config[service].values()
-                
+
         # Find blocks within accessibility range
         nearest_blocks = self._accessibility_matrix.index[self._accessibility_matrix[block_id] <= accessibility]
-        
-        # Calculate total demand with 20% buffer
+
         return provision_df[provision_df.index.isin(nearest_blocks)][DEMAND_LEFT_COLUMN].sum()
 
     def get_ub_var(self, var: Variable) -> int:
@@ -82,7 +84,8 @@ class CapacityChecker:
         Parameters
         ----------
         var : Variable
-            The service variable to calculate upper bound for.
+            The service variable to calculate upper bound for. Must have block_id, service_type,
+            and capacity attributes.
 
         Returns
         -------
@@ -99,7 +102,8 @@ class CapacityChecker:
         Parameters
         ----------
         X : List[Variable]
-            List of Variable objects representing the solution.
+            List of Variable objects representing the solution. Each variable must have
+            block_id, service_type, and total_capacity attributes.
 
         Returns
         -------
@@ -108,14 +112,14 @@ class CapacityChecker:
             False if any service exceeds its demand capacity.
         """
         # Create a copy of demands to track remaining capacity
-        block_demands = self._demands.copy()
-        
+        block_demands = copy.deepcopy(self._demands)
+
         for var in X:
             # Subtract this variable's capacity from the remaining demand
             block_demands[var.block_id][var.service_type] -= var.total_capacity
-            
+
             # Check if we've exceeded capacity for this service type
             if block_demands[var.block_id][var.service_type] < 0:
                 return False
-                
+
         return True

@@ -3,21 +3,21 @@ import pandas as pd
 from loguru import logger
 from tqdm import tqdm
 from .schemas import BlocksSchema
-from ...utils.validation import ensure_crs
+from blocksnet.utils.validation import ensure_crs
 
-OBJECTS_COUNT_COLUMN = "objects_count"
+COUNT_COLUMN = "count"
 
 
 def _preprocess_input(blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFrame):
     logger.info("Preprocessing input")
     ensure_crs(blocks_gdf, objects_gdf)
     objects_gdf["geometry"] = objects_gdf.representative_point()
-    if OBJECTS_COUNT_COLUMN in objects_gdf.columns:
+    if COUNT_COLUMN in objects_gdf.columns:
         logger.warning(
-            f"Column {OBJECTS_COUNT_COLUMN} found in objects_gdf. It will be taken into account and might affect the result"
+            f"Column {COUNT_COLUMN} found in objects_gdf. It will be taken into account and might affect the result"
         )
     else:
-        objects_gdf[OBJECTS_COUNT_COLUMN] = 1
+        objects_gdf[COUNT_COLUMN] = 1
 
 
 def _get_agg_rules(objects_gdf: gpd.GeoDataFrame):

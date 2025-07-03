@@ -1,8 +1,10 @@
 import math
 import random
 from typing import Callable
+
 from pydantic import BaseModel, Field
 from tqdm import tqdm
+
 from ....config import log_config
 
 
