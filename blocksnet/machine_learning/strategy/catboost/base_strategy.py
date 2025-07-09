@@ -1,5 +1,5 @@
 from ..base_strategy import BaseStrategy
-from catboost import CatBoost
+from catboost import CatBoost, Pool
 
 
 class CatBoostBaseStrategy(BaseStrategy):

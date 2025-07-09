@@ -14,6 +14,10 @@ class BaseStrategy(ABC):
         self.model_cls = model_cls
         self.model_params = model_params
 
+    def _check_model(self):
+        if self.model is None:
+            raise ValueError("Model is not initialized")
+
     @abstractmethod
     def train(self, *args, **kwargs):
         """Must call `super().train()` if overridden."""
@@ -22,14 +26,7 @@ class BaseStrategy(ABC):
     @abstractmethod
     def predict(self, *args, **kwargs):
         """Must call `super().predict()` if overridden."""
-        if self.model is None:
-            raise ValueError("Model is not initialized")
-
-    @abstractmethod
-    def validate(self, *args, **kwargs):
-        """Must call `super().validate()` if overridden."""
-        if self.model is None:
-            raise ValueError("Model is not initialized")
+        self._check_model()
 
     @abstractmethod
     def _save_model(self, path: str):
@@ -38,9 +35,6 @@ class BaseStrategy(ABC):
     @abstractmethod
     def _load_model(self, path: str):
         pass
-
-    def update_model_params(self, **kwargs):
-        self.model_params.update(kwargs)
 
     def _save_meta(self, path: str):
         meta = {MODEL_CLS_KEY: self.model_cls.__name__, MODEL_PARAMS_KEY: self.model_params}
@@ -59,8 +53,7 @@ class BaseStrategy(ABC):
 
     def save(self, path: str):
         """Must call `super().save(path)` if overridden."""
-        if self.model is None:
-            raise ValueError("Model is not initialized")
+        self._check_model()
         os.makedirs(path, exist_ok=True)
         self._save_meta(path)
         self._save_model(path)

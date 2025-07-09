@@ -1,9 +1,13 @@
+import xgboost as xgb
+import numpy as np
 from .base_strategy import XGBoostBaseStrategy
+from ..classification_base import ClassificationBase
 
 
-class XGBoostClassificationStrategy(XGBoostBaseStrategy):
-    def __init__(self, *args, **kwargs):
-        raise NotImplementedError("TODO: to be implemented in the future")
+class XGBoostClassificationStrategy(ClassificationBase, XGBoostBaseStrategy):
+    def __init__(self, model_params: dict | None = None):
+        super().__init__(xgb.XGBClassifier, model_params)
 
-    def _get_eval_metric(self) -> str:
-        return super()._get_eval_metric("error")
+    def predict_proba(self, x: np.ndarray) -> np.ndarray:
+        self._check_model()
+        return self.model.predict_proba(x)
