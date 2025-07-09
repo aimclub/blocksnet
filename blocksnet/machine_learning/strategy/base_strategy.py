@@ -37,8 +37,11 @@ class BaseStrategy(ABC):
     def _load_model(self, path: str):
         pass
 
+    def _get_meta(self) -> dict:
+        return {MODEL_CLS_KEY: self.model_cls.__name__, MODEL_PARAMS_KEY: self.model_params}
+
     def _save_meta(self, path: str):
-        meta = {MODEL_CLS_KEY: self.model_cls.__name__, MODEL_PARAMS_KEY: self.model_params}
+        meta = self._get_meta()
         with open(os.path.join(path, META_FILENAME), "w") as f:
             json.dump(meta, f)
 
@@ -55,12 +58,12 @@ class BaseStrategy(ABC):
     def save(self, path: str):
         """Must call `super().save(path)` if overridden."""
         os.makedirs(path, exist_ok=True)
-        self._save_model(path)
         self._save_meta(path)
+        self._save_model(path)
 
     def load(self, path: str):
         """Must call `super().load(path)` if overridden."""
         if not os.path.exists(path):
             raise FileNotFoundError(f"Path {path} does not exist")
-        self._load_model(path)
         self._load_meta(path)
+        self._load_model(path)
