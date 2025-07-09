@@ -1,1 +1,1 @@
-recursive-include blocksnet *.json *.pt *.pkl *.cbm
+recursive-include blocksnet *.json *.pt *.pkl *.cbm *.joblib *.xgb
