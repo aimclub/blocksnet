@@ -17,7 +17,6 @@ class XGBoostBaseStrategy(BaseStrategy):
         return self.model.score(x_test, y_test)
 
     def predict(self, x: np.ndarray) -> np.ndarray:
-        super().predict()
         return self.model.predict(x)
 
     def _save_model(self, path: str):
@@ -27,5 +26,5 @@ class XGBoostBaseStrategy(BaseStrategy):
         model_path = os.path.join(path, MODEL_FILENAME)
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
-        self.model = self.model_cls(**self.model_params)
+        self._model = self.model_cls(**self.model_params)
         self.model.load_model(model_path)

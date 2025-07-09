@@ -2,20 +2,10 @@ import os
 from abc import abstractmethod
 import joblib
 import torch
-import pandas as pd
-from tqdm import tqdm
 from ..base_strategy import BaseStrategy
-
-TRAIN_LOSS_TEXT = "Train loss"
-TEST_LOSS_TEXT = "Test loss"
 
 MODEL_FILENAME = "model.pt"
 SCALER_FILENAME = "scaler.joblib"
-
-OPTIMIZER_CLS = torch.optim.Adam
-OPTIMIZER_PARAMS = {"lr": 3e-4, "weight_decay": 1e-5}
-CRITERION_CLS = torch.nn.MSELoss
-CRITERION_PARAMS = {}
 
 
 class TorchBaseStrategy(BaseStrategy):
@@ -24,22 +14,14 @@ class TorchBaseStrategy(BaseStrategy):
         self.scaler = scaler
         self.device = device if device is not None else torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-    def _build_optimizer(
-        self, optimizer_cls: type[torch.optim.Optimizer] | None = None, optimizer_params: dict | None = None
-    ):
-        if optimizer_cls is None:
-            optimizer_cls = OPTIMIZER_CLS
-        if optimizer_params is None:
-            optimizer_params = OPTIMIZER_PARAMS
-        return optimizer_cls(self.model.parameters(), **optimizer_params)
+    @abstractmethod
+    def _build_optimizer(self, optimizer_cls: type[torch.optim.Optimizer], optimizer_params: dict):
+        """Must call super()._build_optimizer() when overriden."""
+        return optimizer_cls(**optimizer_params)
 
-    def _build_criterion(
-        self, criterion_cls: type[torch.nn.Module] | None = None, criterion_params: dict | None = None
-    ):
-        if criterion_cls is None:
-            criterion_cls = CRITERION_CLS
-        if criterion_params is None:
-            criterion_params = CRITERION_PARAMS
+    @abstractmethod
+    def _build_criterion(self, criterion_cls: type[torch.nn.Module], criterion_params: dict):
+        """Must call super()._build_criterion() when overriden."""
         return criterion_cls(**criterion_params)
 
     def _save_model(self, path: str):
@@ -51,7 +33,7 @@ class TorchBaseStrategy(BaseStrategy):
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
         state_dict = torch.load(model_path)
-        self.model = self.model_cls(**self.model_params)
+        self._model = self.model_cls(**self.model_params)
         self.model.load_state_dict(state_dict)
 
     def _save_scaler(self, path: str):

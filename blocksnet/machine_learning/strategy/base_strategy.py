@@ -10,23 +10,24 @@ MODEL_PARAMS_KEY = "model_params"
 
 class BaseStrategy(ABC):
     def __init__(self, model_cls, model_params: dict = {}):
-        self.model = None
+        self._model = None
         self.model_cls = model_cls
         self.model_params = model_params
 
-    def _check_model(self):
-        if self.model is None:
+    @property
+    def model(self):
+        if self._model is None:
             raise ValueError("Model is not initialized")
+        return self._model
 
     @abstractmethod
     def train(self, *args, **kwargs):
         """Must call `super().train()` if overridden."""
-        self.model = self.model_cls(**self.model_params)
+        self._model = self.model_cls(**self.model_params)
 
     @abstractmethod
     def predict(self, *args, **kwargs):
-        """Must call `super().predict()` if overridden."""
-        self._check_model()
+        pass
 
     @abstractmethod
     def _save_model(self, path: str):
@@ -53,14 +54,13 @@ class BaseStrategy(ABC):
 
     def save(self, path: str):
         """Must call `super().save(path)` if overridden."""
-        self._check_model()
         os.makedirs(path, exist_ok=True)
-        self._save_meta(path)
         self._save_model(path)
+        self._save_meta(path)
 
     def load(self, path: str):
         """Must call `super().load(path)` if overridden."""
         if not os.path.exists(path):
             raise FileNotFoundError(f"Path {path} does not exist")
-        self._load_meta(path)
         self._load_model(path)
+        self._load_meta(path)
