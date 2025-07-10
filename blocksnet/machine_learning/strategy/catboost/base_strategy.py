@@ -11,7 +11,7 @@ class CatBoostBaseStrategy(BaseStrategy):
         super().__init__(model_cls, model_params or {})
 
     def train(self, x_train: np.ndarray, x_test: np.ndarray, y_train: np.ndarray, y_test: np.ndarray) -> float:
-        super().train()
+        self.model = self.model_cls(**self.model_params)
         self.model.fit(x_train, y_train, eval_set=[(x_test, y_test)], verbose=False)
         return self.model.score(x_test, y_test)
 
@@ -25,5 +25,5 @@ class CatBoostBaseStrategy(BaseStrategy):
         model_path = os.path.join(path, MODEL_FILENAME)
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
-        self._model = self.model_cls(**self.model_params)
+        self.model = self.model_cls(**self.model_params)
         self.model.load_model(model_path)

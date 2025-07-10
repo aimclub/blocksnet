@@ -20,10 +20,13 @@ class BaseStrategy(ABC):
             raise ValueError("Model is not initialized")
         return self._model
 
+    @model.setter
+    def model(self, model):
+        self._model = model
+
     @abstractmethod
     def train(self, *args, **kwargs):
-        """Must call `super().train()` if overridden."""
-        self._model = self.model_cls(**self.model_params)
+        pass
 
     @abstractmethod
     def predict(self, *args, **kwargs):

@@ -9,5 +9,4 @@ class CatBoostClassificationStrategy(ClassificationBase, CatBoostBaseStrategy):
         super().__init__(CatBoostClassifier, model_params)
 
     def predict_proba(self, x: np.ndarray) -> np.ndarray:
-        self._check_model()
         return self.model.predict_proba(x)

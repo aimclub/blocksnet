@@ -34,7 +34,7 @@ class TorchBaseStrategy(BaseStrategy):
     def _build_model(self, input_size: int, output_size: int, **kwargs) -> torch.nn.Module:
         model_params = {**self.model_params, "input_size": input_size, "output_size": output_size, **kwargs}
         model = self.model_cls(**model_params)
-        self._model = model
+        self.model = model
         self.model_params = model_params
         return model
 
@@ -65,7 +65,7 @@ class TorchBaseStrategy(BaseStrategy):
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
         state_dict = torch.load(model_path)
-        self._model = self.model_cls(**self.model_params)
+        self.model = self.model_cls(**self.model_params)
         self.model.load_state_dict(state_dict)
 
     def _save_scalers(self, path: str):
