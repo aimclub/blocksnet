@@ -1,14 +1,27 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 from ..strategy.base_strategy import BaseStrategy
 
 
 class BaseContext(ABC):
-    def __init__(self, strategy: BaseStrategy):
-        self.strategy = strategy
+    def __init__(self, strategy: BaseStrategy | None = None):
+        self._strategy = strategy
 
-    def set_strategy(self, strategy: BaseStrategy):
-        self.strategy = strategy
+    @property
+    def strategy(self):
+        if self._strategy is None:
+            raise ValueError("Strategy is not set")
+        return self._strategy
 
+    @strategy.setter
+    def strategy(self, strategy: BaseStrategy):
+        if not isinstance(strategy, BaseStrategy):
+            raise TypeError("Strategy must be BaseStrategy at least")
+        self._strategy = strategy
+
+    @abstractmethod
+    def train(self, *args, **kwargs):
+        pass
+
+    @abstractmethod
     def run(self, *args, **kwargs):
-        if not self.strategy:
-            raise ValueError("Strategy is not set.")
+        pass

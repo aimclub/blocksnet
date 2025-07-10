@@ -63,6 +63,10 @@ class DfSchema(pa.DataFrameModel):
         return list(cls.to_schema().columns.keys())
 
     @classmethod
+    def columns_(cls) -> list:
+        return cls._columns()
+
+    @classmethod
     def create_empty(cls) -> pd.DataFrame:
         return pd.DataFrame([], columns=cls._columns())
 
