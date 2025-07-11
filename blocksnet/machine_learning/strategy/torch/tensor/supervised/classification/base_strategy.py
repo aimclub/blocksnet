@@ -28,7 +28,6 @@ class TorchTensorBaseClassificationStrategy(ClassificationBase, TorchTensorSuper
     def _x_to_tensor(self, x: np.ndarray) -> torch.Tensor:
         return torch.tensor(x, dtype=torch.float32, device=self.device)
 
-    @abstractmethod
     def _build_criterion(
         self,
         criterion_cls: type[torch.nn.Module] | None,

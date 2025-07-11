@@ -1,32 +1,12 @@
-from enum import Enum
 import shapely
 import pandas as pd
-from pandera import Field, parser, check
+from pandera import parser, check
 from pandera.typing import Series
 from blocksnet.utils.validation import GdfSchema, DfSchema
+from blocksnet.enums import BlockCategory
 
 
-class BlockCategory(Enum):
-    INVALID = "invalid"
-    LARGE = "large"
-    NORMAL = "normal"
-
-
-class BlocksGeometriesSchema(GdfSchema):
-
-    site_area: Series[float] = Field(ge=0)
-    site_length: Series[float] = Field(ge=0)
-
-    @classmethod
-    def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
-        df = df.copy()
-        if "geometry" in df.columns:
-            if not "site_area" in df.columns:
-                df["site_area"] = df["geometry"].area
-            if not "site_length" in df.columns:
-                df["site_length"] = df["geometry"].length
-        return df
-
+class BlocksSchema(GdfSchema):
     @classmethod
     def _geometry_types(cls):
         return [shapely.Polygon]

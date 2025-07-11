@@ -3,17 +3,18 @@ import pandas as pd
 import geopandas as gpd
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import accuracy_score
-from blocksnet.machine_learning.context.base_context import BaseContext
-from blocksnet.machine_learning.strategy.base_strategy import BaseStrategy
-from blocksnet.machine_learning.strategy.classification_base import ClassificationBase
-from .schemas import BlockCategory, BlocksGeometriesSchema, BlocksCategoriesSchema
+from blocksnet.machine_learning import BaseContext
+from blocksnet.preprocessing.feature_engineering import generate_geometries_features
+from .schemas import BlockCategory, BlocksSchema, BlocksCategoriesSchema
+from ._strategy import strategy
 
 CATEGORIES_LIST = list(BlockCategory)
 
 
 class BlocksClassifier(BaseContext):
     def _preprocess_x(self, blocks_gdf: gpd.GeoDataFrame) -> np.ndarray:
-        blocks_gdf = BlocksGeometriesSchema(blocks_gdf)
+        blocks_gdf = BlocksSchema(blocks_gdf)
+        blocks_gdf = generate_geometries_features(blocks_gdf, radiuses=True, aspect_ratios=True, centerlines=True)
         return blocks_gdf.drop(columns=["geometry"]).values
 
     def _preprocess_y(self, blocks_gdf: gpd.GeoDataFrame) -> np.ndarray:
@@ -40,4 +41,10 @@ class BlocksClassifier(BaseContext):
     def run(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
         x = self._preprocess_x(blocks_gdf)
         y = self.strategy.predict(x)
-        return self._postprocess_y(y, index=blocks_gdf.index)
+        y_df = self._postprocess_y(y, index=blocks_gdf.index)
+        y_df[[bc.value for bc in CATEGORIES_LIST]] = self.strategy.predict_proba(x)
+        return y_df
+
+    @classmethod
+    def default(cls) -> "BlocksClassifier":
+        return cls(strategy)

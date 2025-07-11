@@ -18,6 +18,11 @@ class BaseContext(ABC):
             raise TypeError("Strategy must be BaseStrategy at least")
         self._strategy = strategy
 
+    @classmethod
+    @abstractmethod
+    def default(cls) -> "BaseContext":
+        pass
+
     @abstractmethod
     def train(self, *args, **kwargs):
         pass

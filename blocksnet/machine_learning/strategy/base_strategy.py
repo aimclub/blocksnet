@@ -2,8 +2,11 @@ import os
 import json
 from abc import ABC, abstractmethod
 
+import numpy as np
+
 META_FILENAME = "meta.json"
 
+STRATEGY_CLS_KEY = "strategy_cls"
 MODEL_CLS_KEY = "model_cls"
 MODEL_PARAMS_KEY = "model_params"
 
@@ -29,7 +32,7 @@ class BaseStrategy(ABC):
         pass
 
     @abstractmethod
-    def predict(self, *args, **kwargs):
+    def predict(self, *args, **kwargs) -> np.ndarray:
         pass
 
     @abstractmethod
@@ -41,7 +44,11 @@ class BaseStrategy(ABC):
         pass
 
     def _get_meta(self) -> dict:
-        return {MODEL_CLS_KEY: self.model_cls.__name__, MODEL_PARAMS_KEY: self.model_params}
+        return {
+            STRATEGY_CLS_KEY: self.__class__.__name__,
+            MODEL_CLS_KEY: self.model_cls.__name__,
+            MODEL_PARAMS_KEY: self.model_params,
+        }
 
     def _save_meta(self, path: str):
         meta = self._get_meta()
@@ -54,6 +61,10 @@ class BaseStrategy(ABC):
             raise FileNotFoundError(f"Meta file not found at {meta_path}")
         with open(meta_path, "r") as f:
             meta = json.load(f)
+        if meta[STRATEGY_CLS_KEY] != self.__class__.__name__:
+            raise ValueError(
+                f"Strategy class mismatch: expected {self.__class__.__name__}, got {meta[STRATEGY_CLS_KEY]}"
+            )
         if meta[MODEL_CLS_KEY] != self.model_cls.__name__:
             raise ValueError(f"Model class mismatch: expected {self.model_cls.__name__}, got {meta[MODEL_CLS_KEY]}")
         self.model_params = meta.get(MODEL_PARAMS_KEY)
