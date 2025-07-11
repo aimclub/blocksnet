@@ -1,12 +1,13 @@
 import os
 import numpy as np
 from catboost import CatBoost
+from abc import ABC
 from ..base_strategy import BaseStrategy
 
 MODEL_FILENAME = "model.cbm"
 
 
-class CatBoostBaseStrategy(BaseStrategy):
+class CatBoostBaseStrategy(BaseStrategy, ABC):
     def __init__(self, model_cls: type[CatBoost], model_params: dict | None = None):
         super().__init__(model_cls, model_params or {})
 

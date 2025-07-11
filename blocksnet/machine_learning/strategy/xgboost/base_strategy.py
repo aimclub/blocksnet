@@ -2,12 +2,13 @@ import os
 import numpy as np
 import pandas as pd
 import xgboost as xgb
+from abc import ABC
 from ..base_strategy import BaseStrategy
 
 MODEL_FILENAME = "model.ubj"
 
 
-class XGBoostBaseStrategy(BaseStrategy):
+class XGBoostBaseStrategy(BaseStrategy, ABC):
     def __init__(self, model_cls: type[xgb.XGBModel], model_params: dict | None = None):
         super().__init__(model_cls, model_params or {})
 
