@@ -1,12 +1,6 @@
 import torch
-import pandas as pd
 import numpy as np
-from tqdm import tqdm
-from blocksnet.config import log_config
 from .base_strategy import TorchTensorSupervisedStrategy
-
-TRAIN_LOSS_TEXT = "Train loss"
-TEST_LOSS_TEXT = "Test loss"
 
 
 class TorchTensorRegressionStrategy(TorchTensorSupervisedStrategy):
