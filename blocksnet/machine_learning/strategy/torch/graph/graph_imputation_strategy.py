@@ -5,6 +5,7 @@ from torch_geometric.data import Data
 from torch_geometric.loader import DataLoader
 from .base_strategy import TorchGraphBaseStrategy
 
+
 class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
     def _build_criterion(
         self, criterion_cls: type[torch.nn.Module] | None = None, criterion_params: dict | None = None
@@ -32,9 +33,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         masked_targets[~mask] = 0
         return masked_targets
 
-    def _epoch_train(
-        self, batch: Data, optimizer: torch.optim.Optimizer, criterion: torch.nn.Module
-    ) -> float:
+    def _epoch_train(self, batch: Data, optimizer: torch.optim.Optimizer, criterion: torch.nn.Module) -> float:
         """
         Train one epoch, computing loss only for missing target values.
         """
@@ -67,8 +66,13 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         return loss.item()
 
     def _epoch_test(
-        self, x_test: torch.Tensor, y_test: torch.Tensor, edge_index: torch.Tensor, 
-        criterion: torch.nn.Module, val_mask: torch.Tensor, mask: torch.Tensor
+        self,
+        x_test: torch.Tensor,
+        y_test: torch.Tensor,
+        edge_index: torch.Tensor,
+        criterion: torch.nn.Module,
+        val_mask: torch.Tensor,
+        mask: torch.Tensor,
     ) -> float:
         """
         Validate model, computing loss only for missing target values.
@@ -111,8 +115,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
             batch_losses.append(batch_loss)
         train_loss = float(np.mean(batch_losses))
         test_metrics = self._epoch_test(
-            data["x_test"], data["y_test"], data["edge_index"], 
-            criterion, data["val_mask"], data["mask"]
+            data["x_test"], data["y_test"], data["edge_index"], criterion, data["val_mask"], data["mask"]
         )
         return train_loss, test_metrics
 
@@ -200,35 +203,38 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         data_loader_params: dict | None = None,
         **kwargs,
     ) -> tuple[list[float], list[dict]]:
-        self._initialize_model(x, y)
+        self._initialize_model(x, y).to(self.device)
         optimizer = self._build_optimizer(optimizer_cls, optimizer_params)
         criterion = self._build_criterion(criterion_cls, criterion_params)
         data = self._preprocess(
-            x_train=x, x_test=x, y_train=y, y_test=y, edge_index=edge_index,
-            train_indices=train_indices, val_indices=val_indices
+            x_train=x,
+            x_test=x,
+            y_train=y,
+            y_test=y,
+            edge_index=edge_index,
+            train_indices=train_indices,
+            val_indices=val_indices,
         )
         data_loader = self._build_data_loader(data, data_loader_params or {"batch_size": batch_size, "shuffle": False})
-        
+
         train_losses = []
         val_metrics = []
         for epoch in range(epochs):
-            train_loss, test_metrics = self._epoch(
-                data_loader, data, optimizer, criterion
-            )
+            train_loss, test_metrics = self._epoch(data_loader, data, optimizer, criterion)
             train_losses.append(train_loss)
             val_metrics.append(test_metrics)
-        
+
         return train_losses, val_metrics
 
     def _build_data_loader(self, data: dict, params: dict | None) -> DataLoader:
         params = params or {"batch_size": 1, "shuffle": False}
         data_entry = Data(
-            x=data["x_train"], 
-            y=data["y_train"], 
+            x=data["x_train"],
+            y=data["y_train"],
             edge_index=data["edge_index"],
-            train_mask=data.get("train_mask"), 
+            train_mask=data.get("train_mask"),
             val_mask=data.get("val_mask"),
-            mask=data.get("mask")  # Include target mask
+            mask=data.get("mask"),  # Include target mask
         )
         return DataLoader([data_entry], **params)
 
