@@ -1,2 +1,2 @@
 from .base_strategy import TorchGraphBaseStrategy
-from .graph_imputation_strategy import TorchGraphImputationStrategy
+from .imputation_strategy import TorchGraphImputationStrategy
