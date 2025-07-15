@@ -14,23 +14,23 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         criterion_params = criterion_params or {}
         return criterion_cls(**criterion_params)
 
-    def _create_target_mask(self, targets: np.ndarray, missing_rate: float = 0.4) -> np.ndarray:
+    def _create_imputation_mask(self, targets: np.ndarray, missing_rate: float = 0.4) -> np.ndarray:
         """
-        Create missing mask for target features.
+        Create missing imputation_mask for target features.
         """
-        mask = np.ones_like(targets, dtype=bool)
+        imputation_mask = np.ones_like(targets, dtype=bool)
         n_nodes, n_targets = targets.shape
         for i in range(n_targets):
             missing_nodes = np.random.choice(n_nodes, int(n_nodes * missing_rate), replace=False)
-            mask[missing_nodes, i] = False
-        return mask
+            imputation_mask[missing_nodes, i] = False
+        return imputation_mask
 
-    def _apply_target_mask(self, targets: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
+    def _apply_imputation_mask(self, targets: torch.Tensor, imputation_mask: torch.Tensor) -> torch.Tensor:
         """
-        Apply mask to targets, setting missing values to 0.
+        Apply imputation_mask to targets, setting missing values to 0.
         """
         masked_targets = targets.clone()
-        masked_targets[~mask] = 0
+        masked_targets[~imputation_mask] = 0
         return masked_targets
 
     def _epoch_train(self, batch: Data, optimizer: torch.optim.Optimizer, criterion: torch.nn.Module) -> float:
@@ -41,12 +41,12 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         model.train()
         optimizer.zero_grad()
 
-        # Get mask from batch (created in _preprocess)
-        mask_tensor = batch.mask
+        # Get imputation_mask from batch (created in _preprocess)
+        mask_tensor = batch.imputation_mask
         train_mask = batch.train_mask
 
-        # Apply mask to targets
-        masked_y = self._apply_target_mask(batch.y, mask_tensor)
+        # Apply imputation_mask to targets
+        masked_y = self._apply_imputation_mask(batch.y, mask_tensor)
 
         # Create full input with masked targets
         full_input = torch.cat([batch.x, masked_y], dim=1)
@@ -54,7 +54,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         # Forward pass
         y_pred = model(full_input, batch.edge_index)
 
-        # Compute loss only for missing values (where mask is False)
+        # Compute loss only for missing values (where imputation_mask is False)
         total_mask = train_mask.unsqueeze(1) & ~mask_tensor
         if total_mask.sum() > 0:
             loss = criterion(y_pred[total_mask], batch.y[total_mask])
@@ -72,7 +72,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         edge_index: torch.Tensor,
         criterion: torch.nn.Module,
         val_mask: torch.Tensor,
-        mask: torch.Tensor,
+        imputation_mask: torch.Tensor,
     ) -> float:
         """
         Validate model, computing loss only for missing target values.
@@ -81,8 +81,8 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         model = self.model
         model.eval()
         with torch.no_grad():
-            # Apply mask to test targets
-            masked_y = self._apply_target_mask(y_test, mask)
+            # Apply imputation_mask to test targets
+            masked_y = self._apply_imputation_mask(y_test, imputation_mask)
 
             # Create full input
             full_input = torch.cat([x_test, masked_y], dim=1)
@@ -91,7 +91,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
             y_pred = model(full_input, edge_index)
 
             # Compute loss for missing values
-            total_mask = val_mask.unsqueeze(1) & ~mask
+            total_mask = val_mask.unsqueeze(1) & ~imputation_mask
             if total_mask.sum() > 0:
                 loss = criterion(y_pred[total_mask], y_test[total_mask])
                 return loss.item()
@@ -115,7 +115,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
             batch_losses.append(batch_loss)
         train_loss = float(np.mean(batch_losses))
         test_metrics = self._epoch_test(
-            data["x_test"], data["y_test"], data["edge_index"], criterion, data["val_mask"], data["mask"]
+            data["x_test"], data["y_test"], data["edge_index"], criterion, data["val_mask"], data["imputation_mask"]
         )
         return train_loss, test_metrics
 
@@ -141,7 +141,7 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         edge_index: torch.Tensor | None = None,
         train_indices: np.ndarray | None = None,
         val_indices: np.ndarray | None = None,
-        **kwargs,
+        imputation_mask: np.ndarray | None = None,
     ) -> dict:
         result = {}
 
@@ -175,10 +175,13 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
             result["train_mask"] = train_mask
             result["val_mask"] = val_mask
 
-        # Create target mask for missing values
+        # Create target imputation_mask for missing values
         if y_train is not None:
-            mask = self._create_target_mask(result["y_train"].cpu().numpy())
-            result["mask"] = torch.tensor(mask, dtype=torch.bool, device=self.device)
+            imputation_mask = self._create_imputation_mask(result["y_train"].cpu().numpy())
+            result["imputation_mask"] = torch.tensor(imputation_mask, dtype=torch.bool, device=self.device)
+
+        elif imputation_mask is not None:
+            result["imputation_mask"] = torch.tensor(imputation_mask, dtype=torch.bool, device=self.device)
 
         return result
 
@@ -186,45 +189,6 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
         a = y.cpu().numpy()
         (a,) = self._inverse_scale("y", a)
         return a
-
-    def train(
-        self,
-        x: np.ndarray,
-        y: np.ndarray,
-        edge_index: torch.Tensor,
-        train_indices: np.ndarray,
-        val_indices: np.ndarray,
-        epochs: int = 100,
-        batch_size: int = 1,  # Set to 1 to match old code (whole graph)
-        optimizer_cls: type[torch.optim.Optimizer] | None = None,
-        optimizer_params: dict | None = None,
-        criterion_cls: type[torch.nn.Module] | None = None,
-        criterion_params: dict | None = None,
-        data_loader_params: dict | None = None,
-        **kwargs,
-    ) -> tuple[list[float], list[dict]]:
-        self._initialize_model(x, y).to(self.device)
-        optimizer = self._build_optimizer(optimizer_cls, optimizer_params)
-        criterion = self._build_criterion(criterion_cls, criterion_params)
-        data = self._preprocess(
-            x_train=x,
-            x_test=x,
-            y_train=y,
-            y_test=y,
-            edge_index=edge_index,
-            train_indices=train_indices,
-            val_indices=val_indices,
-        )
-        data_loader = self._build_data_loader(data, data_loader_params or {"batch_size": batch_size, "shuffle": False})
-
-        train_losses = []
-        val_metrics = []
-        for epoch in range(epochs):
-            train_loss, test_metrics = self._epoch(data_loader, data, optimizer, criterion)
-            train_losses.append(train_loss)
-            val_metrics.append(test_metrics)
-
-        return train_losses, val_metrics
 
     def _build_data_loader(self, data: dict, params: dict | None) -> DataLoader:
         params = params or {"batch_size": 1, "shuffle": False}
@@ -234,23 +198,15 @@ class TorchGraphImputationStrategy(TorchGraphBaseStrategy):
             edge_index=data["edge_index"],
             train_mask=data.get("train_mask"),
             val_mask=data.get("val_mask"),
-            mask=data.get("mask"),  # Include target mask
+            imputation_mask=data.get("imputation_mask"),  # Include target imputation_mask
         )
         return DataLoader([data_entry], **params)
 
     def _predict(self, data: dict, *args, **kwargs) -> torch.Tensor:
         x = data["x"]
         edge_index = data["edge_index"]
-        mask = data.get("mask", torch.ones_like(data["y"], dtype=torch.bool, device=self.device))
-        dummy_targets = self._apply_target_mask(data["y"], mask)
+        imputation_mask = data.get("imputation_mask", torch.ones_like(data["y"], dtype=torch.bool, device=self.device))
+        dummy_targets = self._apply_imputation_mask(data["y"], imputation_mask)
         full_input = torch.cat([x, dummy_targets], dim=1)
         y_pred_tensor = self.model(full_input, edge_index)
         return y_pred_tensor
-
-    def predict(self, x: np.ndarray, edge_index: torch.Tensor, y: np.ndarray | None = None) -> np.ndarray:
-        self.model.eval()
-        data = self._preprocess(x=x, y=y, edge_index=edge_index)
-        with torch.no_grad():
-            y_pred_tensor = self._predict(data)
-            y_pred = self._postprocess(y_pred_tensor)
-        return y_pred
