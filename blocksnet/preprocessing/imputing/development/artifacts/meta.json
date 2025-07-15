@@ -1,1 +1,1 @@
-{"strategy_cls": "TorchGraphImputationStrategy", "model_cls": "MultiScaleGNN", "model_params": {"input_size": 23, "output_size": 3}}
+{"strategy_cls": "TorchGraphImputationStrategy", "model_cls": "MultiScaleGNN", "model_params": {"hidden_dim": 128, "num_layers": 2, "dropout": 0.2, "input_size": 18, "output_size": 3}}

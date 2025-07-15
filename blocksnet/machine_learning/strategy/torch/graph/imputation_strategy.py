@@ -99,7 +99,7 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         model.train()
         optimizer.zero_grad()
 
-        imputation_mask = self._create_imputation_mask(batch.y)
+        imputation_mask = batch.imputation_mask
         y_masked = self._apply_imputation_mask(batch.y, imputation_mask)
 
         full_input = torch.cat([batch.x, y_masked], dim=1)
@@ -121,7 +121,7 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         model = self.model
         model.eval()
 
-        imputation_mask = self._create_imputation_mask(batch.y)
+        imputation_mask = batch.imputation_mask
         y_masked = self._apply_imputation_mask(batch.y, imputation_mask)
         full_input = torch.cat([batch.x, y_masked], dim=1)
 
@@ -144,7 +144,13 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
     ) -> tuple[float, float]:
         batch_train_losses = []
         batch_test_losses = []
-        for batch in data_loader:
+
+        batch_list = list(data_loader)
+
+        for batch in batch_list:
+            batch.imputation_mask = self._create_imputation_mask(batch.y)
+
+        for batch in batch_list:
             # train
             batch_train_loss = self._epoch_train(batch, optimizer, criterion)
             batch_train_losses.append(batch_train_loss)
@@ -169,7 +175,7 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
 
     def _create_imputation_mask(self, targets: torch.Tensor, missing_rate: float = 0.4) -> torch.Tensor:
         n_nodes, n_targets = targets.shape
-        imputation_mask = torch.ones_like(targets, dtype=torch.bool, device=self.device)
+        imputation_mask = torch.zeros_like(targets, dtype=torch.bool, device=self.device)
 
         for i in range(n_targets):
             missing_nodes = torch.randperm(n_nodes)[: int(n_nodes * missing_rate)]
