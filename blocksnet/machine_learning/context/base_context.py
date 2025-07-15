@@ -3,7 +3,7 @@ from ..strategy.base_strategy import BaseStrategy
 
 
 class BaseContext(ABC):
-    def __init__(self, strategy: BaseStrategy | None = None):
+    def __init__(self, strategy: BaseStrategy):
         self._strategy = strategy
 
     @property

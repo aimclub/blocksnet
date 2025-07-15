@@ -36,5 +36,7 @@ class MultiScaleGNN(nn.Module):
         return output
 
 
-strategy = TorchGraphImputationStrategy(model_cls=MultiScaleGNN)
-strategy.load(ARTIFACTS_DIRECTORY)
+def get_default_strategy() -> TorchGraphImputationStrategy:
+    strategy = TorchGraphImputationStrategy(model_cls=MultiScaleGNN)
+    strategy.load(ARTIFACTS_DIRECTORY)
+    return strategy
