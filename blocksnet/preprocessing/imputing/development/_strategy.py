@@ -22,6 +22,7 @@ class MultiScaleGNN(nn.Module):
             dropout=dropout,
             act="relu",
             norm=nn.LayerNorm(hidden_dim),
+            jk="cat",
         )
         self.output_layer = nn.Sequential(
             nn.Linear(hidden_dim, hidden_dim // 4),
