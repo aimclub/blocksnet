@@ -1,0 +1,5 @@
+{
+  "strategy_cls": "TorchTensorMulticlassClassificationStrategy",
+  "model_cls": "MulticlassClassifier",
+  "model_params": { "input_size": 9, "output_size": 3 }
+}

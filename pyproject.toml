@@ -45,11 +45,18 @@ classifiers = [
 include = ["blocksnet*"]
 
 [tool.setuptools_scm]
-version_scheme = "guess-next-dev"
+version_scheme = "post-release"
 local_scheme = "no-local-version"
 
 [project.optional-dependencies]
-ml = ["pygeoops", "featuretools", "torch", "torch_geometric", 'catboost']
+ml = [
+    "pygeoops",
+    "featuretools",
+    "torch",
+    "torch_geometric",
+    'catboost',
+    'xgboost',
+]
 opt = ["optuna>=4.1.0,<5.0.0"]
 full = ["blocksnet[ml, opt]"]
 
