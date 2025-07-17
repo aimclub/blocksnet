@@ -53,8 +53,17 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         output_size = y.shape[1]
         return input_size, output_size
 
+    def _x_to_tensor(self, x: np.ndarray) -> torch.Tensor:
+        return torch.tensor(x, dtype=torch.float32, device=self.device)
+
+    def _y_to_tensor(self, y: np.ndarray) -> torch.Tensor:
+        return torch.tensor(y, dtype=torch.float32, device=self.device)
+
     def _edge_index_to_tensor(self, edge_index: np.ndarray) -> torch.Tensor:
         return torch.tensor(edge_index, dtype=torch.long, device=self.device)
+
+    def _edge_attr_to_tensor(self, edge_attr: np.ndarray) -> torch.Tensor:
+        return torch.tensor(edge_attr, dtype=torch.float32, device=self.device)
 
     def _preprocess(
         self,
@@ -72,13 +81,13 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
 
         (x,) = self._scale("x", is_fit_scaler, x)
         (y,) = self._scale("y", is_fit_scaler, y)
-        result["x"] = torch.tensor(x, dtype=torch.float32, device=self.device)
-        result["y"] = torch.tensor(y, dtype=torch.float32, device=self.device)
-        result["edge_index"] = torch.tensor(edge_index, dtype=torch.long, device=self.device)
+        result["x"] = self._x_to_tensor(x)
+        result["y"] = self._y_to_tensor(y)
+        result["edge_index"] = self._edge_index_to_tensor(edge_index)
 
         if edge_attr is not None:
             (edge_attr,) = self._scale("edge_attr", is_fit_scaler, edge_attr)
-            result["edge_attr"] = edge_attr
+            result["edge_attr"] = self._edge_attr_to_tensor(edge_attr)
 
         if train_mask is not None:
             result["train_mask"] = torch.tensor(train_mask, dtype=torch.bool, device=self.device)
