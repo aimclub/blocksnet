@@ -2,13 +2,14 @@ import geopandas as gpd
 import networkx as nx
 from ..graph.schemas import validate_accessibility_graph, WEIGHT_KEY
 from .schemas import BlocksSchema, validate_accessibility_matrix
-import iduedu as ie
 import pandas as pd
 
 
 def calculate_accessibility_matrix(
     blocks_gdf: gpd.GeoDataFrame, graph: nx.Graph, weight_key: str = WEIGHT_KEY, *args, **kwargs
 ):
+    import iduedu as ie
+
     validate_accessibility_graph(graph, weight_key)
     blocks_gdf = BlocksSchema(blocks_gdf)
     blocks_gdf.geometry = blocks_gdf.representative_point()
