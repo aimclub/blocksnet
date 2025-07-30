@@ -18,35 +18,9 @@ class VariablesOrder(ABC):
 
     @abstractmethod
     def _order(self, x: ArrayLike) -> ArrayLike:
-        """
-        Abstract method to define the ordering strategy.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Input array to be ordered.
-
-        Returns
-        -------
-        ArrayLike
-            Ordered array according to the specific strategy.
-        """
         pass
 
     def __call__(self, x: ArrayLike) -> ArrayLike:
-        """
-        Allow the instance to be called as a function.
-
-        Parameters
-        ----------
-        x : ArrayLike
-            Input array to be ordered.
-
-        Returns
-        -------
-        ArrayLike
-            Result of applying the ordering strategy to the input.
-        """
         return self._order(x)
 
 
@@ -60,17 +34,17 @@ class NeutralOrder(VariablesOrder):
 
     def _order(self, x: ArrayLike) -> ArrayLike:
         """
-        Return the input data unchanged.
+        Returns the input data as is (no change).
 
         Parameters
         ----------
         x : ArrayLike
-            Input array to be processed.
+            Input data.
 
         Returns
         -------
         ArrayLike
-            The same input array, unmodified.
+            The same input data, unmodified.
         """
         return x
 
@@ -80,26 +54,24 @@ class RandomOrder(VariablesOrder):
     Class that orders the input data randomly.
 
     This class applies a random shuffle to the input data, altering its order in place.
-    The shuffle is performed using numpy.random.shuffle.
     """
 
     def __init__(self):
-        """Initialize the random order strategy."""
         super().__init__()
 
     def _order(self, x: ArrayLike) -> ArrayLike:
         """
-        Randomly shuffle the input array in-place.
+        Randomly shuffles the input data.
 
         Parameters
         ----------
         x : ArrayLike
-            Input array to be shuffled.
+            Input data to be shuffled.
 
         Returns
         -------
         ArrayLike
-            The shuffled array (same object as input, modified in-place).
+            The shuffled input data.
         """
         shuffle(x)
         return x
@@ -109,22 +81,22 @@ class AscendingOrder(VariablesOrder):
     """
     Class that orders the input data in ascending order.
 
-    This class sorts the input data in increasing order using Python's built-in sorted().
+    This class sorts the input data in increasing order.
     """
 
     def _order(self, x: ArrayLike) -> ArrayLike:
         """
-        Sort the input array in ascending order.
+        Sorts the input data in ascending order.
 
         Parameters
         ----------
         x : ArrayLike
-            Input array to be sorted.
+            Input data to be sorted.
 
         Returns
         -------
         ArrayLike
-            New array containing the sorted elements in ascending order.
+            The sorted data in ascending order.
         """
         return sorted(x)
 
@@ -133,23 +105,22 @@ class DescendingOrder(VariablesOrder):
     """
     Class that orders the input data in descending order.
 
-    This class sorts the input data in decreasing order using Python's built-in sorted()
-    with reverse=True.
+    This class sorts the input data in decreasing order.
     """
 
     def _order(self, x: ArrayLike) -> ArrayLike:
         """
-        Sort the input array in descending order.
+        Sorts the input data in descending order.
 
         Parameters
         ----------
         x : ArrayLike
-            Input array to be sorted.
+            Input data to be sorted.
 
         Returns
         -------
         ArrayLike
-            New array containing the sorted elements in descending order.
+            The sorted data in descending order.
         """
         return sorted(x, reverse=True)
 
@@ -160,39 +131,35 @@ class IndexBasedOrder(VariablesOrder):
 
     This class takes a predefined list of indices and reorders the input data
     accordingly, selecting elements from the input based on the specified indices.
+
+    Attributes
+    ----------
+    indices : ArrayLike
+        List of indices specifying the desired order of the input data.
     """
 
     def __init__(self, indices: ArrayLike):
-        """
-        Initialize the index-based order strategy.
-
-        Parameters
-        ----------
-        indices : ArrayLike
-            List of indices specifying the desired order of the input data.
-        """
         super().__init__()
         self.indices = indices
 
     def _order(self, x: ArrayLike) -> ArrayLike:
         """
-        Order the input array based on the provided indices.
+        Orders the input data based on the provided indices.
 
         Parameters
         ----------
         x : ArrayLike
-            Input array to be reordered.
+            Input data to be reordered.
 
         Returns
         -------
         ArrayLike
-            New array containing elements from the input array in the order specified
-            by the indices.
+            The reordered data based on the specified indices.
 
         Raises
         ------
         ValueError
-            If the length of indices does not match the length of input array.
+            If the length of indices does not match the length of input data.
         """
         if len(self.indices) != len(x):
             raise ValueError("Length of indices must match the length of x.")

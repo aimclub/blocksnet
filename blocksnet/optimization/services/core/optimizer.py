@@ -1,5 +1,4 @@
-from blocksnet.config import log_config
-from loguru import logger
+import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from typing import List
@@ -39,17 +38,38 @@ class OptimizerMetrics:
 
     @property
     def best_values(self):
-        """Get the list of best objective values."""
+        """
+        Get the list of best objective values recorded during optimization.
+
+        Returns
+        -------
+        List[float]
+            List of best objective values for each trial.
+        """
         return self._best_values
 
     @property
     def called_obj(self):
-        """Get the list indicating whether objective was called in each trial."""
+        """
+        Get the list indicating whether the objective was called in each trial.
+
+        Returns
+        -------
+        List[bool]
+            List of boolean values indicating objective function calls.
+        """
         return self._called_obj
 
     @property
     def func_evals_total(self):
-        """Get the list of total function evaluations."""
+        """
+        Get the list of cumulative function evaluation counts.
+
+        Returns
+        -------
+        List[int]
+            List of total function evaluations after each trial.
+        """
         return self._func_evals_total
 
     def update_metrics(self, obj_value: float, called_obj: bool, func_evals: int) -> None:
@@ -96,11 +116,18 @@ class Optimizer(ABC):
 
     @property
     def metrics(self):
-        """Get the optimizer metrics object."""
+        """
+        Get the optimizer metrics object tracking optimization progress.
+
+        Returns
+        -------
+        OptimizerMetrics
+            Object containing optimization performance metrics.
+        """
         return self._metrics
 
     @abstractmethod
-    def run(self, max_runs: int, timeout: float) -> tuple[dict, float, float, int]:
+    def run(self, max_runs: int, timeout: float, verbose: bool) -> tuple[dict, float, float, int]:
         """
         Run the optimization process.
 
@@ -110,6 +137,8 @@ class Optimizer(ABC):
             Maximum number of optimization runs/trials to execute.
         timeout : float
             Maximum time in seconds for the optimization process. If reached, the optimization will stop.
+        verbose : bool
+            Whether to print progress information during optimization.
 
         Returns
         -------
@@ -119,6 +148,18 @@ class Optimizer(ABC):
             - float: The objective value of the best solution
             - float: The time taken for the optimization in seconds
             - int: The number of function evaluations performed
+        """
+        pass
+
+    @abstractmethod
+    def get_best_x(self) -> dict:
+        """
+        Get the best solution found during optimization.
+
+        Returns
+        -------
+        dict
+            Dictionary mapping variable names to their optimal values.
         """
         pass
 
@@ -148,7 +189,7 @@ class TPEOptimizer(Optimizer):
         vars_order : VariablesOrder, optional
             The order in which variables are optimized (default is NeutralOrder).
         vars_chooser : VariableChooser, optional
-            The strategy for choosing variables (default is WeightChooser).
+            Strategy for choosing variables to optimize (default is WeightChooser).
         """
         super().__init__(objective, constraints)
 
@@ -163,21 +204,21 @@ class TPEOptimizer(Optimizer):
 
         # Set variable ordering method
         self._vars_order = NeutralOrder() if vars_order is None else vars_order
+
         self._vars_chooser = WeightChooser() if vars_chooser is None else vars_chooser
 
         # Set up logging for the optimization process
-        log_config.set_logger_level(log_config.logger_level)
-        
-        optuna_level = getattr(optuna.logging, log_config.logger_level, optuna.logging.INFO)
-        optuna.logging.set_verbosity(optuna_level)
+        logging.basicConfig(filename="OptunaOptimizer.log", level=logging.INFO, filemode="w")
+        optuna.logging.set_verbosity(optuna.logging.INFO)
+        self._logger = optuna.logging.get_logger("optuna")
 
     def _save_run_results(self):
         """
         Save the trial results and provisions data to CSV files for further analysis.
 
         This method generates two CSV files:
-        - 'tpe_provisions.csv' containing the best objective values and corresponding provisions.
-        - 'tpe_trials.csv' containing detailed trial data, such as parameters, objective values, and states.
+        - 'provisions.csv' containing the best objective values and corresponding provisions.
+        - 'trials.csv' containing detailed trial data, such as parameters, objective values, and states.
         """
         provisions_data = [
             {
@@ -190,13 +231,12 @@ class TPEOptimizer(Optimizer):
 
         # Save provisions data to CSV
         df = pd.DataFrame(provisions_data)
-        df.to_csv("tpe_provisions.csv", index=False)
-        logger.info("Provisions data has been saved to tpe_provisions.csv.")
+        df.to_csv("provisions.csv", index=False)
+        logging.info("Provisions data has been saved to provisions.csv.")
 
         trials_data = [
             {
                 "trial_number": trial.number,  # Trial number
-                "params": trial.params,
                 "value": trial.value if trial.value is not None else 0,  # Objective value for the trial
                 "penalty": trial.value if trial.value is not None else 0,  # Penalty for the trial
                 "state": trial.state.name,  # State of the trial (e.g., COMPLETE, PRUNED, FAIL)
@@ -210,25 +250,24 @@ class TPEOptimizer(Optimizer):
 
         # Save detailed trial data to CSV
         df = pd.DataFrame(trials_data)
-        df.to_csv("tpe_trials.csv", index=False)
-        logger.info("All trial data has been saved to tpe_trials.csv.")
+        df.to_csv("trials.csv", index=False)
+        logging.info("All trial data has been saved to trials.csv.")
 
     def get_last_trial(self) -> optuna.Trial | optuna.trial.FrozenTrial | None:
         """
-        Get the last successful trial from the study.
+        Get the last successful trial from the optimization study.
 
         Returns
         -------
         optuna.Trial | optuna.trial.FrozenTrial | None
-            The last successful trial object, or None if no successful trials exist.
+            The last trial with a positive objective value, or None if no such trial exists.
         """
         last_trial = None
         for _trial in reversed(self._study.trials):
             trial_val = _trial.value if _trial.value is not None else 0
             if trial_val > 0:
-                if last_trial is None:
-                    last_trial = _trial
-                    break
+                last_trial = _trial
+                break
         return last_trial
 
     def _optuna_objective(self, trial: optuna.Trial):
@@ -247,60 +286,46 @@ class TPEOptimizer(Optimizer):
         """
 
         def trial_callback(var_num, low, high):
-            """Callback function for suggesting variable values during optimization."""
-            if var_num in vars_opt:
+            if trial.user_attrs.get("initial", False):
+                val = trial.suggest_int(
+                    name=f"x_{var_num}", low=0, high=1e9
+                )  # workaround for no warning during initial run
+            elif var_num in vars_opt:
                 val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)
             elif var_num in vars_fixed:
-                last_trial = self.get_last_trial()
-                val = trial.suggest_int(
-                    name=f"x_{var_num}",
-                    low=last_trial.user_attrs.get("params")[var_num],
-                    high=last_trial.user_attrs.get("params")[var_num],
-                )
+                if last_trial_suggested:
+                    val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)  # workaround
+                else:  # truly fixed for gradient
+                    last_trial = self.get_last_trial()
+                    last_trial_val = last_trial.user_attrs.get("params")[var_num]
+                    val = trial.suggest_int(name=f"x_{var_num}", low=last_trial_val, high=last_trial_val)
             else:
                 val = trial.suggest_int(name=f"x_{var_num}", low=0, high=0)
             return val
 
-        def trial_callback_fixed(var_num):
-            """Callback function for fixed variable values."""
-            last_trial = []
-            for i in range(len(self._study.trials) - 1, -1, -1):
-                trial_val = self._study.trials[i].value if self._study.trials[i].value is not None else 0
-                if trial_val > 0:
-                    if len(last_trial) == 0:
-                        last_trial = self._study.trials[i].user_attrs.get("params", [])
-                        break
-            val = trial.suggest_int(name=f"x_{var_num}", low=last_trial[var_num], high=last_trial[var_num])
-            return val
-
-        def trial_callback_null(var_num):
-            """Callback function returning zero for unused variables."""
-            return 0
-
         def trials_data_callback():
-            """Callback function to get data from previous trials."""
             n = self._objective.num_params
-            second_last_trial = [self._objective(np.zeros(n))[1], np.zeros(n)]
+            second_last_trial = [self._objective(np.zeros(n))[1], np.zeros(n), self._objective(np.zeros(n))[0]]
             last_trial = []
-            for i in range(len(self._study.trials) - 1, -1, -1):
-                trial_val = self._study.trials[i].value if self._study.trials[i].value is not None else 0
+            for _trial in reversed(self._study.trials):
+                trial_val = _trial.value if _trial.value is not None else 0
                 if trial_val > 0:
                     if len(last_trial) == 0:
-                        x = np.zeros(n)
-                        for var, val in self._study.trials[i].params.items():
-                            x[int(var[2:])] = val
-                        last_trial = [self._study.trials[i].value, x]
+                        last_trial = [
+                            _trial.value,
+                            _trial.user_attrs.get("params"),
+                            _trial.user_attrs.get("provisions", None),
+                        ]
                     else:
-                        x = np.zeros(n)
-                        for var, val in self._study.trials[i].params.items():
-                            x[int(var[2:])] = val
-                        second_last_trial = [self._study.trials[i].value, x]
+                        second_last_trial = [
+                            _trial.value,
+                            _trial.user_attrs.get("params"),
+                            _trial.user_attrs.get("provisions", None),
+                        ]
                         break
 
             if len(last_trial) == 0:
-                last_trial = [self._objective(np.zeros(n)), np.zeros(n)]
-            else:
-                last_trial[1] = last_trial[1]
+                last_trial = [self._objective(np.zeros(n))[1], np.zeros(n), self._objective(np.zeros(n))[0]]
 
             return second_last_trial, last_trial
 
@@ -312,7 +337,7 @@ class TPEOptimizer(Optimizer):
         vars_opt = vars_order
         vars_fixed = []
 
-        self._vars_order(vars_order)
+        vars_order = self._vars_order(vars_order)
         if trial.number > 0:
             if last_trial_suggested:
                 vars_opt = []
@@ -326,17 +351,19 @@ class TPEOptimizer(Optimizer):
         if not self._constraints.check_constraints(x):
             value = -self._objective.get_penalty(x)
             self.metrics.update_metrics(value, False, self._objective.current_func_evals)
-            logger.info(
+            logging.info(
                 f"Trial {trial.number}: PRUNED -> Params: x={x}, Func evals: {self._objective.current_func_evals}"
             )
             raise optuna.TrialPruned()  # Stop trial if constraints are violated
         else:
-            provisions, value = self._objective(x)
+            provisions, value = self._objective(x, not last_trial_suggested)
             trial.set_user_attr("provisions", provisions)
             trial.set_user_attr("suggested", not last_trial_suggested)
-            trial.set_user_attr("params", [var.count for var in self._constraints.correct_X(x)])
-            logger.info(
-                f"Trial {trial.number}: COMPLETE -> Params: x={x}, Value: {value}, Func evals: {self._objective.current_func_evals}"
+            correct_x = np.array([var.count for var in self._constraints.correct_X(x)])
+            trial.set_user_attr("params", correct_x)
+            self._constraints.update_solution(correct_x)
+            logging.info(
+                f"Trial {trial.number}: COMPLETE -> Params: x={correct_x}, Value: {value}, Func evals: {self._objective.current_func_evals}"
             )
             self.metrics.update_metrics(value, True, self._objective.current_func_evals)
         return value
@@ -348,12 +375,22 @@ class TPEOptimizer(Optimizer):
         n = self._objective.num_params
         vars_order = np.arange(n, dtype=int)
 
-        self._vars_order(vars_order)
-        vars = vars_order
+        vars = self._vars_order(vars_order)
 
         x = self._constraints.suggest_initial_solution(vars)
 
-        self._study.enqueue_trial({f"x_{i}": x[i] for i in range(n)})
+        self._study.enqueue_trial({f"x_{i}": x[i] for i in range(n)}, user_attrs={"initial": True})
+
+    def get_best_x(self) -> dict:
+        """
+        Get the best solution parameters found during optimization.
+
+        Returns
+        -------
+        dict
+            Dictionary mapping variable names to their optimal values.
+        """
+        return self._study.best_params
 
     def _check_stop(self, study: optuna.Study, trial: optuna.trial.FrozenTrial) -> None:
         """
@@ -366,15 +403,22 @@ class TPEOptimizer(Optimizer):
         trial : optuna.trial.FrozenTrial
             The current trial being evaluated.
         """
-        if not self._objective.check_available_evals() or not self._objective.check_optimize_need():
+        last_trial = self.get_last_trial()
+        if last_trial is not None and last_trial.user_attrs.get("suggested", True):
+            return  # Do not stop if the last trial was suggested
+        if not self._objective.check_available_evals():
             study.stop()  # Stop optimization if max function evaluations are reached
-            logger.info("Optimization stopped due to exceeding maximum function evaluations.")
+            logging.info("Optimization stopped due to exceeding maximum function evaluations.")
+        if not self._objective.check_optimize_need():
+            study.stop()
+            logging.info("Optimization stopped due to no need for further optimization.")
 
     def run(
         self,
         max_runs: int,
         timeout: float | None,
         initial_runs_num: int = 1,
+        verbose: bool = True,
     ) -> tuple[dict, float, float, int]:
         """
         Run the optimization process with the specified parameters.
@@ -387,15 +431,14 @@ class TPEOptimizer(Optimizer):
             Timeout duration in seconds.
         initial_runs_num : int, optional
             Number of initial runs to perform (default is 1).
+        verbose : bool, optional
+            Whether to display progress (default is True).
 
         Returns
         -------
         tuple[dict, float, float, int]
-            A tuple containing:
-            - dict: Best parameters found
-            - float: Best objective value
-            - float: Percentage of successful trials
-            - int: Total number of function evaluations
+            A tuple containing the best parameters, the best objective value,
+            the percentage of successful trials, and the total number of function evaluations.
         """
         n_jobs = 1  # Number of parallel jobs (default is 1)
 
@@ -410,12 +453,12 @@ class TPEOptimizer(Optimizer):
             timeout=timeout,  # Timeout for optimization
             n_jobs=n_jobs,  # Number of parallel jobs
             gc_after_trial=False,  # Disable garbage collection after each trial
-            show_progress_bar=log_config.disable_tqdm,  # Display progress bar
+            show_progress_bar=verbose,  # Display progress bar if verbose is True
             callbacks=[self._check_stop],  # Callback to check when to stop optimization
         )
 
-        # Save results if logger_level mode is "INFO"
-        if log_config.logger_level == "INFO":
+        # Save results if verbose mode is enabled
+        if verbose:
             self._save_run_results()
 
         # Return optimization results
