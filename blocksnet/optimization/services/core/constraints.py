@@ -1,16 +1,35 @@
+import copy
+import logging
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Optional
+from typing import Callable, Dict, List, Optional
 
 import numpy as np
 from numpy.typing import ArrayLike
 
+from blocksnet.enums import LandUse
 from blocksnet.optimization.services.acl import Facade
+from blocksnet.optimization.services.common.variable import Variable
 
 
 class Constraints(ABC):
     """
     Abstract base class defining a set of constraints for optimization problems.
     """
+
+    def __init__(self, facade: Facade, num_params: int):
+        """
+        Initialize the Constraints base class.
+
+        Parameters
+        ----------
+        facade : Facade
+            Interface providing access to optimization problem data.
+        num_params : int
+            Number of parameters/variables in the optimization problem.
+        """
+        self._facade = facade
+        self._num_params = num_params
+        self._prev_solution: ArrayLike = None
 
     @abstractmethod
     def suggest_initial_solution(self, permut: ArrayLike) -> ArrayLike:
@@ -65,24 +84,19 @@ class Constraints(ABC):
         """
         pass
 
-    @abstractmethod
-    def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
+    def update_solution(self, x: ArrayLike):
         """
-        Suggest a solution with fixed values determined by the callback function.
+        Update the stored previous solution.
 
         Parameters
         ----------
-        permut : ArrayLike
-            Array representing the order of variables.
-        suggest_callback : Callable
-            Function that determines fixed values of variables.
-
-        Returns
-        -------
-        ArrayLike
-            Suggested solution with fixed values.
+        x : ArrayLike
+            Current solution to store as previous solution.
         """
-        pass
+        if self._prev_solution is None:
+            self._prev_solution = copy.deepcopy(x)
+        else:
+            self._prev_solution = None
 
     @abstractmethod
     def get_ub(self, var_num: int) -> int:
@@ -102,16 +116,9 @@ class Constraints(ABC):
         pass
 
     @abstractmethod
-    def decrease_ubs(self):
-        """
-        Decrease the upper bounds of variables, typically used when no feasible solution is found.
-        """
-        pass
-
-    @abstractmethod
     def correct_X(self, x: ArrayLike) -> ArrayLike:
         """
-        Correct the solution array to ensure it meets all constraints.
+        Correct/adjust a solution to ensure it meets constraints.
 
         Parameters
         ----------
@@ -121,7 +128,7 @@ class Constraints(ABC):
         Returns
         -------
         ArrayLike
-            Corrected solution array that meets all constraints.
+            Corrected solution array.
         """
         pass
 
@@ -143,8 +150,7 @@ class CapacityConstraints(Constraints):
         num_params : int
             Number of variables in the optimization problem.
         """
-        self._facade = facade
-        self._num_params = num_params
+        super().__init__(facade, num_params)
         self._upper_bounds = np.array([facade.get_upper_bound_var(var_num) for var_num in range(num_params)])
         if any(weight <= 0 for weight in self._upper_bounds):
             raise ValueError("All upper bounds of variables must be positive numbers.")
@@ -193,28 +199,6 @@ class CapacityConstraints(Constraints):
             x[var_num] = val
         return x
 
-    def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
-        """
-        Suggest a solution with fixed values determined by the callback function.
-
-        Parameters
-        ----------
-        permut : ArrayLike
-            Array representing the order of variables.
-        suggest_callback : Callable
-            Function that determines fixed values of variables.
-
-        Returns
-        -------
-        ArrayLike
-            Suggested solution with fixed values.
-        """
-        x = np.zeros(self._num_params, dtype=int)
-        for var_num in permut:
-            val = suggest_callback(var_num)
-            x[var_num] = val
-        return x
-
     def get_ub(self, var_num: int) -> int:
         """
         Get the upper bound for a specific variable.
@@ -249,17 +233,17 @@ class CapacityConstraints(Constraints):
 
     def correct_X(self, x: ArrayLike) -> ArrayLike:
         """
-        Correct the solution array to ensure it meets all constraints.
+        Convert solution array to list of Variable objects.
 
         Parameters
         ----------
         x : ArrayLike
-            Solution array to be corrected.
+            Solution array to convert.
 
         Returns
         -------
         ArrayLike
-            Corrected solution array that meets all constraints.
+            List of Variable objects representing the solution.
         """
         return self._facade.get_X(x)
 
@@ -284,38 +268,52 @@ class WeightedConstraints(Constraints):
         decrease_ub_coef : int
             Coefficient by which to decrease upper bounds when no solution is found.
         """
-        self._num_params = num_params
+        super().__init__(facade, num_params)
         self._decrease_ub_coef = decrease_ub_coef
         self._vars_block = np.array([facade.get_var_block_id(var_num) for var_num in range(num_params)])
         self._vars_services = np.array([facade.get_service_name(var_num) for var_num in range(num_params)])
-        self._upper_bounds = np.array([facade.get_upper_bound_var(var_num) for var_num in range(num_params)])
-        self._facade = facade
         self._block_ids = set(self._vars_block)
-        self._vars_limit: Dict[int, float] = {
-            var_num: facade.get_limits_var(var_num) for var_num in range(self._num_params)
-        }
         self._weights = np.array([facade.get_var_weights(var_num) for var_num in range(num_params)])
-        self._priority: Dict[Dict] = {block_id: {} for block_id in self._block_ids}
-        for block_id in self._block_ids:
-            if priority is None:
-                # Uniform distribution by default
-                self._priority[block_id] = {
-                    service: 1 / len(facade.get_block_services(block_id))
-                    for service in facade.get_block_services(block_id)
-                }
-                continue
+        self._blocks_services = {block_id: facade.get_block_services(block_id) for block_id in self._block_ids}
+        self._priority = (
+            sorted([service_type for service_type in priority.keys()], key=lambda x: priority[x], reverse=True)
+            if priority
+            else []
+        )
 
-            # Need to do scaling to [0, 1] for algo
-            total_priority = np.sum([priority[service] for service in facade.get_block_services(block_id)])
+    def _initialize_blocks_limits(self, permut: ArrayLike) -> tuple[Dict[int, List], Dict[int, Dict[str, float]]]:
+        """
+        Initialize block limits for area and capacity constraints.
 
-            self._priority[block_id] = {
-                service: priority[service] / total_priority for service in facade.get_block_services(block_id)
-            }
+        Parameters
+        ----------
+        permut : ArrayLike
+            Array representing the order of variables.
+
+        Returns
+        -------
+        tuple[Dict[int, List], Dict[int, Dict[str, float]]]
+            Tuple containing:
+            - Dictionary of area limits (site area and build floor area) per block
+            - Dictionary of capacity limits per service per block
+        """
+        limits_area = {block_id: [0, 0] for block_id in self._block_ids}
+        limits_capacity = {
+            block_id: {service: 0 for service in self._blocks_services[block_id]} for block_id in self._block_ids
+        }
+        for var_num in permut:
+            var_block = self._vars_block[var_num]
+            var_service = self._vars_services[var_num]
+            if np.count_nonzero(limits_area[var_block]) == 0:
+                limits_area[var_block] = self._facade.get_limits_var(var_num)[:2]
+
+            if limits_capacity[var_block][var_service] == 0:
+                limits_capacity[var_block][var_service] = self._facade.get_limits_var(var_num)[2]
+        return limits_area, limits_capacity
 
     def suggest_initial_solution(self, permut: ArrayLike) -> ArrayLike:
         """
         Suggests an initial solution while ensuring group weight limits are respected.
-        This is an alternative implementation that distributes capacity according to service priorities.
 
         Parameters
         ----------
@@ -327,73 +325,13 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Initial feasible solution.
         """
-        block_sums = {block_id: np.zeros(self._weights.shape[1]) for block_id in self._block_ids}
-        block_services_sums = {
-            block_id: {service: np.zeros(self._weights.shape[1]) for service in self._priority[block_id].keys()}
-            for block_id in self._block_ids
-        }
         x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
-            var_block = self._vars_block[var_num]
-            var_service = self._vars_services[var_num]
+            chosen_val = self._facade.get_lower_bound_var_val(var_num)
 
-            chosen_val = min(
-                [
-                    np.floor(
-                        (
-                            self._vars_limit[var_num][i] * self._priority[var_block][var_service]
-                            - block_services_sums[var_block][var_service][i]
-                        )
-                        / weight
-                    )
-                    for i, weight in enumerate(self._weights[var_num])
-                    if weight > 0
-                ]
-            )
-            chosen_val = max(chosen_val, 0)
-            chosen_val = min(chosen_val, self.get_ub(var_num))
-
-            block_sums[var_block] += self._weights[var_num] * chosen_val
-            block_services_sums[var_block][var_service] += self._weights[var_num] * chosen_val
             x[var_num] = chosen_val
-        return x
-
-    def suggest_initial_solution1(self, permut: ArrayLike) -> ArrayLike:
-        """
-        Generate an initial solution while respecting upper bounds and ensuring
-        at most one variable per service is selected in each block.
-
-        Parameters
-        ----------
-        permut : ArrayLike
-            Array representing the order of variables.
-
-        Returns
-        -------
-        ArrayLike
-            Initial feasible solution.
-        """
-        block_sums = {block_id: np.zeros(self._weights.shape[1]) for block_id in self._block_ids}
-        added_services = set()
-        x = np.zeros(self._num_params, dtype=int)
-        for var_num in permut:
-            var_block = self._vars_block[var_num]
-            var_service = self._vars_services[var_num]
-            if var_service in added_services:
-                chosen_val = 0
-            else:
-                chosen_val = min(
-                    np.floor((self._vars_limit[var_num][i] - block_sums[var_block][i]) / weight)
-                    for i, weight in enumerate(self._weights[var_num])
-                    if weight > 0
-                )
-                chosen_val = max(0, chosen_val)
-                chosen_val = min(chosen_val, self.get_ub(var_num))
-                chosen_val = min(1, chosen_val)
-                if chosen_val > 0:
-                    added_services.add(var_service)
-            x[var_num] = chosen_val
-            block_sums[var_block] += self._weights[var_num] * chosen_val
+            if not self._facade.check_constraints(x):
+                x[var_num] = 0
         return x
 
     def suggest_solution(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
@@ -412,60 +350,56 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Suggested feasible solution.
         """
-        block_sums = {block_id: np.zeros(self._weights.shape[1]) for block_id in self._block_ids}
+        limits_area, limits_capacity = self._initialize_blocks_limits(permut)
         x = np.zeros(self._num_params, dtype=int)
+        logging.info(f"Suggesting new solution. Limits: area (sa/bfa) = {limits_area}, capacity = {limits_capacity}")
+        logging.info(f"Suggesting new solution. Previous solution: {self._prev_solution}")
         for var_num in permut:
             var_block = self._vars_block[var_num]
-            lb = 0
-            ub = min(
-                np.floor((self._vars_limit[var_num][i] - block_sums[var_block][i]) / weight)
-                for i, weight in enumerate(self._weights[var_num])
-                if weight > 0
-            )
-            ub = min(ub, self.get_ub(var_num))
-            if ub < lb:
-                val = 0
+            var_service = self._vars_services[var_num]
+            prev_val = 0 if self._prev_solution is None else self._prev_solution[var_num]
+            limits_area[var_block][0] -= self._weights[var_num][0] * prev_val
+            if (
+                self._facade.get_var_land_use(var_num) == LandUse.RESIDENTIAL
+                and np.count_nonzero(self._prev_solution) > 0
+            ):
+                limits_area[var_block][1] = 0
             else:
-                val = suggest_callback(var_num, lb, ub)
-            x[var_num] = val
-            block_sums[var_block] += self._weights[var_num] * val
+                limits_area[var_block][1] -= self._weights[var_num][1] * prev_val
+            limits_capacity[var_block][var_service] -= self._weights[var_num][2] * prev_val
 
-        return x
-
-    def suggest_fixed(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
-        """
-        Suggest a solution with fixed values determined by the callback function.
-
-        Parameters
-        ----------
-        permut : ArrayLike
-            Array representing the order of variables.
-        suggest_callback : Callable
-            Function that determines fixed values of variables.
-
-        Returns
-        -------
-        ArrayLike
-            Suggested solution with fixed values.
-        """
-        x = np.zeros(self._num_params, dtype=int)
         for var_num in permut:
-            val = suggest_callback(var_num)
-            x[var_num] = val
-        return x
+            var_block = self._vars_block[var_num]
+            var_service = self._vars_services[var_num]
+            prev_val = 0 if self._prev_solution is None else self._prev_solution[var_num]
+            lb = prev_val
+            bound_range = self.get_ub(var_num) - lb
 
-    def decrease_ubs(self):
-        """
-        Decrease the upper bounds of variables by the defined coefficient,
-        with a minimum bound to prevent values from becoming too small.
-        """
-        for i in range(self._num_params):
-            self._upper_bounds[i] = int(
-                max(
-                    np.ceil(self._upper_bounds[i] / self._decrease_ub_coef),
-                    np.ceil(self._facade.get_upper_bound_var(i) / 10),
+            if bound_range < 0:
+                logging.info(
+                    f"ERROR: Previous solution value is greater than upper bound {self.get_ub(var_num)} < {lb}"
                 )
-            )
+                raise ValueError("INTERNAL: Negative bound range when suggesting solution, check logs.")
+
+            if self._weights[var_num][0] > 0:
+                bound_range = min(bound_range, np.floor(limits_area[var_block][0] / self._weights[var_num][0]))
+            if self._weights[var_num][1] > 0:
+                bound_range = min(bound_range, np.floor(limits_area[var_block][1] / self._weights[var_num][1]))
+            if self._weights[var_num][2] > 0:
+                bound_range = min(
+                    bound_range, np.floor(limits_capacity[var_block][var_service] / self._weights[var_num][2])
+                )
+
+            bound_range = max(bound_range, 0)  # On initial solution bound range can be < 0, but solution is still valid
+
+            val = suggest_callback(var_num, lb, lb + bound_range)
+            x[var_num] = val
+
+            addition = x[var_num] - lb
+            limits_area[var_block][0] -= self._weights[var_num][0] * addition
+            limits_area[var_block][1] -= self._weights[var_num][1] * addition
+            limits_capacity[var_block][var_service] -= self._weights[var_num][2] * addition
+        return x
 
     def get_ub(self, var_num: int) -> int:
         """
@@ -481,7 +415,7 @@ class WeightedConstraints(Constraints):
         int
             Upper bound of the variable.
         """
-        return self._upper_bounds[var_num]
+        return self._facade.get_upper_bound_var(var_num)
 
     def check_constraints(self, x: ArrayLike) -> bool:
         """
@@ -499,18 +433,18 @@ class WeightedConstraints(Constraints):
         """
         return self._facade.check_constraints(x)
 
-    def correct_X(self, x: ArrayLike) -> ArrayLike:
+    def correct_X(self, x: ArrayLike) -> List[Variable]:
         """
-        Correct the solution array to ensure it meets all constraints.
+        Convert solution array to list of Variable objects.
 
         Parameters
         ----------
         x : ArrayLike
-            Solution array to be corrected.
+            Solution array to convert.
 
         Returns
         -------
-        ArrayLike
-            Corrected solution array that meets all constraints.
+        List[Variable]
+            List of Variable objects representing the solution.
         """
         return self._facade.get_X(x)

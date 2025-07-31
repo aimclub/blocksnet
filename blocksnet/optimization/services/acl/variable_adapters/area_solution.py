@@ -1,3 +1,5 @@
+import copy
+import logging
 from dataclasses import dataclass
 from typing import Dict, List
 
@@ -12,7 +14,7 @@ from .variable_adapter import VariableAdapter
 
 
 class AreaVariable(Variable):
-    """A specialized Variable class for handling area-based service allocation."""
+    """A specialized Variable class for representing area-related optimization variables."""
 
     pass
 
@@ -20,7 +22,7 @@ class AreaVariable(Variable):
 @dataclass
 class Unit:
     """
-    Data class representing a service unit with area and capacity information.
+    A dataclass representing a service unit with area and capacity attributes.
 
     Attributes
     ----------
@@ -39,10 +41,10 @@ class Unit:
 
 class AreaSolution(VariableAdapter):
     """
-    A class for managing area-based service allocation solutions.
+    A class for managing and adapting area-based service solutions in urban optimization problems.
 
-    Handles conversion between area-based variables and unit-based variables,
-    and manages the mapping between solution representations.
+    This class handles the conversion between different representations of service solutions,
+    including area-based variables and capacity constraints.
     """
 
     def __init__(self, blocks_lu: Dict[int, LandUse]):
@@ -58,7 +60,7 @@ class AreaSolution(VariableAdapter):
         self._blocks_lu: Dict[int, LandUse] = blocks_lu
         self._areas_X: List[AreaVariable] = []
         self._units_lists: Dict[str, List[Unit]] = {}
-        self._build_floor_area_coef = 1.0
+        self._prev_blocks_bfa: Dict[int, float] = {}
 
     def add_service_type_vars(self, service_type: str):
         """
@@ -75,7 +77,7 @@ class AreaSolution(VariableAdapter):
     @property
     def X(self) -> List[Variable]:
         """
-        Get the list of variables representing the current solution.
+        Get the list of variables representing the current city-level data.
 
         Returns
         -------
@@ -86,7 +88,7 @@ class AreaSolution(VariableAdapter):
 
     def add_variables(self, block_id: int, land_use: LandUse, service_type: str):
         """
-        Add variables for a specific block, land use, and service type.
+        Add optimization variables for a specific block, land use, and service type.
 
         Parameters
         ----------
@@ -100,49 +102,41 @@ class AreaSolution(VariableAdapter):
         if service_type not in service_types_config[land_use]:
             return
 
-        # Create base area variable
         x_area = AreaVariable(block_id=block_id, service_type=service_type, site_area=1, build_floor_area=0, capacity=0)
 
-        # Get all units for this service type
         units = service_types_config.units
+
         units = units[units.service_type == service_type]
         self._units_lists.update({service_type: []})
 
-        # Create variables and units for each configuration
         for _, unit in units.iterrows():
             x = Variable(block_id=block_id, **unit)
             u = Unit(site_area=x.site_area, build_floor_area=x.build_floor_area, capacity=x.capacity)
             self._units_lists[service_type].append(u)
             self._X.append(x)
 
-        # Sort units by capacity per combined area
         def capacity_area_sortkey(u: Unit):
-            return -u.capacity / (u.build_floor_area * self._build_floor_area_coef + u.site_area)
+            if u.site_area == 0:
+                return 1 / u.build_floor_area
+            return -u.capacity / u.site_area
 
         self._units_lists[service_type].sort(key=capacity_area_sortkey)
 
-        # Set the area variable's capacity based on the best unit
-        best_unit = self._units_lists[service_type][0]
-        x_area.capacity = best_unit.capacity / (best_unit.build_floor_area + best_unit.site_area)
+        if np.count_nonzero(np.array([u.site_area for u in self._units_lists[service_type]])) > 0:
+            x_area.capacity = min(
+                [u.capacity / u.site_area for u in self._units_lists[service_type] if u.site_area > 0]
+            )
         self._areas_X.append(x_area)
 
     def _inject_area_to_X(self, x_area: AreaVariable):
         """
-        Distribute an area variable's allocation across concrete unit variables.
+        Inject area-based solution components into the main variable list.
 
         Parameters
         ----------
         x_area : AreaVariable
-            The area variable to distribute to concrete units.
+            The area variable to inject into the solution representation.
         """
-        left_area = x_area.total_site_area
-
-        # Reset counts for all variables of this block and service type
-        for x in self._X:
-            if x.block_id == x_area.block_id and x.service_type == x_area.service_type:
-                x.count = 0
-
-        # Distribute the area to units in priority order
         for u in self._units_lists[x_area.service_type]:
             for x in self._X:
                 if (
@@ -152,19 +146,29 @@ class AreaSolution(VariableAdapter):
                     and (x.build_floor_area - u.build_floor_area) < 1e-6
                     and x.capacity == u.capacity
                 ):
-                    x.count = int(np.floor(left_area / (x.build_floor_area + x.site_area)))
-                    left_area -= x.total_build_floor_area + x.total_site_area
+                    addition = 1e9
+                    if x.capacity != 0:
+                        addition = int(np.floor(self._blocks_cap_cp[x.block_id][x.service_type] / x.capacity))
+                    if x.build_floor_area != 0:
+                        addition = min(addition, int(np.floor(self._blocks_bfa_cp[x.block_id] / x.build_floor_area)))
+                    if x.site_area != 0:
+                        addition = min(
+                            addition, int(np.floor(self._blocks_sa[x.block_id][x.service_type] / x.site_area))
+                        )
+                    x.count += addition
+                    self._blocks_sa[x.block_id][x.service_type] -= x.site_area * addition
+                    self._blocks_bfa_cp[x.block_id] -= x.build_floor_area * addition
+                    self._blocks_cap_cp[x.block_id][x.service_type] -= x.capacity * addition
                     break
-        x_area.count -= left_area
 
     def _inject_solution_to_X(self, solution: ArrayLike):
         """
-        Map a numpy array solution vector to the internal variables.
+        Map a numpy array representing a solution vector to the internal list of variables.
 
         Parameters
         ----------
         solution : ArrayLike
-            Numpy array representing the solution vector.
+            Numpy array representing the solution vector to be injected.
 
         Raises
         ------
@@ -176,7 +180,58 @@ class AreaSolution(VariableAdapter):
         if len(solution.shape) != 1:
             raise ValueError("Solution must be a 1D array.")
 
-        # Update each area variable and distribute to concrete units
+        self._blocks_sa = {
+            block_id: {service: 0 for service in self._blocks_cap[block_id].keys()}
+            for block_id in self._blocks_lu.keys()
+        }
+        self._blocks_bfa_cp = copy.deepcopy(self._blocks_bfa)
+        self._blocks_cap_cp = copy.deepcopy(self._blocks_cap)
         for var, val in zip(self._areas_X, solution):
             var.count = int(val)
+            self._blocks_sa[var.block_id][var.service_type] += var.total_site_area
+
+        if self._X_prev is not None:
+            self._X = copy.deepcopy(self._X_prev)
+            # Remove busy area, capacity and build floor area from previous solution
+            for var in self._X:
+                self._blocks_sa[var.block_id][var.service_type] -= var.total_site_area
+                if self._blocks_lu[var.block_id] == LandUse.RESIDENTIAL:
+                    self._blocks_bfa_cp[var.block_id] = 0
+                else:
+                    self._blocks_bfa_cp[var.block_id] -= var.total_build_floor_area
+                self._blocks_cap_cp[var.block_id][var.service_type] -= var.total_capacity
+        else:
+            # Clear all area and capacity of solution
+            for var in self._X:
+                var.count = 0
+
+        if any(v < 0 for block_id in self._blocks_lu.keys() for v in self._blocks_sa[block_id].values()):
+            block_id, value = [
+                (block_id, v)
+                for block_id in self._blocks_lu.keys()
+                for v in self._blocks_sa[block_id].values()
+                if v < 0
+            ][0]
+            logging.info(f"Negative site area of block {block_id}: {value}")
+            raise ValueError("INTERNAL: Negative area in solution, check the solution vector.")
+
+        if any(v < 0 for v in self._blocks_bfa_cp.values()):
+            block_id, value = [(block_id, v) for block_id, v in self._blocks_bfa_cp.items() if v < 0][0]
+            logging.info(f"Negative build floor area of block {block_id}: {value}")
+            raise ValueError("INTERNAL: Negative build floor area in solution, check the solution vector.")
+
+        if any(v < 0 for block_id in self._blocks_lu.keys() for v in self._blocks_cap_cp[block_id].values()):
+            block_id, value = [
+                (block_id, v)
+                for block_id in self._blocks_lu.keys()
+                for v in self._blocks_cap_cp[block_id].values()
+                if v < 0
+            ][0]
+            logging.info(f"Negative capacity of block {block_id}: {value}")
+            raise ValueError("INTERNAL: Negative capacity in solution, check the solution vector.")
+
+        for var, val in zip(self._areas_X, solution):
             self._inject_area_to_X(var)
+            var.count -= self._blocks_sa[var.block_id][var.service_type]
+
+        self._X_prev_tmp = copy.deepcopy(self._X)

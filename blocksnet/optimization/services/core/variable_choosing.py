@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Callable, Dict
 
@@ -46,14 +47,12 @@ class VariableChooser(ABC):
 
         Returns
         -------
-        tuple[ArrayLike, ArrayLike]
-            Tuple containing:
-            - Array of selected variable indices for optimization
-            - Array of variable indices to be set to zero
+        ArrayLike
+            Array of selected variable indices.
         """
         pass
 
-    def __call__(self, x: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
+    def __call__(self, x: ArrayLike, trials_data_callback: Callable) -> ArrayLike:
         """
         Callable interface for variable selection.
 
@@ -66,36 +65,19 @@ class VariableChooser(ABC):
 
         Returns
         -------
-        tuple[ArrayLike, ArrayLike]
-            Tuple containing:
-            - Array of selected variable indices for optimization
-            - Array of variable indices to be set to zero
+        ArrayLike
+            Array of selected variable indices.
         """
         return self._choose(x, trials_data_callback)
 
 
 class SimpleChooser(VariableChooser):
-    """
-    Simple variable chooser that selects all variables in the given permutation.
-
-    This is a basic implementation that doesn't perform any prioritization,
-    simply returning all variables in the input permutation.
-    """
-
     def __init__(self, facade: Facade):
-        """
-        Initialize the SimpleChooser.
-
-        Parameters
-        ----------
-        facade : Facade
-            The facade providing access to city data and optimization methods.
-        """
         super().__init__(facade)
 
     def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
         """
-        Select all variables in the given permutation.
+        Select variables based on service type weights.
 
         Parameters
         ----------
@@ -106,11 +88,10 @@ class SimpleChooser(VariableChooser):
 
         Returns
         -------
-        tuple[ArrayLike, ArrayLike]
-            Tuple containing:
-            - All variables from the input permutation
-            - Empty array (no variables to set to zero)
+        ArrayLike
+            Array of selected variable indices, prioritizing higher-weighted services.
         """
+
         return permut, np.array([])
 
 
@@ -159,10 +140,8 @@ class WeightChooser(VariableChooser):
 
         Returns
         -------
-        tuple[ArrayLike, ArrayLike]
-            Tuple containing:
-            - Array of selected variable indices, prioritizing higher-weighted services
-            - Array of variable indices for services with medium priority
+        ArrayLike
+            Array of selected variable indices, prioritizing higher-weighted services.
         """
         services = set()
         for var_num in permut:
@@ -170,27 +149,15 @@ class WeightChooser(VariableChooser):
             services.add(var_service)
         # Group services by block and sort by weight
         services_list = list(services)
-        services_list.sort(key=lambda x: -self._weights[x])
+        services_list.sort(lambda x: -self._weights[x])
 
-        n = len(permut)
+        n = len(services)
         opt_threshold = min(int(np.ceil(n / 3)), self._num_top)
-        null_threshold = min(int(np.ceil(n / 4)), self._num_top)
 
-        return (
-            np.array(
-                [
-                    var_num
-                    for var_num in permut
-                    if self._facade.get_service_name(var_num) in services_list[:opt_threshold]
-                ]
-            ),
-            np.array(
-                [
-                    var_num
-                    for var_num in permut
-                    if self._facade.get_service_name(var_num) in services_list[opt_threshold:-null_threshold]
-                ]
-            ),
+        return np.array(
+            [var_num for var_num in permut if self._facade.get_service_name(var_num) in services_list[:opt_threshold]]
+        ), np.array(
+            [var_num for var_num in permut if self._facade.get_service_name(var_num) in services_list[opt_threshold:]]
         )
 
 
@@ -239,23 +206,20 @@ class GradientChooser(VariableChooser):
 
         Returns
         -------
-        tuple[ArrayLike, ArrayLike]
-            Tuple containing:
-            - Array of selected variable indices, prioritizing services with highest
-              provision improvement per resource invested
-            - Array of variable indices for services with medium priority
+        ArrayLike
+            Array of selected variable indices, prioritizing services with highest
+            provision improvement per resource invested.
         """
         # Get trial data and filter variables with remaining capacity
-        second_last_trial, last_trial = trials_data_callback()
-        new_permut = np.array([var_num for var_num in permut if self._facade.get_upper_bound_var(var_num) > 0])
-        weights = [self._facade.get_var_weights(var_num)[0] for var_num in range(self._num_params)]
+        second_last_trial, last_trial = trials_data_callback()  # obj_val, x, prov
+        weights = [sum(self._facade.get_var_weights(var_num)[0:2]) for var_num in range(self._num_params)]
 
         # Initialize data structures for tracking service improvements
         services = []
         service_increment = {}
 
         # Calculate total resource investment and provision improvement per service
-        for var_num in new_permut:
+        for var_num in permut:
             var_service = self._facade.get_service_name(var_num)
             diff = last_trial[1][var_num] - second_last_trial[1][var_num]
 
@@ -279,20 +243,16 @@ class GradientChooser(VariableChooser):
         # Sort services by their efficiency (provision improvement per resource)
         services.sort(key=gradient_sortkey)
 
-        n = len(permut)
-        opt_threshold = min(int(np.ceil(n / 3)), self._num_top)
-        null_threshold = min(int(np.ceil(n / 4)), self._num_top)
+        n = len(services)
+        opt_threshold = min(int(np.ceil(n / 2)), self._num_top)
+        null_threshold = min(int(np.ceil(n / 5)), self._num_top)
 
-        # Select top N services per block
-        return (
-            np.array(
-                [var_num for var_num in permut if self._facade.get_service_name(var_num) in services[:opt_threshold]]
-            ),
-            np.array(
-                [
-                    var_num
-                    for var_num in permut
-                    if self._facade.get_service_name(var_num) in services[opt_threshold:-null_threshold]
-                ]
-            ),
+        return np.array(
+            [var_num for var_num in permut if self._facade.get_service_name(var_num) in services[:opt_threshold]]
+        ), np.array(
+            [
+                var_num
+                for var_num in permut
+                if self._facade.get_service_name(var_num) in services[opt_threshold:-null_threshold]
+            ]
         )
