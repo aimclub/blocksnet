@@ -1,0 +1,1 @@
+{"strategy_cls": "CatBoostClassificationStrategy", "model_cls": "CatBoostClassifier", "model_params": {"iterations": 200, "learning_rate": 0.1, "depth": 4}}
