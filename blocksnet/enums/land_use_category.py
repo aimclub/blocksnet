@@ -1,24 +1,29 @@
 from enum import Enum
-
-# TODO: Оставить 1 вариант
-class LandUseCategory(Enum):
-    RECREATION = ("RECREATION", "sp_ag_rec")
-    SPECIAL = ("SPECIAL", "sp_ag_rec")
-    AGRICULTURE = ("AGRICULTURE", "sp_ag_rec")
-    BUSINESS = ("BUSINESS", "bus_res")
-    RESIDENTIAL = ("RESIDENTIAL", "bus_res")
-    INDUSTRIAL = ("INDUSTRIAL", "industrial")
-    TRANSPORT = ("TRANSPORT", None)
-
-    def __str__(self):
-        return self.value[1]  # Вернёт 'sp_ag_rec', и т.д.
-
-    @property
-    def tag(self):
-        return self.value[1]
+from blocksnet.enums import LandUse
     
 class LandUseCategory(Enum):
-    SP_AG_REC = "sp_ag_rec"
-    BUS_RES = "bus_res"
+    URBAN = "urban"
+    NON_URBAN = "non_urban"
     INDUSTRIAL = "industrial"
+    _REVERSE_MAP = None
 
+    @classmethod
+    def from_land_use(cls, lu: LandUse) -> "LandUseCategory | None":
+        return LU_MAPPING.get(lu)
+
+    def to_land_use(self) -> set[LandUse]:
+        if LandUseCategory._REVERSE_MAP is None:
+            LandUseCategory._REVERSE_MAP = {}
+            for k, v in LU_MAPPING.items():
+                LandUseCategory._REVERSE_MAP.setdefault(v, set()).add(k)
+        return LandUseCategory._REVERSE_MAP.get(self, set())
+
+LU_MAPPING = {
+    LandUse.RESIDENTIAL: LandUseCategory.URBAN,
+    LandUse.BUSINESS: LandUseCategory.URBAN,
+    LandUse.RECREATION: LandUseCategory.NON_URBAN,
+    LandUse.TRANSPORT: LandUseCategory.NON_URBAN,
+    LandUse.SPECIAL: LandUseCategory.NON_URBAN,
+    LandUse.AGRICULTURE: LandUseCategory.NON_URBAN,
+    LandUse.INDUSTRIAL: LandUseCategory.INDUSTRIAL,
+}
