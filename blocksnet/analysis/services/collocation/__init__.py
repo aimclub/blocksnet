@@ -1,0 +1,1 @@
+from .core import collocation_matrix
