@@ -1,1 +1,1 @@
-from .aggregation import SocialCountAggregation
+from .aggregator import SocialCountAggregator
