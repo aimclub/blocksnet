@@ -50,6 +50,7 @@ class BaseAggregator(ABC):
             raise ValueError("Cannot make DataFrame as no data was added")
         if len(self._indicators_data) < len(self.indicator_cls):
             logger.warning(f"Only {len(self._indicators_data)}/{len(self.indicator_cls)} indicators were added")
+
         df = pd.DataFrame.from_dict(self._indicators_data, orient="index")
         df[PARENT_VALUE_AFTER_COLUMN] = self._aggregate(
             df[PARENT_VALUE_BEFORE_COLUMN], df[CHILD_VALUE_BEFORE_COLUMN], df[CHILD_VALUE_AFTER_COLUMN]
