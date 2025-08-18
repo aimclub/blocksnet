@@ -1,1 +1,1 @@
-from core import NetworkClassifier
+from .core import NetworkClassifier
