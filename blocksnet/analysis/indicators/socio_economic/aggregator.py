@@ -22,9 +22,11 @@ def validate_indicator(require: bool = False):
         @wraps(func)
         def wrapper(self, indicator: IndicatorEnum, *args, **kwargs):
             _validate_indicator_type(indicator)
+            cls = indicator.__class__.__name__
+            name = getattr(indicator, "name", str(indicator))
+            if not indicator.meta.aggregatable:
+                raise ValueError(f"Indicator {cls}.{name} is not aggregatable.")
             if require and indicator not in self._data:
-                cls = indicator.__class__.__name__
-                name = getattr(indicator, "name", str(indicator))
                 raise KeyError(f"Indicator {cls}.{name} not found in self.")
             return func(self, indicator, *args, **kwargs)
 

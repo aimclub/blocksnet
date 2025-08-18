@@ -8,3 +8,4 @@ class IndicatorMeta:
     name: str
     per: Optional[Literal["capita", "area"]] = None
     unit: Optional[str] = None
+    aggregatable: bool = True
