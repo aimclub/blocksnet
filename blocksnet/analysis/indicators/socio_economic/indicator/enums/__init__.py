@@ -4,5 +4,3 @@ from .settlement_indicator import SettlementIndicator
 from .transport_indicator import TransportIndicator
 from .economic_indicator import EconomicIndicator
 from .ecological_indicator import EcologicalIndicator
-from .engineering_indicator import EngineeringIndicator
-from .social_count_indicator import SocialCountIndicator

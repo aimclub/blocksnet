@@ -1,3 +1,3 @@
-from .indicator_enum import IndicatorEnum
-from .indicator_meta import IndicatorMeta
+from .enum import IndicatorEnum
+from .meta import IndicatorMeta
 from .enums import *

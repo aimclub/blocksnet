@@ -1,6 +1,6 @@
 from enum import unique
-from ..indicator_enum import IndicatorEnum
-from ..indicator_meta import IndicatorMeta
+from ...indicator.enum import IndicatorEnum
+from ...indicator.meta import IndicatorMeta
 
 
 @unique

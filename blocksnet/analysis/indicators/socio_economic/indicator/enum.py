@@ -1,6 +1,6 @@
 from enum import Enum
 from typing import Any
-from .indicator_meta import IndicatorMeta
+from .meta import IndicatorMeta
 
 
 class IndicatorEnum(Enum):
