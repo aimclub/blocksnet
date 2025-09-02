@@ -1,92 +1,236 @@
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from typing import Optional, Tuple, List
+from typing import Optional
 
-from libpysal.weights import W
+from scipy import sparse
 from shapely import make_valid
-from sklearn.neighbors import NearestNeighbors
-
-from blocksnet.enums import LandUse
-
-ZONES = {
-    'rec_spec_agri': [
-        LandUse.RECREATION,
-        LandUse.SPECIAL,
-        LandUse.AGRICULTURE,
-    ],
-    'bus_res': [
-        LandUse.RESIDENTIAL,
-        LandUse.BUSINESS,
-    ],
-    'industrial': [
-        LandUse.INDUSTRIAL,
-    ],
-    'transport': [
-        LandUse.TRANSPORT,
-    ],
-}
+from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
 
 
 class DataProcessor:
     def __init__(self, buffer_distance: float = 1000, k_neighbors: int = 5):
-        """Инициализация обработчика данных с настройками расстояния буфера и количества соседей.
+        """Initialize the data processor with buffer distance and number of neighbors settings.
         
         Args:
-            buffer_distance: Расстояние для буферизации при подсчете близлежащих зон
-            k_neighbors: Количество соседей для KNN
+            buffer_distance: Distance for buffering when counting nearby zones
+            k_neighbors: Number of neighbors for KNN
         """
         self.buffer_distance = buffer_distance
         self.k_neighbors = k_neighbors
         self.knn_model = None
         
-        # Списки фичей для контекста и логарифмирования
+        # Feature lists for spatial context and logarithm transformation
         self.feature_names_for_spatial_context = [
             'mbr_area', 'solidity', 'compactness', 'shape_index', 
             'mbr_aspect_ratio', 'squareness_index', 'fractal_dimension',
-            'rectangularity_index',
-        ] + [f'nearby_{k}_count' for k in ZONES.keys()]
-
+            'rectangularity_index', 'nearby_bus_res_count', 
+            'nearby_transport_count', 'nearby_industrial_count',
+            'nearby_rec_spec_agri_count'
+        ]
         
         self.columns_to_log = [
             'shape_index', 'mbr_area', 'mbr_aspect_ratio', 
             'solidity', 'asymmetry_x', 'asymmetry_y'
         ]
 
-    def fit_knn_weights(self, gdf: gpd.GeoDataFrame) -> Tuple[W, NearestNeighbors]:
-        """Создает KNN веса для пространственного контекста.
-        
+    def build_city_graph(self, city_gdf: gpd.GeoDataFrame,
+                        mode: str = "radius",
+                        radius: float = 1000.0,
+                        k: int = 8) -> sparse.csr_matrix:
+        """Build a spatial adjacency graph from city geometries.
+
         Args:
-            gdf: GeoDataFrame с полигонами
-            
+            city_gdf (gpd.GeoDataFrame): GeoDataFrame containing city geometries
+            mode (str, optional): Graph construction mode. Either "radius" or "knn". 
+                Defaults to "radius".
+            radius (float, optional): Connection radius in meters when mode="radius". 
+                Defaults to 1000.0.
+            k (int, optional): Number of nearest neighbors when mode="knn". 
+                Defaults to 8.
+
         Returns:
-            Кортеж (веса libpysal, обученная KNN модель)
+            sparse.csr_matrix: Sparse adjacency matrix representing the spatial graph.
+                The matrix has shape (n, n) where n is the number of geometries.
+                A[i,j] = 1 indicates that geometries i and j are connected.
+
+        Notes:
+            - For radius mode, geometries within the given radius are connected
+            - For knn mode, each geometry is connected to its k nearest neighbors
+            - Self-connections are excluded
+            - Returns empty matrix for empty input
+            - Handles edge cases when n=1 or k >= n
         """
-        centroids = gdf.geometry.centroid
-        coords = np.column_stack((centroids.x, centroids.y))
+        centroids = city_gdf.geometry.centroid
+        coords = np.c_[centroids.x.values, centroids.y.values]
+        n = len(coords)
+
+        if n == 0:
+            return sparse.csr_matrix((0, 0), dtype=np.float32)
+        if n == 1:
+            return sparse.csr_matrix((1, 1), dtype=np.float32)
+
+        if mode == "radius":
+            A = radius_neighbors_graph(coords, radius=radius, mode="connectivity",
+                                    include_self=False)
+            return A.tocsr()
+
+        k_eff = min(k, n - 1)
+        if k_eff <= 0:
+            return sparse.csr_matrix((n, n), dtype=np.float32)
+
+        A = kneighbors_graph(coords, n_neighbors=k_eff, mode="connectivity",
+                            include_self=False)
+        return A.tocsr()
+
+    def neighbor_geom_aggregates(self, A: sparse.csr_matrix,
+                                feats_df: pd.DataFrame,
+                                agg: str = "mean") -> pd.DataFrame:
+        """
+        Calculate neighbor aggregation features for nodes in a graph.
         
-        if coords.size == 0:
-            dummy = np.zeros((1, 2))
-            return W({}, {}), NearestNeighbors(n_neighbors=1).fit(dummy)
+        This function computes aggregated features from neighboring nodes for each node
+        in the graph, using only numeric features from the input feature matrix.
+
+        Parameters
+        ----------
+        A : sparse.csr_matrix
+            Adjacency matrix in CSR format with shape (n x n), where n is the number of nodes
+        feats_df : pd.DataFrame
+            Node features DataFrame with shape (n x F), where F is the number of features
+        agg : str, optional
+            Aggregation method to use (default is "mean")
+            Note: Currently only "mean" is implemented
+
+        Returns
+        -------
+        pd.DataFrame
+            Aggregated neighbor features with shape (n x F), containing only numeric features.
+            Non-numeric columns from input are ignored.
+            Column names are prefixed with "nbr_mean_" to indicate neighbor mean aggregation.
+            Returns empty DataFrame with same index if no numeric features are found or if
+            adjacency matrix is empty.
+
+        Notes
+        -----
+        - Only numeric features (including bool/Int64/Float64 types) are considered
+        - Non-numeric columns are automatically ignored
+        - For nodes with no neighbors, uses 1.0 as denominator to avoid division by zero
+        - The output DataFrame maintains the same index as the input feats_df
+        """
+        if A.shape[0] == 0:
+            return pd.DataFrame(index=feats_df.index)
+
+        feats_num = feats_df.select_dtypes(include=[np.number, 'bool'])
+        if feats_num.shape[1] == 0:
+            return pd.DataFrame(index=feats_df.index)
+
+        X = feats_num.to_numpy(dtype=float)
+        deg = np.asarray(A.sum(axis=1)).ravel()
+        deg_safe = np.maximum(deg, 1.0)
+
+        # mean
+        nbr = (A @ X) / deg_safe[:, None]
+
+        out = pd.DataFrame(
+            nbr,
+            index=feats_df.index,
+            columns=[f"nbr_mean_{c}" for c in feats_num.columns]
+        )
+        return out
+
+    def neighbor_label_counts_and_proportions(self,
+                                              A: sparse.csr_matrix,
+                                              labels: pd.Series,
+                                              classes_: np.ndarray) -> pd.DataFrame:
+        """
+        Calculate for EACH node:
+          - count_<cls>: number of neighbors of class <cls> among LABELED neighbors (L)
+          - prop_<cls>: proportion of such neighbors relative to the NUMBER of LABELED neighbors
+        
+        Parameters
+        ----------
+        A : sparse.csr_matrix
+            Adjacency matrix in CSR format representing the graph structure
+        labels : pd.Series
+            Series containing node labels, with NaN values for unlabeled nodes
+        classes_ : np.ndarray
+            Array containing all possible class labels
             
-        actual_k = min(self.k_neighbors, len(coords))
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing two types of columns for each class:
+            - nbr_count_<cls>: count of labeled neighbors belonging to class <cls>
+            - nbr_prop_<cls>: proportion of labeled neighbors belonging to class <cls>
+            The DataFrame index matches the input labels index.
             
-        knn = NearestNeighbors(n_neighbors=actual_k, n_jobs=-1).fit(coords)
-        distances, indices = knn.kneighbors(coords)
-        
-        neighbors = {i: list(indices[i]) for i in range(len(coords))}
-        weights = {i: [1.0]*len(indices[i]) for i in range(len(coords))}
-        
-        return W(neighbors, weights), knn
+        Notes
+        -----
+        - If there are no labeled neighbors, all counts and proportions are set to 0.0
+        - Proportions are calculated safely to avoid division by zero
+        - The computation uses matrix multiplication for efficiency
+        """
+        n = A.shape[0]
+        if n == 0:
+            return pd.DataFrame(index=labels.index)
+
+        L_mask = labels.notna().to_numpy()
+        if not L_mask.any():
+            cols = []
+            for cls in classes_:
+                cols += [f"nbr_count_{cls}", f"nbr_prop_{cls}"]
+            return pd.DataFrame(0.0, index=labels.index, columns=cols)
+
+        idx_L = np.where(L_mask)[0]
+        A_L = A[:, idx_L]                               # (n x |L|)
+        y_L = labels.iloc[idx_L].to_numpy()
+
+        cls2col = {cls: i for i, cls in enumerate(classes_)}
+        Y = np.zeros((len(idx_L), len(classes_)), dtype=np.float32)
+        for i, cls in enumerate(y_L):
+            Y[i, cls2col[cls]] = 1.0
+
+        counts = A_L @ Y                                 # (n x C)
+        counts = np.asarray(counts, dtype=float)
+
+        labeled_deg = np.asarray(A_L.sum(axis=1)).ravel()
+        labeled_deg_safe = np.maximum(labeled_deg, 1.0)
+        props = counts / labeled_deg_safe[:, None]
+
+        df_counts = pd.DataFrame(counts, index=labels.index,
+                                 columns=[f"nbr_count_{c}" for c in classes_])
+        df_props  = pd.DataFrame(props, index=labels.index,
+                                 columns=[f"nbr_prop_{c}" for c in classes_])
+        return pd.concat([df_counts, df_props], axis=1)
 
     def calc_polygon_features(self, gdf: gpd.GeoDataFrame) -> pd.DataFrame:
         """Вычисляет геометрические характеристики полигонов.
         
+        Calculates geometric features of polygons including:
+        - Basic metrics: area, perimeter, centroid coordinates
+        - Shape metrics: compactness, fractal dimension, rectangularity
+        - Bounding box metrics: aspect ratio, squareness
+        - Advanced metrics: solidity, asymmetry measures
+        
         Args:
-            gdf: GeoDataFrame с полигонами
-            
+            gdf: GeoDataFrame containing polygon geometries to analyze
+                
         Returns:
-            DataFrame с вычисленными характеристиками
+            pd.DataFrame: DataFrame containing computed features with columns:
+                - compactness: Measure of circularity (4π*area/perimeter²)
+                - fractal_dimension: Complexity measure (log(area)/log(perimeter))
+                - shape_index: Area to perimeter ratio
+                - mbr_area: Area of minimum bounding rectangle
+                - rectangularity_index: Ratio of polygon area to MBR area
+                - mbr_aspect_ratio: Ratio of MBR dimensions
+                - squareness_index: Inverse of aspect ratio
+                - solidity: Ratio of polygon area to convex hull area
+                - asymmetry_x: Horizontal asymmetry measure
+                - asymmetry_y: Vertical asymmetry measure
+                
+        Raises:
+            Exception: If any geometric computation fails
         """
         try:
             geo = gdf.geometry
@@ -100,7 +244,6 @@ class DataProcessor:
             convex = geo.convex_hull
             convex_area = convex.area.to_numpy()
             
-            # Вычисление различных метрик формы
             compactness = np.where(length>0, 4*np.pi*area/length**2, 0)
             fractal_dim = np.where((area>0)&(length>0)&(np.log(length)!=0), np.log(area)/np.log(length), 0)
             rectangularity = np.where(mbr_area>0, area/mbr_area, 0)
@@ -132,26 +275,41 @@ class DataProcessor:
             return result
             
         except Exception as e:
-            raise f"Ошибка при вычислении характеристик: {str(e)}"
+            raise e
 
     def count_nearby_zones(self, gdf: gpd.GeoDataFrame, rec_gdf: Optional[gpd.GeoDataFrame], 
                           buffer_distance: float) -> pd.Series:
-        """Подсчитывает количество зон определенного типа в буфере вокруг каждого объекта.
+        """Counts the number of zones of a specific type within a buffer around each object.
+        
+        This method creates a buffer around each geometry in the main GeoDataFrame and counts
+        how many zones from the second GeoDataFrame intersect with each buffer. The method handles
+        CRS transformations automatically and ensures proper indexing in the result.
         
         Args:
-            gdf: Основной GeoDataFrame
-            rec_gdf: GeoDataFrame с зонами для подсчета
-            buffer_distance: Расстояние буфера
+            gdf: Main GeoDataFrame containing the geometries to create buffers around
+            rec_gdf: GeoDataFrame containing zones to be counted within buffers
+            buffer_distance: Distance for buffer creation in the units of the CRS
             
         Returns:
-            Series с количеством зон для каждого объекта
+            pd.Series: Series containing the count of zones for each object, indexed by the
+                      original GeoDataFrame's index. Returns zeros for objects with no
+                      intersecting zones if rec_gdf is None or empty.
+                      
+        Raises:
+            Exception: Propagates any exceptions that occur during spatial operations
+            
+        Note:
+            - The method automatically handles CRS transformation if input GeoDataFrames
+              have different coordinate reference systems
+            - If rec_gdf is None or empty, returns a Series of zeros
+            - The result maintains the same index as the input gdf
         """
 
         if rec_gdf is None or rec_gdf.empty:
             return pd.Series(0, index=gdf.index)
             
         try:
-            # Проверка и преобразование CRS
+            # Check and transform CRS if needed
             if gdf.crs != rec_gdf.crs:
                 rec = rec_gdf.to_crs(gdf.crs)
             else:
@@ -167,69 +325,58 @@ class DataProcessor:
             return result
             
         except Exception as e:
-            raise f"Ошибка при подсчете зон: {str(e)}"
-
-    def neighbor_stats(self, gdf: gpd.GeoDataFrame, knn: NearestNeighbors, 
-                      context_df: Optional[pd.DataFrame], feature_names: List[str]) -> pd.DataFrame:
-        """Вычисляет статистики соседей для пространственного контекста.
-        
-        Args:
-            gdf: GeoDataFrame с объектами
-            knn: Обученная KNN модель
-            context_df: DataFrame с данными для контекста
-            feature_names: Список имен признаков
-            
-        Returns:
-            DataFrame со средними значениями признаков соседей
-        """        
-        centroids = gdf.geometry.centroid
-        coords = np.column_stack((centroids.x, centroids.y))
-        
-        if context_df is None or coords.size == 0:
-            return pd.DataFrame(0.0, index=gdf.index, 
-                              columns=[f'context_neighbor_mean_{f}' for f in feature_names])
-        
-        try:
-            distances, indices = knn.kneighbors(coords)
-            arr = context_df[feature_names].to_numpy()
-            neighbor_means = np.nanmean(arr[indices, :], axis=1)
-            
-            result = pd.DataFrame(
-                neighbor_means, 
-                index=gdf.index, 
-                columns=[f'context_neighbor_mean_{f}' for f in feature_names]
-            )
-            
-            return result
-            
-        except Exception as e:
-            raise f"Ошибка при вычислении статистик соседей: {str(e)}"
+            raise e
 
     def transform_features(self, gdf, known_gdf_for_rec_zones=None):
-        """Трансформация признаков с обработкой невалидных геометрий"""
+        """
+        Transform features of a GeoDataFrame with invalid geometry handling.
+        
+        This method performs several transformations on the input GeoDataFrame:
+        1. Validates and fixes invalid geometries
+        2. Calculates local coordinates relative to city centers
+        3. Computes geometric features
+        4. Counts nearby zones of different types
+        
+        Args:
+            gdf (GeoDataFrame): Input geographic data to be transformed
+            known_gdf_for_rec_zones (GeoDataFrame, optional): Reference data for 
+                counting nearby zones. Defaults to None.
+        
+        Returns:
+            GeoDataFrame: Transformed geographic data with new features including:
+                - Validated geometries
+                - Local coordinates (x_local, y_local)
+                - Geometric features
+                - Counts of nearby zones by type
+        """
         
         gdf = gdf.copy()
         
-        # Проверяем и исправляем невалидные геометрии
         gdf.geometry = gdf.geometry.apply(lambda geom: make_valid(geom) if not geom.is_valid else geom)
         
         centroids = gdf.geometry.centroid
         gdf['x_local'] = 0.0
         gdf['y_local'] = 0.0
         
-        # Обработка координат относительно центра города
         if 'city' in gdf:
             
             def get_city_center(group):
+                """
+                Calculate the center point of a city from its geometries.
+                
+                Args:
+                    group (Series): Group of geometries belonging to a city
+                
+                Returns:
+                    Point: Center point of the city
+                """
                 try:
-                    # Исправляем геометрии перед объединением
                     valid_geoms = group.apply(lambda geom: make_valid(geom) if not geom.is_valid else geom)
                     union = valid_geoms.unary_union
                     if not union.is_valid:
                         union = make_valid(union)
                     return union.centroid
                 except Exception as e:
-                    # Возвращаем центр первого полигона в качестве fallback
                     return group.iloc[0].centroid
             
             cc_geom = gdf.groupby('city')['geometry'].apply(get_city_center)
@@ -240,55 +387,86 @@ class DataProcessor:
             gdf['y_local'] = centroids.y - gdf['y']
             gdf = gdf.drop(columns=['x', 'y'])
         
-        # Вычисление геометрических характеристик
         calc = self.calc_polygon_features(gdf)
         gdf = pd.concat([gdf, calc], axis=1)
         
-        # Подсчет близлежащих зон разных типов
-        for zone_key, land_uses in ZONES.items():
-            if known_gdf_for_rec_zones is not None and 'category' in known_gdf_for_rec_zones:
-                rec_z = known_gdf_for_rec_zones[known_gdf_for_rec_zones['category'].isin(land_uses)]
+        for z in ['rec_spec_agri','bus_res','industrial','transport']:
+            if known_gdf_for_rec_zones is not None and 'land_use' in known_gdf_for_rec_zones:
+                rec_z = known_gdf_for_rec_zones[known_gdf_for_rec_zones['land_use']==z]
             else:
                 rec_z = None
-
-            gdf[f'nearby_{zone_key}_count'] = self.count_nearby_zones(gdf, rec_z, self.buffer_distance)
-
+                
+            gdf[f'nearby_{z}_count'] = self.count_nearby_zones(gdf, rec_z, self.buffer_distance)
         
         return gdf
 
-    def prepare_data(self, gdf: gpd.GeoDataFrame, is_train: bool = False, 
-                   train_gdf_for_rec_zones: Optional[gpd.GeoDataFrame] = None, 
-                   knn_model: Optional[NearestNeighbors] = None) -> pd.DataFrame:
-        """Подготавливает данные для обучения/предсказания.
-        
-        Args:
-            gdf: Входной GeoDataFrame
-            is_train: Флаг обучения
-            train_gdf_for_rec_zones: Данные для обучения (для теста)
-            knn_model: Обученная KNN модель (для теста)
-            
-        Returns:
-            DataFrame с подготовленными признаками
+    def prepare_data(self, gdf: gpd.GeoDataFrame,
+                    target_col: str = 'land_use_code',
+                    radius: float = 1000.0,
+                    k_neighbors: int = None,
+                    classes_: np.ndarray = None) -> pd.DataFrame:
         """
+        Prepare feature DataFrame from input GeoDataFrame by computing node features and neighbor aggregates.
         
-        processed = self.transform_features(gdf, train_gdf_for_rec_zones)
-        w, current_knn = self.fit_knn_weights(processed)
-        
-        if is_train:
-            self.knn_model = current_knn
-            context = self.neighbor_stats(processed, current_knn, processed, 
-                                        self.feature_names_for_spatial_context)
-        else:
-            if knn_model is None:
-                raise ValueError("You need to have a trained KNN model for prediction")
-            context = self.neighbor_stats(processed, knn_model, train_gdf_for_rec_zones, 
-                                        self.feature_names_for_spatial_context)
-        
-        processed = pd.concat([processed, context], axis=1)
-        
-        # Логарифмирование признаков
+        Parameters
+        ----------
+        gdf : gpd.GeoDataFrame
+            Input GeoDataFrame containing geometries and target values
+        target_col : str, optional
+            Name of the target column (default: 'land_use_code')
+        radius : float, optional
+            Search radius for neighbor detection in meters (default: 1000.0)
+        k_neighbors : int, optional
+            Number of neighbors to consider if using KNN mode (default: None)
+        classes_ : np.ndarray, optional
+            Array of class labels used for neighbor label features (default: None)
+            
+        Returns
+        -------
+        pd.DataFrame
+            DataFrame containing computed features without target column
+            
+        Notes
+        -----
+        The function performs the following steps:
+        1. Computes basic node features
+        2. Applies log transformation to specified columns
+        3. For each city (or entire dataset if no city column):
+           - Builds spatial graph using radius or KNN
+           - Computes geometric feature aggregates from neighbors
+           - If classes_ provided, computes neighbor label counts and proportions
+        4. Combines all features into final DataFrame
+        """
+        gdf = gdf.copy()
+        gdf.reset_index(drop=True, inplace=True)
+        base = self.transform_features(gdf, known_gdf_for_rec_zones=None)  
+
         for col in self.columns_to_log:
-            if col in processed.columns:
-                processed[f'{col}_log'] = np.log1p(processed[col])
-        
-        return processed
+            if col in base.columns:
+                base[f'{col}_log'] = np.log1p(base[col])
+
+        pieces = []
+        for city, idx in gdf.groupby('city').indices.items() if 'city' in gdf.columns else {None: gdf.index}.items():
+            city_idx = pd.Index(idx)
+            city_base = base.loc[city_idx]
+
+            A = self.build_city_graph(city_base, mode="radius" if k_neighbors is None else "knn",
+                                    radius=radius, k=k_neighbors or 8)
+            geom_cols = [c for c in city_base.columns
+                        if c not in ('geometry', target_col, 'land_use', 'city', 'city_center')]
+            geom_cols = [c for c in geom_cols if not c.startswith('nbr_') and not c.startswith('prob_') and not c.startswith('nearby_')]
+            geom_df = city_base[geom_cols]
+
+            nbr_geom = self.neighbor_geom_aggregates(A, geom_df, agg="mean")
+
+            block = pd.concat([city_base[geom_cols], nbr_geom], axis=1)
+
+            if classes_ is not None:
+                labels = gdf.loc[city_idx, target_col]
+                nbr_lbl = self.neighbor_label_counts_and_proportions(A, labels, classes_=classes_)
+                block = pd.concat([block, nbr_lbl], axis=1)
+
+            pieces.append(block)
+
+        feats = pd.concat(pieces, axis=0).loc[gdf.index]
+        return feats
