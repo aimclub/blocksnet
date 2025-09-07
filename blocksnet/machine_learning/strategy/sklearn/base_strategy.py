@@ -8,7 +8,7 @@ MODEL_FILENAME = "model.joblib"
 
 
 class SKLearnBaseStrategy(BaseStrategy, ABC):
-    def __init__(self, model_cls: type[BaseEstimator], model_params: dict | None = None):
+    def __init__(self, model_cls: type[BaseEstimator], model_params: dict | None):
         super().__init__(model_cls, model_params or {})
 
     def _save_model(self, path: str):
