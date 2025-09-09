@@ -12,6 +12,9 @@ class DfSchema(pa.DataFrameModel):
         add_missing_columns = True
         coerce = True
 
+    def __new__(cls, *args, **kwargs) -> pd.DataFrame:
+        return cls.validate(*args, **kwargs)
+
     @classmethod
     def _check_instance(cls, df):
         if not isinstance(df, pd.DataFrame):
@@ -34,7 +37,6 @@ class DfSchema(pa.DataFrameModel):
         index_name = df.index.name
         if index_name is not None:
             df.index.name = None
-            # logger.warning(f'{cls.__name__} Got name in index : {index_name}. Resetting index name')
 
     @classmethod
     def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
@@ -45,32 +47,30 @@ class DfSchema(pa.DataFrameModel):
         return df
 
     @classmethod
-    def validate(cls, df: pd.DataFrame, **kwargs) -> pd.DataFrame:
-
+    def validate(cls, df: pd.DataFrame) -> pd.DataFrame:
         df = df.copy()
+
         cls._check_instance(df)
         cls._check_len(df)
         cls._check_multi(df)
         cls._reset_index_name(df)
 
         df = cls._before_validate(df)
-        df = super().validate(df, **kwargs)
+        df = super().to_schema().validate(df)
+
+        df = cls._enforce_columns_order(df)
         df = cls._after_validate(df)
+
         return df.copy()
 
     @classmethod
-    def _columns(cls) -> list:
+    def columns_(cls) -> list:
         return list(cls.to_schema().columns.keys())
 
     @classmethod
-    def columns_(cls) -> list:
-        return cls._columns()
-
-    @classmethod
     def create_empty(cls) -> pd.DataFrame:
-        return pd.DataFrame([], columns=cls._columns())
+        return pd.DataFrame([], columns=cls.columns_())
 
-    @pa.dataframe_parser
     @classmethod
-    def _enforce_column_order(cls, df: pd.DataFrame):
-        return df[cls._columns()]
+    def _enforce_columns_order(cls, df: pd.DataFrame):
+        return df[cls.columns_()]
