@@ -14,15 +14,20 @@ CURRENT_FILE = os.path.basename(__file__)
 logger.remove()
 
 logger.add(
-    sys.stderr,
-    level="INFO",
-    filter=lambda record: record["name"] == __name__ or record["module"] == CURRENT_FILE
+    sys.stderr, level="INFO", filter=lambda record: record["name"] == __name__ or record["module"] == CURRENT_FILE
 )
 
 log_config.disable_tqdm = True
 
-class GraphMorpher:
-    def __init__(self, graph : nx.MultiDiGraph, target_class: SettlementCategory, classifier: NetworkClassifier, simplify: bool = False):
+
+class NetworkMorpher:
+    def __init__(
+        self,
+        graph: nx.MultiDiGraph,
+        target_class: SettlementCategory,
+        classifier: NetworkClassifier,
+        simplify: bool = False,
+    ):
         if simplify:
             self.orig_graph = simplify_graph(graph)
         self.orig_graph = graph
@@ -41,10 +46,10 @@ class GraphMorpher:
         self.classes_wo_tc.remove(self.target_class.value)
 
         orig_res = self.model.run([self.orig_graph]).iloc[0]
-        self.orig_clustering = orig_res['avg_clustering']
-        self.orig_assortativity = orig_res['assortativity']
-        self.orig_class = orig_res['category']
-        self.avg_edge_length = orig_res['avg_edge_length']
+        self.orig_clustering = orig_res["avg_clustering"]
+        self.orig_assortativity = orig_res["assortativity"]
+        self.orig_class = orig_res["category"]
+        self.avg_edge_length = orig_res["avg_edge_length"]
 
         self.cash = dict()
         self.history = []
@@ -54,10 +59,10 @@ class GraphMorpher:
         self.exclude_edges = []
 
     def _strongest_wrong_class(self, res):
-        probas = {cat : res[cat] for cat in self.classes_wo_tc}
+        probas = {cat: res[cat] for cat in self.classes_wo_tc}
         ans = max(probas, key=probas.get)
         return ans
-    
+
     def _to_key(self, G):
         edges = tuple(sorted(G.edges()))
         return hash(edges)
@@ -67,7 +72,7 @@ class GraphMorpher:
             np.random.seed(seed)
         np.random.shuffle(arr)
         return arr
-    
+
     def _get_res(self):
         key = self._to_key(self.graph)
         if key in self.cash:
@@ -77,9 +82,11 @@ class GraphMorpher:
             self.cash[key] = res
         return res
 
-    def _get_candidates_to_add(self, target_proba, n_candidates: int | None = None, seed: int | None = None, len_constraint: bool = False):
+    def _get_candidates_to_add(
+        self, target_proba, n_candidates: int | None = None, seed: int | None = None, len_constraint: bool = False
+    ):
         non_edges = np.argwhere(self.adj == 0)
-        
+
         if len(self.exclude_edges) > 0:
             edges_to_remove = np.array([edge for edge, score in self.exclude_edges])
             non_edges_sorted = np.sort(non_edges, axis=1)
@@ -105,10 +112,10 @@ class GraphMorpher:
             self.graph.remove_edge(self.nodes[u], self.nodes[v])
             if len(to_add_candidates) >= max_candidates:
                 break
-            
+
         return to_add_candidates
 
-    def _get_candidates_to_delete(self, target_proba,  seed: int | None = None):
+    def _get_candidates_to_delete(self, target_proba, seed: int | None = None):
         current_adj = adj_matrix(self.graph)
         existing_edges = np.array(current_adj.nonzero()).T
 
@@ -136,7 +143,6 @@ class GraphMorpher:
                 to_delete_candidates.append(((u, v), curr_score))
 
         return to_delete_candidates
-    
 
     def _get_edge_to_exclude(self):
         if len(self.history) < 4:
@@ -145,13 +151,12 @@ class GraphMorpher:
             return (self.history[-1][1], 5)
         return None
 
-
     def _count_score(self, curr_res, target_proba):
         curr_target = curr_res[self.target_class.value]
         delta_target = curr_target - target_proba
-        curr_clastering = curr_res['avg_clustering']
+        curr_clastering = curr_res["avg_clustering"]
         delta_ratio_clustering = abs((self.orig_clustering - curr_clastering) / self.orig_clustering)
-        curr_assortativity = curr_res['assortativity']
+        curr_assortativity = curr_res["assortativity"]
         delta_ratio_assortativity = (self.orig_assortativity - curr_assortativity) / abs(self.orig_assortativity)
         score = delta_target
 
@@ -160,15 +165,21 @@ class GraphMorpher:
 
         return score
 
-    def morph(self, n_steps : int = 20, n_candidates_to_add: int | None = 50, seed: int | None = None, len_constraint: bool = False):
+    def morph(
+        self,
+        n_steps: int = 20,
+        n_candidates_to_add: int | None = 50,
+        seed: int | None = None,
+        len_constraint: bool = False,
+    ):
         for step in range(n_steps):
             res_before = self._get_res()
             target_proba = res_before[self.target_class.value]
-            pred = res_before['category']
+            pred = res_before["category"]
             if pred == self.target_class:
                 logger.success(f"Target class is reached after {step} steps")
                 break
-            
+
             # finding candidates
             logger.info(f"step: {step + 1}: Searching and processing candidates")
             if len(self.exclude_edges) > 0:
@@ -177,7 +188,9 @@ class GraphMorpher:
             if new_excl is not None:
                 self.exclude_edges.append(new_excl)
 
-            to_add_candidates = self._get_candidates_to_add(target_proba, n_candidates=n_candidates_to_add, seed=seed, len_constraint=len_constraint)
+            to_add_candidates = self._get_candidates_to_add(
+                target_proba, n_candidates=n_candidates_to_add, seed=seed, len_constraint=len_constraint
+            )
             delete_candidates = self._get_candidates_to_delete(target_proba, seed=seed)
             candidates = to_add_candidates + delete_candidates
 
@@ -186,7 +199,7 @@ class GraphMorpher:
                 logger.info("Try with different settings")
                 break
 
-            candidates.sort(key=lambda x: -x[1]) 
+            candidates.sort(key=lambda x: -x[1])
             (u, v), score = candidates[0]
 
             # modify graph
@@ -202,7 +215,9 @@ class GraphMorpher:
             self.adj = adj_matrix(self.graph)
             res = self._get_res()
             target_proba = res[self.target_class.value]
-            logger.info(f"step: {step + 1}: {action} edge ({self.nodes[u]},{self.nodes[v]}) | target proba: {target_proba:.4f}")
+            logger.info(
+                f"step: {step + 1}: {action} edge ({self.nodes[u]},{self.nodes[v]}) | target proba: {target_proba:.4f}"
+            )
         else:
             logger.info("Not enough steps to reach target class")
 
