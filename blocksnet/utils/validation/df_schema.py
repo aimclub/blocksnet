@@ -47,11 +47,12 @@ class DfSchema(pa.DataFrameModel):
         return df
 
     @classmethod
-    def validate(cls, df: pd.DataFrame) -> pd.DataFrame:
+    def validate(cls, df: pd.DataFrame, allow_empty: bool = False) -> pd.DataFrame:
         df = df.copy()
 
         cls._check_instance(df)
-        cls._check_len(df)
+        if not allow_empty:
+            cls._check_len(df)
         cls._check_multi(df)
         cls._reset_index_name(df)
 

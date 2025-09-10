@@ -33,10 +33,11 @@ class GdfSchema(DfSchema):
         if current_crs is None:
             logger.warning("Current CRS is None. Further operations might be invalid")
         elif not current_crs.is_projected:
-            recommended_crs = gdf.estimate_utm_crs()
-            logger.warning(
-                f"Current CRS {current_crs.to_epsg()} is not projected. It might cause problems when carrying out spatial operations. Recommended: EPSG:{recommended_crs.to_epsg()}"
-            )
+            warn_message = f"Current CRS {current_crs.to_epsg()} is not projected. It might cause problems when carrying out spatial operations"
+            if len(gdf) > 0:
+                recommended_crs = gdf.estimate_utm_crs()
+                warn_message = warn_message + f". Recommended: EPSG:{recommended_crs.to_epsg()}"
+            logger.warning(warn_message)
         return gdf
 
     @classmethod
