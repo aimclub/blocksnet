@@ -2,6 +2,50 @@ import pandera as pa
 import pandas as pd
 from loguru import logger
 from pandera.typing import Index
+from pandera.errors import SchemaErrors
+
+TOP_N_ERRORS = 5
+
+
+def _row_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    cases_df = cases_df[~cases_df["index"].isna()]
+    messages = []
+    if not cases_df.empty:
+        summary_df = (
+            cases_df.groupby(["column", "check"])
+            .agg(n_cases=("index", "size"), cases=("index", lambda x: list(x.sort_values().head(TOP_N_ERRORS))))
+            .reset_index()
+        )
+        for _, row in summary_df.iterrows():
+            check = row["check"]
+            column = row["column"]
+            n_cases = row["n_cases"]
+            cases = [str(case) for case in row["cases"]]
+            message = f'{n_cases} row-level errors at column "{column}" at check "{check}": {str.join(", ",cases)}{", ..." if n_cases > TOP_N_ERRORS else ""}'
+            messages.append(message)
+    return messages
+
+
+def _schema_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    cases_df = cases_df[cases_df["index"].isna()]
+    messages = []
+    if not cases_df.empty:
+        summary_df = (
+            cases_df.groupby(["column", "check"]).agg(failure_case=("failure_case", lambda x: list(x))).reset_index()
+        )
+        for _, row in summary_df.iterrows():
+            failure_cases = ", ".join(map(str, row["failure_case"]))
+            message = f'{len(row["failure_case"])} schema-level errors at check "{row["check"]}": {failure_cases}'
+            messages.append(message)
+    return messages
+
+
+def _log_schema_errors(e: SchemaErrors):
+    cases_df = e.failure_cases
+    messages = ["Schema validation errors:"]
+    messages.extend(_schema_level_errors(cases_df))
+    messages.extend(_row_level_errors(cases_df))
+    logger.error(str.join("\n", messages))
 
 
 class DfSchema(pa.DataFrameModel):
@@ -57,7 +101,13 @@ class DfSchema(pa.DataFrameModel):
         cls._reset_index_name(df)
 
         df = cls._before_validate(df)
-        df = super().to_schema().validate(df)
+        try:
+            df = super().to_schema().validate(df, lazy=True)
+        except SchemaErrors as e:
+            _log_schema_errors(e)
+            raise ValueError(
+                f"{e.schema.name} validation failed. Please check log and verify data according to schema"
+            ) from None
 
         df = cls._enforce_columns_order(df)
         df = cls._after_validate(df)
