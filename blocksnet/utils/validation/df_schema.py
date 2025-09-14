@@ -7,8 +7,45 @@ from pandera.errors import SchemaErrors
 TOP_N_ERRORS = 5
 
 
-def _row_level_errors(cases_df: pd.DataFrame) -> list[str]:
-    cases_df = cases_df[~cases_df["index"].isna()]
+def _index_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    idx_df = cases_df[cases_df["schema_context"] == "Index"].copy()
+    messages = []
+
+    if not idx_df.empty:
+        summary_df = (
+            idx_df.groupby(["check"])
+            .agg(
+                n_cases=("failure_case", "size"),
+                values=("failure_case", lambda x: list(pd.Series(x).head(TOP_N_ERRORS))),
+            )
+            .reset_index()
+        )
+
+        for _, row in summary_df.iterrows():
+            values_str = ", ".join(map(str, row["values"]))
+            if row["n_cases"] > TOP_N_ERRORS:
+                values_str += ", ..."
+            messages.append(f'{row["n_cases"]} index-level errors at check "{row["check"]}": {values_str}')
+
+    return messages
+
+
+def _dataframe_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    cases_df = cases_df[cases_df["schema_context"] == "DataFrame"].copy()
+    messages = []
+    if not cases_df.empty:
+        summary_df = (
+            cases_df.groupby(["column", "check"]).agg(failure_case=("failure_case", lambda x: list(x))).reset_index()
+        )
+        for _, row in summary_df.iterrows():
+            failure_cases = ", ".join(map(str, row["failure_case"]))
+            message = f'{len(row["failure_case"])} dataframe-level errors at check "{row["check"]}": {failure_cases}'
+            messages.append(message)
+    return messages
+
+
+def _column_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    cases_df = cases_df[cases_df["schema_context"] == "Column"].copy()
     messages = []
     if not cases_df.empty:
         summary_df = (
@@ -21,21 +58,7 @@ def _row_level_errors(cases_df: pd.DataFrame) -> list[str]:
             column = row["column"]
             n_cases = row["n_cases"]
             cases = [str(case) for case in row["cases"]]
-            message = f'{n_cases} row-level errors at column "{column}" at check "{check}": {str.join(", ",cases)}{", ..." if n_cases > TOP_N_ERRORS else ""}'
-            messages.append(message)
-    return messages
-
-
-def _schema_level_errors(cases_df: pd.DataFrame) -> list[str]:
-    cases_df = cases_df[cases_df["index"].isna()]
-    messages = []
-    if not cases_df.empty:
-        summary_df = (
-            cases_df.groupby(["column", "check"]).agg(failure_case=("failure_case", lambda x: list(x))).reset_index()
-        )
-        for _, row in summary_df.iterrows():
-            failure_cases = ", ".join(map(str, row["failure_case"]))
-            message = f'{len(row["failure_case"])} schema-level errors at check "{row["check"]}": {failure_cases}'
+            message = f'{n_cases} column-level errors at column "{column}" at check "{check}": {str.join(", ",cases)}{", ..." if n_cases > TOP_N_ERRORS else ""}'
             messages.append(message)
     return messages
 
@@ -43,8 +66,9 @@ def _schema_level_errors(cases_df: pd.DataFrame) -> list[str]:
 def _log_schema_errors(e: SchemaErrors):
     cases_df = e.failure_cases
     messages = ["Schema validation errors:"]
-    messages.extend(_schema_level_errors(cases_df))
-    messages.extend(_row_level_errors(cases_df))
+    messages.extend(_dataframe_level_errors(cases_df))
+    messages.extend(_index_level_errors(cases_df))
+    messages.extend(_column_level_errors(cases_df))
     logger.error(str.join("\n", messages))
 
 
