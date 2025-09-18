@@ -29,7 +29,7 @@ class BlocksLandUseSchema(DfSchema):
 
     @classmethod
     def _before_validate(cls, df):
-        if all([col not in df.columns for col in cls._columns()]):
+        if all([col not in df.columns for col in cls.columns_()]):
             logger.warning(f"Not valid format. Trying to one hot from land_use column")
             df = LandUseSchema(df)
             df = df["land_use"].apply(lambda lu: {} if lu is None else lu.to_one_hot()).apply(pd.Series).fillna(0)

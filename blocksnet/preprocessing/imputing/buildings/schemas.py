@@ -16,7 +16,7 @@ class BuildingsSchema(GdfSchema):
 
     @classmethod
     def _before_validate(cls, df):
-        for column in [c for c in cls._columns() if c != "is_living"]:
+        for column in [c for c in cls.columns_() if c != "is_living"]:
             if not column in df:
                 logger.warning(f"Column {column} not found and will be initialized as None")
         return df
