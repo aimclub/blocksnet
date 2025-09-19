@@ -3,6 +3,6 @@ from pandera import Field
 from blocksnet.utils.validation import DfSchema
 
 
-class BlocksAreaSchema(DfSchema):
+class BlocksServicesSchema(DfSchema):
 
-    site_area: Series[float] = Field(ge=0)
+    count: Series[int] = Field(ge=0, default=0)
