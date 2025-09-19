@@ -1,6 +1,6 @@
 import pandas as pd
 from functools import wraps
-from blocksnet.relations import validate_accessibility_matrix
+from blocksnet.relations import validate_accessibility_matrix as validate_acc_mx
 
 
 def validate_accessibility_matrix(func):
@@ -8,7 +8,7 @@ def validate_accessibility_matrix(func):
 
     @wraps(func)
     def wrapper(accessibility_matrix: pd.DataFrame, *args, **kwargs):
-        validate_accessibility_matrix(accessibility_matrix)
+        validate_acc_mx(accessibility_matrix)
         return func(accessibility_matrix, *args, **kwargs)
 
     return wrapper

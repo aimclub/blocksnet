@@ -1,6 +1,6 @@
 from pandera.typing import Series
 from pandera import Field
-from ...utils.validation import DfSchema
+from blocksnet.utils.validation import DfSchema
 
 
 class AreaAccessibilityBlocksSchema(DfSchema):
