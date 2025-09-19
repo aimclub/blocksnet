@@ -14,10 +14,10 @@ def _calculate_connectivity(
     accessibility_matrix: pd.DataFrame, accessibility_func: Callable[[pd.DataFrame], pd.DataFrame]
 ) -> pd.Series:
 
-    from blocksnet.analysis.network.connectivity.core import connectivity, CONNECTIVITY_COLUMN
+    from blocksnet.analysis.network.connectivity.core import calculate_connectivity, CONNECTIVITY_COLUMN
 
     accessibility_df = accessibility_func(accessibility_matrix)
-    connectivity_df = connectivity(accessibility_df)
+    connectivity_df = calculate_connectivity(accessibility_df)
     return connectivity_df[CONNECTIVITY_COLUMN]
 
 

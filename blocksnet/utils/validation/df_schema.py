@@ -31,7 +31,7 @@ def _index_level_errors(cases_df: pd.DataFrame) -> list[str]:
 
 
 def _dataframe_level_errors(cases_df: pd.DataFrame) -> list[str]:
-    cases_df = cases_df[cases_df["schema_context"] == "DataFrame"].copy()
+    cases_df = cases_df[cases_df["schema_context"].isin(["DataFrame", "DataFrameSchema"])].copy()
     messages = []
     if not cases_df.empty:
         summary_df = (

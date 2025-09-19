@@ -1,1 +1,1 @@
-from .core import connectivity
+from .core import calculate_connectivity

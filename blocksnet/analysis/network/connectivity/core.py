@@ -18,7 +18,7 @@ def _preprocess_and_validate(accessibility_df: pd.DataFrame) -> pd.DataFrame:
     return BlocksAccessibilitySchema(accessibility_df)
 
 
-def connectivity(accessibility_df: pd.DataFrame):
+def calculate_connectivity(accessibility_df: pd.DataFrame):
     accessibility_df = _preprocess_and_validate(accessibility_df)
     accessibility_df[CONNECTIVITY_COLUMN] = 1.0 / accessibility_df["accessibility"]
     return accessibility_df[[CONNECTIVITY_COLUMN]].copy()
