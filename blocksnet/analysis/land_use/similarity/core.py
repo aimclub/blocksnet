@@ -2,32 +2,12 @@ import pandas as pd
 from loguru import logger
 from sklearn.metrics.pairwise import cosine_similarity
 from blocksnet.config import service_types_config
-from blocksnet.enums import LandUse
-from .schemas import ServicesSchema
 
 LAND_USE_COLUMN = "land_use"
 PROBABILITY_COLUMN = "probability"
 
 
-def _preprocess_input(services_dfs: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
-    logger.info("Validating input data")
-
-    if len(services_dfs) == 0:
-        raise ValueError("services_dfs len must be greater than 0")
-
-    for service_type in services_dfs.keys():
-        if service_type not in service_types_config:
-            raise KeyError(f"{service_type} is not known by service_types_config")
-
-    logger.info(f"{len(services_dfs)}/{len(service_types_config.service_types)} service types are provided")
-    services_dfs = {st: ServicesSchema(df) for st, df in services_dfs.items()}
-    return services_dfs
-
-
-def _get_blocks_df(services_dfs: dict[str, pd.DataFrame], land_use_df: pd.DataFrame) -> pd.DataFrame:
-    dfs = [df.rename(columns={"count": st}) for st, df in services_dfs.items()]
-    blocks_df = pd.concat(dfs, axis=1)
-
+def _get_blocks_df(blocks_df: pd.DataFrame, land_use_df: pd.DataFrame) -> pd.DataFrame:
     for column in land_use_df.columns:
         if column not in blocks_df.columns:
             blocks_df[column] = False
@@ -40,18 +20,34 @@ def _get_land_use_df() -> pd.DataFrame:
 
 
 def _calculate_cosine_similarity(blocks_df: pd.DataFrame, land_use_df: pd.DataFrame) -> pd.DataFrame:
-    logger.info("Calculating cosine similarity")
     similarity_mx = cosine_similarity(blocks_df.values, land_use_df.values)
     similarity_df = pd.DataFrame(similarity_mx, index=blocks_df.index, columns=land_use_df.index)
     return similarity_df
 
 
+def _preprocess_and_validate(blocks_df: pd.DataFrame) -> pd.DataFrame:
+
+    from blocksnet.analysis.services.count.core import services_count, COUNT_COLUMN, COUNT_PREFIX
+
+    logger.info("Preprocessing and validating input data")
+    blocks_df = services_count(blocks_df).drop(columns=[COUNT_COLUMN])
+    columns = {}
+    for column in blocks_df.columns:
+        service_type = column.removeprefix(COUNT_PREFIX)
+        if service_type in service_types_config:
+            columns[column] = service_type
+        else:
+            logger.warning(f'Unknown service type "{service_type}" will be ignored')
+    logger.info(f"{len(columns)}/{len(service_types_config.service_types)} service types are provided")
+    return blocks_df.rename(columns=columns)
+
+
 def land_use_similarity(
-    services_dfs: dict[str, pd.DataFrame],
-):
-    services_dfs = _preprocess_input(services_dfs)
+    blocks_df: pd.DataFrame,
+) -> pd.DataFrame:
+    blocks_df = _preprocess_and_validate(blocks_df)
     land_use_df = _get_land_use_df()
-    blocks_df = _get_blocks_df(services_dfs, land_use_df)
+    blocks_df = _get_blocks_df(blocks_df, land_use_df)
 
     similarity_df = _calculate_cosine_similarity(blocks_df, land_use_df)
     land_use_series = similarity_df.idxmax(axis=1)

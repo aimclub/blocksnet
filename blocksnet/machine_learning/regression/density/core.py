@@ -28,8 +28,8 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         *args,
         **kwargs,
     ):
-        n_features = len(BlocksLandUseSchema._columns()) + len(BlocksGeometriesSchema._columns())
-        n_targets = len(BlocksDensitiesSchema._columns())
+        n_features = len(BlocksLandUseSchema.columns_()) + len(BlocksGeometriesSchema.columns_())
+        n_targets = len(BlocksDensitiesSchema.columns_())
         ModelWrapper.__init__(self, n_features, n_targets, model_class, model_path, *args, **kwargs)
         ScalerWrapper.__init__(self, scaler_path)
 
@@ -118,4 +118,4 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
 
         out = self._evaluate_model(data)
         data = out.detach().numpy()
-        return pd.DataFrame(data, index=blocks_gdf.index, columns=BlocksDensitiesSchema._columns())
+        return pd.DataFrame(data, index=blocks_gdf.index, columns=BlocksDensitiesSchema.columns_())

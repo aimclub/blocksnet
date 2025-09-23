@@ -45,7 +45,7 @@ class SocialRegressor(ModelWrapper):
         y_pred, pi_lower, pi_upper = self._evaluate_model(x)
 
         # Create separate DataFrames for predictions and intervals
-        columns = SocialIndicatorsSchema._columns()
+        columns = SocialIndicatorsSchema.columns_()
         pred_df = pd.DataFrame(y_pred, index=x.index, columns=columns)
         pi_lower_df = pd.DataFrame(pi_lower, index=x.index, columns=columns)
         pi_upper_df = pd.DataFrame(pi_upper, index=x.index, columns=columns)
@@ -58,7 +58,7 @@ class SocialRegressor(ModelWrapper):
 
         stats_df = {}
 
-        for target_name in SocialIndicatorsSchema._columns():
+        for target_name in SocialIndicatorsSchema.columns_():
             # Extract lower and upper bounds from interval tuples
             pi_lower = pi_lower_df[target_name].values
             pi_upper = pi_upper_df[target_name].values

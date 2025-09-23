@@ -6,7 +6,7 @@ from ...enums import LandUse
 
 
 class LandUseSchema(DfSchema):
-    land_use: Series = Field(nullable=True)
+    land_use: Series[object] = Field(nullable=True)
 
     @parser("land_use")
     @classmethod
