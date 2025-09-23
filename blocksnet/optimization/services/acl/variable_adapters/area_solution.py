@@ -205,31 +205,6 @@ class AreaSolution(VariableAdapter):
             for var in self._X:
                 var.count = 0
 
-        if any(v < 0 for block_id in self._blocks_lu.keys() for v in self._blocks_sa[block_id].values()):
-            block_id, value = [
-                (block_id, v)
-                for block_id in self._blocks_lu.keys()
-                for v in self._blocks_sa[block_id].values()
-                if v < 0
-            ][0]
-            logging.info(f"Negative site area of block {block_id}: {value}")
-            raise ValueError("INTERNAL: Negative area in solution, check the solution vector.")
-
-        if any(v < 0 for v in self._blocks_bfa_cp.values()):
-            block_id, value = [(block_id, v) for block_id, v in self._blocks_bfa_cp.items() if v < 0][0]
-            logging.info(f"Negative build floor area of block {block_id}: {value}")
-            raise ValueError("INTERNAL: Negative build floor area in solution, check the solution vector.")
-
-        if any(v < 0 for block_id in self._blocks_lu.keys() for v in self._blocks_cap_cp[block_id].values()):
-            block_id, value = [
-                (block_id, v)
-                for block_id in self._blocks_lu.keys()
-                for v in self._blocks_cap_cp[block_id].values()
-                if v < 0
-            ][0]
-            logging.info(f"Negative capacity of block {block_id}: {value}")
-            raise ValueError("INTERNAL: Negative capacity in solution, check the solution vector.")
-
         for var, val in zip(self._areas_X, solution):
             self._inject_area_to_X(var)
             var.count -= self._blocks_sa[var.block_id][var.service_type]

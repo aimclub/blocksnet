@@ -374,13 +374,7 @@ class WeightedConstraints(Constraints):
             prev_val = 0 if self._prev_solution is None else self._prev_solution[var_num]
             lb = prev_val
             bound_range = self.get_ub(var_num) - lb
-
-            if bound_range < 0:
-                logging.info(
-                    f"ERROR: Previous solution value is greater than upper bound {self.get_ub(var_num)} < {lb}"
-                )
-                raise ValueError("INTERNAL: Negative bound range when suggesting solution, check logs.")
-
+            
             if self._weights[var_num][0] > 0:
                 bound_range = min(bound_range, np.floor(limits_area[var_block][0] / self._weights[var_num][0]))
             if self._weights[var_num][1] > 0:
