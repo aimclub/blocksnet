@@ -39,21 +39,16 @@ def shared_provision(
 
     blocks_df = _initialize_provision_df(blocks_df)
 
-    # Булева маска доступности
     accessibility_mask = accessibility_matrix <= accessibility
 
-    # Подсчет населения в зоне доступности
     blocks_df[POPULATION_WITHIN_COLUMN] = accessibility_mask.T.mul(blocks_df["population"], axis=0).sum()
 
-    # Подсчет доступной емкости
     blocks_df[CAPACITY_WITHIN_COLUMN] = accessibility_mask.mul(blocks_df["capacity"], axis=0).sum(axis=1)
 
-    # Вычисление нагрузки (только где capacity > 0)
     blocks_df[LOAD_COLUMN] = (
         blocks_df[POPULATION_WITHIN_COLUMN].where(blocks_df["capacity"] > 0) / blocks_df["capacity"]
     )
 
-    # Вычисление обеспеченности (только где population > 0)
     blocks_df[PROVISION_COLUMN] = (
         blocks_df[CAPACITY_WITHIN_COLUMN].where(blocks_df["population"] > 0) / blocks_df["population"]
     )

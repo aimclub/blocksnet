@@ -4,7 +4,7 @@ import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from loguru import logger
 from blocksnet.enums import LandUse
-from blocksnet.analysis.provision.diversity.core import shannon_diversity, SHANNON_DIVERSITY_COLUMN, COUNT_COLUMN
+from blocksnet.analysis.diversity.shannon.core import shannon_diversity, SHANNON_DIVERSITY_COLUMN, COUNT_COLUMN
 from .schemas import BlocksSchema
 
 DENSITY_COLUMN = "density"

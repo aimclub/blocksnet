@@ -149,3 +149,7 @@ cache/
 
 # PyCharm env
 .idea
+
+
+# local folders
+data/
