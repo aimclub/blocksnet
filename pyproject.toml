@@ -26,12 +26,9 @@ dependencies = [
     "scikit-learn>=1.4.2,<2.0.0",
     "scipy>=1.10.1,<2.0.0",
     "PuLP==2.7.0",
-    "pymoo>=0.6.0,<1.0.0",
     "networkx>=3.1,<4.0",
     "osmnx>=2.0.0,<3.0.0",
     "iduedu==0.4.1",
-    "optuna==4.1.0",
-
 ]
 
 classifiers = [
@@ -57,7 +54,7 @@ ml = [
     'catboost',
     'xgboost',
 ]
-opt = ["optuna>=4.1.0,<5.0.0"]
+opt = ["optuna>=4.1.0,<5.0.0", "pymoo>=0.6.0,<1.0.0"]
 full = ["blocksnet[ml, opt]"]
 
 ipynb = [

@@ -18,7 +18,7 @@ from blocksnet.optimization.services.acl.variable_adapters import AreaSolution, 
 from blocksnet.optimization.services.common import ServicesContainer
 from blocksnet.optimization.services.common.variable import Variable
 from blocksnet.optimization.services.schemas import ServicesSchema
-from blocksnet.utils.validation import validate_matrix
+from blocksnet.relations import validate_accessibility_matrix
 
 from .provision_adapter import BFA_COEF, LIVING_DEMAND, ProvisionAdapter
 
@@ -52,7 +52,7 @@ class Facade:
         blocks_lu : Dict[int, LandUse]
             Dictionary mapping block IDs to land use types.
         """
-        validate_matrix(accessibility_matrix, blocks_df)
+        validate_accessibility_matrix(accessibility_matrix, blocks_df)
         self._blocks_lu: Dict[int, LandUse] = blocks_lu
         self._area_checker: AreaChecker = AreaChecker(blocks_lu, blocks_df)
 
@@ -700,18 +700,18 @@ class Facade:
             Service type name associated with the variable.
         """
         return self._converter.X[var_num].service_type
-    
+
     def get_solution_area_df(self, solution: Dict[str, int]) -> pd.DataFrame:
         """
         Generate a DataFrame summarizing area statistics by quarter based on a solution.
 
-        This method calculates key metrics including population, building floor area, 
+        This method calculates key metrics including population, building floor area,
         living area, and footprint area for each quarter in the urban area.
 
         Parameters
         ----------
         solution : Dict[str, int]
-            Dictionary representing the solution, where keys are variable names (format 'x_N') 
+            Dictionary representing the solution, where keys are variable names (format 'x_N')
             and values are the variable values (counts of service units).
 
         Returns
@@ -729,34 +729,31 @@ class Facade:
         X = self._converter(x)
 
         blocks_population = self.get_total_population(solution)
-        bfa_solution = {block_id : 0 for block_id in self._blocks_lu.keys()}
+        bfa_solution = {block_id: 0 for block_id in self._blocks_lu.keys()}
         for var in X:
             bfa_solution[var.block_id] += var.total_build_floor_area
         quarter_data = {}
         blocks_df = self._provision_adapter._blocks_df
 
         for quarter_id, block_ids in blocks_df.groupby(blocks_df.index).groups.items():
-            quarter_stats = {
-                'population': 0,
-                'build_floor_area': 0,
-                'living_area': 0,
-                'footprint_area': 0
-            }
-            
+            quarter_stats = {"population": 0, "build_floor_area": 0, "living_area": 0, "footprint_area": 0}
+
             for block_id in block_ids:
-                quarter_stats['population'] += blocks_population.get(block_id, 0)
-                
-                quarter_stats['build_floor_area'] += self._area_checker.build_floor_areas.get(block_id, 0)
-                
+                quarter_stats["population"] += blocks_population.get(block_id, 0)
+
+                quarter_stats["build_floor_area"] += self._area_checker.build_floor_areas.get(block_id, 0)
+
                 if self._blocks_lu.get(block_id) == LandUse.RESIDENTIAL:
-                    quarter_stats['living_area'] += self._area_checker.build_floor_areas.get(block_id, 0) - bfa_solution.get(block_id, 0)
-                
+                    quarter_stats["living_area"] += self._area_checker.build_floor_areas.get(
+                        block_id, 0
+                    ) - bfa_solution.get(block_id, 0)
+
                 land_use = self._blocks_lu.get(block_id)
                 min_gsi = gsi_ranges.get(land_use, (0, 0))[0]
-                quarter_stats['footprint_area'] += self._area_checker.site_areas.get(block_id, 0) * min_gsi
-            
+                quarter_stats["footprint_area"] += self._area_checker.site_areas.get(block_id, 0) * min_gsi
+
             quarter_data[quarter_id] = quarter_stats
-        
-        result_df = pd.DataFrame.from_dict(quarter_data, orient='index')
-        
-        return result_df    
+
+        result_df = pd.DataFrame.from_dict(quarter_data, orient="index")
+
+        return result_df
