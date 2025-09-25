@@ -325,13 +325,34 @@ class WeightedConstraints(Constraints):
         ArrayLike
             Initial feasible solution.
         """
-        x = np.zeros(self._num_params, dtype=int)
-        for var_num in permut:
-            chosen_val = self._facade.get_lower_bound_var_val(var_num)
+        limits_area, limits_capacity = self._initialize_blocks_limits(permut)
 
-            x[var_num] = chosen_val
-            if not self._facade.check_constraints(x):
-                x[var_num] = 0
+        x = np.zeros(self._num_params, dtype=int)
+
+        weights = self._weights
+        vars_block = self._vars_block
+        vars_services = self._vars_services
+        facade = self._facade
+
+        for var_num in permut:
+            lb = facade.get_lower_bound_var_val(var_num)
+            if lb == 0:
+                continue
+
+            b = vars_block[var_num]
+            s = vars_services[var_num]
+            w0, w1, w2 = weights[var_num]
+
+            fits_sa = (w0 == 0) or (w0 * lb <= limits_area[b][0])
+            fits_bfa = (w1 == 0) or (w1 * lb <= limits_area[b][1])
+            fits_cap = (w2 == 0) or (w2 * lb <= limits_capacity[b][s])
+
+            if fits_sa and fits_bfa and fits_cap:
+                x[var_num] = lb
+                limits_area[b][0] -= w0 * lb
+                limits_area[b][1] -= w1 * lb
+                limits_capacity[b][s] -= w2 * lb
+
         return x
 
     def suggest_solution(self, permut: ArrayLike, suggest_callback: Callable) -> ArrayLike:
@@ -374,12 +395,6 @@ class WeightedConstraints(Constraints):
             prev_val = 0 if self._prev_solution is None else self._prev_solution[var_num]
             lb = prev_val
             bound_range = self.get_ub(var_num) - lb
-
-            if bound_range < 0:
-                logging.info(
-                    f"ERROR: Previous solution value is greater than upper bound {self.get_ub(var_num)} < {lb}"
-                )
-                raise ValueError("INTERNAL: Negative bound range when suggesting solution, check logs.")
 
             if self._weights[var_num][0] > 0:
                 bound_range = min(bound_range, np.floor(limits_area[var_block][0] / self._weights[var_num][0]))
