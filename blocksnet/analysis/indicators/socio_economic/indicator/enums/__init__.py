@@ -1,6 +1,0 @@
-from .general_indicator import GeneralIndicator
-from .demographic_indicator import DemographicIndicator
-from .settlement_indicator import SettlementIndicator
-from .transport_indicator import TransportIndicator
-from .economic_indicator import EconomicIndicator
-from .ecological_indicator import EcologicalIndicator

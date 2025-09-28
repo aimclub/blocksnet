@@ -1,7 +1,8 @@
 from enum import Enum
 from functools import wraps
-from .indicator import IndicatorEnum
-from .indicator.enums import GeneralIndicator, DemographicIndicator
+from .indicator_enum import IndicatorEnum
+from .general import GeneralIndicator
+from .demographic import DemographicIndicator
 
 CHILD_VALUE_BEFORE_COLUMN = "child_value_before"
 CHILD_VALUE_AFTER_COLUMN = "child_value_after"
@@ -92,22 +93,3 @@ class SocioEconomicAggregator:
             parent_after = self._aggregate(indicator, data)
             data[PARENT_VALUE_AFTER_COLUMN] = parent_after
         return data
-
-
-# class SocioEconomicAggregator(_SocioEconomicAggregator):
-#     """Class to operate with child and parent territory indicators values in case of effects"""
-
-#     def _aggregate(self, parent_before: pd.Series, child_before: pd.Series, child_after: pd.Series) -> pd.Series:
-#         return parent_before - child_before + child_after
-
-#     def aggregate(self) -> pd.DataFrame:
-#         if len(self._data) == 0:
-#             raise ValueError("Cannot make DataFrame as no data was added")
-#         if len(self._data) < len(self.indicator_cls):
-#             logger.warning(f"Only {len(self._data)}/{len(self.indicator_cls)} indicators were added")
-
-#         df = pd.DataFrame.from_dict(self._data, orient="index")
-#         df[PARENT_VALUE_AFTER_COLUMN] = self._aggregate(
-#             df[PARENT_VALUE_BEFORE_COLUMN], df[CHILD_VALUE_BEFORE_COLUMN], df[CHILD_VALUE_AFTER_COLUMN]
-#         )
-#         return df
