@@ -8,7 +8,7 @@ SKIP_INDICATORS = [
 ]
 
 
-def calculate_engineering_indicators(blocks_df: pd.DataFrame) -> dict[EngineeringIndicator, float]:
+def calculate_engineering_indicators(blocks_df: pd.DataFrame) -> dict[EngineeringIndicator, int]:
 
     blocks_df = services_count(blocks_df)
 
