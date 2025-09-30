@@ -1,21 +1,28 @@
 import networkx as nx
 from typing import Literal
+import shapely
 import geopandas as gpd
-from loguru import logger
 from .schemas import TerritorySchema
 
 IDUEDU_CRS = 4326
+
+
+def _get_geometry(territory_gdf: gpd.GeoDataFrame) -> shapely.Polygon:
+    territory_gdf = TerritorySchema(territory_gdf)
+    polygon_geom = territory_gdf.union_all().convex_hull
+    polygon_gdf = gpd.GeoDataFrame(geometry=[polygon_geom], crs=territory_gdf.crs)
+    if polygon_gdf.crs.to_epsg() != IDUEDU_CRS:
+        polygon_gdf = polygon_gdf.to_crs(IDUEDU_CRS)
+
+    return polygon_gdf.iloc[0].geometry
 
 
 def get_accessibility_graph(
     territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs
 ) -> nx.Graph:
 
-    territory_gdf = TerritorySchema(territory_gdf)
-    if territory_gdf.crs.to_epsg() != IDUEDU_CRS:
-        logger.warning("CRS do not match IDUEDU required crs. Reprojecting")
-        territory_gdf = territory_gdf.to_crs(IDUEDU_CRS)
-    geometry = territory_gdf.union_all().convex_hull
+    geometry = _get_geometry(territory_gdf)
+
     import iduedu as ie
 
     if graph_type == "drive":
