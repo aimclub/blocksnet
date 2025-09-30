@@ -1,10 +1,14 @@
+"""Origin-destination modelling based on attractiveness and accessibility."""
+
 import pandas as pd
 import geopandas as gpd
 import numpy as np
 from sklearn.preprocessing import MinMaxScaler
 from loguru import logger
+
 from blocksnet.enums import LandUse
 from blocksnet.analysis.diversity.shannon.core import shannon_diversity, SHANNON_DIVERSITY_COLUMN, COUNT_COLUMN
+
 from .schemas import BlocksSchema
 
 DENSITY_COLUMN = "density"
@@ -25,7 +29,25 @@ DEFAULT_LU_CONST = 0.06
 DEFAULT_ACCESSIBILITY = 10
 
 
-def _calculate_nodes_weights(blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, accessibility: float) -> pd.DataFrame:
+def _calculate_nodes_weights(
+    blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, accessibility: float
+) -> pd.DataFrame:
+    """Redistribute block attractiveness and population to network nodes.
+
+    Parameters
+    ----------
+    blocks_df : geopandas.GeoDataFrame
+        Blocks enriched with attractiveness and population columns.
+    acc_mx : pandas.DataFrame
+        Accessibility matrix from blocks (rows) to nodes (columns).
+    accessibility : float
+        Threshold controlling which nodes receive redistributed weight.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Node-level dataframe with ``attractiveness`` and ``population`` columns.
+    """
 
     logger.info("Identifying nearest nodes to blocks")
     acc_mx = acc_mx.replace(0, 0.1)
@@ -46,6 +68,21 @@ def _calculate_nodes_weights(blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, 
 
 
 def _calculate_diversity(blocks_df: pd.DataFrame, services_dfs: list[pd.DataFrame]) -> pd.DataFrame:
+    """Compute services diversity and density for each block.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block attributes containing land-use and area information.
+    services_dfs : list of pandas.DataFrame
+        Service availability tables used to calculate Shannon diversity scores.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Block dataframe with additional diversity and density columns.
+    """
+
     logger.info("Calculating diversity and density")
     diversity_df = shannon_diversity(services_dfs)
     blocks_df = blocks_df.join(diversity_df)
@@ -54,6 +91,21 @@ def _calculate_diversity(blocks_df: pd.DataFrame, services_dfs: list[pd.DataFram
 
 
 def _calculate_attractiveness(blocks_df: pd.DataFrame, lu_consts: dict[LandUse, float]) -> pd.DataFrame:
+    """Derive a composite attractiveness score based on diversity and land use.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe containing diversity and density columns.
+    lu_consts : dict of LandUse to float
+        Mapping of land-use categories to weighting constants.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Copy of ``blocks_df`` augmented with attractiveness-related columns.
+    """
+
     logger.info("Calculating attractiveness")
     blocks_df = blocks_df.copy()
     scaler = MinMaxScaler()
@@ -67,6 +119,21 @@ def _calculate_attractiveness(blocks_df: pd.DataFrame, lu_consts: dict[LandUse, 
 
 
 def _calculate_od_mx(nodes_df: pd.DataFrame, acc_mx: pd.DataFrame) -> pd.DataFrame:
+    """Compute the gravity-based origin-destination matrix between nodes.
+
+    Parameters
+    ----------
+    nodes_df : pandas.DataFrame
+        Node-level attractiveness and population dataframe.
+    acc_mx : pandas.DataFrame
+        Accessibility matrix between nodes.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Estimated origin-destination flows between nodes.
+    """
+
     logger.info("Calculating origin destination matrix")
     acc_mx = acc_mx.replace(0, np.nan)
     return pd.DataFrame(
@@ -76,7 +143,26 @@ def _calculate_od_mx(nodes_df: pd.DataFrame, acc_mx: pd.DataFrame) -> pd.DataFra
     ).fillna(0.0)
 
 
-def _validate_input(blocks_df: pd.DataFrame, blocks_to_nodes_mx: pd.DataFrame, nodes_to_nodes_mx: pd.DataFrame):
+def _validate_input(
+    blocks_df: pd.DataFrame, blocks_to_nodes_mx: pd.DataFrame, nodes_to_nodes_mx: pd.DataFrame
+):
+    """Ensure consistency between block and node identifiers.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Validated block attributes dataframe.
+    blocks_to_nodes_mx : pandas.DataFrame
+        Accessibility matrix mapping blocks to nodes.
+    nodes_to_nodes_mx : pandas.DataFrame
+        Accessibility matrix between nodes.
+
+    Raises
+    ------
+    ValueError
+        If the provided indices and columns are inconsistent across inputs.
+    """
+
     logger.info("Validating input data")
     if not all(blocks_df.index == blocks_to_nodes_mx.index):
         raise ValueError("blocks_df index and blocks_to_nodes_mx index must match")
@@ -94,6 +180,33 @@ def origin_destination_matrix(
     accessibility: float = DEFAULT_ACCESSIBILITY,
     lu_consts: dict[LandUse, float] = LU_CONSTS,
 ) -> pd.DataFrame:
+    """Estimate an origin-destination matrix using a gravity-like model.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame or geopandas.GeoDataFrame
+        Block attributes validated by :class:`BlocksSchema` containing land use, area and population.
+    blocks_to_nodes_mx : pandas.DataFrame
+        Accessibility matrix between blocks and network nodes.
+    nodes_to_nodes_mx : pandas.DataFrame
+        Accessibility matrix between network nodes.
+    services_dfs : list of pandas.DataFrame
+        Service availability tables used to calculate Shannon diversity scores.
+    accessibility : float, default ``DEFAULT_ACCESSIBILITY``
+        Threshold used to determine accessible nodes for each block.
+    lu_consts : dict of LandUse to float, default ``LU_CONSTS``
+        Weighting constants applied to land-use categories when computing attractiveness.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Estimated flows between nodes representing combined trip attractions and productions.
+
+    Raises
+    ------
+    ValueError
+        If input indices are inconsistent or the provided data fail schema validation.
+    """
 
     blocks_df = BlocksSchema(blocks_df)
     _validate_input(blocks_df, blocks_to_nodes_mx, nodes_to_nodes_mx)

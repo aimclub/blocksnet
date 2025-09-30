@@ -1,3 +1,5 @@
+"""Utility helpers for accessibility calculations (currently unused)."""
+
 # import pandas as pd
 # from functools import wraps
 # from blocksnet.relations import validate_accessibility_matrix as validate_acc_mx

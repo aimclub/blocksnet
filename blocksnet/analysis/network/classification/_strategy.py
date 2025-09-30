@@ -1,4 +1,7 @@
+"""Pre-configured classification strategy artefacts."""
+
 from pathlib import Path
+
 from blocksnet.machine_learning.strategy.catboost import CatBoostClassificationStrategy
 
 CURRENT_DIRECTORY = Path(__file__).parent

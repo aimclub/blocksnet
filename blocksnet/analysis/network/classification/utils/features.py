@@ -1,12 +1,27 @@
+"""Feature engineering helpers for the network classifier."""
+
 import networkx as nx
 import numpy as np
 from sklearn.neighbors import NearestNeighbors
 from scipy.stats import entropy
+
 from .preprocessing import graph_to_gdf
 
 
 def _avg_neighbor_distance(gdf):
-    """Compute average nearest neighbor distance"""
+    """Compute the average nearest-neighbour distance between graph nodes.
+
+    Parameters
+    ----------
+    gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing node geometries.
+
+    Returns
+    -------
+    float
+        Average distance to the nearest neighbour, or ``nan`` if insufficient nodes.
+    """
+
     coords = np.array([[pt.x, pt.y] for pt in gdf.geometry if not pt.is_empty])
     if len(coords) < 2:
         return np.nan
@@ -16,7 +31,19 @@ def _avg_neighbor_distance(gdf):
 
 
 def _link_length_entropy(lengths):
-    """Calculate entropy of link length distribution"""
+    """Estimate the entropy of the link-length distribution.
+
+    Parameters
+    ----------
+    lengths : Sequence[float]
+        Edge length values extracted from the graph geometry.
+
+    Returns
+    -------
+    float
+        Shannon entropy of the link-length histogram.
+    """
+
     if len(lengths) < 2:
         return 0.0
     counts, _ = np.histogram(lengths, bins="auto")
@@ -25,6 +52,19 @@ def _link_length_entropy(lengths):
 
 
 def calculate_graph_features(graph: nx.Graph) -> dict:
+    """Derive structural and geometric indicators from a graph.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        Graph describing the street network with geographic node coordinates.
+
+    Returns
+    -------
+    dict
+        Mapping of feature names to numeric values capturing topology and geometry.
+    """
+
     gdf = graph_to_gdf(graph)
     # Edge length calculations
     edge_lengths = []

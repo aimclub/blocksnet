@@ -1,10 +1,15 @@
+"""Land-use specific accessibility indicators."""
+
 from typing import Callable
+
 import numpy as np
 import pandas as pd
+
 from blocksnet.enums import LandUse
+from blocksnet.relations import validate_accessibility_matrix
+
 from .basic import _accessibility
 from .schemas import LandUseAccessibilityBlocksSchema
-from blocksnet.relations import validate_accessibility_matrix
 
 LAND_USE_ACCESSIBILITY_COLUMN = "land_use_accessibility"
 
@@ -16,6 +21,34 @@ def land_use_accessibility(
     out: bool = True,
     agg_func: Callable = np.median,
 ) -> pd.DataFrame:
+    """Aggregate accessibility for blocks of a specific land-use class.
+
+    Parameters
+    ----------
+    accessibility_matrix : pandas.DataFrame
+        Accessibility weights between origin and destination blocks.
+    blocks_df : pandas.DataFrame
+        Block attributes validated by :class:`LandUseAccessibilityBlocksSchema` containing ``land_use`` values.
+    land_use : LandUse
+        Target land-use category to aggregate accessibility for. Must be an instance of :class:`LandUse`.
+    out : bool, default True
+        Orientation of aggregation. ``True`` aggregates for origins, ``False`` for destinations.
+    agg_func : Callable, default numpy.median
+        Aggregation function applied to the filtered accessibility matrix.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Aggregated accessibility values restricted to the selected land-use class.
+
+    Raises
+    ------
+    TypeError
+        If ``land_use`` is not an instance of :class:`LandUse`.
+    ValueError
+        If the accessibility matrix fails validation against the provided blocks dataframe.
+    """
+
     if not isinstance(land_use, LandUse):
         raise TypeError(f"land_use must be an instance of {LandUse.__name__}")
     blocks_df = LandUseAccessibilityBlocksSchema(blocks_df)
@@ -28,6 +61,28 @@ def land_use_accessibility(
 def land_use_accessibility_matrix(
     accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame, agg_func: Callable = np.median
 ) -> pd.DataFrame:
+    """Summarise accessibility between all land-use classes.
+
+    Parameters
+    ----------
+    accessibility_matrix : pandas.DataFrame
+        Accessibility weights between origin and destination blocks.
+    blocks_df : pandas.DataFrame
+        Block attributes validated by :class:`LandUseAccessibilityBlocksSchema` containing ``land_use`` values.
+    agg_func : Callable, default numpy.median
+        Aggregation function applied to each pairwise submatrix of land-use groups.
+
+    Returns
+    -------
+    pandas.DataFrame
+        A square matrix indexed by :class:`~blocksnet.enums.LandUse` with aggregated accessibility values.
+
+    Raises
+    ------
+    ValueError
+        If the accessibility matrix fails validation against the provided blocks dataframe.
+    """
+
     validate_accessibility_matrix(
         accessibility_matrix, blocks_df=blocks_df, index=True, columns=True, check_squared=False
     )

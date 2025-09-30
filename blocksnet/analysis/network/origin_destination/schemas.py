@@ -1,17 +1,24 @@
+"""Validation utilities for origin-destination modelling."""
+
 import shapely
 import pandas as pd
 import networkx as nx
 from pandera import Field
 from pandera.typing import Series
+
 from blocksnet.utils.validation import GdfSchema, LandUseSchema
 
 
 class BlocksSchema(LandUseSchema):
+    """Validate block attributes required for OD modelling."""
+
     population: Series[int] = Field(ge=0)
     site_area: Series[float] = Field(ge=0)
 
 
 def validate_od_matrix(od_mx: pd.DataFrame, graph: nx.Graph):
+    """Verify that an origin-destination matrix aligns with a transport graph."""
+
     if not isinstance(od_mx, pd.DataFrame):
         raise ValueError("Origin destination matrix must be an instance of pd.DataFrame")
     if not all(od_mx.index == od_mx.columns):

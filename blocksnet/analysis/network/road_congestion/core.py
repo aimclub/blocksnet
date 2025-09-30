@@ -1,15 +1,39 @@
+"""Estimate congestion on a road graph using an OD matrix."""
+
 import pandas as pd
 import networkx as nx
+from tqdm import tqdm
+from loguru import logger
+
 from blocksnet.relations.accessibility import validate_accessibility_graph
 from ..origin_destination import validate_od_matrix
-from tqdm import tqdm
 from blocksnet.config import log_config
-from loguru import logger
 
 CONGESTION_KEY = "congestion"
 
 
 def road_congestion(od_mx: pd.DataFrame, graph: nx.Graph, weight_key: str = "time_min"):
+    """Assign congestion levels to edges based on shortest-path flows.
+
+    Parameters
+    ----------
+    od_mx : pandas.DataFrame
+        Origin-destination matrix with identical index and columns representing node identifiers.
+    graph : networkx.Graph
+        Road graph with edge weights accessible via ``weight_key``.
+    weight_key : str, default ``"time_min"``
+        Edge attribute used to compute shortest paths.
+
+    Returns
+    -------
+    networkx.Graph
+        Copy of ``graph`` with a ``congestion`` attribute accumulated on each edge.
+
+    Raises
+    ------
+    ValueError
+        If the OD matrix or graph do not satisfy validation requirements.
+    """
 
     validate_od_matrix(od_mx, graph)
     validate_accessibility_graph(graph, weight_key)
