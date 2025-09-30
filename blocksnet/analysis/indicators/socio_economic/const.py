@@ -1,0 +1,3 @@
+M_IN_KM = 1000
+SQM_IN_SQKM = M_IN_KM * M_IN_KM
+MIN_IN_H = 60

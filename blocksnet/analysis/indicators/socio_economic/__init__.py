@@ -1,3 +1,11 @@
 from .aggregator import SocioEconomicAggregator
-from .indicator import *
-from .evaluation import *
+
+from .general import *
+from .demographic import *
+from .settlement import *
+from .transport import *
+from .economic import *
+from .ecological import *
+from .engineering import *
+from .social_count import *
+from .social_provision import *
