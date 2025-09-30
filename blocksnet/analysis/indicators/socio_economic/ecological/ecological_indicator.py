@@ -5,6 +5,7 @@ from ..meta import IndicatorMeta
 
 @unique
 class EcologicalIndicator(IndicatorEnum):
+    """Ecological indicators reflecting environmental characteristics."""
     PROTECTED_AREA_SHARE = IndicatorMeta("protected_area_share", "area")
     URBAN_GREEN_AREA = IndicatorMeta("urban_green_area")
     NEUTRALIZED_POLLUTION_SHARE = IndicatorMeta("neutralized_pollution_share", aggregatable=False)

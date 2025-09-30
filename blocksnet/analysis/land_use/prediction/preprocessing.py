@@ -9,12 +9,19 @@ from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
 
 
 class DataProcessor:
+    """Create spatial features for land-use classification."""
+
     def __init__(self, buffer_distance: float = 1000, k_neighbors: int = 5):
-        """Initialize the data processor with buffer distance and number of neighbors settings.
-        
-        Args:
-            buffer_distance: Distance for buffering when counting nearby zones
-            k_neighbors: Number of neighbors for KNN
+        """Initialise processor with neighbourhood and buffering parameters.
+
+        Parameters
+        ----------
+        buffer_distance : float, optional
+            Buffer radius (in metres) applied when counting nearby zones.
+            Defaults to ``1000``.
+        k_neighbors : int, optional
+            Number of nearest neighbours used when constructing KNN graphs.
+            Defaults to ``5``.
         """
         self.buffer_distance = buffer_distance
         self.k_neighbors = k_neighbors
@@ -38,28 +45,28 @@ class DataProcessor:
                         mode: str = "radius",
                         radius: float = 1000.0,
                         k: int = 8) -> sparse.csr_matrix:
-        """Build a spatial adjacency graph from city geometries.
+        """Build a sparse adjacency matrix from city polygons.
 
-        Args:
-            city_gdf (gpd.GeoDataFrame): GeoDataFrame containing city geometries
-            mode (str, optional): Graph construction mode. Either "radius" or "knn". 
-                Defaults to "radius".
-            radius (float, optional): Connection radius in meters when mode="radius". 
-                Defaults to 1000.0.
-            k (int, optional): Number of nearest neighbors when mode="knn". 
-                Defaults to 8.
+        Parameters
+        ----------
+        city_gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing city geometries.
+        mode : {"radius", "knn"}, optional
+            Strategy for constructing connections. Defaults to ``"radius"``.
+        radius : float, optional
+            Search radius (metres) when ``mode="radius"``. Defaults to ``1000``.
+        k : int, optional
+            Number of neighbours when ``mode="knn"``. Defaults to ``8``.
 
-        Returns:
-            sparse.csr_matrix: Sparse adjacency matrix representing the spatial graph.
-                The matrix has shape (n, n) where n is the number of geometries.
-                A[i,j] = 1 indicates that geometries i and j are connected.
+        Returns
+        -------
+        scipy.sparse.csr_matrix
+            Connectivity matrix where non-zero entries denote adjacency.
 
-        Notes:
-            - For radius mode, geometries within the given radius are connected
-            - For knn mode, each geometry is connected to its k nearest neighbors
-            - Self-connections are excluded
-            - Returns empty matrix for empty input
-            - Handles edge cases when n=1 or k >= n
+        Notes
+        -----
+        Self-loops are removed and special cases such as empty datasets or
+        ``k`` larger than the node count are handled gracefully.
         """
         centroids = city_gdf.geometry.centroid
         coords = np.c_[centroids.x.values, centroids.y.values]
@@ -86,37 +93,27 @@ class DataProcessor:
     def neighbor_geom_aggregates(self, A: sparse.csr_matrix,
                                 feats_df: pd.DataFrame,
                                 agg: str = "mean") -> pd.DataFrame:
-        """
-        Calculate neighbor aggregation features for nodes in a graph.
-        
-        This function computes aggregated features from neighboring nodes for each node
-        in the graph, using only numeric features from the input feature matrix.
+        """Aggregate numeric node features across neighbourhoods.
 
         Parameters
         ----------
-        A : sparse.csr_matrix
-            Adjacency matrix in CSR format with shape (n x n), where n is the number of nodes
-        feats_df : pd.DataFrame
-            Node features DataFrame with shape (n x F), where F is the number of features
+        A : scipy.sparse.csr_matrix
+            Adjacency matrix describing neighbourhood relationships.
+        feats_df : pandas.DataFrame
+            Node feature dataframe containing numeric descriptors.
         agg : str, optional
-            Aggregation method to use (default is "mean")
-            Note: Currently only "mean" is implemented
+            Aggregation strategy. Currently only ``"mean"`` is supported.
 
         Returns
         -------
-        pd.DataFrame
-            Aggregated neighbor features with shape (n x F), containing only numeric features.
-            Non-numeric columns from input are ignored.
-            Column names are prefixed with "nbr_mean_" to indicate neighbor mean aggregation.
-            Returns empty DataFrame with same index if no numeric features are found or if
-            adjacency matrix is empty.
+        pandas.DataFrame
+            Dataframe of aggregated features prefixed with ``nbr_mean_`` and
+            indexed like ``feats_df``.
 
         Notes
         -----
-        - Only numeric features (including bool/Int64/Float64 types) are considered
-        - Non-numeric columns are automatically ignored
-        - For nodes with no neighbors, uses 1.0 as denominator to avoid division by zero
-        - The output DataFrame maintains the same index as the input feats_df
+        Non-numeric columns are ignored and isolated nodes yield zero-valued
+        aggregations.
         """
         if A.shape[0] == 0:
             return pd.DataFrame(index=feats_df.index)
@@ -143,33 +140,27 @@ class DataProcessor:
                                               A: sparse.csr_matrix,
                                               labels: pd.Series,
                                               classes_: np.ndarray) -> pd.DataFrame:
-        """
-        Calculate for EACH node:
-          - count_<cls>: number of neighbors of class <cls> among LABELED neighbors (L)
-          - prop_<cls>: proportion of such neighbors relative to the NUMBER of LABELED neighbors
-        
+        """Summarise counts and proportions of labelled neighbour classes.
+
         Parameters
         ----------
-        A : sparse.csr_matrix
-            Adjacency matrix in CSR format representing the graph structure
-        labels : pd.Series
-            Series containing node labels, with NaN values for unlabeled nodes
-        classes_ : np.ndarray
-            Array containing all possible class labels
-            
+        A : scipy.sparse.csr_matrix
+            Adjacency matrix describing neighbourhood relationships.
+        labels : pandas.Series
+            Series of node labels with ``NaN`` for unlabelled entries.
+        classes_ : numpy.ndarray
+            Unique class identifiers expected in ``labels``.
+
         Returns
         -------
-        pd.DataFrame
-            DataFrame containing two types of columns for each class:
-            - nbr_count_<cls>: count of labeled neighbors belonging to class <cls>
-            - nbr_prop_<cls>: proportion of labeled neighbors belonging to class <cls>
-            The DataFrame index matches the input labels index.
-            
+        pandas.DataFrame
+            Dataframe containing ``nbr_count_*`` and ``nbr_prop_*`` columns for
+            each class, indexed by the original nodes.
+
         Notes
         -----
-        - If there are no labeled neighbors, all counts and proportions are set to 0.0
-        - Proportions are calculated safely to avoid division by zero
-        - The computation uses matrix multiplication for efficiency
+        Nodes without labelled neighbours return zeros for counts and
+        proportions. Matrix multiplication is used for efficient aggregation.
         """
         n = A.shape[0]
         if n == 0:
@@ -205,32 +196,18 @@ class DataProcessor:
         return pd.concat([df_counts, df_props], axis=1)
 
     def calc_polygon_features(self, gdf: gpd.GeoDataFrame) -> pd.DataFrame:
-        """Вычисляет геометрические характеристики полигонов.
-        
-        Calculates geometric features of polygons including:
-        - Basic metrics: area, perimeter, centroid coordinates
-        - Shape metrics: compactness, fractal dimension, rectangularity
-        - Bounding box metrics: aspect ratio, squareness
-        - Advanced metrics: solidity, asymmetry measures
-        
-        Args:
-            gdf: GeoDataFrame containing polygon geometries to analyze
-                
-        Returns:
-            pd.DataFrame: DataFrame containing computed features with columns:
-                - compactness: Measure of circularity (4π*area/perimeter²)
-                - fractal_dimension: Complexity measure (log(area)/log(perimeter))
-                - shape_index: Area to perimeter ratio
-                - mbr_area: Area of minimum bounding rectangle
-                - rectangularity_index: Ratio of polygon area to MBR area
-                - mbr_aspect_ratio: Ratio of MBR dimensions
-                - squareness_index: Inverse of aspect ratio
-                - solidity: Ratio of polygon area to convex hull area
-                - asymmetry_x: Horizontal asymmetry measure
-                - asymmetry_y: Vertical asymmetry measure
-                
-        Raises:
-            Exception: If any geometric computation fails
+        """Compute geometric descriptors for each polygon.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing polygon geometries.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Dataframe with compactness, fractal dimension, bounding-box, and
+            asymmetry metrics aligned with ``gdf``.
         """
         try:
             geo = gdf.geometry
@@ -277,32 +254,23 @@ class DataProcessor:
         except Exception as e:
             raise e
 
-    def count_nearby_zones(self, gdf: gpd.GeoDataFrame, rec_gdf: Optional[gpd.GeoDataFrame], 
+    def count_nearby_zones(self, gdf: gpd.GeoDataFrame, rec_gdf: Optional[gpd.GeoDataFrame],
                           buffer_distance: float) -> pd.Series:
-        """Counts the number of zones of a specific type within a buffer around each object.
-        
-        This method creates a buffer around each geometry in the main GeoDataFrame and counts
-        how many zones from the second GeoDataFrame intersect with each buffer. The method handles
-        CRS transformations automatically and ensures proper indexing in the result.
-        
-        Args:
-            gdf: Main GeoDataFrame containing the geometries to create buffers around
-            rec_gdf: GeoDataFrame containing zones to be counted within buffers
-            buffer_distance: Distance for buffer creation in the units of the CRS
-            
-        Returns:
-            pd.Series: Series containing the count of zones for each object, indexed by the
-                      original GeoDataFrame's index. Returns zeros for objects with no
-                      intersecting zones if rec_gdf is None or empty.
-                      
-        Raises:
-            Exception: Propagates any exceptions that occur during spatial operations
-            
-        Note:
-            - The method automatically handles CRS transformation if input GeoDataFrames
-              have different coordinate reference systems
-            - If rec_gdf is None or empty, returns a Series of zeros
-            - The result maintains the same index as the input gdf
+        """Count reference zones within buffered distances around geometries.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            Source geometries for which surrounding zones are tallied.
+        rec_gdf : geopandas.GeoDataFrame, optional
+            Zones to count; may be ``None`` to skip counting.
+        buffer_distance : float
+            Buffer radius, expressed in the CRS units.
+
+        Returns
+        -------
+        pandas.Series
+            Counts indexed by ``gdf`` rows with zeros where no zones intersect.
         """
 
         if rec_gdf is None or rec_gdf.empty:
@@ -328,26 +296,20 @@ class DataProcessor:
             raise e
 
     def transform_features(self, gdf, known_gdf_for_rec_zones=None):
-        """
-        Transform features of a GeoDataFrame with invalid geometry handling.
-        
-        This method performs several transformations on the input GeoDataFrame:
-        1. Validates and fixes invalid geometries
-        2. Calculates local coordinates relative to city centers
-        3. Computes geometric features
-        4. Counts nearby zones of different types
-        
-        Args:
-            gdf (GeoDataFrame): Input geographic data to be transformed
-            known_gdf_for_rec_zones (GeoDataFrame, optional): Reference data for 
-                counting nearby zones. Defaults to None.
-        
-        Returns:
-            GeoDataFrame: Transformed geographic data with new features including:
-                - Validated geometries
-                - Local coordinates (x_local, y_local)
-                - Geometric features
-                - Counts of nearby zones by type
+        """Generate core feature set for a GeoDataFrame.
+
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            Input geographic data to process.
+        known_gdf_for_rec_zones : geopandas.GeoDataFrame, optional
+            Reference zones used for neighbourhood counts.
+
+        Returns
+        -------
+        geopandas.GeoDataFrame
+            Copy of ``gdf`` with cleaned geometries, local coordinates, and
+            engineered features.
         """
         
         gdf = gdf.copy()

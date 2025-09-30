@@ -31,6 +31,23 @@ def assign_land_use(
     functional_zones_gdf: gpd.GeoDataFrame,
     rules: dict[str, LandUse],
 ):
+    """Assign dominant land-use types to blocks based on functional zones.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        Block geometries that receive land-use labels.
+    functional_zones_gdf : geopandas.GeoDataFrame
+        Functional zoning polygons containing ``functional_zone`` names.
+    rules : dict[str, LandUse]
+        Mapping from functional zone names to :class:`LandUse` categories.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        Blocks GeoDataFrame augmented with land-use shares and dominant land
+        use plus share columns.
+    """
 
     blocks_gdf = BlocksSchema(blocks_gdf)
     functional_zones_gdf = FunctionalZonesSchema(functional_zones_gdf)

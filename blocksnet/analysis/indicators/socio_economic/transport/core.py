@@ -61,6 +61,29 @@ def _calculate_accessibility(counts_df: pd.DataFrame, accessibility_matrix: pd.D
 def calculate_transport_indicators(
     blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, network: nx.Graph | gpd.GeoDataFrame
 ) -> dict[TransportIndicator, float]:
+    """Compute transport infrastructure coverage and accessibility metrics.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe containing service counts and land-use attributes.
+    accessibility_matrix : pandas.DataFrame
+        Accessibility matrix linking blocks and transport services.
+    network : networkx.Graph or geopandas.GeoDataFrame
+        Road or transport network used to compute length metrics.
+
+    Returns
+    -------
+    dict[TransportIndicator, float]
+        Mapping of transport indicators to their computed values.
+
+    Raises
+    ------
+    RuntimeError
+        If required count columns are missing from ``blocks_df``.
+    TypeError
+        If ``network`` is neither a graph nor a GeoDataFrame.
+    """
 
     validate_accessibility_matrix(accessibility_matrix, blocks_df)
 

@@ -6,6 +6,8 @@ from ....utils.validation import GdfSchema
 
 
 class BuildingsSchema(GdfSchema):
+    """Schema for building attributes used during imputation."""
+
     is_living: Series[bool]
     number_of_floors: Series[float] = Field(ge=0, nullable=True)
     footprint_area: Series[float] = Field(ge=0, nullable=True)

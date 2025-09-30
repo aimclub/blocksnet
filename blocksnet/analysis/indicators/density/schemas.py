@@ -6,6 +6,7 @@ from ....utils.validation import DfSchema
 
 
 class BlocksSchema(DfSchema):
+    """Schema validating block attributes required for density indicators."""
 
     site_area: Series[float] = Field(ge=0)
     footprint_area: Series[float] = Field(ge=0)

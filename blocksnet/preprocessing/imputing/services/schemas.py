@@ -6,6 +6,8 @@ from blocksnet.utils.validation import GdfSchema
 
 
 class ServicesSchema(GdfSchema):
+    """Schema describing service locations used in capacity imputation."""
+
     capacity: Series[float] = Field(nullable=True)
 
     @classmethod

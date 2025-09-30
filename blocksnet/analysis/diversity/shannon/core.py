@@ -19,6 +19,24 @@ def _shannon_index(series: pd.Series) -> float:
 
 
 def shannon_diversity(blocks_df: pd.DataFrame):
+    """Compute Shannon diversity index for service distributions.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Dataframe containing service counts per block.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with individual service counts and a ``shannon_diversity``
+        column.
+
+    Raises
+    ------
+    ValueError
+        If service counts fail validation.
+    """
     count_df = services_count(blocks_df)
     logger.info("Calculating Shannon diversity index")
     if log_config.disable_tqdm:

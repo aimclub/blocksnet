@@ -6,6 +6,7 @@ from ...utils.validation import DfSchema
 
 
 class BlocksSchema(DfSchema):
+    """Schema for morphotype calculations requiring SpaceMatrix indices."""
 
     l: Series[float] = Field(ge=0, default=0)
     fsi: Series[float] = Field(ge=0, default=0)

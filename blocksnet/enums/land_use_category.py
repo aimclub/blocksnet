@@ -2,11 +2,7 @@ from enum import Enum
 from blocksnet.enums import LandUse
     
 class LandUseCategory(Enum):
-    """Enumeration class representing different categories of land use.
-    
-    This enum defines three main categories of land use: urban, non-urban, and industrial.
-    It provides methods to convert between LandUse objects and LandUseCategory instances.
-    """
+    """Categories of land-use types supported by BlocksNet."""
     URBAN = "urban"
     NON_URBAN = "non_urban"
     INDUSTRIAL = "industrial"
@@ -14,24 +10,27 @@ class LandUseCategory(Enum):
 
     @classmethod
     def from_land_use(cls, lu: LandUse) -> "LandUseCategory | None":
-        """Convert a LandUse object to a LandUseCategory instance.
-        
-        Args:
-            lu: A LandUse object to be converted to a category.
-            
-        Returns:
-            The corresponding LandUseCategory instance if found, None otherwise.
+        """Map a :class:`LandUse` member to its broader category.
+
+        Parameters
+        ----------
+        lu : LandUse
+            Land-use value to convert.
+
+        Returns
+        -------
+        LandUseCategory or None
+            Matching category if a mapping exists, otherwise ``None``.
         """
         return LU_MAPPING.get(lu)
 
     def to_land_use(self) -> set[LandUse]:
-        """Convert the LandUseCategory to a set of LandUse objects.
-        
-        This method uses a reverse mapping (created on first call) to find all
-        LandUse objects that belong to this category.
-        
-        Returns:
-            A set of LandUse objects that belong to this category.
+        """Return :class:`LandUse` members belonging to the category.
+
+        Returns
+        -------
+        set of LandUse
+            Set of land-use values whose category equals ``self``.
         """
         if LandUseCategory._REVERSE_MAP is None:
             LandUseCategory._REVERSE_MAP = {}

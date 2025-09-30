@@ -9,6 +9,23 @@ SKIP_INDICATORS = [
 
 
 def calculate_engineering_indicators(blocks_df: pd.DataFrame) -> dict[EngineeringIndicator, int]:
+    """Count engineering infrastructure objects per indicator type.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe with service counts.
+
+    Returns
+    -------
+    dict[EngineeringIndicator, int]
+        Aggregated counts per engineering indicator.
+
+    Raises
+    ------
+    RuntimeError
+        If expected count columns are missing from ``blocks_df``.
+    """
 
     blocks_df = services_count(blocks_df)
 

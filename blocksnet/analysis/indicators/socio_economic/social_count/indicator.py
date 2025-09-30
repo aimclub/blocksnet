@@ -5,6 +5,7 @@ from ..indicator_meta import IndicatorMeta
 
 @unique
 class SocialCountIndicator(IndicatorEnum):
+    """Indicators counting social infrastructure units."""
     # education
     KINDERGARTEN = IndicatorMeta("kindergarten")
     SCHOOL = IndicatorMeta("school")

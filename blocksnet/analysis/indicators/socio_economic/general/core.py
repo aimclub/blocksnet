@@ -6,6 +6,18 @@ from ..const import SQM_IN_SQKM
 
 
 def calculate_general_indicators(blocks_df: pd.DataFrame) -> dict[GeneralIndicator, float]:
+    """Compute territory area and urbanization share indicators.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataset validated by :class:`BlocksSchema`.
+
+    Returns
+    -------
+    dict[GeneralIndicator, float]
+        Indicator values keyed by :class:`GeneralIndicator` members.
+    """
     blocks_df = BlocksSchema(blocks_df)
 
     area = blocks_df["site_area"].sum()

@@ -20,6 +20,30 @@ def _get_geometry(territory_gdf: gpd.GeoDataFrame) -> shapely.Polygon:
 def get_accessibility_graph(
     territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs
 ) -> nx.Graph:
+    """Download a routing graph covering the provided territory.
+
+    Parameters
+    ----------
+    territory_gdf : geopandas.GeoDataFrame
+        GeoDataFrame describing the study area. Polygons are validated and
+        converted to EPSG:4326 before querying the ``iduedu`` service.
+    graph_type : {"drive", "walk", "intermodal"}
+        Type of accessibility network to request from ``iduedu``.
+    *args, **kwargs
+        Additional keyword arguments forwarded to the respective ``iduedu``
+        API call.
+
+    Returns
+    -------
+    networkx.Graph
+        Accessibility graph containing nodes with coordinates and weighted
+        edges describing travel cost.
+
+    Raises
+    ------
+    ValueError
+        If *graph_type* is not supported.
+    """
 
     geometry = _get_geometry(territory_gdf)
 

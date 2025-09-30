@@ -23,6 +23,21 @@ def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) ->
 
 
 def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0) -> nx.Graph:
+    """Create a graph describing spatial adjacency between blocks.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        GeoDataFrame of block geometries validated by :class:`BlocksSchema`.
+    buffer_size : int, default=0
+        Buffer size in CRS units applied before computing spatial joins. A
+        positive buffer enlarges geometries to include near-misses.
+
+    Returns
+    -------
+    networkx.Graph
+        Graph with block indices as nodes and adjacency relations as edges.
+    """
 
     blocks_gdf = BlocksSchema(blocks_gdf)
 
@@ -41,6 +56,23 @@ def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0)
 
 
 def get_adjacency_context(adjacency_graph: nx.Graph, blocks_df: pd.DataFrame, keep: bool = True):
+    """Extract nodes adjacent to a set of blocks.
+
+    Parameters
+    ----------
+    adjacency_graph : networkx.Graph
+        Spatial adjacency graph validated by :func:`validate_adjacency_graph`.
+    blocks_df : pandas.DataFrame
+        DataFrame whose index contains the focal block identifiers.
+    keep : bool, default=True
+        If ``True``, include the original blocks in the resulting subgraph.
+
+    Returns
+    -------
+    networkx.Graph
+        Subgraph containing neighbouring block nodes.
+    """
+
     validate_adjacency_graph(adjacency_graph, blocks_df)
     blocks_ids = set(blocks_df.index)
     neighbors = {node for block_id in blocks_ids for node in adjacency_graph.neighbors(block_id)}

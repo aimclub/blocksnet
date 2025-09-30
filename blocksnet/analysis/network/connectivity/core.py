@@ -19,6 +19,26 @@ def _preprocess_and_validate(accessibility_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_connectivity(accessibility_df: pd.DataFrame):
+    """Convert accessibility values into connectivity scores.
+
+    Parameters
+    ----------
+    accessibility_df : pandas.DataFrame
+        Dataframe containing a single accessibility column identified by the
+        ``"_accessibility"`` suffix.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with a ``connectivity`` column equal to the inverse of
+        accessibility.
+
+    Raises
+    ------
+    ValueError
+        If no unique accessibility column can be identified or schema
+        validation fails.
+    """
     accessibility_df = _preprocess_and_validate(accessibility_df)
     accessibility_df[CONNECTIVITY_COLUMN] = 1.0 / accessibility_df["accessibility"]
     return accessibility_df[[CONNECTIVITY_COLUMN]].copy()

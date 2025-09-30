@@ -16,15 +16,52 @@ CATEGORIES_LIST = list(SettlementCategory)
 
 
 class NetworkClassifier(BaseContext):
+    """Train and run settlement category classifiers on network graphs.
+
+    Parameters
+    ----------
+    strategy : blocksnet.machine_learning.strategy.BaseStrategy
+        Machine-learning strategy responsible for training and prediction.
+    """
+
     def __init__(self, strategy: BaseStrategy):
+        """Initialise the classifier with the provided strategy."""
         super().__init__(strategy=strategy)
         self._train_data: pd.DataFrame | None = None
 
     def prepare_train(self, graphs: list[nx.Graph]):
+        """Build feature matrix from labelled graphs for training.
+
+        Parameters
+        ----------
+        graphs : list of networkx.Graph
+            Graphs whose ``graph`` metadata contains settlement categories.
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If graph preprocessing fails validation.
+        """
         self._train_data = self._get_features_df(graphs, with_category=True)
 
     @property
     def train_data(self) -> pd.DataFrame:
+        """Return a copy of the prepared training dataframe.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Feature dataframe built via :meth:`prepare_train`.
+
+        Raises
+        ------
+        ValueError
+            If called before training data is prepared.
+        """
         if self._train_data is None:
             raise ValueError(f"No train data found. One must prepare it first using prepare_train() method.")
         return self._train_data.copy()
@@ -54,6 +91,27 @@ class NetworkClassifier(BaseContext):
         return features_df[[CATEGORY_KEY]].values
 
     def train(self, metric=accuracy_score, split_params: dict | None = None):
+        """Train the underlying strategy on prepared graph features.
+
+        Parameters
+        ----------
+        metric : Callable, optional
+            Evaluation metric applied to predictions. Defaults to
+            :func:`sklearn.metrics.accuracy_score`.
+        split_params : dict, optional
+            Keyword arguments forwarded to
+            :func:`sklearn.model_selection.train_test_split`.
+
+        Returns
+        -------
+        float
+            Metric value computed on the test split.
+
+        Raises
+        ------
+        ValueError
+            If training data has not been prepared.
+        """
         features_df = self.train_data
 
         x = self._preprocess_x(features_df)
@@ -67,6 +125,19 @@ class NetworkClassifier(BaseContext):
         return metric(y_pred, y_test)
 
     def run(self, graphs: list[nx.Graph]) -> pd.DataFrame:
+        """Predict settlement categories for unseen graphs.
+
+        Parameters
+        ----------
+        graphs : list of networkx.Graph
+            Graphs without required category labels.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Feature dataframe with predicted categories and, when available,
+            class probabilities.
+        """
         features_df = self._get_features_df(graphs, with_category=False)
 
         x = self._preprocess_x(features_df)
@@ -83,4 +154,5 @@ class NetworkClassifier(BaseContext):
 
     @classmethod
     def default(cls) -> "NetworkClassifier":
+        """Instantiate a classifier configured with the default strategy."""
         return cls(strategy)

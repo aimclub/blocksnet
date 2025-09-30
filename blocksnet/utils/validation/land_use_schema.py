@@ -6,6 +6,8 @@ from ...enums import LandUse
 
 
 class LandUseSchema(DfSchema):
+    """Schema parsing and validating land-use categorical data."""
+
     land_use: Series[object] = Field(nullable=True)
 
     @parser("land_use")

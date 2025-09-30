@@ -10,6 +10,30 @@ def area_accessibility(
     blocks_df: pd.DataFrame,
     out: bool = True,
 ) -> pd.DataFrame:
+    """Weight accessibility values by serviced area.
+
+    Parameters
+    ----------
+    accessibility_matrix : pandas.DataFrame
+        Accessibility matrix between origins and destinations.
+    blocks_df : pandas.DataFrame
+        Block dataframe satisfying :class:`AreaAccessibilityBlocksSchema`
+        providing ``site_area`` values for weighting.
+    out : bool, optional
+        If ``True``, aggregate accessibility for origin rows. If ``False``,
+        treat columns as origins. Default is ``True``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe of weighted accessibility indexed by the selected axis with
+        an ``area_accessibility`` column.
+
+    Raises
+    ------
+    ValueError
+        If matrix indices do not align with ``blocks_df`` or validation fails.
+    """
 
     validate_accessibility_matrix(
         accessibility_matrix,

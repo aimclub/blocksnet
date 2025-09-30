@@ -8,6 +8,18 @@ from blocksnet.config import service_types_config
 def calculate_social_provision_indicators(
     blocks_df: pd.DataFrame,
 ) -> tuple[dict[SocialProvisionIndicator, float], list[SocialProvisionIndicator]]:
+    """Evaluate provision of social services relative to demand thresholds.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe containing population and capacity metrics.
+
+    Returns
+    -------
+    tuple[dict[SocialProvisionIndicator, float], list[SocialProvisionIndicator]]
+        Indicator coverage ratios and indicators skipped due to missing data.
+    """
 
     result = {}
     missing = []

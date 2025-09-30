@@ -96,6 +96,32 @@ def generate_geometries_features(
     centerlines: bool = False,
     combinations: bool = False,
 ):
+    """Generate geometric descriptors for block polygons.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        Input blocks validated by :class:`BlocksSchema`.
+    radiuses : bool, default=False
+        Whether to compute inner and outer radius features.
+    aspect_ratios : bool, default=False
+        Whether to compute aspect ratio features.
+    centerlines : bool, default=False
+        Whether to compute centerline lengths using ``pygeoops``.
+    combinations : bool, default=False
+        Whether to generate feature combinations using ``featuretools`` and
+        polynomial features.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame enriched with the requested geometric features.
+
+    Raises
+    ------
+    ImportError
+        If ``pygeoops`` or ``featuretools`` are required but not installed.
+    """
 
     blocks_gdf = BlocksSchema(blocks_gdf)
 

@@ -8,6 +8,24 @@ BUILDINGS_SUFFIX = "_buildings"
 
 
 def services_count(blocks_df: pd.DataFrame):
+    """Summarise service counts and totals for each block.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Dataframe containing service count columns prefixed with ``count_``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with individual service counts and an aggregated ``count``
+        column per block.
+
+    Raises
+    ------
+    ValueError
+        If no count columns are present or schema validation fails.
+    """
     columns = [c for c in blocks_df.columns if COUNT_PREFIX in c and not BUILDINGS_SUFFIX in c]
     if len(columns) == 0:
         raise ValueError(

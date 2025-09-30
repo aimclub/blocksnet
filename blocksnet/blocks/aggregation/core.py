@@ -34,6 +34,22 @@ def _get_agg_rules(objects_gdf: gpd.GeoDataFrame):
 def aggregate_objects(
     blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFrame
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """Aggregate point or polygon objects into containing blocks.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        Block geometries that receive aggregated attributes.
+    objects_gdf : geopandas.GeoDataFrame
+        Objects to aggregate. Numeric attributes are summed within each block.
+
+    Returns
+    -------
+    tuple[geopandas.GeoDataFrame, geopandas.GeoDataFrame]
+        The updated blocks GeoDataFrame and objects that could not be assigned
+        to any block.
+    """
+
     blocks_gdf = BlocksSchema(blocks_gdf)
     objects_gdf = objects_gdf.copy()
     _preprocess_input(blocks_gdf, objects_gdf)

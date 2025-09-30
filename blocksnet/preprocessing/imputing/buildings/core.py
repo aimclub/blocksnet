@@ -44,6 +44,25 @@ def impute_buildings(
     living_area_coefficient: float = 0.9,
     default_living_demand: float = 20,
 ) -> gpd.GeoDataFrame:
+    """Fill missing building attributes using heuristic rules.
+
+    Parameters
+    ----------
+    buildings_gdf : geopandas.GeoDataFrame
+        GeoDataFrame containing building geometries and attributes.
+    default_number_of_floors : int, default=1
+        Fallback number of floors for buildings without data.
+    living_area_coefficient : float, default=0.9
+        Share of floor area considered living space for residential buildings.
+    default_living_demand : float, default=20
+        Average living area per resident used to impute population.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame with missing indicators imputed.
+    """
+
     buildings_gdf = BuildingsSchema(buildings_gdf)
 
     _impute_footprint_area(buildings_gdf)

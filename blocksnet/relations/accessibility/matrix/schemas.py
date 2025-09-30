@@ -6,6 +6,8 @@ from loguru import logger
 
 
 class BlocksSchema(GdfSchema):
+    """Schema enforcing geometry types for block GeoDataFrames."""
+
     @classmethod
     def _geometry_types(cls):
         return {shapely.geometry.base.BaseGeometry}
@@ -18,6 +20,27 @@ def validate_accessibility_matrix(
     columns: bool = True,
     check_squared: bool = True,
 ):
+    """Validate travel-cost matrices produced by accessibility analysis.
+
+    Parameters
+    ----------
+    matrix : pandas.DataFrame
+        Accessibility matrix to validate.
+    blocks_df : pandas.DataFrame, optional
+        Blocks metadata whose indices should align with the matrix.
+    index, columns : bool, default=True
+        Whether to enforce that *blocks_df* indices appear in the matrix index
+        and columns respectively.
+    check_squared : bool, default=True
+        If ``True``, ensure the matrix is square and index equals columns.
+
+    Raises
+    ------
+    ValueError
+        If the provided matrix or blocks metadata do not meet validation
+        requirements.
+    """
+
     if not isinstance(matrix, pd.DataFrame):
         raise ValueError("Matrix must be an instance of pd.DataFrame")
     if check_squared and not all(matrix.index == matrix.columns):

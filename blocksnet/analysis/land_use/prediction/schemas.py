@@ -6,6 +6,7 @@ from blocksnet.utils.validation import GdfSchema, LandUseSchema
 
 
 class BlocksInputSchema(GdfSchema):
+    """Schema validating spatial classifier inputs with optional categories."""
     category: Series
 
     @classmethod

@@ -29,6 +29,26 @@ def _calculate_aspect_ratio(polygon: shapely.Polygon) -> float | None:
 
 
 def calculate_aspect_ratio(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Compute aspect ratios for block polygons.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        Geospatial dataframe that satisfies :class:`BlocksSchema` and contains
+        polygon geometries representing blocks.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        Copy of the validated dataframe with an ``aspect_ratio`` column storing
+        the ratio between the major and minor axes of each block.
+
+    Raises
+    ------
+    ValueError
+        If ``blocks_gdf`` fails schema validation or contains non-polygon
+        geometries.
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     if log_config.disable_tqdm:

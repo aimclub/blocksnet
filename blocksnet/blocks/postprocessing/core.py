@@ -30,6 +30,19 @@ def _explode_and_filter(blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def postprocess_urban_blocks(blocks: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Clean and validate blocks produced by the cutting pipeline.
+
+    Parameters
+    ----------
+    blocks : geopandas.GeoDataFrame
+        Raw blocks GeoDataFrame to postprocess.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame containing only valid polygon geometries.
+    """
+
     blocks = BlocksSchema(blocks)
     valid_blocks, invalid_blocks = _separate_blocks(blocks)
     invalid_blocks = _make_valid(invalid_blocks)

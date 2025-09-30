@@ -38,6 +38,25 @@ def preprocess_urban_objects(
     railways_gdf: gpd.GeoDataFrame | None = None,
     water_gdf: gpd.GeoDataFrame | None = None,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """Validate and separate linear and polygonal urban objects.
+
+    Parameters
+    ----------
+    roads_gdf, railways_gdf, water_gdf : geopandas.GeoDataFrame or None
+        Input GeoDataFrames describing transport and water features. At least
+        one must be provided.
+
+    Returns
+    -------
+    tuple[geopandas.GeoDataFrame, geopandas.GeoDataFrame]
+        GeoDataFrames containing line-like objects and polygonal objects ready
+        for block cutting.
+
+    Raises
+    ------
+    ValueError
+        If none of the GeoDataFrames is provided.
+    """
 
     crs = {gdf.crs for gdf in [roads_gdf, railways_gdf, water_gdf] if gdf is not None}.pop()
 

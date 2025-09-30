@@ -7,7 +7,27 @@ CENTERLINE_LENGTH_COLUMN = "centerline_length"
 
 
 def calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
+    """Estimate centerline length for each block polygon.
 
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        GeoDataFrame satisfying :class:`BlocksSchema` that provides polygon
+        geometries for each block.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        Copy of the validated dataframe with a ``centerline_length`` column
+        describing the medial axis length for every polygon.
+
+    Raises
+    ------
+    ImportError
+        If :mod:`pygeoops` is not installed.
+    ValueError
+        If schema validation fails for ``blocks_gdf``.
+    """
     try:
         import pygeoops
     except ImportError:

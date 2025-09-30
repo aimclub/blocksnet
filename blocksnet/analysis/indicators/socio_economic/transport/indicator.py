@@ -5,6 +5,7 @@ from ..indicator_meta import IndicatorMeta
 
 @unique
 class TransportIndicator(IndicatorEnum):
+    """Transport accessibility and infrastructure indicators."""
     # road network
     ROAD_NETWORK_DENSITY = IndicatorMeta("road_network_density", per="area", unit="km/km2")
     SETTLEMENTS_CONNECTIVITY = IndicatorMeta("settlements_connectivity", aggregatable=False)

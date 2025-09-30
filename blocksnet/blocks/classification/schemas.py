@@ -7,12 +7,15 @@ from blocksnet.enums import BlockCategory
 
 
 class BlocksSchema(GdfSchema):
+    """Schema validating block geometries before feature generation."""
+
     @classmethod
     def _geometry_types(cls):
         return [shapely.Polygon]
 
 
 class BlocksCategoriesSchema(DfSchema):
+    """Schema describing training labels for block classification."""
 
     category: Series
 

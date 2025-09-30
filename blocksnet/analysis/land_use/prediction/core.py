@@ -16,26 +16,51 @@ from .preprocessing import DataProcessor
 
 # land_use (str) → LandUse
 def str_to_land_use(lu_str: str) -> LandUse:
-    """
-    Convert a string to a LandUse enum value.
-    
-    This function takes a string representing a land use type and converts it to the corresponding
-    LandUse enum value. If the input is already a LandUse enum value, it is returned unchanged.
-    
-    Args:
-        lu_str (str): The string to be converted to a LandUse enum value.
-        
-    Returns:
-        LandUse: The corresponding LandUse enum value.
+    """Convert a string label to a :class:`LandUse` enum.
+
+    Parameters
+    ----------
+    lu_str : str | LandUse
+        Land-use label or existing enum member.
+
+    Returns
+    -------
+    LandUse
+        Normalised land-use enum value.
     """
     return LandUse(lu_str.lower()) if isinstance(lu_str, str) else lu_str
 
 # LandUse → LandUseCategory
 def land_use_to_category(lu: LandUse) -> LandUseCategory | None:
+    """Map a land-use type to its broader :class:`LandUseCategory`.
+
+    Parameters
+    ----------
+    lu : LandUse
+        Land-use enum to convert.
+
+    Returns
+    -------
+    LandUseCategory or None
+        Category corresponding to the land-use, or ``None`` when undefined.
+    """
     return LandUseCategory.from_land_use(lu)
 
+
 def category_to_index(val) -> int | None:
-    """Convert category (enum or str) to index."""
+    """Convert category label or enum into its numeric index.
+
+    Parameters
+    ----------
+    val : LandUseCategory | str
+        Category value to map to the classifier index.
+
+    Returns
+    -------
+    int or None
+        Index matching :data:`CATEGORY_TO_INDEX`, or ``None`` if conversion
+        fails.
+    """
     if isinstance(val, LandUseCategory):
         return CATEGORY_TO_INDEX.get(val)
     if isinstance(val, str):
@@ -52,20 +77,27 @@ INDEX_TO_CATEGORY = {i: cat for cat, i in CATEGORY_TO_INDEX.items()}
 
 
 class SpatialClassifier(BaseContext):
+    """Predict land-use categories using spatial features and context.
+
+    Parameters
+    ----------
+    strategy : blocksnet.machine_learning.strategy.BaseStrategy
+        Strategy responsible for fitting and inference.
+    buffer_distance : float, optional
+        Buffer distance used when engineering neighbor-based features.
+        Defaults to ``1000``.
+    k_neighbors : int, optional
+        Number of neighbours considered during feature aggregation. Defaults
+        to ``5``.
+    """
+
     def __init__(
         self,
         strategy: BaseStrategy,
         buffer_distance: float = 1000,
         k_neighbors: int = 5,
     ):
-        """
-        A classifier that takes into account spatial characteristics.
-
-        Args:
-            strategy (BaseStrategy): The strategy to use for classification
-            buffer_distance (float, optional): Distance for buffer analysis. Defaults to 1000.
-            k_neighbors (int, optional): Number of neighbors to consider. Defaults to 5.
-        """
+        """Initialise the spatial classifier with preprocessing context."""
         super().__init__(strategy=strategy)
 
         self.data_processor = DataProcessor(buffer_distance=buffer_distance, k_neighbors=k_neighbors)
@@ -237,21 +269,26 @@ class SpatialClassifier(BaseContext):
         test_size: float = 0.2,
         random_state: int = 42
     ) -> pd.Series:
-        """
-        Returns pd.Series (index=gdf.index) with values:
-        'L' — labeled part for training,
-        'U' — hidden part for validation within city,
-        'X' — initially unlabeled (if any).
-        Splitting is done independently for each city.
+        """Split labelled data into train and validation subsets per city.
 
-        Args:
-            gdf (gpd.GeoDataFrame): Input GeoDataFrame
-            target_col (str, optional): Name of target column. Defaults to 'category'.
-            test_size (float, optional): Proportion of data for validation. Defaults to 0.2.
-            random_state (int, optional): Random seed. Defaults to 42.
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            Input dataframe containing city and target columns.
+        target_col : str, optional
+            Name of the column storing target categories. Defaults to
+            ``"category"``.
+        test_size : float, optional
+            Proportion of labelled observations assigned to validation within
+            each city. Defaults to ``0.2``.
+        random_state : int, optional
+            Seed controlling the random split. Defaults to ``42``.
 
-        Returns:
-            pd.Series: Series with split assignments
+        Returns
+        -------
+        pandas.Series
+            Series indexed by ``gdf`` with values ``"L"`` (train), ``"U"``
+            (validation), or ``"X"`` (unlabelled).
         """
         if 'city' not in gdf.columns:
             gdf = gdf.assign(city="__one__")
@@ -286,17 +323,24 @@ class SpatialClassifier(BaseContext):
     # ---------------------- train / predict ----------------------
 
     def train(self, train_gdf: gpd.GeoDataFrame | list | tuple) -> None:
-        """
-        Training with city-wise L/U split:
-        - FIRST validates input using BlocksInputSchema (for GDF or each list/tuple element),
-          then adds 'city' and 'city_center' (without extra validations).
-        - Train strategy on L, validate on U.
+        """Fit the classifier using city-specific labelled and unlabelled data.
 
-        Args:
-            train_gdf (gpd.GeoDataFrame | list | tuple): Training data
+        Parameters
+        ----------
+        train_gdf : geopandas.GeoDataFrame or list or tuple
+            Training data in a single dataframe or a collection of dataframes.
 
-        Returns:
-            float: Training score
+        Returns
+        -------
+        float
+            Score reported by the strategy on the validation subset.
+
+        Raises
+        ------
+        ValueError
+            If category values cannot be mapped to classifier indices.
+        TypeError
+            If the input type is unsupported.
         """
         # 1) input validation and normalization (city + city_center)
         train_gdf = self._normalize_input(train_gdf)
@@ -381,14 +425,17 @@ class SpatialClassifier(BaseContext):
         raise TypeError("Expected GeoDataFrame or list/tuple of GeoDataFrame")
 
     def predict(self, new_gdf: Union[gpd.GeoDataFrame, list, tuple]) -> Union[np.ndarray, List[np.ndarray]]:
-        """
-        Makes predictions for new data.
+        """Predict land-use categories for new geometries.
 
-        Args:
-            new_gdf (Union[gpd.GeoDataFrame, list, tuple]): New data for prediction
+        Parameters
+        ----------
+        new_gdf : geopandas.GeoDataFrame or list or tuple
+            Data to classify, optionally provided as multiple city datasets.
 
-        Returns:
-            Union[np.ndarray, List[np.ndarray]]: Predictions as array or list of arrays
+        Returns
+        -------
+        numpy.ndarray or list[numpy.ndarray]
+            Predicted category indices aligned with :data:`INDEX_TO_CATEGORY`.
         """
         items, was_list = self._as_list(new_gdf)
         out: List[np.ndarray] = []
@@ -401,14 +448,18 @@ class SpatialClassifier(BaseContext):
         return out if was_list else out[0]
 
     def predict_proba(self, new_gdf: Union[gpd.GeoDataFrame, list, tuple]) -> Union[np.ndarray, List[np.ndarray]]:
-        """
-        Makes probability predictions for new data.
+        """Estimate class membership probabilities for new data.
 
-        Args:
-            new_gdf (Union[gpd.GeoDataFrame, list, tuple]): New data for prediction
+        Parameters
+        ----------
+        new_gdf : geopandas.GeoDataFrame or list or tuple
+            Data to classify, optionally provided in multiple batches.
 
-        Returns:
-            Union[np.ndarray, List[np.ndarray]]: Probability predictions as array or list of arrays
+        Returns
+        -------
+        numpy.ndarray or list[numpy.ndarray]
+            Probability distributions matching the class order used during
+            training.
         """
         items, was_list = self._as_list(new_gdf)
         out: List[np.ndarray] = []
@@ -421,14 +472,18 @@ class SpatialClassifier(BaseContext):
         return out if was_list else out[0]
 
     def run(self, gdf: Union[gpd.GeoDataFrame, list, tuple]) -> Union[gpd.GeoDataFrame, List[gpd.GeoDataFrame]]:
-        """
-        Runs complete prediction pipeline including class names and probabilities.
+        """Execute the full prediction pipeline with metadata restoration.
 
-        Args:
-            gdf (Union[gpd.GeoDataFrame, list, tuple]): Input data
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame or list or tuple
+            Input data as a single dataset or list of datasets.
 
-        Returns:
-            Union[gpd.GeoDataFrame, List[gpd.GeoDataFrame]]: Results as GDF or list of GDFs
+        Returns
+        -------
+        geopandas.GeoDataFrame or list[geopandas.GeoDataFrame]
+            Dataframes containing original geometry, predicted labels, and
+            probability columns.
         """
         items, was_list = self._as_list(gdf)
         results: List[gpd.GeoDataFrame] = []
@@ -462,24 +517,28 @@ class SpatialClassifier(BaseContext):
 
     @classmethod
     def default(cls) -> "SpatialClassifier":
-        """
-        Creates a default instance of SpatialClassifier.
+        """Create a :class:`SpatialClassifier` with the bundled strategy.
 
-        Returns:
-            SpatialClassifier: Default classifier instance
+        Returns
+        -------
+        SpatialClassifier
+            Configured classifier ready for training.
         """
         return cls(strategy)
 
-    def save_mistakes(self, test_gdf: gpd.GeoDataFrame, 
+    def save_mistakes(self, test_gdf: gpd.GeoDataFrame,
                       predictions: np.ndarray,
                       filename: str) -> None:
-        """
-        Saves prediction mistakes to a GeoJSON file.
+        """Persist misclassified observations to GeoJSON for inspection.
 
-        Args:
-            test_gdf (gpd.GeoDataFrame): Test data with true labels
-            predictions (np.ndarray): Model predictions
-            filename (str): Output file path
+        Parameters
+        ----------
+        test_gdf : geopandas.GeoDataFrame
+            Dataset containing ground-truth land-use information.
+        predictions : numpy.ndarray
+            Predicted class indices aligned with ``test_gdf``.
+        filename : str
+            Destination file path.
         """
         test_data = test_gdf.copy()
         test_data['pred_class'] = predictions
@@ -497,18 +556,22 @@ class SpatialClassifier(BaseContext):
 
         self._save_geojson(mistakes, filename)
 
-    def save_predictions_to_geojson(self, gdf: gpd.GeoDataFrame, 
+    def save_predictions_to_geojson(self, gdf: gpd.GeoDataFrame,
                                     predictions: np.ndarray,
                                     probabilities: np.ndarray,
                                     filename: str) -> None:
-        """
-        Saves predictions with probabilities to a GeoJSON file.
+        """Persist predicted classes and probabilities to GeoJSON.
 
-        Args:
-            gdf (gpd.GeoDataFrame): Input data
-            predictions (np.ndarray): Model predictions
-            probabilities (np.ndarray): Prediction probabilities
-            filename (str): Output file path
+        Parameters
+        ----------
+        gdf : geopandas.GeoDataFrame
+            Input geometries and metadata.
+        predictions : numpy.ndarray
+            Predicted class indices.
+        probabilities : numpy.ndarray
+            Probability estimates for each class.
+        filename : str
+            Destination file path.
         """
         result = gdf.copy()
         result['pred_class'] = predictions

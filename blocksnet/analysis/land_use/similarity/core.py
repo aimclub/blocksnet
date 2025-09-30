@@ -45,6 +45,24 @@ def _preprocess_and_validate(blocks_df: pd.DataFrame) -> pd.DataFrame:
 def land_use_similarity(
     blocks_df: pd.DataFrame,
 ) -> pd.DataFrame:
+    """Match block service profiles to canonical land-use types.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Dataframe with service count columns aligned to known service types.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe containing cosine similarity scores to each land-use, plus
+        the most likely land-use label and its probability.
+
+    Raises
+    ------
+    ValueError
+        If service counts fail validation.
+    """
     blocks_df = _preprocess_and_validate(blocks_df)
     land_use_df = _get_land_use_df()
     blocks_df = _get_blocks_df(blocks_df, land_use_df)

@@ -3,8 +3,11 @@ from .indicator_meta import IndicatorMeta
 
 
 class IndicatorEnum(Enum):
+    """Base enum for socio-economic indicators exposing metadata."""
+
     @property
     def meta(self) -> IndicatorMeta:
+        """Return the indicator metadata descriptor."""
         return self.value
 
     def __repr__(self):

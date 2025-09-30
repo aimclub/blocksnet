@@ -5,6 +5,7 @@ from ....utils.validation import DfSchema
 
 
 class BlocksSchema(DfSchema):
+    """Schema validating inputs for development indicator calculations."""
 
     site_area: Series[float] = Field(ge=0)
     fsi: Series[float] = Field(ge=0)

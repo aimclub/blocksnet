@@ -36,6 +36,22 @@ def shared_provision(
     accessibility_matrix: pd.DataFrame,
     accessibility: int,
 ) -> pd.DataFrame:
+    """Estimate service provision using shared accessibility buffers.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe containing population and capacity columns.
+    accessibility_matrix : pandas.DataFrame
+        Accessibility matrix whose units match ``accessibility``.
+    accessibility : int
+        Threshold accessibility cost used to define neighbourhoods.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with load and provision metrics per block.
+    """
 
     blocks_df = _initialize_provision_df(blocks_df)
 

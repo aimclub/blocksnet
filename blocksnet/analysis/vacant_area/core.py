@@ -79,6 +79,21 @@ def _label_areas_with_blocks(vacant_gdf: gpd.GeoDataFrame, blocks_gdf: gpd.GeoDa
 
 
 def get_vacant_areas(blocks_gdf: gpd.GeoDataFrame, basic_filter: bool = True) -> gpd.GeoDataFrame:
+    """Extract potential vacant areas by subtracting occupied geometries.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        Block geometries validated by :class:`BlocksSchema`.
+    basic_filter : bool, optional
+        Whether to apply minimum area and shape filters. Defaults to ``True``.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame of vacant polygons with derived shape metrics and linked
+        block identifiers.
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
     occupied_gdf = _fetch_occupied_areas(blocks_gdf)
     vacant_gdf = blocks_gdf.overlay(occupied_gdf, how="difference")

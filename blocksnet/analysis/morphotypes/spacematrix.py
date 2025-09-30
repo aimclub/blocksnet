@@ -58,6 +58,30 @@ def _clusterize(df: pd.DataFrame, n_clusters: int, random_state: int) -> pd.Data
 def get_spacematrix_morphotypes(
     blocks_df: pd.DataFrame, n_clusters: int = DEFAULT_N_CLUSTERS, random_state: int = DEFAULT_RANDOM_STATE
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Cluster blocks into morphotypes using SpaceMatrix indicators.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block metrics validated by :class:`BlocksSchema` including SpaceMatrix
+        indices.
+    n_clusters : int, optional
+        Number of clusters to form. Defaults to ``DEFAULT_N_CLUSTERS``.
+    random_state : int, optional
+        Seed passed to :class:`sklearn.cluster.KMeans`. Defaults to
+        ``DEFAULT_RANDOM_STATE``.
+
+    Returns
+    -------
+    tuple[pandas.DataFrame, pandas.DataFrame]
+        Tuple containing the block dataframe enriched with cluster assignments
+        and the cluster metadata dataframe with interpreted morphotypes.
+
+    Raises
+    ------
+    ValueError
+        If ``blocks_df`` fails schema validation or lacks developed blocks.
+    """
     blocks_df = BlocksSchema(blocks_df)
     # clusterize blocks
     developed_blocks_df = blocks_df[blocks_df.fsi > 0]

@@ -9,6 +9,27 @@ COLLOCATION_COLUMN = "collocation"
 
 
 def land_use_collocation(adjacency_graph: nx.Graph, blocks_df: pd.DataFrame):
+    """Evaluate how compatible adjacent blocks are by land-use rules.
+
+    Parameters
+    ----------
+    adjacency_graph : networkx.Graph
+        Block adjacency graph aligned with ``blocks_df`` indices.
+    blocks_df : pandas.DataFrame
+        Block dataframe satisfying :class:`BlocksSchema` with land-use and
+        ``site_area`` columns.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Copy of ``blocks_df`` with a ``collocation`` score per block ranging
+        from 0 to 1.
+
+    Raises
+    ------
+    ValueError
+        If the graph or dataframe fail validation.
+    """
 
     blocks_df = BlocksSchema(blocks_df)
     validate_adjacency_graph(adjacency_graph, blocks_df)

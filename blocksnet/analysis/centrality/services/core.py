@@ -59,6 +59,37 @@ def services_centrality(
     weights: dict[str, float] | None = None,
     accessibility_func: Callable[[pd.DataFrame], pd.DataFrame] = mean_accessibility,
 ) -> pd.DataFrame:
+    """Rank blocks by connectivity, service density, and diversity.
+
+    Parameters
+    ----------
+    accessibility_matrix : pandas.DataFrame
+        Accessibility matrix whose indices and columns align with the block
+        identifiers. Values typically represent travel cost or time.
+    blocks_df : pandas.DataFrame
+        Block-level dataset that satisfies the schemas consumed by the
+        connectivity, diversity, and density calculators.
+    weights : dict of {str: float}, optional
+        Optional weighting for the ``connectivity``, ``diversity``, and
+        ``density`` components. Missing keys default to ``1.0``.
+    accessibility_func : Callable[[pandas.DataFrame], pandas.DataFrame], optional
+        Aggregation used to collapse the accessibility matrix before computing
+        connectivity. Defaults to :func:`mean_accessibility`.
+
+    Returns
+    -------
+    pandas.DataFrame
+        DataFrame with normalized component columns and a
+        ``services_centrality`` score for each block.
+
+    Raises
+    ------
+    KeyError
+        If ``weights`` contains unsupported keys.
+    ValueError
+        If weight values are negative or not numeric, or schema validation
+        fails for intermediate calculations.
+    """
     weights = _preprocess_weights(weights or {})
 
     blocks_df = blocks_df.copy()

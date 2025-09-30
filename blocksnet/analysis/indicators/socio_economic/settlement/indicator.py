@@ -5,6 +5,7 @@ from ..indicator_meta import IndicatorMeta
 
 @unique
 class SettlementIndicator(IndicatorEnum):
+    """Settlement system indicators capturing housing and migration."""
     # population
     URBAN_POPULATION = IndicatorMeta("urban_population")
     RURAL_POPULATION = IndicatorMeta("rural_population")

@@ -18,6 +18,26 @@ def _calculate_inner_radius(polygon: shapely.Polygon) -> float:
 
 
 def calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Calculate inner and outer radiuses for block polygons.
+
+    Parameters
+    ----------
+    blocks_gdf : geopandas.GeoDataFrame
+        GeoDataFrame validated by :class:`BlocksSchema` that contains polygon
+        geometries.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        Copy of the validated dataframe with ``outer_radius`` and
+        ``inner_radius`` columns describing circumradius and inradius
+        approximations.
+
+    Raises
+    ------
+    ValueError
+        If ``blocks_gdf`` fails schema validation.
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     if log_config.disable_tqdm:

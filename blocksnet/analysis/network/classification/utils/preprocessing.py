@@ -57,6 +57,27 @@ def _simplify_graph(graph: nx.Graph) -> nx.Graph:
 
 
 def preprocess_graph(graph: nx.Graph, validate_category: bool) -> nx.Graph:
+    """Normalise graph structure and attributes for feature extraction.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        Input graph whose nodes contain coordinate data.
+    validate_category : bool
+        Whether to require a settlement category in ``graph.graph`` metadata.
+
+    Returns
+    -------
+    networkx.Graph
+        Processed graph with numeric node labels and cleaned attributes.
+
+    Raises
+    ------
+    TypeError
+        If ``graph`` is not an instance of :class:`networkx.Graph`.
+    KeyError
+        If required attributes are missing when validation is enabled.
+    """
     if not isinstance(graph, nx.Graph):
         raise TypeError("Graph should be an instance of nx.Graph.")
 
@@ -71,6 +92,18 @@ def preprocess_graph(graph: nx.Graph, validate_category: bool) -> nx.Graph:
 
 
 def graph_to_gdf(graph: nx.Graph) -> gpd.GeoDataFrame:
+    """Convert a preprocessed graph into a projected GeoDataFrame.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        Graph with numeric node labels and ``x``/``y`` coordinates.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame containing node attributes and projected point geometry.
+    """
     nodes_dict = dict(graph.nodes(data=True))
     df = pd.DataFrame.from_dict(nodes_dict, orient="index")
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df[X_KEY], df[Y_KEY]), crs=4326)

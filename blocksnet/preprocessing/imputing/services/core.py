@@ -12,6 +12,25 @@ def _get_service_type_units(service_type: str) -> pd.DataFrame:
 
 
 def impute_services(services_gdf: gpd.GeoDataFrame, service_type: str) -> gpd.GeoDataFrame:
+    """Fill missing service capacity values based on configuration defaults.
+
+    Parameters
+    ----------
+    services_gdf : geopandas.GeoDataFrame
+        GeoDataFrame describing service locations.
+    service_type : str
+        Identifier of the service type whose default capacity should be used.
+
+    Returns
+    -------
+    geopandas.GeoDataFrame
+        GeoDataFrame with missing ``capacity`` values imputed.
+
+    Raises
+    ------
+    ValueError
+        If the requested service type is not present in the configuration.
+    """
 
     services_gdf = ServicesSchema(services_gdf)
     units = _get_service_type_units(service_type)

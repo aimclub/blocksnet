@@ -73,6 +73,7 @@ def _log_schema_errors(e: SchemaErrors):
 
 
 class DfSchema(pa.DataFrameModel):
+    """Base class for validating pandas DataFrames used across BlocksNet."""
     idx: Index[int] = pa.Field(unique=True)
 
     class Config:
@@ -116,6 +117,27 @@ class DfSchema(pa.DataFrameModel):
 
     @classmethod
     def validate(cls, df: pd.DataFrame, allow_empty: bool = False) -> pd.DataFrame:
+        """Validate and coerce a DataFrame according to the schema.
+
+        Parameters
+        ----------
+        df : pandas.DataFrame
+            DataFrame to validate.
+        allow_empty : bool, default=False
+            Whether to allow empty dataframes to pass validation.
+
+        Returns
+        -------
+        pandas.DataFrame
+            Validated copy of the input dataframe.
+
+        Raises
+        ------
+        ValueError
+            If the dataframe fails schema validation or required structure
+            checks.
+        """
+
         df = df.copy()
 
         cls._check_instance(df)
@@ -140,10 +162,14 @@ class DfSchema(pa.DataFrameModel):
 
     @classmethod
     def columns_(cls) -> list:
+        """Return schema column names in order of definition."""
+
         return list(cls.to_schema().columns.keys())
 
     @classmethod
     def create_empty(cls) -> pd.DataFrame:
+        """Create an empty dataframe that satisfies the schema."""
+
         return pd.DataFrame([], columns=cls.columns_())
 
     @classmethod

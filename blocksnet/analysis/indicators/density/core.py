@@ -15,6 +15,19 @@ SHARE_NON_LIVING_COLUMN = "share_non_living"
 
 
 def calculate_density_indicators(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Compute density indicators such as FSI, GSI, MXI, and OSR.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block metrics validated by :class:`BlocksSchema`.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Copy of ``blocks_df`` augmented with density-related indicator
+        columns.
+    """
     blocks_df = BlocksSchema(blocks_df)
 
     blocks_df = blocks_df.assign(

@@ -43,6 +43,26 @@ def _calculate_population(shares_df: pd.DataFrame, living_demand: float):
 def calculate_land_use_indicators(
     shares: dict[LandUse, float], area: float, mxi: float = DEFAULT_MXI, living_demand: float = DEFAULT_LIVING_DEMAND
 ):
+    """Aggregate land-use indicators from area shares and density targets.
+
+    Parameters
+    ----------
+    shares : dict of LandUse to float
+        Area share of each land-use category.
+    area : float
+        Total territory area used to scale the indicators.
+    mxi : float, optional
+        Maximum index for residential land-use. Defaults to ``DEFAULT_MXI``.
+    living_demand : float, optional
+        Average living area demand per resident. Defaults to
+        ``DEFAULT_LIVING_DEMAND``.
+
+    Returns
+    -------
+    dict
+        Aggregated indicator values including development, area, and
+        population metrics.
+    """
     shares_df = pd.DataFrame.from_dict(shares, orient="index", columns=[SHARE_COLUMN])
     shares_df = _calculate_site_area(shares_df, area)
     shares_df = _calculate_development(shares_df, mxi)

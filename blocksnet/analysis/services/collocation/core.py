@@ -39,6 +39,25 @@ def _preprocess_and_validate(blocks_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def services_collocation(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate intersection-over-union of service presence pairs.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe containing service count columns prefixed with
+        ``count_``.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Symmetric matrix where each entry is the ratio of shared presence to
+        total presence for a pair of services.
+
+    Raises
+    ------
+    ValueError
+        If service counts are missing or fail validation.
+    """
     blocks_df = _preprocess_and_validate(blocks_df)
     intersection_mx = _intersection_matrix(blocks_df)
     union_mx = _union_matrix(blocks_df)

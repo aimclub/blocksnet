@@ -25,6 +25,24 @@ def _link_length_entropy(lengths):
 
 
 def calculate_graph_features(graph: nx.Graph) -> dict:
+    """Compute structural and spatial features for a network graph.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        Graph whose nodes contain geographic coordinates compatible with
+        :func:`graph_to_gdf`.
+
+    Returns
+    -------
+    dict
+        Dictionary of aggregated graph statistics used for classification.
+
+    Raises
+    ------
+    ValueError
+        If graph nodes lack coordinate data required to compute distances.
+    """
     gdf = graph_to_gdf(graph)
     # Edge length calculations
     edge_lengths = []

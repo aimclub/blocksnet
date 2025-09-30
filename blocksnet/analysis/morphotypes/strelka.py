@@ -6,12 +6,16 @@ MORPHOTYPE_COLUMN = "morphotype"
 
 
 class LowRiseMorphotype(Enum):
+    """Classification of low-rise block morphotypes used in Strelka typology."""
+
     NON_RESIDENTIAL = "low-rise non-residential"
     INDIVIDUAL = "individual residential"
     LOW_RISE_MODEL = "low-rise model"
 
 
 class MidRiseMorphotype(Enum):
+    """Classification of mid-rise block morphotypes used in Strelka typology."""
+
     BASIC = "mid-rise"
     NON_RESIDENTIAL = "mid-rise non-residential"
     MICRODISTRICT = "mid-rise microdistrict"
@@ -20,6 +24,8 @@ class MidRiseMorphotype(Enum):
 
 
 class HighRiseMorphotype(Enum):
+    """Classification of high-rise block morphotypes used in Strelka typology."""
+
     NON_RESIDENTIAL = "high-rise non-residential"
     SOVIET_MICRODISTRICT = "high-rise soviet microdistrict"
     MODERN_MICRODISTRICT = "high-rise modern microdistrict"
@@ -63,6 +69,19 @@ def _interpret_block(series: pd.Series) -> Enum:
 
 
 def get_strelka_morphotypes(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Assign Strelka morphotype labels based on block intensity metrics.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataset validated by :class:`BlocksSchema` with ``l``, ``fsi``,
+        and ``mxi`` indicators.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe enriched with ``morphotype`` values for developed blocks.
+    """
     blocks_df = BlocksSchema(blocks_df)
     # get morphotypes
     developed_blocks_df = blocks_df[blocks_df.fsi > 0].copy()

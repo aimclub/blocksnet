@@ -8,6 +8,20 @@ NON_LIVING_AREA_COLUMN = "non_living_area"
 
 
 def calculate_development_indicators(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Derive development indicators from SpaceMatrix metrics.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Dataset validated by :class:`BlocksSchema` with FSI, GSI, and MXI
+        metrics.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe with floor area, footprint, and living/non-living area
+        columns.
+    """
     blocks_df = BlocksSchema(blocks_df)
 
     build_floor_area = blocks_df.fsi * blocks_df.site_area

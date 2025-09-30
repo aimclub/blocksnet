@@ -12,6 +12,7 @@ DEFAULT_CRS = 4326
 
 
 class GdfSchema(DfSchema):
+    """Base schema for GeoDataFrames with geometry validation hooks."""
     geometry: GeoSeries
 
     def __new__(cls, *args, **kwargs) -> gpd.GeoDataFrame:
@@ -19,6 +20,8 @@ class GdfSchema(DfSchema):
 
     @classmethod
     def create_empty(cls, crs: pyproj.CRS | int | None = DEFAULT_CRS) -> gpd.GeoDataFrame:
+        """Create an empty GeoDataFrame with the specified CRS."""
+
         return gpd.GeoDataFrame([], columns=cls.columns_(), crs=crs)
 
     @classmethod

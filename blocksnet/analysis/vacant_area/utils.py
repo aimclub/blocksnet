@@ -25,47 +25,57 @@ def _buffer_geometries(gdf: gpd.GeoDataFrame | None, buffer_size: int) -> gpd.Ge
 
 
 def fetch_other(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch non-residential man-made features from OpenStreetMap."""
     return _fetch_osm(geometry, {"man_made": True, "aeroway": True, "military": True})
 
 
 def fetch_leisure(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch leisure amenities within the provided geometry."""
     return _fetch_osm(geometry, {"leisure": True})
 
 
 def fetch_landuse(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch non-residential land-use polygons surrounding the study area."""
     filter_func = lambda gdf: gdf[gdf["landuse"] != "residential"]
     return _fetch_osm(geometry, {"landuse": True}, filter_func)
 
 
 def fetch_amenity(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch amenity features within the search geometry."""
     return _fetch_osm(geometry, {"amenity": True})
 
 
 def fetch_buildings(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch building footprints and buffer them for area coverage estimation."""
     gdf = _fetch_osm(geometry, {"building": True})
     return _buffer_geometries(gdf, const.BUILDINGS_BUFFER)
 
 
 def fetch_natural(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch natural features excluding bays."""
     filter_func = lambda gdf: gdf[gdf["natural"] != "bay"]
     return _fetch_osm(geometry, {"natural": True}, filter_func)
 
 
 def fetch_waterway(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch waterway geometries intersecting the polygon."""
     return _fetch_osm(geometry, {"waterway": True})
 
 
 def fetch_highway(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch primary roadway features and buffer them for coverage."""
     filter_func = lambda gdf: gdf[~gdf["highway"].isin(["path", "footway", "pedestrian"])]
     gdf = _fetch_osm(geometry, {"highway": True}, filter_func)
     return _buffer_geometries(gdf, const.ROADS_BUFFER)
 
 
 def fetch_path(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch pedestrian paths and apply a buffer for area representation."""
     gdf = _fetch_osm(geometry, {"highway": "path", "highway": "footway"})
     return _buffer_geometries(gdf, const.PATH_BUFFER)
 
 
 def fetch_railway(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch above-ground railway features within the study area."""
     filter_func = lambda gdf: gdf[gdf["railway"] != "subway"]
     return _fetch_osm(geometry, {"railway": True}, filter_func)

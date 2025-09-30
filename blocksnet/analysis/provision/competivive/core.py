@@ -149,10 +149,12 @@ def _distribute_demand(
 
 
 def provision_strong_total(blocks_df: pd.DataFrame):
+    """Calculate share of demand satisfied within the accessibility threshold."""
     return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df.demand.sum()
 
 
 def provision_weak_total(blocks_df: pd.DataFrame):
+    """Calculate share of demand satisfied within or beyond the threshold."""
     return (blocks_df[DEMAND_WITHIN_COLUMN].sum() + blocks_df[DEMAND_WITHOUT_COLUMN].sum()) / blocks_df.demand.sum()
 
 
@@ -164,6 +166,34 @@ def competitive_provision(
     self_supply: bool = True,
     max_depth: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Assess service provision by iteratively distributing demand.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe containing demand and capacity columns.
+    accessibility_matrix : pandas.DataFrame
+        Accessibility matrix describing travel costs between blocks.
+    accessibility : int
+        Maximum acceptable accessibility value for self-supply classification.
+    demand : int, optional
+        Normative demand per thousand people for imputing missing values.
+    self_supply : bool, optional
+        Whether to satisfy demand using internal capacity before optimization.
+    max_depth : int, optional
+        Maximum number of accessibility bands to explore. Defaults to ``1``.
+
+    Returns
+    -------
+    tuple[pandas.DataFrame, pandas.DataFrame]
+        Updated block dataframe with provision metrics and dataframe of supply
+        links.
+
+    Raises
+    ------
+    ValueError
+        If demand information is missing and cannot be imputed.
+    """
 
     validate_accessibility_matrix(accessibility_matrix, blocks_df)
     blocks_df = _initialize_provision_df(blocks_df, demand)

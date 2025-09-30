@@ -7,12 +7,16 @@ from loguru import logger
 
 
 class BlocksSchema(GdfSchema):
+    """Schema validating block geometries for development imputation."""
+
     @classmethod
     def _geometry_types(cls):
         return [shapely.Polygon]
 
 
 class BlocksLandUseSchema(DfSchema):
+    """Schema describing land-use composition features for blocks."""
+
     residential: Series[float] = Field(ge=0, le=1)
     business: Series[float] = Field(ge=0, le=1)
     recreation: Series[float] = Field(ge=0, le=1)
@@ -31,6 +35,8 @@ class BlocksLandUseSchema(DfSchema):
 
 
 class BlocksIndicatorsSchema(DfSchema):
+    """Schema for development indicators predicted by the imputer."""
+
     build_floor_area: Series[float] = Field(ge=0)
     footprint_area: Series[float] = Field(ge=0)
     living_area: Series[float] = Field(ge=0)

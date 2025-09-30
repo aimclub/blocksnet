@@ -23,6 +23,24 @@ def _edges_to_gdf(graph: nx.Graph, crs):
 
 
 def accessibility_graph_to_gdfs(graph: nx.Graph):
+    """Convert an accessibility graph into GeoDataFrames.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        Graph with CRS metadata and node coordinates.
+
+    Returns
+    -------
+    tuple[geopandas.GeoDataFrame, geopandas.GeoDataFrame]
+        GeoDataFrames containing node and edge attributes respectively.
+
+    Raises
+    ------
+    ValueError
+        If the graph fails schema validation.
+    """
+
     validate_accessibility_graph(graph)
     crs = graph.graph["crs"]
     nodes_gdf = _nodes_to_gdf(graph, crs)

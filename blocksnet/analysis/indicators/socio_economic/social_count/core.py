@@ -7,6 +7,18 @@ from blocksnet.analysis.services import services_count
 def calculate_social_count_indicators(
     blocks_df: pd.DataFrame,
 ) -> tuple[dict[SocialCountIndicator, int], list[SocialCountIndicator]]:
+    """Count social infrastructure units available within blocks.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe with service counts.
+
+    Returns
+    -------
+    tuple[dict[SocialCountIndicator, int], list[SocialCountIndicator]]
+        Tuple of indicator totals and a list of indicators missing data.
+    """
     blocks_df = services_count(blocks_df)
 
     result = {}

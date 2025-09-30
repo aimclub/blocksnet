@@ -2,12 +2,38 @@ import shapely
 
 
 def calculate_outer_radius(polygon: shapely.Polygon) -> float:
+    """Calculate the maximum distance from the centroid to polygon corners.
+
+    Parameters
+    ----------
+    polygon : shapely.Polygon
+        Polygon geometry whose outer radius is measured.
+
+    Returns
+    -------
+    float
+        Maximum centroid-to-corner distance.
+    """
+
     center = polygon.centroid
     corners = [shapely.Point(coord) for coord in polygon.exterior.coords]
     return max(center.distance(corner) for corner in corners)
 
 
 def calculate_inner_radius(polygon: shapely.Polygon) -> float:
+    """Calculate the minimum distance from centroid to polygon edges.
+
+    Parameters
+    ----------
+    polygon : shapely.Polygon
+        Polygon geometry whose inner radius is measured.
+
+    Returns
+    -------
+    float
+        Minimum centroid-to-edge distance.
+    """
+
     center = polygon.representative_point()
     corners = [shapely.Point(coord) for coord in polygon.exterior.coords]
     side_centers = [shapely.MultiPoint([corners[i], corners[i + 1]]).centroid for i in range(len(corners) - 1)]
@@ -15,6 +41,19 @@ def calculate_inner_radius(polygon: shapely.Polygon) -> float:
 
 
 def calculate_aspect_ratio(polygon: shapely.Polygon) -> float:
+    """Calculate the aspect ratio of the minimum rotated rectangle.
+
+    Parameters
+    ----------
+    polygon : shapely.Polygon
+        Polygon geometry whose aspect ratio is computed.
+
+    Returns
+    -------
+    float
+        Ratio between the longer and shorter sides of the bounding rectangle.
+    """
+
     rectangle = polygon.minimum_rotated_rectangle
     rectangle_coords = list(rectangle.exterior.coords)
     side_lengths = [

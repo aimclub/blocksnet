@@ -6,6 +6,12 @@ import pyproj
 
 
 class TerritorySchema(GdfSchema):
+    """Validate territories used to request accessibility graphs.
+
+    Ensures that geometries are polygons or multipolygons and inherits common
+    GeoDataFrame checks from :class:`blocksnet.utils.validation.GdfSchema`.
+    """
+
     @classmethod
     def _geometry_types(cls):
         return {shapely.Polygon, shapely.MultiPolygon}
@@ -42,6 +48,22 @@ def _validate_edges(graph: nx.Graph, weight_key: str):
 
 
 def validate_accessibility_graph(graph: nx.Graph, weight_key: str = WEIGHT_KEY):
+    """Validate accessibility graphs consumed by BlocksNet functions.
+
+    Parameters
+    ----------
+    graph : networkx.Graph
+        Graph with node coordinates and weighted edges.
+    weight_key : str, default=``WEIGHT_KEY``
+        Edge attribute storing travel cost values.
+
+    Raises
+    ------
+    ValueError
+        If the graph instance, CRS, node metadata or edge weights are not
+        compliant with the expected schema.
+    """
+
     if not isinstance(graph, nx.Graph):
         raise ValueError("Graph must be provided as an instance of nx.Graph")
     _validate_crs(graph)

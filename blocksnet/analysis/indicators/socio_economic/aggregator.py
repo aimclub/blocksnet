@@ -19,6 +19,8 @@ def _validate_indicator_type(indicator: Enum):
 
 
 def validate_indicator(require: bool = False):
+    """Decorator ensuring indicator arguments are valid and aggregatable."""
+
     def deco(func):
         @wraps(func)
         def wrapper(self, indicator: IndicatorEnum, *args, **kwargs):
@@ -37,6 +39,8 @@ def validate_indicator(require: bool = False):
 
 
 class SocioEconomicAggregator:
+    """Accumulate and aggregate socio-economic indicator components."""
+
     def __init__(self):
         self._data: dict[IndicatorEnum, dict[str, float | int]] = {}
 
@@ -49,6 +53,21 @@ class SocioEconomicAggregator:
         parent_value_before: int | float,
         parent_value_after: int | float | None = None,
     ):
+        """Store base values for a socio-economic indicator.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Indicator descriptor.
+        child_value_before : int or float
+            Observed child indicator before aggregation.
+        child_value_after : int or float
+            Observed child indicator after aggregation.
+        parent_value_before : int or float
+            Parent indicator value prior to aggregation.
+        parent_value_after : int or float, optional
+            Parent indicator value after aggregation if already known.
+        """
         data = {
             CHILD_VALUE_BEFORE_COLUMN: child_value_before,
             CHILD_VALUE_AFTER_COLUMN: child_value_after,
@@ -60,10 +79,12 @@ class SocioEconomicAggregator:
 
     @validate_indicator(require=True)
     def delete(self, indicator: IndicatorEnum):
+        """Remove stored values for the specified indicator."""
         del self._data[indicator]
 
     @validate_indicator(require=True)
     def get(self, indicator: IndicatorEnum):
+        """Return a copy of the stored values for ``indicator``."""
         return self._data[indicator].copy()
 
     def _aggregate_normalized(self, data: dict[str, float | int], indicator_norm: IndicatorEnum) -> int | float:
@@ -88,6 +109,18 @@ class SocioEconomicAggregator:
         return data[PARENT_VALUE_BEFORE_COLUMN] - data[CHILD_VALUE_BEFORE_COLUMN] + data[CHILD_VALUE_AFTER_COLUMN]
 
     def aggregate(self, indicator: IndicatorEnum):
+        """Compute aggregated indicator values including derived parent output.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Indicator to aggregate.
+
+        Returns
+        -------
+        dict[str, float | int]
+            Mapping of component values including ``parent_value_after``.
+        """
         data = self.get(indicator)
         if PARENT_VALUE_AFTER_COLUMN not in data:
             parent_after = self._aggregate(indicator, data)

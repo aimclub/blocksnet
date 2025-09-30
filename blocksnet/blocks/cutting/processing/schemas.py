@@ -6,24 +6,32 @@ from blocksnet.utils.validation import GdfSchema, ensure_crs
 
 
 class BoundariesSchema(GdfSchema):
+    """Schema validating boundary polygons for block cutting."""
+
     @classmethod
     def _geometry_types(cls):
         return {shapely.Polygon, shapely.MultiPolygon}
 
 
 class LineObjectsSchema(GdfSchema):
+    """Schema validating line obstacles involved in block cutting."""
+
     @classmethod
     def _geometry_types(cls):
         return {shapely.LineString, shapely.MultiLineString}
 
 
 class PolygonObjectsSchema(GdfSchema):
+    """Schema validating polygon obstacles used in block cutting."""
+
     @classmethod
     def _geometry_types(cls):
         return {shapely.Polygon, shapely.MultiPolygon}
 
 
 class BuildingsSchema(GdfSchema):
+    """Schema validating building geometries for block splitting."""
+
     @classmethod
     def _geometry_types(cls) -> set[type[BaseGeometry]]:
         return {shapely.Point}
@@ -36,6 +44,8 @@ class BuildingsSchema(GdfSchema):
 
 
 class BlocksSchema(GdfSchema):
+    """Schema describing blocks produced by the cutting workflow."""
+
     @classmethod
     def _geometry_types(cls) -> set[type[BaseGeometry]]:
         return {shapely.Polygon}
@@ -47,6 +57,22 @@ def validate_and_preprocess_gdfs(
     polygons_gdf: gpd.GeoDataFrame | None,
     buildings_gdf: gpd.GeoDataFrame | None,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """Validate and harmonise inputs for the block cutting pipeline.
+
+    Parameters
+    ----------
+    boundaries_gdf : geopandas.GeoDataFrame
+        Territory boundaries to partition.
+    lines_gdf, polygons_gdf, buildings_gdf : geopandas.GeoDataFrame or None
+        Optional datasets of linear, polygonal and point obstacles. Missing or
+        empty inputs are replaced with empty GeoDataFrames in the same CRS.
+
+    Returns
+    -------
+    tuple[geopandas.GeoDataFrame, geopandas.GeoDataFrame, geopandas.GeoDataFrame, geopandas.GeoDataFrame]
+        Validated GeoDataFrames for boundaries, line objects, polygon objects
+        and buildings respectively.
+    """
 
     logger.info("Checking boundaries schema")
     boundaries_gdf = BoundariesSchema(boundaries_gdf)

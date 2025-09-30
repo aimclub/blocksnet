@@ -10,6 +10,28 @@ CONGESTION_KEY = "congestion"
 
 
 def road_congestion(od_mx: pd.DataFrame, graph: nx.Graph, weight_key: str = "time_min"):
+    """Estimate edge congestion from an origin-destination matrix.
+
+    Parameters
+    ----------
+    od_mx : pandas.DataFrame
+        Origin-destination flow matrix whose indices align with ``graph``
+        nodes.
+    graph : networkx.Graph
+        Accessibility graph containing edge weights used for shortest paths.
+    weight_key : str, optional
+        Edge attribute representing travel cost. Defaults to ``"time_min"``.
+
+    Returns
+    -------
+    networkx.Graph
+        Copy of the input graph with a ``congestion`` attribute on each edge.
+
+    Raises
+    ------
+    ValueError
+        If the matrix or graph fail validation.
+    """
 
     validate_od_matrix(od_mx, graph)
     validate_accessibility_graph(graph, weight_key)

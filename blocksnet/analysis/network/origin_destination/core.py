@@ -94,6 +94,38 @@ def origin_destination_matrix(
     accessibility: float = DEFAULT_ACCESSIBILITY,
     lu_consts: dict[LandUse, float] = LU_CONSTS,
 ) -> pd.DataFrame:
+    """Build a gravity-style origin-destination matrix from block attributes.
+
+    Parameters
+    ----------
+    blocks_df : pandas.DataFrame
+        Block dataframe validated by :class:`BlocksSchema` containing
+        population, land-use, and site area information.
+    blocks_to_nodes_mx : pandas.DataFrame
+        Accessibility matrix between blocks and graph nodes.
+    nodes_to_nodes_mx : pandas.DataFrame
+        Accessibility matrix between graph nodes used for trip distribution.
+    services_dfs : list of pandas.DataFrame
+        Service count dataframes aligned with ``blocks_df`` and used to compute
+        diversity and density indicators.
+    accessibility : float, optional
+        Maximum acceptable accessibility cost when allocating demand to nodes.
+        Defaults to ``DEFAULT_ACCESSIBILITY``.
+    lu_consts : dict of {LandUse: float}, optional
+        Weighting coefficients applied to land-use categories when computing
+        attractiveness. Defaults to :data:`LU_CONSTS`.
+
+    Returns
+    -------
+    pandas.DataFrame
+        Square matrix representing flows between nodes derived from block
+        population and attractiveness.
+
+    Raises
+    ------
+    ValueError
+        If input dataframes fail validation or indices are misaligned.
+    """
 
     blocks_df = BlocksSchema(blocks_df)
     _validate_input(blocks_df, blocks_to_nodes_mx, nodes_to_nodes_mx)

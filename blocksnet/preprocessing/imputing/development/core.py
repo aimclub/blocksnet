@@ -17,6 +17,7 @@ Y_COLUMN = "y"
 
 
 class DevelopmentImputer(BaseContext):
+    """Graph-based model imputing development indicators for blocks."""
     def _preprocess_geometries(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
         gdf = BlocksSchema(blocks_gdf)
         gdf["site_area"] = gdf.length
@@ -85,6 +86,24 @@ class DevelopmentImputer(BaseContext):
         split_params: dict | None = None,
         train_params: dict | None = None,
     ) -> tuple[list[float], list[float]]:
+        """Train the imputer on observed development indicators.
+
+        Parameters
+        ----------
+        blocks_gdf : geopandas.GeoDataFrame
+            GeoDataFrame with block geometries and indicator values.
+        adjacency_graph : networkx.Graph
+            Graph describing spatial adjacency between blocks.
+        split_params : dict, optional
+            Keyword arguments for :func:`sklearn.model_selection.train_test_split`.
+        train_params : dict, optional
+            Hyperparameters forwarded to the underlying strategy ``train``.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            Training and validation loss histories.
+        """
 
         x, y = self._preprocess(blocks_gdf)
         edge_index = self._preprocess_edge_index(adjacency_graph, blocks_gdf)
@@ -107,6 +126,23 @@ class DevelopmentImputer(BaseContext):
         return train_losses, test_losses
 
     def run(self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph, blocks_ids: list[int]) -> pd.DataFrame:
+        """Impute development indicators for selected blocks.
+
+        Parameters
+        ----------
+        blocks_gdf : geopandas.GeoDataFrame
+            GeoDataFrame containing all blocks used for imputation.
+        adjacency_graph : networkx.Graph
+            Adjacency graph aligning with ``blocks_gdf``.
+        blocks_ids : list of int
+            Block identifiers whose indicators should be imputed.
+
+        Returns
+        -------
+        pandas.DataFrame
+            DataFrame of imputed indicators indexed by block id.
+        """
+
         x, y = self._preprocess(blocks_gdf)
         edge_index = self._preprocess_edge_index(adjacency_graph, blocks_gdf)
 
@@ -124,4 +160,12 @@ class DevelopmentImputer(BaseContext):
 
     @classmethod
     def default(cls) -> "DevelopmentImputer":
+        """Instantiate the imputer with the default graph neural strategy.
+
+        Returns
+        -------
+        DevelopmentImputer
+            Configured imputer ready for training or inference.
+        """
+
         return cls(get_default_strategy())
