@@ -7,7 +7,13 @@ from loguru import logger
 
 class BlocksSchema(GdfSchema):
     @classmethod
+    """BlocksSchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.geometry.base.BaseGeometry}
 
 
@@ -18,6 +24,22 @@ def validate_accessibility_matrix(
     columns: bool = True,
     check_squared: bool = True,
 ):
+    """Validate accessibility matrix.
+
+    Parameters
+    ----------
+    matrix : pd.DataFrame
+        Description.
+    blocks_df : pd.DataFrame | None, default: None
+        Description.
+    index : bool, default: True
+        Description.
+    columns : bool, default: True
+        Description.
+    check_squared : bool, default: True
+        Description.
+
+    """
     if not isinstance(matrix, pd.DataFrame):
         raise ValueError("Matrix must be an instance of pd.DataFrame")
     if check_squared and not all(matrix.index == matrix.columns):

@@ -8,6 +8,9 @@ from .base_strategy import TorchGraphBaseStrategy
 
 
 class _TorchGraphImputationStrategy(TorchGraphBaseStrategy, ABC):
+    """_TorchGraphImputationStrategy class.
+
+    """
     def train(
         self,
         x: np.ndarray,
@@ -22,6 +25,39 @@ class _TorchGraphImputationStrategy(TorchGraphBaseStrategy, ABC):
         criterion_params: dict | None = None,
         data_loader_params: dict | None = None,
     ) -> tuple[list[float], list[float]]:
+        """Train.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        y : np.ndarray
+            Description.
+        edge_index : np.ndarray
+            Description.
+        train_mask : np.ndarray
+            Description.
+        test_mask : np.ndarray
+            Description.
+        epochs : int, default: 100
+            Description.
+        optimizer_cls : type[torch.optim.Optimizer] | None, default: None
+            Description.
+        optimizer_params : dict | None, default: None
+            Description.
+        criterion_cls : type[torch.nn.Module] | None, default: None
+            Description.
+        criterion_params : dict | None, default: None
+            Description.
+        data_loader_params : dict | None, default: None
+            Description.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            Description.
+
+        """
         return super().train(
             x=x,
             y=y,
@@ -37,32 +73,128 @@ class _TorchGraphImputationStrategy(TorchGraphBaseStrategy, ABC):
         )
 
     def predict(self, x: np.ndarray, y: np.ndarray, edge_index: np.ndarray, imputation_mask: np.ndarray):
+        """Predict.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        y : np.ndarray
+            Description.
+        edge_index : np.ndarray
+            Description.
+        imputation_mask : np.ndarray
+            Description.
+
+        """
         return super().predict(x=x, y=y, edge_index=edge_index, imputation_mask=imputation_mask)
 
 
 class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
+    """TorchGraphImputationStrategy class.
+
+    """
     def _build_criterion(
         self, criterion_cls: type[torch.nn.Module] | None = None, criterion_params: dict | None = None
     ):
+        """Build criterion.
+
+        Parameters
+        ----------
+        criterion_cls : type[torch.nn.Module] | None, default: None
+            Description.
+        criterion_params : dict | None, default: None
+            Description.
+
+        """
         criterion_cls = criterion_cls or torch.nn.MSELoss
         criterion_params = criterion_params or {}
         return criterion_cls(**criterion_params)
 
     def _parse_sizes(self, x: np.ndarray, y: np.ndarray, **kwargs) -> tuple[int, int]:
+        """Parse sizes.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        y : np.ndarray
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        tuple[int, int]
+            Description.
+
+        """
         input_size = x.shape[1] + y.shape[1]
         output_size = y.shape[1]
         return input_size, output_size
 
     def _x_to_tensor(self, x: np.ndarray) -> torch.Tensor:
+        """X to tensor.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return torch.tensor(x, dtype=torch.float32, device=self.device)
 
     def _y_to_tensor(self, y: np.ndarray) -> torch.Tensor:
+        """Y to tensor.
+
+        Parameters
+        ----------
+        y : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return torch.tensor(y, dtype=torch.float32, device=self.device)
 
     def _edge_index_to_tensor(self, edge_index: np.ndarray) -> torch.Tensor:
+        """Edge index to tensor.
+
+        Parameters
+        ----------
+        edge_index : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return torch.tensor(edge_index, dtype=torch.long, device=self.device)
 
     def _edge_attr_to_tensor(self, edge_attr: np.ndarray) -> torch.Tensor:
+        """Edge attr to tensor.
+
+        Parameters
+        ----------
+        edge_attr : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return torch.tensor(edge_attr, dtype=torch.float32, device=self.device)
 
     def _preprocess(
@@ -76,6 +208,31 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         imputation_mask: np.ndarray | None = None,
     ) -> dict[str, torch.Tensor]:
 
+        """Preprocess.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        y : np.ndarray
+            Description.
+        edge_index : np.ndarray
+            Description.
+        edge_attr : np.ndarray | None, default: None
+            Description.
+        train_mask : np.ndarray | None, default: None
+            Description.
+        test_mask : np.ndarray | None, default: None
+            Description.
+        imputation_mask : np.ndarray | None, default: None
+            Description.
+
+        Returns
+        -------
+        dict[str, torch.Tensor]
+            Description.
+
+        """
         result = {}
         is_fit_scaler = train_mask is not None
 
@@ -99,11 +256,41 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         return result
 
     def _postprocess(self, y: torch.Tensor) -> np.ndarray:
+        """Postprocess.
+
+        Parameters
+        ----------
+        y : torch.Tensor
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         a = y.cpu().numpy()
         (a,) = self._inverse_scale("y", a)
         return a
 
     def _epoch_train(self, batch: Data, optimizer: torch.optim.Optimizer, criterion: torch.nn.Module) -> float:
+        """Epoch train.
+
+        Parameters
+        ----------
+        batch : Data
+            Description.
+        optimizer : torch.optim.Optimizer
+            Description.
+        criterion : torch.nn.Module
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         model = self.model
         model.train()
         optimizer.zero_grad()
@@ -127,6 +314,21 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         batch: Data,
         criterion: torch.nn.Module,
     ) -> float:
+        """Epoch test.
+
+        Parameters
+        ----------
+        batch : Data
+            Description.
+        criterion : torch.nn.Module
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         model = self.model
         model.eval()
 
@@ -151,6 +353,27 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         *args,
         **kwargs,
     ) -> tuple[float, float]:
+        """Epoch.
+
+        Parameters
+        ----------
+        data_loader : DataLoader
+            Description.
+        optimizer : torch.optim.Optimizer
+            Description.
+        criterion : torch.nn.Module
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        tuple[float, float]
+            Description.
+
+        """
         batch_train_losses = []
         batch_test_losses = []
 
@@ -172,6 +395,23 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         return train_loss, test_loss
 
     def _predict(self, data: dict, *args, **kwargs) -> torch.Tensor:
+        """Predict.
+
+        Parameters
+        ----------
+        data : dict
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         x = data["x"]
         y = data["y"]
         edge_index = data["edge_index"]
@@ -183,6 +423,21 @@ class TorchGraphImputationStrategy(_TorchGraphImputationStrategy):
         return y_pred_tensor
 
     def _create_imputation_mask(self, targets: torch.Tensor, missing_rate: float = 0.4) -> torch.Tensor:
+        """Create imputation mask.
+
+        Parameters
+        ----------
+        targets : torch.Tensor
+            Description.
+        missing_rate : float, default: 0.4
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         n_nodes, n_targets = targets.shape
         imputation_mask = torch.zeros_like(targets, dtype=torch.bool, device=self.device)
 

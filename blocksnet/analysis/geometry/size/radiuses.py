@@ -9,15 +9,54 @@ INNER_RADIUS_COLUMN = "inner_radius"
 
 
 def _calculate_outer_radius(polygon: shapely.Polygon) -> float:
+    """Calculate outer radius.
+
+    Parameters
+    ----------
+    polygon : shapely.Polygon
+        Description.
+
+    Returns
+    -------
+    float
+        Description.
+
+    """
     return shapely.minimum_bounding_radius(polygon)
 
 
 def _calculate_inner_radius(polygon: shapely.Polygon) -> float:
+    """Calculate inner radius.
+
+    Parameters
+    ----------
+    polygon : shapely.Polygon
+        Description.
+
+    Returns
+    -------
+    float
+        Description.
+
+    """
     circle_radius = shapely.maximum_inscribed_circle(polygon)
     return circle_radius.length
 
 
 def calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Calculate radiuses.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     if log_config.disable_tqdm:

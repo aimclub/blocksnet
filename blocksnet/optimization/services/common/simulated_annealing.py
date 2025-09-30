@@ -10,6 +10,9 @@ from ....config import log_config
 
 class SimulatedAnnealing(BaseModel):
 
+    """SimulatedAnnealing class.
+
+    """
     t_max: float = Field(ge=0)
     t_min: float = Field(ge=0)
     rate: float = Field(ge=0)
@@ -17,6 +20,19 @@ class SimulatedAnnealing(BaseModel):
 
     @staticmethod
     def _perturbate(X: list[int]) -> tuple[list[int], int]:
+        """Perturbate.
+
+        Parameters
+        ----------
+        X : list[int]
+            Description.
+
+        Returns
+        -------
+        tuple[list[int], int]
+            Description.
+
+        """
         X = X.copy()
         i = random.choice(range(len(X)))
         delta = random.choice([-1, 1])
@@ -25,6 +41,18 @@ class SimulatedAnnealing(BaseModel):
 
     def run(self, X: list[int], objective: Callable, constraint: Callable):
 
+        """Run.
+
+        Parameters
+        ----------
+        X : list[int]
+            Description.
+        objective : Callable
+            Description.
+        constraint : Callable
+            Description.
+
+        """
         best_X = X.copy()
         best_value = objective(best_X, None)
 

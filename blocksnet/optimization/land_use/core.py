@@ -19,22 +19,71 @@ OBJECTIVES = {"share_mse": common.share_fitness, "adjacency_penalty": common.adj
 
 
 class LandUseOptimizer:
+    """LandUseOptimizer class.
+
+    """
     def __init__(self, blocks_df: pd.DataFrame, adjacency_graph: nx.Graph):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        blocks_df : pd.DataFrame
+            Description.
+        adjacency_graph : nx.Graph
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         validate_adjacency_graph(adjacency_graph, blocks_df)
         self.blocks_df = BlocksSchema(blocks_df)
         self.adjacency_graph = adjacency_graph
 
     def _get_context(self, blocks_ids: list[int]):
+        """Get context.
+
+        Parameters
+        ----------
+        blocks_ids : list[int]
+            Description.
+
+        """
         blocks_df = self.blocks_df.loc[blocks_ids].copy()
         adjacency_graph = get_adjacency_context(self.adjacency_graph, blocks_df)
         context_df = self.blocks_df.loc[list(adjacency_graph.nodes)].copy()
         return blocks_df, context_df, adjacency_graph
 
     def _result_to_df(self, result, blocks_ids: list[int]) -> pd.DataFrame:
+        """Result to df.
+
+        Parameters
+        ----------
+        result : Any
+            Description.
+        blocks_ids : list[int]
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         data = {SOLUTION_COLUMN: list(result.X), OBJECTIVES_COLUMN: list(result.F)}
         df = pd.DataFrame.from_dict(data)
 
         def explain_solution(solution):
+            """Explain solution.
+
+            Parameters
+            ----------
+            solution : Any
+                Description.
+
+            """
             res = {}
             for i, v in enumerate(solution):
                 lu = utils.reverse_transform_lu(v)
@@ -58,6 +107,24 @@ class LandUseOptimizer:
         mutation_probability: float = 0.1,
         seed: int = 42,
     ):
+        """Run.
+
+        Parameters
+        ----------
+        blocks_ids : list[int]
+            Description.
+        target_shares : dict[LandUse, float]
+            Description.
+        population_size : int, default: 10
+            Description.
+        n_generations : int, default: 100
+            Description.
+        mutation_probability : float, default: 0.1
+            Description.
+        seed : int, default: 42
+            Description.
+
+        """
         blocks_df, context_df, adjacency_graph = self._get_context(blocks_ids)
 
         n_var = len(blocks_ids)

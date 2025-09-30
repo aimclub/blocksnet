@@ -7,12 +7,23 @@ from ...utils.validation import DfSchema
 
 class BlocksSchema(DfSchema):
 
+    """BlocksSchema class.
+
+    """
     l: Series[float] = Field(ge=0, default=0)
     fsi: Series[float] = Field(ge=0, default=0)
     mxi: Series[float] = Field(ge=0, default=0)
 
     @classmethod
     def _before_validate(cls, gdf: gpd.GeoDataFrame):
+        """Before validate.
+
+        Parameters
+        ----------
+        gdf : gpd.GeoDataFrame
+            Description.
+
+        """
         if not "l" in gdf.columns:
             logger.warning("Column l not found in columns. Calculating from fsi and gsi")
             if not "fsi" in gdf.columns:

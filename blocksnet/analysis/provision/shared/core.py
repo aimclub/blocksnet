@@ -14,6 +14,14 @@ PROVISION_COLUMN = "provision"
 
 
 def _initialize_provision_df(blocks_df: pd.DataFrame):
+    """Initialize provision df.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     logger.info("Initializing provision DataFrame")
     blocks_df[CAPACITY_WITHIN_COLUMN] = 0
     blocks_df[POPULATION_WITHIN_COLUMN] = 0
@@ -22,7 +30,29 @@ def _initialize_provision_df(blocks_df: pd.DataFrame):
 
 def _validate_and_preprocess_input(func):
     @wraps(func)
+    """Validate and preprocess input.
+
+    Parameters
+    ----------
+    func : Any
+        Description.
+
+    """
     def wrapper(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, *args, **kwargs):
+        """Wrapper.
+
+        Parameters
+        ----------
+        blocks_df : pd.DataFrame
+            Description.
+        accessibility_matrix : pd.DataFrame
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        """
         validate_accessibility_matrix(accessibility_matrix, blocks_df)
         blocks_df = BlocksSchema(blocks_df)
         return func(blocks_df, accessibility_matrix, *args, **kwargs)
@@ -37,6 +67,23 @@ def shared_provision(
     accessibility: int,
 ) -> pd.DataFrame:
 
+    """Shared provision.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    accessibility_matrix : pd.DataFrame
+        Description.
+    accessibility : int
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = _initialize_provision_df(blocks_df)
 
     accessibility_mask = accessibility_matrix <= accessibility

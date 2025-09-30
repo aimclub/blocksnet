@@ -7,12 +7,37 @@ from shapely.ops import polygonize
 
 def _exclude_polygons(boundaries_gdf: gpd.GeoDataFrame, polygons_gdf: gpd.GeoDataFrame):
     # logger.info("Excluding polygon objects from blocks")
+    """Exclude polygons.
+
+    Parameters
+    ----------
+    boundaries_gdf : gpd.GeoDataFrame
+        Description.
+    polygons_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     polygons_gdf = gpd.GeoDataFrame(geometry=[polygons_gdf.union_all()], crs=polygons_gdf.crs)
     return boundaries_gdf.overlay(polygons_gdf, how="difference")
 
 
 def _get_enclosures(boundaries_gdf: gpd.GeoDataFrame, lines_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     # logger.info("Setting up enclosures")
+    """Get enclosures.
+
+    Parameters
+    ----------
+    boundaries_gdf : gpd.GeoDataFrame
+        Description.
+    lines_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     barriers = (
         pd.concat([lines_gdf.geometry, boundaries_gdf.boundary]).explode(ignore_index=True).reset_index(drop=True)
     )
@@ -33,6 +58,23 @@ def cut_blocks(
     lines_gdf: gpd.GeoDataFrame,
     polygons_gdf: gpd.GeoDataFrame,
 ) -> gpd.GeoDataFrame:
+    """Cut blocks.
+
+    Parameters
+    ----------
+    boundaries_gdf : gpd.GeoDataFrame
+        Description.
+    lines_gdf : gpd.GeoDataFrame
+        Description.
+    polygons_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     boundaries_gdf = _exclude_polygons(boundaries_gdf, polygons_gdf)
     blocks_gdf = _get_enclosures(boundaries_gdf, lines_gdf)
     return gpd.GeoDataFrame(blocks_gdf.reset_index(drop=True)[["geometry"]])

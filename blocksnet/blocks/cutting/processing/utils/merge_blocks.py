@@ -6,6 +6,19 @@ import numpy as np
 
 
 def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Merge invalid blocks.
+
+    Parameters
+    ----------
+    gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     gdf = gdf.copy()
 
     while True:
@@ -34,6 +47,14 @@ def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
                 continue
 
             def get_shared_length(intersection):
+                """Get shared length.
+
+                Parameters
+                ----------
+                intersection : Any
+                    Description.
+
+                """
                 if isinstance(intersection, LineString):
                     return intersection.length
                 elif isinstance(intersection, MultiLineString):
@@ -66,6 +87,21 @@ def merge_invalid_blocks(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Merge empty blocks.
+
+    Parameters
+    ----------
+    gdf : gpd.GeoDataFrame
+        Description.
+    buildings : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     gdf = gdf.copy()
 
     buildings_sindex = buildings.sindex
@@ -97,6 +133,14 @@ def merge_empty_blocks(gdf: gpd.GeoDataFrame, buildings: gpd.GeoDataFrame) -> gp
                 continue
 
             def get_shared_length(intersection):
+                """Get shared length.
+
+                Parameters
+                ----------
+                intersection : Any
+                    Description.
+
+                """
                 if isinstance(intersection, LineString):
                     return intersection.length
                 elif isinstance(intersection, MultiLineString):

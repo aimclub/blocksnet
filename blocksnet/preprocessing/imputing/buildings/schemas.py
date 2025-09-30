@@ -6,6 +6,9 @@ from ....utils.validation import GdfSchema
 
 
 class BuildingsSchema(GdfSchema):
+    """BuildingsSchema class.
+
+    """
     is_living: Series[bool]
     number_of_floors: Series[float] = Field(ge=0, nullable=True)
     footprint_area: Series[float] = Field(ge=0, nullable=True)
@@ -16,6 +19,14 @@ class BuildingsSchema(GdfSchema):
 
     @classmethod
     def _before_validate(cls, df):
+        """Before validate.
+
+        Parameters
+        ----------
+        df : Any
+            Description.
+
+        """
         for column in [c for c in cls.columns_() if c != "is_living"]:
             if not column in df:
                 logger.warning(f"Column {column} not found and will be initialized as None")
@@ -23,4 +34,7 @@ class BuildingsSchema(GdfSchema):
 
     @classmethod
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.geometry.base.BaseGeometry}

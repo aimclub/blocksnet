@@ -116,6 +116,14 @@ class AreaSolution(VariableAdapter):
             self._X.append(x)
 
         def capacity_area_sortkey(u: Unit):
+            """Capacity area sortkey.
+
+            Parameters
+            ----------
+            u : Unit
+                Description.
+
+            """
             if u.site_area == 0:
                 return 1 / u.build_floor_area
             return -u.capacity / u.site_area

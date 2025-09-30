@@ -8,6 +8,14 @@ BUILDINGS_SUFFIX = "_buildings"
 
 
 def services_count(blocks_df: pd.DataFrame):
+    """Services count.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     columns = [c for c in blocks_df.columns if COUNT_PREFIX in c and not BUILDINGS_SUFFIX in c]
     if len(columns) == 0:
         raise ValueError(

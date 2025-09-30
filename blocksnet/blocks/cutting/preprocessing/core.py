@@ -9,6 +9,14 @@ from blocksnet.utils.validation import ensure_crs
 
 def _validate_gdfs(func):
     @wraps(func)
+    """Validate gdfs.
+
+    Parameters
+    ----------
+    func : Any
+        Description.
+
+    """
     def wrapper(
         roads_gdf: gpd.GeoDataFrame | None,
         railways_gdf: gpd.GeoDataFrame | None,
@@ -17,6 +25,22 @@ def _validate_gdfs(func):
         **kwargs,
     ):
 
+        """Wrapper.
+
+        Parameters
+        ----------
+        roads_gdf : gpd.GeoDataFrame | None
+            Description.
+        railways_gdf : gpd.GeoDataFrame | None
+            Description.
+        water_gdf : gpd.GeoDataFrame | None
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        """
         roads_gdf = None if roads_gdf is None else roads_gdf.copy()
         railways_gdf = None if railways_gdf is None else railways_gdf.copy()
         water_gdf = None if water_gdf is None else water_gdf.copy()
@@ -39,6 +63,23 @@ def preprocess_urban_objects(
     water_gdf: gpd.GeoDataFrame | None = None,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
 
+    """Preprocess urban objects.
+
+    Parameters
+    ----------
+    roads_gdf : gpd.GeoDataFrame | None, default: None
+        Description.
+    railways_gdf : gpd.GeoDataFrame | None, default: None
+        Description.
+    water_gdf : gpd.GeoDataFrame | None, default: None
+        Description.
+
+    Returns
+    -------
+    tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]
+        Description.
+
+    """
     crs = {gdf.crs for gdf in [roads_gdf, railways_gdf, water_gdf] if gdf is not None}.pop()
 
     logger.info("Checking roads schema")

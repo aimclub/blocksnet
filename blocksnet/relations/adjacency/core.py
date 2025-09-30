@@ -6,11 +6,39 @@ from .schemas import BlocksSchema, validate_adjacency_graph
 
 
 def _generate_adjacency_nodes(blocks_gdf: gpd.GeoDataFrame) -> list[int]:
+    """Generate adjacency nodes.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    list[int]
+        Description.
+
+    """
     logger.info("Generating nodes")
     return blocks_gdf.index.to_list()
 
 
 def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) -> set[tuple[int, int]]:
+    """Generate adjacency edges.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    buffer_size : int
+        Description.
+
+    Returns
+    -------
+    set[tuple[int, int]]
+        Description.
+
+    """
     logger.info("Generating edges")
     blocks_gdf.geometry = blocks_gdf.buffer(buffer_size)
     sjoin_gdf = blocks_gdf.sjoin(blocks_gdf, predicate="intersects")
@@ -24,6 +52,21 @@ def _generate_adjacency_edges(blocks_gdf: gpd.GeoDataFrame, buffer_size: int) ->
 
 def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0) -> nx.Graph:
 
+    """Generate adjacency graph.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    buffer_size : int, default: 0
+        Description.
+
+    Returns
+    -------
+    nx.Graph
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     adj_graph = nx.Graph(None)
@@ -41,6 +84,18 @@ def generate_adjacency_graph(blocks_gdf: gpd.GeoDataFrame, buffer_size: int = 0)
 
 
 def get_adjacency_context(adjacency_graph: nx.Graph, blocks_df: pd.DataFrame, keep: bool = True):
+    """Get adjacency context.
+
+    Parameters
+    ----------
+    adjacency_graph : nx.Graph
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    keep : bool, default: True
+        Description.
+
+    """
     validate_adjacency_graph(adjacency_graph, blocks_df)
     blocks_ids = set(blocks_df.index)
     neighbors = {node for block_id in blocks_ids for node in adjacency_graph.neighbors(block_id)}

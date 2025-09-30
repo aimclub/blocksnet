@@ -6,6 +6,9 @@ from ..meta import IndicatorMeta
 @unique
 class SettlementIndicator(IndicatorEnum):
     # population
+    """SettlementIndicator class.
+
+    """
     URBAN_POPULATION = IndicatorMeta("urban_population")
     RURAL_POPULATION = IndicatorMeta("rural_population")
 

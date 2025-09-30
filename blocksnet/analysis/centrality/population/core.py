@@ -12,6 +12,21 @@ POPULATION_CENTRALITY_COLUMN = "population_centrality"
 
 def population_centrality(blocks_df: pd.DataFrame, adjacency_graph: nx.Graph) -> pd.DataFrame:
     # get blocks and find neighbors in radius
+    """Population centrality.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    adjacency_graph : nx.Graph
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
     degree_centrality = nx.degree_centrality(adjacency_graph)
 

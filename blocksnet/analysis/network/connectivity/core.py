@@ -6,6 +6,19 @@ ACCESSIBILITY_SUFFIX = "_accessibility"
 
 
 def _preprocess_and_validate(accessibility_df: pd.DataFrame) -> pd.DataFrame:
+    """Preprocess and validate.
+
+    Parameters
+    ----------
+    accessibility_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     columns = [c for c in accessibility_df.columns if ACCESSIBILITY_SUFFIX in c]
     if len(columns) > 1:
         raise ValueError(
@@ -19,6 +32,14 @@ def _preprocess_and_validate(accessibility_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def calculate_connectivity(accessibility_df: pd.DataFrame):
+    """Calculate connectivity.
+
+    Parameters
+    ----------
+    accessibility_df : pd.DataFrame
+        Description.
+
+    """
     accessibility_df = _preprocess_and_validate(accessibility_df)
     accessibility_df[CONNECTIVITY_COLUMN] = 1.0 / accessibility_df["accessibility"]
     return accessibility_df[[CONNECTIVITY_COLUMN]].copy()

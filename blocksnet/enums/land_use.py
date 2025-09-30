@@ -3,6 +3,9 @@ from enum import Enum
 
 class LandUse(Enum):
 
+    """LandUse class.
+
+    """
     RESIDENTIAL = "residential"
     BUSINESS = "business"
     RECREATION = "recreation"
@@ -12,4 +15,7 @@ class LandUse(Enum):
     AGRICULTURE = "agriculture"
 
     def to_one_hot(self):
+        """To one hot.
+
+        """
         return {lu.value: int(self == lu) for lu in LandUse}

@@ -30,6 +30,19 @@ FETCH_FUNCS = [
 
 
 def _fetch_occupied_areas(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Fetch occupied areas.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     geometry = blocks_gdf.buffer(const.BLOCKS_BUFFER).to_crs(4326).union_all()
     occupied_gdfs = []
 
@@ -47,6 +60,19 @@ def _fetch_occupied_areas(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _generate_features(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Generate features.
+
+    Parameters
+    ----------
+    vacant_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     vacant_gdf = vacant_gdf.copy()
 
     logger.info("Generating geometries features")
@@ -60,6 +86,19 @@ def _generate_features(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _filter_vacant_areas(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Filter vacant areas.
+
+    Parameters
+    ----------
+    vacant_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     vacant_gdf = vacant_gdf.copy()
 
     logger.info("Filtering geometries")
@@ -71,6 +110,16 @@ def _filter_vacant_areas(vacant_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _label_areas_with_blocks(vacant_gdf: gpd.GeoDataFrame, blocks_gdf: gpd.GeoDataFrame):
+    """Label areas with blocks.
+
+    Parameters
+    ----------
+    vacant_gdf : gpd.GeoDataFrame
+        Description.
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     centroid_gdf = vacant_gdf.copy()
     centroid_gdf.geometry = centroid_gdf.representative_point()
     centroid_gdf = centroid_gdf.sjoin(blocks_gdf, predicate="within")
@@ -79,6 +128,21 @@ def _label_areas_with_blocks(vacant_gdf: gpd.GeoDataFrame, blocks_gdf: gpd.GeoDa
 
 
 def get_vacant_areas(blocks_gdf: gpd.GeoDataFrame, basic_filter: bool = True) -> gpd.GeoDataFrame:
+    """Get vacant areas.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    basic_filter : bool, default: True
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
     occupied_gdf = _fetch_occupied_areas(blocks_gdf)
     vacant_gdf = blocks_gdf.overlay(occupied_gdf, how="difference")

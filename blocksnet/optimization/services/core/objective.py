@@ -13,6 +13,14 @@ class Penalty(ABC):
     """
 
     def __init__(self):
+        """Initialize the instance.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         pass
 
     @abstractmethod
@@ -197,6 +205,9 @@ class Objective(ABC):
         return self._current_func_evals < self._max_func_evals
 
     def check_optimize_need(self):
+        """Check optimize need.
+
+        """
         return any(abs(value - 1.0) > 1e-8 for value in self._facade.last_provisions.values())
 
 

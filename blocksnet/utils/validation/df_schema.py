@@ -8,6 +8,19 @@ TOP_N_ERRORS = 5
 
 
 def _index_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    """Index level errors.
+
+    Parameters
+    ----------
+    cases_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    list[str]
+        Description.
+
+    """
     idx_df = cases_df[cases_df["schema_context"] == "Index"].copy()
     messages = []
 
@@ -31,6 +44,19 @@ def _index_level_errors(cases_df: pd.DataFrame) -> list[str]:
 
 
 def _dataframe_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    """Dataframe level errors.
+
+    Parameters
+    ----------
+    cases_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    list[str]
+        Description.
+
+    """
     cases_df = cases_df[cases_df["schema_context"].isin(["DataFrame", "DataFrameSchema"])].copy()
     messages = []
     if not cases_df.empty:
@@ -45,6 +71,19 @@ def _dataframe_level_errors(cases_df: pd.DataFrame) -> list[str]:
 
 
 def _column_level_errors(cases_df: pd.DataFrame) -> list[str]:
+    """Column level errors.
+
+    Parameters
+    ----------
+    cases_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    list[str]
+        Description.
+
+    """
     cases_df = cases_df[cases_df["schema_context"] == "Column"].copy()
     messages = []
     if not cases_df.empty:
@@ -64,6 +103,14 @@ def _column_level_errors(cases_df: pd.DataFrame) -> list[str]:
 
 
 def _log_schema_errors(e: SchemaErrors):
+    """Log schema errors.
+
+    Parameters
+    ----------
+    e : SchemaErrors
+        Description.
+
+    """
     cases_df = e.failure_cases
     messages = ["Schema validation errors:"]
     messages.extend(_dataframe_level_errors(cases_df))
@@ -73,28 +120,73 @@ def _log_schema_errors(e: SchemaErrors):
 
 
 class DfSchema(pa.DataFrameModel):
+    """DfSchema class.
+
+    """
     idx: Index[int] = pa.Field(unique=True)
 
     class Config:
+        """Config class.
+
+        """
         strict = "filter"
         add_missing_columns = True
         coerce = True
 
     def __new__(cls, *args, **kwargs) -> pd.DataFrame:
+        """New.
+
+        Parameters
+        ----------
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         return cls.validate(*args, **kwargs)
 
     @classmethod
     def _check_instance(cls, df):
+        """Check instance.
+
+        Parameters
+        ----------
+        df : Any
+            Description.
+
+        """
         if not isinstance(df, pd.DataFrame):
             raise ValueError("An instance of DataFrame must be provided")
 
     @classmethod
     def _check_len(cls, df):
+        """Check len.
+
+        Parameters
+        ----------
+        df : Any
+            Description.
+
+        """
         if len(df) == 0:
             raise ValueError("Rows count must be greater than 0")
 
     @classmethod
     def _check_multi(cls, df):
+        """Check multi.
+
+        Parameters
+        ----------
+        df : Any
+            Description.
+
+        """
         if df.index.nlevels > 1:
             raise ValueError("Index must not be multi-leveled")
         if df.columns.nlevels > 1:
@@ -102,20 +194,69 @@ class DfSchema(pa.DataFrameModel):
 
     @classmethod
     def _reset_index_name(cls, df):
+        """Reset index name.
+
+        Parameters
+        ----------
+        df : Any
+            Description.
+
+        """
         index_name = df.index.name
         if index_name is not None:
             df.index.name = None
 
     @classmethod
     def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
+        """Before validate.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         return df
 
     @classmethod
     def _after_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
+        """After validate.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         return df
 
     @classmethod
     def validate(cls, df: pd.DataFrame, allow_empty: bool = False) -> pd.DataFrame:
+        """Validate.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+        allow_empty : bool, default: False
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         df = df.copy()
 
         cls._check_instance(df)
@@ -140,12 +281,36 @@ class DfSchema(pa.DataFrameModel):
 
     @classmethod
     def columns_(cls) -> list:
+        """Columns.
+
+        Returns
+        -------
+        list
+            Description.
+
+        """
         return list(cls.to_schema().columns.keys())
 
     @classmethod
     def create_empty(cls) -> pd.DataFrame:
+        """Create empty.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         return pd.DataFrame([], columns=cls.columns_())
 
     @classmethod
     def _enforce_columns_order(cls, df: pd.DataFrame):
+        """Enforce columns order.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+
+        """
         return df[cls.columns_()]

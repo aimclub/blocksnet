@@ -14,7 +14,25 @@ from .schemas import BlocksSchema, ServicesSchema
 
 
 class ServicesOptimizer:
+    """ServicesOptimizer class.
+
+    """
     def __init__(self, blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        blocks_df : pd.DataFrame
+            Description.
+        accessibility_matrix : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         validate_matrix(accessibility_matrix, blocks_df)
         self.blocks_df = BlocksSchema(blocks_df)
         self.accessibility_matrix = accessibility_matrix
@@ -22,33 +40,115 @@ class ServicesOptimizer:
         self.on_iteration: Callable = None
 
     def add_service_type(self, name: str, weight: float, services_df: pd.DataFrame):
+        """Add service type.
+
+        Parameters
+        ----------
+        name : str
+            Description.
+        weight : float
+            Description.
+        services_df : pd.DataFrame
+            Description.
+
+        """
         services_df = ServicesSchema(services_df)
         services_container = ServicesContainer(name=name, weight=weight, services_df=services_df)
         self.services_containers[name] = services_container
 
     def remove_service_type(self, name: str):
+        """Remove service type.
+
+        Parameters
+        ----------
+        name : str
+            Description.
+
+        """
         del self.services_containers[name]
 
     @property
     def service_types(self) -> dict[str, float]:
+        """Service types.
+
+        Returns
+        -------
+        dict[str, float]
+            Description.
+
+        """
         return {st: sc.weight for st, sc in self.services_containers.items()}
 
     def _get_service_types(self, land_use: LandUse) -> set[str]:
+        """Get service types.
+
+        Parameters
+        ----------
+        land_use : LandUse
+            Description.
+
+        Returns
+        -------
+        set[str]
+            Description.
+
+        """
         user_service_types = set(self.service_types)
         lu_service_types = set(service_types_config[land_use])
         return user_service_types & lu_service_types
 
     def _get_blocks_df(self, blocks_ids: list[int]) -> pd.DataFrame:
+        """Get blocks df.
+
+        Parameters
+        ----------
+        blocks_ids : list[int]
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         blocks_df = self.blocks_df.copy()
         blocks_df.loc[blocks_ids, "population"] = 0
         return blocks_df
 
     def _get_services_df(self, blocks_ids: list[int], service_type: str) -> pd.DataFrame:
+        """Get services df.
+
+        Parameters
+        ----------
+        blocks_ids : list[int]
+            Description.
+        service_type : str
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         services_df = self.services_containers[service_type].services_df.copy()
         services_df.loc[blocks_ids, "capacity"] = 0
         return services_df
 
     def _initialize_provisions_dfs(self, blocks_ids: list[int]) -> dict[str, pd.DataFrame]:
+        """Initialize provisions dfs.
+
+        Parameters
+        ----------
+        blocks_ids : list[int]
+            Description.
+
+        Returns
+        -------
+        dict[str, pd.DataFrame]
+            Description.
+
+        """
         log_level = log_config.logger_level
         disable_tqdm = log_config.disable_tqdm
 
@@ -79,6 +179,19 @@ class ServicesOptimizer:
         return provisions_dfs
 
     def _initialize_variables(self, blocks_lus: dict[int, LandUse]) -> list[Variable]:
+        """Initialize variables.
+
+        Parameters
+        ----------
+        blocks_lus : dict[int, LandUse]
+            Description.
+
+        Returns
+        -------
+        list[Variable]
+            Description.
+
+        """
         units = service_types_config.units
         blocks_service_types = {block_id: self._get_service_types(lu) for block_id, lu in blocks_lus.items()}
         blocks_units = {
@@ -93,6 +206,19 @@ class ServicesOptimizer:
         return variables
 
     def _variables_to_df(self, variables: list[Variable]) -> pd.DataFrame:
+        """Variables to df.
+
+        Parameters
+        ----------
+        variables : list[Variable]
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         data = [v.to_dict() for v in variables]
         return pd.DataFrame(data)
 
@@ -104,6 +230,22 @@ class ServicesOptimizer:
         rate: float = 0.95,
         iterations: int = 1000,
     ):
+        """Run.
+
+        Parameters
+        ----------
+        blocks_lus : dict[int, LandUse]
+            Description.
+        t_max : float, default: 100
+            Description.
+        t_min : float, default: 0.001
+            Description.
+        rate : float, default: 0.95
+            Description.
+        iterations : int, default: 1000
+            Description.
+
+        """
         provisions_dfs = self._initialize_provisions_dfs(list(blocks_lus))
         provisions_dfs = {
             service_type: provision_df
@@ -114,10 +256,28 @@ class ServicesOptimizer:
         variables = self._initialize_variables(blocks_lus)
 
         def update_variables(X: list[int]):
+            """Update variables.
+
+            Parameters
+            ----------
+            X : list[int]
+                Description.
+
+            """
             for i, x in enumerate(X):
                 variables[i].count = x
 
         def objective(X: list[int], i: int | None):
+            """Objective.
+
+            Parameters
+            ----------
+            X : list[int]
+                Description.
+            i : int | None
+                Description.
+
+            """
             update_variables(X)
 
             if i is not None:
@@ -157,6 +317,19 @@ class ServicesOptimizer:
             return val
 
         def constraint(X: list[int]) -> bool:
+            """Constraint.
+
+            Parameters
+            ----------
+            X : list[int]
+                Description.
+
+            Returns
+            -------
+            bool
+                Description.
+
+            """
             update_variables(X)
 
             for i, x in enumerate(X):

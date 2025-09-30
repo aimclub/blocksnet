@@ -9,9 +9,33 @@ ARTIFACTS_DIRECTORY = str(CURRENT_DIRECTORY / "artifacts")
 
 
 class MultiScaleGNN(nn.Module):
+    """MultiScaleGNN class.
+
+    """
     def __init__(
         self, input_size: int, output_size: int, hidden_dim: int = 128, num_layers: int = 2, dropout: float = 0.2
     ):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        input_size : int
+            Description.
+        output_size : int
+            Description.
+        hidden_dim : int, default: 128
+            Description.
+        num_layers : int, default: 2
+            Description.
+        dropout : float, default: 0.2
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__()
         self.output_size = output_size
         self.graphsage = GraphSAGE(
@@ -32,12 +56,30 @@ class MultiScaleGNN(nn.Module):
         )
 
     def forward(self, x: torch.Tensor, edge_index: torch.Tensor):
+        """Forward.
+
+        Parameters
+        ----------
+        x : torch.Tensor
+            Description.
+        edge_index : torch.Tensor
+            Description.
+
+        """
         features = self.graphsage(x, edge_index)
         output = self.output_layer(features)
         return output
 
 
 def get_default_strategy() -> TorchGraphImputationStrategy:
+    """Get default strategy.
+
+    Returns
+    -------
+    TorchGraphImputationStrategy
+        Description.
+
+    """
     strategy = TorchGraphImputationStrategy(model_cls=MultiScaleGNN)
     strategy.load(ARTIFACTS_DIRECTORY)
     return strategy

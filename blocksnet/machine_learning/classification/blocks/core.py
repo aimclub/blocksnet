@@ -16,31 +16,108 @@ MODEL_PATH = str(MODELS_DIRECTORY / "model.cbm")
 
 
 class BlocksClassifier(ModelWrapper):
+    """BlocksClassifier class.
+
+    """
     def __init__(self, model_path: str = MODEL_PATH):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        model_path : str, default: MODEL_PATH
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         ModelWrapper.__init__(self, model_path)
 
     def _initialize_x(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+        """Initialize x.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         gdf = BlocksSchema(blocks_gdf)
         gdf = generate_geometries_features(gdf, radiuses=False, aspect_ratios=True, centerlines=True, combinations=True)
         return gdf.drop(columns=["geometry"])
 
     def _initialize_y(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+        """Initialize y.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         df = BlocksCategoriesSchema(blocks_gdf)
         return df
 
     def get_train_data(self, blocks_gdf: gpd.GeoDataFrame, test: float, seed: int, *args, **kwargs):
+        """Get train data.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+        test : float
+            Description.
+        seed : int
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        """
         x = self._initialize_x(blocks_gdf)
         y = self._initialize_y(blocks_gdf)
         x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=test, random_state=seed, *args, **kwargs)
         return x_train, x_test, y_train, y_test
 
     def train(self):
+        """Train.
+
+        """
         ...
 
     def test(self):
+        """Test.
+
+        """
         ...
 
     def evaluate(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+        """Evaluate.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         x = self._initialize_x(blocks_gdf)
         columns = self.model.feature_names_
         out = self._evaluate_model(x[columns])

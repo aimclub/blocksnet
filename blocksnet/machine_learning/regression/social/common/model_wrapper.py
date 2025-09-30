@@ -98,6 +98,19 @@ class ModelWrapper:
         self.model_upper.fit(x_train, y_train)
 
     def _evaluate_model(self, x: pd.DataFrame) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+        """Evaluate model.
+
+        Parameters
+        ----------
+        x : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        tuple[np.ndarray, np.ndarray, np.ndarray]
+            Description.
+
+        """
         if self.model_median is None:
             raise KeyError("The model is not fitted")
         preds = self.model_median.predict(x)

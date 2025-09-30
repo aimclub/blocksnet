@@ -12,6 +12,14 @@ SEPARATOR = " "
 
 
 def _get_interpretation_column(column):
+    """Get interpretation column.
+
+    Parameters
+    ----------
+    column : Any
+        Description.
+
+    """
     return f"{column}_interpretation"
 
 
@@ -23,17 +31,48 @@ INTERPRETATIONS = {
 
 
 def _interpret_value(value: float, interpretation_dict: dict[float, str]):
+    """Interpret value.
+
+    Parameters
+    ----------
+    value : float
+        Description.
+    interpretation_dict : dict[float, str]
+        Description.
+
+    """
     keys = [key for key in interpretation_dict.keys() if key <= value]
     return interpretation_dict[max(keys)]
 
 
 def _interpret_cluster(series: pd.Series):
+    """Interpret cluster.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Description.
+
+    """
     interpretations_columns = [_get_interpretation_column(column) for column in INTERPRETATIONS.keys()]
     interpretations = [i for i in series[interpretations_columns] if i is not None]
     return str.join(SEPARATOR, interpretations)
 
 
 def _interpret_clusters(clusters_df: pd.DataFrame) -> pd.DataFrame:
+    """Interpret clusters.
+
+    Parameters
+    ----------
+    clusters_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     for column, interpretation_dict in INTERPRETATIONS.items():
         clusters_df[_get_interpretation_column(column)] = clusters_df[column].apply(
             lambda v: _interpret_value(v, interpretation_dict)
@@ -43,11 +82,41 @@ def _interpret_clusters(clusters_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _scale(df: pd.DataFrame) -> pd.DataFrame:
+    """Scale.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     scaler = StandardScaler()
     return pd.DataFrame(scaler.fit_transform(df), columns=df.columns)
 
 
 def _clusterize(df: pd.DataFrame, n_clusters: int, random_state: int) -> pd.DataFrame:
+    """Clusterize.
+
+    Parameters
+    ----------
+    df : pd.DataFrame
+        Description.
+    n_clusters : int
+        Description.
+    random_state : int
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     df = df.copy()
     df_scaled = _scale(df)
     kmeans = KMeans(n_clusters=n_clusters, random_state=random_state, n_init=N_INIT)
@@ -58,6 +127,23 @@ def _clusterize(df: pd.DataFrame, n_clusters: int, random_state: int) -> pd.Data
 def get_spacematrix_morphotypes(
     blocks_df: pd.DataFrame, n_clusters: int = DEFAULT_N_CLUSTERS, random_state: int = DEFAULT_RANDOM_STATE
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
+    """Get spacematrix morphotypes.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    n_clusters : int, default: DEFAULT_N_CLUSTERS
+        Description.
+    random_state : int, default: DEFAULT_RANDOM_STATE
+        Description.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.DataFrame]
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
     # clusterize blocks
     developed_blocks_df = blocks_df[blocks_df.fsi > 0]

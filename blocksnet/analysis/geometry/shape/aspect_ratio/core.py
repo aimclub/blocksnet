@@ -7,6 +7,19 @@ ASPECT_RATIO_COLUMN = "aspect_ratio"
 
 
 def _calculate_aspect_ratio(polygon: shapely.Polygon) -> float | None:
+    """Calculate aspect ratio.
+
+    Parameters
+    ----------
+    polygon : shapely.Polygon
+        Description.
+
+    Returns
+    -------
+    float | None
+        Description.
+
+    """
     rectangle = polygon.minimum_rotated_rectangle
     rectangle_coords = list(rectangle.exterior.coords)
 
@@ -29,6 +42,19 @@ def _calculate_aspect_ratio(polygon: shapely.Polygon) -> float | None:
 
 
 def calculate_aspect_ratio(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Calculate aspect ratio.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     if log_config.disable_tqdm:

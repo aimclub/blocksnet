@@ -32,6 +32,19 @@ def str_to_land_use(lu_str: str) -> LandUse:
 
 # LandUse → LandUseCategory
 def land_use_to_category(lu: LandUse) -> LandUseCategory | None:
+    """Land use to category.
+
+    Parameters
+    ----------
+    lu : LandUse
+        Description.
+
+    Returns
+    -------
+    LandUseCategory | None
+        Description.
+
+    """
     return LandUseCategory.from_land_use(lu)
 
 def category_to_index(val) -> int | None:
@@ -52,6 +65,9 @@ INDEX_TO_CATEGORY = {i: cat for cat, i in CATEGORY_TO_INDEX.items()}
 
 
 class SpatialClassifier(BaseContext):
+    """SpatialClassifier class.
+
+    """
     def __init__(
         self,
         strategy: BaseStrategy,

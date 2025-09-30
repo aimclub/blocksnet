@@ -27,6 +27,23 @@ DEFAULT_ACCESSIBILITY = 10
 
 def _calculate_nodes_weights(blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, accessibility: float) -> pd.DataFrame:
 
+    """Calculate nodes weights.
+
+    Parameters
+    ----------
+    blocks_df : gpd.GeoDataFrame
+        Description.
+    acc_mx : pd.DataFrame
+        Description.
+    accessibility : float
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     logger.info("Identifying nearest nodes to blocks")
     acc_mx = acc_mx.replace(0, 0.1)
     acc_mask = acc_mx <= accessibility
@@ -46,6 +63,21 @@ def _calculate_nodes_weights(blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, 
 
 
 def _calculate_diversity(blocks_df: pd.DataFrame, services_dfs: list[pd.DataFrame]) -> pd.DataFrame:
+    """Calculate diversity.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    services_dfs : list[pd.DataFrame]
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     logger.info("Calculating diversity and density")
     diversity_df = shannon_diversity(services_dfs)
     blocks_df = blocks_df.join(diversity_df)
@@ -54,6 +86,21 @@ def _calculate_diversity(blocks_df: pd.DataFrame, services_dfs: list[pd.DataFram
 
 
 def _calculate_attractiveness(blocks_df: pd.DataFrame, lu_consts: dict[LandUse, float]) -> pd.DataFrame:
+    """Calculate attractiveness.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    lu_consts : dict[LandUse, float]
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     logger.info("Calculating attractiveness")
     blocks_df = blocks_df.copy()
     scaler = MinMaxScaler()
@@ -67,6 +114,21 @@ def _calculate_attractiveness(blocks_df: pd.DataFrame, lu_consts: dict[LandUse, 
 
 
 def _calculate_od_mx(nodes_df: pd.DataFrame, acc_mx: pd.DataFrame) -> pd.DataFrame:
+    """Calculate od mx.
+
+    Parameters
+    ----------
+    nodes_df : pd.DataFrame
+        Description.
+    acc_mx : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     logger.info("Calculating origin destination matrix")
     acc_mx = acc_mx.replace(0, np.nan)
     return pd.DataFrame(
@@ -77,6 +139,18 @@ def _calculate_od_mx(nodes_df: pd.DataFrame, acc_mx: pd.DataFrame) -> pd.DataFra
 
 
 def _validate_input(blocks_df: pd.DataFrame, blocks_to_nodes_mx: pd.DataFrame, nodes_to_nodes_mx: pd.DataFrame):
+    """Validate input.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    blocks_to_nodes_mx : pd.DataFrame
+        Description.
+    nodes_to_nodes_mx : pd.DataFrame
+        Description.
+
+    """
     logger.info("Validating input data")
     if not all(blocks_df.index == blocks_to_nodes_mx.index):
         raise ValueError("blocks_df index and blocks_to_nodes_mx index must match")
@@ -95,6 +169,29 @@ def origin_destination_matrix(
     lu_consts: dict[LandUse, float] = LU_CONSTS,
 ) -> pd.DataFrame:
 
+    """Origin destination matrix.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    blocks_to_nodes_mx : pd.DataFrame
+        Description.
+    nodes_to_nodes_mx : pd.DataFrame
+        Description.
+    services_dfs : list[pd.DataFrame]
+        Description.
+    accessibility : float, default: DEFAULT_ACCESSIBILITY
+        Description.
+    lu_consts : dict[LandUse, float], default: LU_CONSTS
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
     _validate_input(blocks_df, blocks_to_nodes_mx, nodes_to_nodes_mx)
 

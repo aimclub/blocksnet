@@ -16,6 +16,27 @@ def land_use_accessibility(
     out: bool = True,
     agg_func: Callable = np.median,
 ) -> pd.DataFrame:
+    """Land use accessibility.
+
+    Parameters
+    ----------
+    accessibility_matrix : pd.DataFrame
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    land_use : LandUse
+        Description.
+    out : bool, default: True
+        Description.
+    agg_func : Callable, default: np.median
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     if not isinstance(land_use, LandUse):
         raise TypeError(f"land_use must be an instance of {LandUse.__name__}")
     blocks_df = LandUseAccessibilityBlocksSchema(blocks_df)
@@ -28,6 +49,23 @@ def land_use_accessibility(
 def land_use_accessibility_matrix(
     accessibility_matrix: pd.DataFrame, blocks_df: pd.DataFrame, agg_func: Callable = np.median
 ) -> pd.DataFrame:
+    """Land use accessibility matrix.
+
+    Parameters
+    ----------
+    accessibility_matrix : pd.DataFrame
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    agg_func : Callable, default: np.median
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     validate_accessibility_matrix(
         accessibility_matrix, blocks_df=blocks_df, index=True, columns=True, check_squared=False
     )

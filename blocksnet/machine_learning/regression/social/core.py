@@ -14,19 +14,82 @@ MODEL_PATH = str(MODELS_DIRECTORY / "model.pkl")
 
 
 class SocialRegressor(ModelWrapper):
+    """SocialRegressor class.
+
+    """
     def __init__(self, model_path: str = MODEL_PATH, *args, **kwargs):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        model_path : str, default: MODEL_PATH
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         ModelWrapper.__init__(self, model_path, *args, **kwargs)
 
     def _initialize_x(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Initialize x.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         return TechnicalIndicatorsSchema(data)
 
     def _initialize_y(self, data: pd.DataFrame) -> pd.DataFrame:
+        """Initialize y.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         return SocialIndicatorsSchema(data)
 
     def get_train_data(
         self, data: pd.DataFrame, train_size: float = 0.8, drop_na: bool = True
     ) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
+        """Get train data.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Description.
+        train_size : float, default: 0.8
+            Description.
+        drop_na : bool, default: True
+            Description.
+
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame, pd.DataFrame]
+            Description.
+
+        """
         if drop_na:
             data = data.dropna(axis=1, how="all")
         x = self._initialize_x(data)
@@ -37,10 +100,35 @@ class SocialRegressor(ModelWrapper):
         return x_train, x_test, y_train, y_test
 
     def train(self, x_train: pd.DataFrame, y_train: pd.DataFrame, confidence_level: float = 95.0):
+        """Train.
+
+        Parameters
+        ----------
+        x_train : pd.DataFrame
+            Description.
+        y_train : pd.DataFrame
+            Description.
+        confidence_level : float, default: 95.0
+            Description.
+
+        """
         self._train_model(x_train, y_train, confidence_level)
 
     def evaluate(self, data: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
 
+        """Evaluate.
+
+        Parameters
+        ----------
+        data : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]
+            Description.
+
+        """
         x = self._initialize_x(data)
         y_pred, pi_lower, pi_upper = self._evaluate_model(x)
 
@@ -56,6 +144,25 @@ class SocialRegressor(ModelWrapper):
         self, y_pred: pd.DataFrame, pi_lower_df: pd.DataFrame, pi_upper_df: pd.DataFrame, y_test: pd.DataFrame = None
     ) -> pd.DataFrame:
 
+        """Calculate interval stats.
+
+        Parameters
+        ----------
+        y_pred : pd.DataFrame
+            Description.
+        pi_lower_df : pd.DataFrame
+            Description.
+        pi_upper_df : pd.DataFrame
+            Description.
+        y_test : pd.DataFrame, default: None
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         stats_df = {}
 
         for target_name in SocialIndicatorsSchema.columns_():

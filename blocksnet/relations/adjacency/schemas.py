@@ -6,11 +6,27 @@ import pandas as pd
 
 class BlocksSchema(GdfSchema):
     @classmethod
+    """BlocksSchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.Polygon}
 
 
 def validate_adjacency_graph(graph: nx.Graph, blocks_df: pd.DataFrame):
+    """Validate adjacency graph.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     if not isinstance(graph, nx.Graph):
         raise ValueError("Graph must be provided as an instance of nx.Graph")
     if not isinstance(blocks_df, pd.DataFrame):

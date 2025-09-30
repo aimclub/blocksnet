@@ -12,23 +12,70 @@ DEFAULT_CRS = 4326
 
 
 class GdfSchema(DfSchema):
+    """GdfSchema class.
+
+    """
     geometry: GeoSeries
 
     def __new__(cls, *args, **kwargs) -> gpd.GeoDataFrame:
+        """New.
+
+        Parameters
+        ----------
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            Description.
+
+        """
         return cast(gpd.GeoDataFrame, cls.validate(*args, **kwargs))
 
     @classmethod
     def create_empty(cls, crs: pyproj.CRS | int | None = DEFAULT_CRS) -> gpd.GeoDataFrame:
+        """Create empty.
+
+        Parameters
+        ----------
+        crs : pyproj.CRS | int | None, default: DEFAULT_CRS
+            Description.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            Description.
+
+        """
         return gpd.GeoDataFrame([], columns=cls.columns_(), crs=crs)
 
     @classmethod
     def _check_instance(cls, gdf):
+        """Check instance.
+
+        Parameters
+        ----------
+        gdf : Any
+            Description.
+
+        """
         if not isinstance(gdf, gpd.GeoDataFrame):
             raise ValueError("An instance of GeoDataFrame must be provided")
 
     @pa.dataframe_parser
     @classmethod
     def _warn_crs(cls, gdf):
+        """Warn crs.
+
+        Parameters
+        ----------
+        gdf : Any
+            Description.
+
+        """
         current_crs = gdf.crs
         if current_crs is None:
             logger.warning("Current CRS is None. Further operations might be invalid")
@@ -42,9 +89,30 @@ class GdfSchema(DfSchema):
 
     @classmethod
     def _geometry_types(cls) -> set[type[BaseGeometry]]:
+        """Geometry types.
+
+        Returns
+        -------
+        set[type[BaseGeometry]]
+            Description.
+
+        """
         raise NotImplementedError
 
     @pa.check("geometry")
     @classmethod
     def _check_geometry(cls, series) -> pd.Series:
+        """Check geometry.
+
+        Parameters
+        ----------
+        series : Any
+            Description.
+
+        Returns
+        -------
+        pd.Series
+            Description.
+
+        """
         return series.map(lambda x: any(isinstance(x, geom_type) for geom_type in cls._geometry_types()))

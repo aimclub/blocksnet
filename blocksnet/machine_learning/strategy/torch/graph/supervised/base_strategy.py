@@ -7,7 +7,27 @@ from ..base_strategy import TorchGraphBaseStrategy
 
 
 class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
+    """TorchGraphSupervisedStrategy class.
+
+    """
     def _epoch_train(self, batch: Data, optimizer: torch.optim.Optimizer, criterion: torch.nn.Module) -> float:
+        """Epoch train.
+
+        Parameters
+        ----------
+        batch : Data
+            Description.
+        optimizer : torch.optim.Optimizer
+            Description.
+        criterion : torch.nn.Module
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         model = self.model
         model.train()
         optimizer.zero_grad()
@@ -18,6 +38,21 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
         return loss.item()
 
     def _epoch_test(self, batch: Data, criterion: torch.nn.Module) -> float:
+        """Epoch test.
+
+        Parameters
+        ----------
+        batch : Data
+            Description.
+        criterion : torch.nn.Module
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         model = self.model
         model.eval()
         with torch.no_grad():
@@ -34,6 +69,27 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
         **kwargs,
     ) -> tuple[float, float]:
 
+        """Epoch.
+
+        Parameters
+        ----------
+        data_loader : DataLoader
+            Description.
+        data : dict[str, torch.Tensor]
+            Description.
+        optimizer : torch.optim.Optimizer
+            Description.
+        criterion : torch.nn.Module
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        tuple[float, float]
+            Description.
+
+        """
         batch_train_losses = []
         batch_test_losses = []
 
@@ -50,12 +106,42 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
         return train_loss, test_loss
 
     def _predict(self, data: dict[str, torch.Tensor]) -> torch.Tensor:
+        """Predict.
+
+        Parameters
+        ----------
+        data : dict[str, torch.Tensor]
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         x = data["x"]
         edge_index = data["edge_index"]
         edge_attr = data.get("edge_attr")
         return self.model(x, edge_index, edge_attr)
 
     def predict(self, x: np.ndarray, edge_index: np.ndarray, edge_attr: np.ndarray | None) -> np.ndarray:
+        """Predict.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        edge_index : np.ndarray
+            Description.
+        edge_attr : np.ndarray | None
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         return super().predict(x=x, edge_index=edge_index, edge_attr=edge_attr)
 
     def train(
@@ -73,6 +159,41 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
         criterion_params: dict | None = None,
         data_loader_params: dict | None = None,
     ) -> tuple[list[float], list[float]]:
+        """Train.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        y : np.ndarray
+            Description.
+        edge_index : np.ndarray
+            Description.
+        train_mask : np.ndarray
+            Description.
+        test_mask : np.ndarray
+            Description.
+        edge_attr : np.ndarray | None, default: None
+            Description.
+        epochs : int, default: 100
+            Description.
+        optimizer_cls : type[torch.optim.Optimizer] | None, default: None
+            Description.
+        optimizer_params : dict | None, default: None
+            Description.
+        criterion_cls : type[torch.nn.Module] | None, default: None
+            Description.
+        criterion_params : dict | None, default: None
+            Description.
+        data_loader_params : dict | None, default: None
+            Description.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            Description.
+
+        """
         return super().train(
             x=x,
             y=y,
@@ -90,17 +211,69 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
 
     @abstractmethod
     def _x_to_tensor(self, x: np.ndarray) -> torch.Tensor:
+        """X to tensor.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         pass
 
     @abstractmethod
     def _y_to_tensor(self, y: np.ndarray) -> torch.Tensor:
+        """Y to tensor.
+
+        Parameters
+        ----------
+        y : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         pass
 
     def _edge_index_to_tensor(self, edge_index: np.ndarray) -> torch.Tensor:
+        """Edge index to tensor.
+
+        Parameters
+        ----------
+        edge_index : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return torch.tensor(edge_index, dtype=torch.long, device=self.device)
 
     @abstractmethod
     def _edge_attr_to_tensor(self, edge_attr: np.ndarray) -> torch.Tensor:
+        """Edge attr to tensor.
+
+        Parameters
+        ----------
+        edge_attr : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         pass
 
     def _preprocess(
@@ -113,6 +286,29 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
         test_mask: np.ndarray | None = None,
     ) -> dict[str, torch.Tensor]:
 
+        """Preprocess.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        edge_index : np.ndarray
+            Description.
+        y : np.ndarray | None, default: None
+            Description.
+        edge_attr : np.ndarray | None, default: None
+            Description.
+        train_mask : np.ndarray | None, default: None
+            Description.
+        test_mask : np.ndarray | None, default: None
+            Description.
+
+        Returns
+        -------
+        dict[str, torch.Tensor]
+            Description.
+
+        """
         result = {}
         is_fit_scaler = train_mask is not None
 
@@ -135,6 +331,19 @@ class TorchGraphSupervisedStrategy(TorchGraphBaseStrategy, ABC):
         return result
 
     def _postprocess(self, y: torch.Tensor) -> np.ndarray:
+        """Postprocess.
+
+        Parameters
+        ----------
+        y : torch.Tensor
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         a = y.cpu().numpy()
         (a,) = self._inverse_scale("y", a)
         return a

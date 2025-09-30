@@ -9,6 +9,16 @@ COUNT_COLUMN = "count"
 
 
 def _preprocess_input(blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFrame):
+    """Preprocess input.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    objects_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     logger.info("Preprocessing input")
     ensure_crs(blocks_gdf, objects_gdf)
     objects_gdf["geometry"] = objects_gdf.representative_point()
@@ -21,6 +31,14 @@ def _preprocess_input(blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFram
 
 
 def _get_agg_rules(objects_gdf: gpd.GeoDataFrame):
+    """Get agg rules.
+
+    Parameters
+    ----------
+    objects_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     agg_dict = {}
     for col in objects_gdf.columns:
         if col == "geometry":
@@ -34,6 +52,21 @@ def _get_agg_rules(objects_gdf: gpd.GeoDataFrame):
 def aggregate_objects(
     blocks_gdf: gpd.GeoDataFrame, objects_gdf: gpd.GeoDataFrame
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]:
+    """Aggregate objects.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    objects_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    tuple[gpd.GeoDataFrame, gpd.GeoDataFrame]
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
     objects_gdf = objects_gdf.copy()
     _preprocess_input(blocks_gdf, objects_gdf)

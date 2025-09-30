@@ -5,6 +5,9 @@ from ...indicator.meta import IndicatorMeta
 
 @unique
 class EngineeringIndicator(IndicatorEnum):
+    """EngineeringIndicator class.
+
+    """
     NON_GASIFIED_SETTLEMENTS = IndicatorMeta("non_gasified_settlements")
     INFRASTRUCTURE_OBJECT = IndicatorMeta("infrastructure_object")
     POWER_PLANT = IndicatorMeta("power_plant")

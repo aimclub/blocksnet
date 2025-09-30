@@ -8,6 +8,19 @@ IDUEDU_CRS = 4326
 
 
 def _get_geometry(territory_gdf: gpd.GeoDataFrame) -> shapely.Polygon:
+    """Get geometry.
+
+    Parameters
+    ----------
+    territory_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    shapely.Polygon
+        Description.
+
+    """
     territory_gdf = TerritorySchema(territory_gdf)
     polygon_geom = territory_gdf.union_all().convex_hull
     polygon_gdf = gpd.GeoDataFrame(geometry=[polygon_geom], crs=territory_gdf.crs)
@@ -21,6 +34,25 @@ def get_accessibility_graph(
     territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs
 ) -> nx.Graph:
 
+    """Get accessibility graph.
+
+    Parameters
+    ----------
+    territory_gdf : gpd.GeoDataFrame
+        Description.
+    graph_type : Literal["drive", "walk", "intermodal"]
+        Description.
+    *args : tuple
+        Description.
+    **kwargs : dict
+        Description.
+
+    Returns
+    -------
+    nx.Graph
+        Description.
+
+    """
     geometry = _get_geometry(territory_gdf)
 
     import iduedu as ie

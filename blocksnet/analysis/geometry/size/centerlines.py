@@ -8,6 +8,14 @@ CENTERLINE_LENGTH_COLUMN = "centerline_length"
 
 def calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
 
+    """Calculate centerlines.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     try:
         import pygeoops
     except ImportError:
@@ -16,6 +24,19 @@ def calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     def _calculate_centerline(polygon: Polygon) -> float:
+        """Calculate centerline.
+
+        Parameters
+        ----------
+        polygon : Polygon
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         try:
             return pygeoops.centerline(polygon).length
         except Exception as e:

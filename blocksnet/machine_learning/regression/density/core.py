@@ -20,6 +20,9 @@ SCALER_PATH = str(MODELS_DIRECTORY / "scaler.pkl")
 
 
 class DensityRegressor(ModelWrapper, ScalerWrapper):
+    """DensityRegressor class.
+
+    """
     def __init__(
         self,
         model_class: type[torch.nn.Module] = SageModel,
@@ -28,16 +31,65 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         *args,
         **kwargs,
     ):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        model_class : type[torch.nn.Module], default: SageModel
+            Description.
+        model_path : str, default: MODEL_PATH
+            Description.
+        scaler_path : str, default: SCALER_PATH
+            Description.
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         n_features = len(BlocksLandUseSchema.columns_()) + len(BlocksGeometriesSchema.columns_())
         n_targets = len(BlocksDensitiesSchema.columns_())
         ModelWrapper.__init__(self, n_features, n_targets, model_class, model_path, *args, **kwargs)
         ScalerWrapper.__init__(self, scaler_path)
 
     def _features_from_land_use(self, blocks_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+        """Features from land use.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         df = BlocksLandUseSchema(blocks_gdf)
         return df
 
     def _features_from_geometries(self, blocks_gdf: gpd.GeoDataFrame, fit_scaler: bool) -> pd.DataFrame:
+        """Features from geometries.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+        fit_scaler : bool
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         gdf = BlocksSchema(blocks_gdf)
         gdf = generate_geometries_features(
             gdf, radiuses=False, aspect_ratios=False, centerlines=False, combinations=False
@@ -50,18 +102,59 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         return pd.DataFrame(data, index=df.index, columns=df.columns)
 
     def _initialize_x(self, blocks_gdf: gpd.GeoDataFrame, fit_scaler: bool) -> torch.Tensor:
+        """Initialize x.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+        fit_scaler : bool
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         land_use_df = self._features_from_land_use(blocks_gdf)
         geometries_df = self._features_from_geometries(blocks_gdf, fit_scaler)
         df = land_use_df.join(geometries_df)
         return torch.tensor(df.values, dtype=torch.float)
 
     def _initialize_edge_index(self, adjacency_graph: nx.Graph) -> torch.Tensor:
+        """Initialize edge index.
+
+        Parameters
+        ----------
+        adjacency_graph : nx.Graph
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         adjacency_graph = nx.convert_node_labels_to_integers(adjacency_graph)
         edges_list = list(adjacency_graph.edges)
         edges_tensor = torch.tensor(edges_list, dtype=torch.long)
         return edges_tensor.t().contiguous()
 
     def _initialize_y(self, blocks_gdf: gpd.GeoDataFrame) -> torch.Tensor:
+        """Initialize y.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         df = BlocksDensitiesSchema(blocks_gdf)
         return torch.tensor(df.values, dtype=torch.float)
 
@@ -72,6 +165,25 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         fit_scaler: bool = True,
         test: float | list[int] = 0.2,
     ) -> Data:
+        """Get train data.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+        adjacency_graph : nx.Graph
+            Description.
+        fit_scaler : bool, default: True
+            Description.
+        test : float | list[int], default: 0.2
+            Description.
+
+        Returns
+        -------
+        Data
+            Description.
+
+        """
         validate_adjacency_graph(adjacency_graph, blocks_gdf)
         x = self._initialize_x(blocks_gdf, fit_scaler)
         edge_index = self._initialize_edge_index(adjacency_graph)
@@ -102,14 +214,59 @@ class DensityRegressor(ModelWrapper, ScalerWrapper):
         loss_fn=F.huber_loss,
         **kwargs,
     ):
+        """Train.
+
+        Parameters
+        ----------
+        data : Any
+            Description.
+        epochs : int, default: 1000
+            Description.
+        learning_rate : float, default: 0.0003
+            Description.
+        weight_decay : float, default: 0.0005
+            Description.
+        loss_fn : Any, default: F.huber_loss
+            Description.
+        **kwargs : dict
+            Description.
+
+        """
         return self._train_model(
             data, epochs=epochs, learning_rate=learning_rate, weight_decay=weight_decay, loss_fn=loss_fn, **kwargs
         )
 
     def test(self, data, loss_fn=F.huber_loss, **kwargs):
+        """Test.
+
+        Parameters
+        ----------
+        data : Any
+            Description.
+        loss_fn : Any, default: F.huber_loss
+            Description.
+        **kwargs : dict
+            Description.
+
+        """
         return self._test_model(data, loss_fn=loss_fn, **kwargs)
 
     def evaluate(self, blocks_gdf: gpd.GeoDataFrame, adjacency_graph: nx.Graph) -> gpd.GeoDataFrame:
+        """Evaluate.
+
+        Parameters
+        ----------
+        blocks_gdf : gpd.GeoDataFrame
+            Description.
+        adjacency_graph : nx.Graph
+            Description.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            Description.
+
+        """
         validate_adjacency_graph(adjacency_graph, blocks_gdf)
 
         x = self._initialize_x(blocks_gdf, fit_scaler=False)

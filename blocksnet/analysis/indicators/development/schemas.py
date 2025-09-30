@@ -6,6 +6,9 @@ from ....utils.validation import DfSchema
 
 class BlocksSchema(DfSchema):
 
+    """BlocksSchema class.
+
+    """
     site_area: Series[float] = Field(ge=0)
     fsi: Series[float] = Field(ge=0)
     gsi: Series[float] = Field(ge=0, le=1)

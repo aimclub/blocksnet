@@ -4,6 +4,21 @@ from ....enums.land_use import LandUse
 
 
 def calculate_land_use_shares(blocks_df: pd.DataFrame, area: float | None = None) -> dict[LandUse, float]:
+    """Calculate land use shares.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    area : float | None, default: None
+        Description.
+
+    Returns
+    -------
+    dict[LandUse, float]
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
 
     if area is None:

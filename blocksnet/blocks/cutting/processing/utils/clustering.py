@@ -5,6 +5,19 @@ from shapely import convex_hull
 
 def clusterize(buildings_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
+    """Clusterize.
+
+    Parameters
+    ----------
+    buildings_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     import warnings
 
     warnings.filterwarnings(
@@ -25,6 +38,14 @@ def clusterize(buildings_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def make_convex_hulls(clustered_gdf: gpd.GeoDataFrame):
+    """Make convex hulls.
+
+    Parameters
+    ----------
+    clustered_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     clusters = clustered_gdf["cluster"].unique()
     convex_hulls = []
 

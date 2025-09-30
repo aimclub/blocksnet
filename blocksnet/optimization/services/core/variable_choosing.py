@@ -72,7 +72,23 @@ class VariableChooser(ABC):
 
 
 class SimpleChooser(VariableChooser):
+    """SimpleChooser class.
+
+    """
     def __init__(self, facade: Facade):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        facade : Facade
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__(facade)
 
     def _choose(self, permut: ArrayLike, trials_data_callback: Callable) -> tuple[ArrayLike, ArrayLike]:
@@ -231,6 +247,14 @@ class GradientChooser(VariableChooser):
 
         # Define sorting key based on provision improvement per resource invested
         def gradient_sortkey(x):
+            """Gradient sortkey.
+
+            Parameters
+            ----------
+            x : Any
+                Description.
+
+            """
             if service_increment[x] == 0:
                 return 0
 

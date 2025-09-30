@@ -10,6 +10,14 @@ from scipy.spatial.distance import cdist
 
 
 def graph_to_gdf(graph):
+    """Graph to gdf.
+
+    Parameters
+    ----------
+    graph : Any
+        Description.
+
+    """
     nodes_data = pd.DataFrame.from_dict(dict(graph.nodes(data=True)), orient="index")
 
     x_col = "x" if "x" in nodes_data.columns else "lon"
@@ -114,6 +122,14 @@ def simplify_graph(G: nx.Graph, fix_artifacts: bool = True) -> nx.Graph:
 
 
 def adj_matrix(G):
+    """Adj matrix.
+
+    Parameters
+    ----------
+    G : Any
+        Description.
+
+    """
     nodes = sorted(G.nodes())
     n = len(nodes)
     node_to_idx = {node: idx for idx, node in enumerate(nodes)}
@@ -129,6 +145,16 @@ def adj_matrix(G):
 
 def compute_distance_matrix(graph, gdf):
 
+    """Compute distance matrix.
+
+    Parameters
+    ----------
+    graph : Any
+        Description.
+    gdf : Any
+        Description.
+
+    """
     coords = np.array([(point.x, point.y) for point in gdf.geometry])
     distance_matrix = cdist(coords, coords)
 

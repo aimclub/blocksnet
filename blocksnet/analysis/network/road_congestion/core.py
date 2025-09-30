@@ -11,6 +11,18 @@ CONGESTION_KEY = "congestion"
 
 def road_congestion(od_mx: pd.DataFrame, graph: nx.Graph, weight_key: str = "time_min"):
 
+    """Road congestion.
+
+    Parameters
+    ----------
+    od_mx : pd.DataFrame
+        Description.
+    graph : nx.Graph
+        Description.
+    weight_key : str, default: 'time_min'
+        Description.
+
+    """
     validate_od_matrix(od_mx, graph)
     validate_accessibility_graph(graph, weight_key)
     graph = graph.copy()

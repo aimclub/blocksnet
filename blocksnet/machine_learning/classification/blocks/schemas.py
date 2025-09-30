@@ -8,7 +8,13 @@ from .common import BlockCategory
 
 class BlocksSchema(GdfSchema):
     @classmethod
+    """BlocksSchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.Polygon}
 
 
@@ -22,9 +28,25 @@ class BlocksSchema(GdfSchema):
 
 class BlocksCategoriesSchema(DfSchema):
 
+    """BlocksCategoriesSchema class.
+
+    """
     category: Series
 
     @parser("category")
     @classmethod
     def _parse_land_use(cls, category: pd.Series) -> pd.Series:
+        """Parse land use.
+
+        Parameters
+        ----------
+        category : pd.Series
+            Description.
+
+        Returns
+        -------
+        pd.Series
+            Description.
+
+        """
         return category.apply(lambda c: BlockCategory(c.lower()) if isinstance(c, str) else c)

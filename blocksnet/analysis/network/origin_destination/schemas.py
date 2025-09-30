@@ -7,11 +7,24 @@ from blocksnet.utils.validation import GdfSchema, LandUseSchema
 
 
 class BlocksSchema(LandUseSchema):
+    """BlocksSchema class.
+
+    """
     population: Series[int] = Field(ge=0)
     site_area: Series[float] = Field(ge=0)
 
 
 def validate_od_matrix(od_mx: pd.DataFrame, graph: nx.Graph):
+    """Validate od matrix.
+
+    Parameters
+    ----------
+    od_mx : pd.DataFrame
+        Description.
+    graph : nx.Graph
+        Description.
+
+    """
     if not isinstance(od_mx, pd.DataFrame):
         raise ValueError("Origin destination matrix must be an instance of pd.DataFrame")
     if not all(od_mx.index == od_mx.columns):

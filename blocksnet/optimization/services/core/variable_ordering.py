@@ -14,13 +14,47 @@ class VariablesOrder(ABC):
     """
 
     def __init__(self):
+        """Initialize the instance.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         pass
 
     @abstractmethod
     def _order(self, x: ArrayLike) -> ArrayLike:
+        """Order.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            Description.
+
+        Returns
+        -------
+        ArrayLike
+            Description.
+
+        """
         pass
 
     def __call__(self, x: ArrayLike) -> ArrayLike:
+        """Call the instance.
+
+        Parameters
+        ----------
+        x : ArrayLike
+            Description.
+
+        Returns
+        -------
+        ArrayLike
+            Description.
+
+        """
         return self._order(x)
 
 
@@ -57,6 +91,14 @@ class RandomOrder(VariablesOrder):
     """
 
     def __init__(self):
+        """Initialize the instance.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__()
 
     def _order(self, x: ArrayLike) -> ArrayLike:
@@ -139,6 +181,19 @@ class IndexBasedOrder(VariablesOrder):
     """
 
     def __init__(self, indices: ArrayLike):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        indices : ArrayLike
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__()
         self.indices = indices
 

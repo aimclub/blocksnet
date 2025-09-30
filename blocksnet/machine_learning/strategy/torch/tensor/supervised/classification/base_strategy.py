@@ -23,9 +23,25 @@ CRITERIONS = {
 
 class TorchTensorBaseClassificationStrategy(ClassificationBase, TorchTensorSupervisedStrategy, ABC):
 
+    """TorchTensorBaseClassificationStrategy class.
+
+    """
     _default_criterion_cls: type[torch.nn.Module]
 
     def _x_to_tensor(self, x: np.ndarray) -> torch.Tensor:
+        """X to tensor.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return torch.tensor(x, dtype=torch.float32, device=self.device)
 
     def _build_criterion(
@@ -33,6 +49,21 @@ class TorchTensorBaseClassificationStrategy(ClassificationBase, TorchTensorSuper
         criterion_cls: type[torch.nn.Module] | None,
         criterion_params: dict | None,
     ) -> torch.nn.Module:
+        """Build criterion.
+
+        Parameters
+        ----------
+        criterion_cls : type[torch.nn.Module] | None
+            Description.
+        criterion_params : dict | None
+            Description.
+
+        Returns
+        -------
+        torch.nn.Module
+            Description.
+
+        """
         if criterion_cls is None:
             criterion_cls = self._default_criterion_cls
             logger.warning(f"One should provide criterion_cls. Using {criterion_cls.__name__} by default.")
@@ -45,6 +76,16 @@ class TorchTensorBaseClassificationStrategy(ClassificationBase, TorchTensorSuper
         return criterion_cls(**criterion_params)
 
     def predict(self, x: np.ndarray, criterion_cls: type[torch.nn.Module] | None = None):
+        """Predict.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        criterion_cls : type[torch.nn.Module] | None, default: None
+            Description.
+
+        """
         logits = super().predict(x)
         logits = torch.from_numpy(logits)
         if criterion_cls is None:
@@ -59,6 +100,21 @@ class TorchTensorBaseClassificationStrategy(ClassificationBase, TorchTensorSuper
         return preds.numpy()
 
     def predict_proba(self, x: np.ndarray, criterion_cls: type[torch.nn.Module] | None = None) -> np.ndarray:
+        """Predict proba.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+        criterion_cls : type[torch.nn.Module] | None, default: None
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         logits = super().predict(x)
         logits = torch.from_numpy(logits)
         if criterion_cls is None:

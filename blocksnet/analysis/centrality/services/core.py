@@ -14,6 +14,21 @@ def _calculate_connectivity(
     accessibility_matrix: pd.DataFrame, accessibility_func: Callable[[pd.DataFrame], pd.DataFrame]
 ) -> pd.Series:
 
+    """Calculate connectivity.
+
+    Parameters
+    ----------
+    accessibility_matrix : pd.DataFrame
+        Description.
+    accessibility_func : Callable[[pd.DataFrame], pd.DataFrame]
+        Description.
+
+    Returns
+    -------
+    pd.Series
+        Description.
+
+    """
     from blocksnet.analysis.network.connectivity.core import calculate_connectivity, CONNECTIVITY_COLUMN
 
     accessibility_df = accessibility_func(accessibility_matrix)
@@ -23,6 +38,19 @@ def _calculate_connectivity(
 
 def _calculate_diversity(blocks_df: pd.DataFrame) -> pd.Series:
 
+    """Calculate diversity.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.Series
+        Description.
+
+    """
     from blocksnet.analysis.diversity.shannon.core import shannon_diversity, SHANNON_DIVERSITY_COLUMN
 
     diversity_df = shannon_diversity(blocks_df)
@@ -31,6 +59,19 @@ def _calculate_diversity(blocks_df: pd.DataFrame) -> pd.Series:
 
 def _calculate_density(blocks_df: pd.DataFrame) -> pd.Series:
 
+    """Calculate density.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.Series
+        Description.
+
+    """
     from blocksnet.analysis.services.density.core import services_density, DENSITY_COLUMN
 
     density_df = services_density(blocks_df)
@@ -38,6 +79,19 @@ def _calculate_density(blocks_df: pd.DataFrame) -> pd.Series:
 
 
 def _preprocess_weights(weights: dict[str, float]) -> dict[str, float]:
+    """Preprocess weights.
+
+    Parameters
+    ----------
+    weights : dict[str, float]
+        Description.
+
+    Returns
+    -------
+    dict[str, float]
+        Description.
+
+    """
     weights = weights.copy()
     keys = [CONNECTIVITY_COLUMN, DIVERSITY_COLUMN, DENSITY_COLUMN]
     for key, value in weights.items():
@@ -59,6 +113,25 @@ def services_centrality(
     weights: dict[str, float] | None = None,
     accessibility_func: Callable[[pd.DataFrame], pd.DataFrame] = mean_accessibility,
 ) -> pd.DataFrame:
+    """Services centrality.
+
+    Parameters
+    ----------
+    accessibility_matrix : pd.DataFrame
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    weights : dict[str, float] | None, default: None
+        Description.
+    accessibility_func : Callable[[pd.DataFrame], pd.DataFrame], default: mean_accessibility
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     weights = _preprocess_weights(weights or {})
 
     blocks_df = blocks_df.copy()

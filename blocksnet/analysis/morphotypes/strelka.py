@@ -6,12 +6,18 @@ MORPHOTYPE_COLUMN = "morphotype"
 
 
 class LowRiseMorphotype(Enum):
+    """LowRiseMorphotype class.
+
+    """
     NON_RESIDENTIAL = "low-rise non-residential"
     INDIVIDUAL = "individual residential"
     LOW_RISE_MODEL = "low-rise model"
 
 
 class MidRiseMorphotype(Enum):
+    """MidRiseMorphotype class.
+
+    """
     BASIC = "mid-rise"
     NON_RESIDENTIAL = "mid-rise non-residential"
     MICRODISTRICT = "mid-rise microdistrict"
@@ -20,12 +26,30 @@ class MidRiseMorphotype(Enum):
 
 
 class HighRiseMorphotype(Enum):
+    """HighRiseMorphotype class.
+
+    """
     NON_RESIDENTIAL = "high-rise non-residential"
     SOVIET_MICRODISTRICT = "high-rise soviet microdistrict"
     MODERN_MICRODISTRICT = "high-rise modern microdistrict"
 
 
 def _interpret_high_rise(mxi: float, fsi: float) -> HighRiseMorphotype:
+    """Interpret high rise.
+
+    Parameters
+    ----------
+    mxi : float
+        Description.
+    fsi : float
+        Description.
+
+    Returns
+    -------
+    HighRiseMorphotype
+        Description.
+
+    """
     if mxi < 0.1:
         return HighRiseMorphotype.NON_RESIDENTIAL
     if fsi <= 1.5:
@@ -34,6 +58,21 @@ def _interpret_high_rise(mxi: float, fsi: float) -> HighRiseMorphotype:
 
 
 def _interpret_mid_rise(mxi: float, fsi: float) -> MidRiseMorphotype:
+    """Interpret mid rise.
+
+    Parameters
+    ----------
+    mxi : float
+        Description.
+    fsi : float
+        Description.
+
+    Returns
+    -------
+    MidRiseMorphotype
+        Description.
+
+    """
     if mxi < 0.2:
         return MidRiseMorphotype.NON_RESIDENTIAL
     if mxi < 0.45:
@@ -46,6 +85,21 @@ def _interpret_mid_rise(mxi: float, fsi: float) -> MidRiseMorphotype:
 
 
 def _interpret_low_rise(mxi: float, fsi: float) -> LowRiseMorphotype:
+    """Interpret low rise.
+
+    Parameters
+    ----------
+    mxi : float
+        Description.
+    fsi : float
+        Description.
+
+    Returns
+    -------
+    LowRiseMorphotype
+        Description.
+
+    """
     if mxi < 0.05:
         return LowRiseMorphotype.NON_RESIDENTIAL
     if fsi <= 0.1:
@@ -54,6 +108,19 @@ def _interpret_low_rise(mxi: float, fsi: float) -> LowRiseMorphotype:
 
 
 def _interpret_block(series: pd.Series) -> Enum:
+    """Interpret block.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Description.
+
+    Returns
+    -------
+    Enum
+        Description.
+
+    """
     l, fsi, mxi = series[["l", "fsi", "mxi"]]
     if l >= 9:
         return _interpret_high_rise(mxi, fsi)
@@ -63,6 +130,19 @@ def _interpret_block(series: pd.Series) -> Enum:
 
 
 def get_strelka_morphotypes(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Get strelka morphotypes.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
     # get morphotypes
     developed_blocks_df = blocks_df[blocks_df.fsi > 0].copy()

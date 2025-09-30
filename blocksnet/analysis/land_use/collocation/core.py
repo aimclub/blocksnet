@@ -10,11 +10,29 @@ COLLOCATION_COLUMN = "collocation"
 
 def land_use_collocation(adjacency_graph: nx.Graph, blocks_df: pd.DataFrame):
 
+    """Land use collocation.
+
+    Parameters
+    ----------
+    adjacency_graph : nx.Graph
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
     validate_adjacency_graph(adjacency_graph, blocks_df)
 
     def collocation(series: pd.Series):
 
+        """Collocation.
+
+        Parameters
+        ----------
+        series : pd.Series
+            Description.
+
+        """
         block_a = series.name
         area_a = series.site_area
         lu_a = series.land_use

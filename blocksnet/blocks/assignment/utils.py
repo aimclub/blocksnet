@@ -9,6 +9,16 @@ SHARE_RIGHT_COLUMN = "share_right"
 
 def sjoin_intersections(left_gdf: gpd.GeoDataFrame, right_gdf: gpd.GeoDataFrame):
 
+    """Sjoin intersections.
+
+    Parameters
+    ----------
+    left_gdf : gpd.GeoDataFrame
+        Description.
+    right_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     left_gdf = left_gdf.copy()
     right_gdf = right_gdf.copy()
 

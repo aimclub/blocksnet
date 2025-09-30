@@ -5,6 +5,19 @@ from .schemas import ServicesSchema
 
 
 def _get_service_type_units(service_type: str) -> pd.DataFrame:
+    """Get service type units.
+
+    Parameters
+    ----------
+    service_type : str
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     if not service_type in service_types_config:
         raise ValueError(f"{service_type} not found in service types config")
     units = service_types_config.units
@@ -13,6 +26,21 @@ def _get_service_type_units(service_type: str) -> pd.DataFrame:
 
 def impute_services(services_gdf: gpd.GeoDataFrame, service_type: str) -> gpd.GeoDataFrame:
 
+    """Impute services.
+
+    Parameters
+    ----------
+    services_gdf : gpd.GeoDataFrame
+        Description.
+    service_type : str
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     services_gdf = ServicesSchema(services_gdf)
     units = _get_service_type_units(service_type)
     impute_capacity = int(units.capacity.min())

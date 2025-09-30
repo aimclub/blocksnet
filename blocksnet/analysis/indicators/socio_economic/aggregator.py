@@ -10,6 +10,14 @@ PARENT_VALUE_AFTER_COLUMN = "parent_value_after"
 
 
 def _validate_indicator_type(indicator: Enum):
+    """Validate indicator type.
+
+    Parameters
+    ----------
+    indicator : Enum
+        Description.
+
+    """
     if not isinstance(indicator, IndicatorEnum):
         expected_name = IndicatorEnum.__name__
         actual_name = type(indicator).__name__
@@ -18,9 +26,37 @@ def _validate_indicator_type(indicator: Enum):
 
 
 def validate_indicator(require: bool = False):
+    """Validate indicator.
+
+    Parameters
+    ----------
+    require : bool, default: False
+        Description.
+
+    """
     def deco(func):
         @wraps(func)
+        """Deco.
+
+        Parameters
+        ----------
+        func : Any
+            Description.
+
+        """
         def wrapper(self, indicator: IndicatorEnum, *args, **kwargs):
+            """Wrapper.
+
+            Parameters
+            ----------
+            indicator : IndicatorEnum
+                Description.
+            *args : tuple
+                Description.
+            **kwargs : dict
+                Description.
+
+            """
             _validate_indicator_type(indicator)
             cls = indicator.__class__.__name__
             name = getattr(indicator, "name", str(indicator))
@@ -36,7 +72,18 @@ def validate_indicator(require: bool = False):
 
 
 class SocioEconomicAggregator:
+    """SocioEconomicAggregator class.
+
+    """
     def __init__(self):
+        """Initialize the instance.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         self._data: dict[IndicatorEnum, dict[str, float | int]] = {}
 
     @validate_indicator()
@@ -48,6 +95,22 @@ class SocioEconomicAggregator:
         parent_value_before: int | float,
         parent_value_after: int | float | None = None,
     ):
+        """Add.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Description.
+        child_value_before : int | float
+            Description.
+        child_value_after : int | float
+            Description.
+        parent_value_before : int | float
+            Description.
+        parent_value_after : int | float | None, default: None
+            Description.
+
+        """
         data = {
             CHILD_VALUE_BEFORE_COLUMN: child_value_before,
             CHILD_VALUE_AFTER_COLUMN: child_value_after,
@@ -59,10 +122,26 @@ class SocioEconomicAggregator:
 
     @validate_indicator(require=True)
     def delete(self, indicator: IndicatorEnum):
+        """Delete.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Description.
+
+        """
         del self._data[indicator]
 
     @validate_indicator(require=True)
     def get(self, indicator: IndicatorEnum):
+        """Get.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Description.
+
+        """
         return self._data[indicator].copy()
 
     def _aggregate_normalized(self, data: dict[str, float | int], indicator_norm: IndicatorEnum) -> int | float:
@@ -80,6 +159,21 @@ class SocioEconomicAggregator:
         return (pb_a * pb_b - cb_a * cb_b + ca_a * ca_b) / pa_b
 
     def _aggregate(self, indicator: IndicatorEnum, data: dict[str, float | int]) -> int | float:
+        """Aggregate.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Description.
+        data : dict[str, float | int]
+            Description.
+
+        Returns
+        -------
+        int | float
+            Description.
+
+        """
         if indicator.meta.per == "capita":
             return self._aggregate_normalized(data, DemographicIndicator.POPULATION)
         if indicator.meta.per == "area":
@@ -87,6 +181,14 @@ class SocioEconomicAggregator:
         return data[PARENT_VALUE_BEFORE_COLUMN] - data[CHILD_VALUE_BEFORE_COLUMN] + data[CHILD_VALUE_AFTER_COLUMN]
 
     def aggregate(self, indicator: IndicatorEnum):
+        """Aggregate.
+
+        Parameters
+        ----------
+        indicator : IndicatorEnum
+            Description.
+
+        """
         data = self.get(indicator)
         if PARENT_VALUE_AFTER_COLUMN not in data:
             parent_after = self._aggregate(indicator, data)

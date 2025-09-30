@@ -8,6 +8,22 @@ import pandas as pd
 def calculate_accessibility_matrix(
     blocks_gdf: gpd.GeoDataFrame, graph: nx.Graph, weight_key: str = WEIGHT_KEY, *args, **kwargs
 ):
+    """Calculate accessibility matrix.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    graph : nx.Graph
+        Description.
+    weight_key : str, default: WEIGHT_KEY
+        Description.
+    *args : tuple
+        Description.
+    **kwargs : dict
+        Description.
+
+    """
     validate_accessibility_graph(graph, weight_key)
     blocks_gdf = BlocksSchema(blocks_gdf)
     blocks_gdf.geometry = blocks_gdf.representative_point()
@@ -24,6 +40,27 @@ def get_accessibility_context(
     out: bool = True,
     keep: bool = True,
 ) -> pd.DataFrame:
+    """Get accessibility context.
+
+    Parameters
+    ----------
+    accessibility_matrix : pd.DataFrame
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    accessibility : float
+        Description.
+    out : bool, default: True
+        Description.
+    keep : bool, default: True
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     validate_accessibility_matrix(accessibility_matrix, blocks_df)
     if out:
         accessibility_matrix = accessibility_matrix.transpose()

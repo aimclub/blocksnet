@@ -15,6 +15,27 @@ def cut_urban_blocks(
     classifier: BlocksClassifier | None = None,
 ) -> gpd.GeoDataFrame:
 
+    """Cut urban blocks.
+
+    Parameters
+    ----------
+    boundaries_gdf : gpd.GeoDataFrame
+        Description.
+    lines_gdf : gpd.GeoDataFrame | None
+        Description.
+    polygons_gdf : gpd.GeoDataFrame | None
+        Description.
+    buildings_gdf : gpd.GeoDataFrame | None, default: None
+        Description.
+    classifier : BlocksClassifier | None, default: None
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     boundaries_gdf, lines_gdf, polygons_gdf, buildings_gdf = validate_and_preprocess_gdfs(
         boundaries_gdf, lines_gdf, polygons_gdf, buildings_gdf
     )

@@ -7,6 +7,18 @@ from ....config import land_use_config
 
 
 def share_fitness(solution, blocks_df: pd.DataFrame, target_shares: dict[LandUse, float]):
+    """Share fitness.
+
+    Parameters
+    ----------
+    solution : Any
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    target_shares : dict[LandUse, float]
+        Description.
+
+    """
     blocks_df = blocks_df.copy()
     blocks_df["land_use"] = [reverse_transform_lu(x) for x in solution]
 
@@ -23,6 +35,20 @@ def share_fitness(solution, blocks_df: pd.DataFrame, target_shares: dict[LandUse
 
 
 def adjacency_penalty(solution, blocks_ids: list[int], context_df: pd.DataFrame, adjacency_graph: nx.Graph):
+    """Adjacency penalty.
+
+    Parameters
+    ----------
+    solution : Any
+        Description.
+    blocks_ids : list[int]
+        Description.
+    context_df : pd.DataFrame
+        Description.
+    adjacency_graph : nx.Graph
+        Description.
+
+    """
     context_df = context_df.copy()
     context_df.loc[blocks_ids, "land_use"] = [reverse_transform_lu(x) for x in solution]
 
@@ -30,6 +56,21 @@ def adjacency_penalty(solution, blocks_ids: list[int], context_df: pd.DataFrame,
     edges = [(u, v) for u, v in adjacency_graph.edges if u in blocks_ids or v in blocks_ids]
 
     def penalty(u, v) -> float:
+        """Penalty.
+
+        Parameters
+        ----------
+        u : Any
+            Description.
+        v : Any
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         u_lu = context_df.loc[u, "land_use"]
         v_lu = context_df.loc[v, "land_use"]
 

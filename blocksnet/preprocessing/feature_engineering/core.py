@@ -18,6 +18,14 @@ ASPECT_RATIO_COLUMN = "aspect_ratio"
 
 
 def _calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
+    """Calculate centerlines.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     logger.info("Calculating centerlines")
     try:
         import pygeoops
@@ -32,6 +40,19 @@ def _calculate_centerlines(blocks_gdf: gpd.GeoDataFrame):
 
 
 def _calculate_usual_features(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Calculate usual features.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     logger.info("Calculating usual features")
     blocks_gdf = blocks_gdf.copy()
     blocks_gdf[X_COLUMN] = blocks_gdf.representative_point().x
@@ -43,6 +64,19 @@ def _calculate_usual_features(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Calculate radiuses.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     logger.info("Calculating radiuses")
     blocks_gdf = blocks_gdf.copy()
     if log_config.disable_tqdm:
@@ -55,6 +89,19 @@ def _calculate_radiuses(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _calculate_aspect_ratios(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Calculate aspect ratios.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     logger.info("Calculating aspect ratios")
     blocks_gdf = blocks_gdf.copy()
     if log_config.disable_tqdm:
@@ -65,6 +112,19 @@ def _calculate_aspect_ratios(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _generate_combinations(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Generate combinations.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     logger.info("Generating combinations")
     try:
         import featuretools as ft
@@ -82,6 +142,19 @@ def _generate_combinations(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
 
 def _generate_polynomial(blocks_gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+    """Generate polynomial.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     blocks_df = blocks_gdf.drop(columns=["geometry"])
     poly = PolynomialFeatures(degree=2, include_bias=False, interaction_only=False)
     features = poly.fit_transform(blocks_df)
@@ -97,6 +170,22 @@ def generate_geometries_features(
     combinations: bool = False,
 ):
 
+    """Generate geometries features.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    radiuses : bool, default: False
+        Description.
+    aspect_ratios : bool, default: False
+        Description.
+    centerlines : bool, default: False
+        Description.
+    combinations : bool, default: False
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
 
     blocks_gdf = _calculate_usual_features(blocks_gdf)

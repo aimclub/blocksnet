@@ -7,7 +7,13 @@ import pyproj
 
 class TerritorySchema(GdfSchema):
     @classmethod
+    """TerritorySchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.Polygon, shapely.MultiPolygon}
 
 
@@ -18,6 +24,14 @@ Y_KEY = "y"
 
 
 def _validate_crs(graph: nx.Graph):
+    """Validate crs.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+
+    """
     if not CRS_KEY in graph.graph:
         raise ValueError(f"Graph should contain {CRS_KEY} data in the form of epsg int value")
     elif not isinstance(graph.graph[CRS_KEY], int):
@@ -30,18 +44,46 @@ def _validate_crs(graph: nx.Graph):
 
 
 def _validate_nodes(graph: nx.Graph):
+    """Validate nodes.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+
+    """
     xs_and_ys_exist = all(X_KEY in data and Y_KEY in data for _, data in graph.nodes(data=True))
     if not xs_and_ys_exist:
         raise ValueError(f"Node should contain {X_KEY} and {Y_KEY}")
 
 
 def _validate_edges(graph: nx.Graph, weight_key: str):
+    """Validate edges.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+    weight_key : str
+        Description.
+
+    """
     weights_exist = all(weight_key in data for u, v, data in graph.edges(data=True))
     if not weights_exist:
         raise ValueError(f"Edges should contain {weight_key}")
 
 
 def validate_accessibility_graph(graph: nx.Graph, weight_key: str = WEIGHT_KEY):
+    """Validate accessibility graph.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+    weight_key : str, default: WEIGHT_KEY
+        Description.
+
+    """
     if not isinstance(graph, nx.Graph):
         raise ValueError("Graph must be provided as an instance of nx.Graph")
     _validate_crs(graph)

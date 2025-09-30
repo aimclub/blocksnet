@@ -12,12 +12,38 @@ SHARE_COLUMN = "share"
 
 
 def _get_shares(intersections_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+    """Get shares.
+
+    Parameters
+    ----------
+    intersections_gdf : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     shares_df = intersections_gdf.groupby(["index_left", LAND_USE_COLUMN]).agg({"share_left": "sum"})
     shares_df = shares_df.unstack(LAND_USE_COLUMN, fill_value=0).droplevel(0, axis=1)
     return shares_df
 
 
 def _choose_largest(shares_df: pd.DataFrame) -> pd.DataFrame:
+    """Choose largest.
+
+    Parameters
+    ----------
+    shares_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     shares_df = shares_df.copy()
     lus = shares_df.idxmax(axis=1)
     shares = shares_df.max(axis=1)
@@ -32,6 +58,18 @@ def assign_land_use(
     rules: dict[str, LandUse],
 ):
 
+    """Assign land use.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    functional_zones_gdf : gpd.GeoDataFrame
+        Description.
+    rules : dict[str, LandUse]
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
     functional_zones_gdf = FunctionalZonesSchema(functional_zones_gdf)
     ensure_crs(blocks_gdf, functional_zones_gdf)

@@ -7,7 +7,27 @@ from .....config import log_config
 
 
 class SageModel(torch.nn.Module):
+    """SageModel class.
+
+    """
     def __init__(self, input_size: int, output_size: int, hidden_channels=[32, 64, 128]):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        input_size : int
+            Description.
+        output_size : int
+            Description.
+        hidden_channels : Any, default: [32, 64, 128]
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super(SageModel, self).__init__()
         
         # Энкодер (сжимающая часть)
@@ -30,6 +50,14 @@ class SageModel(torch.nn.Module):
         self.skip_transform2 = Linear(hidden_channels[0], hidden_channels[0])
 
     def forward(self, data):
+        """Forward.
+
+        Parameters
+        ----------
+        data : Any
+            Description.
+
+        """
         x = data.x
         edge_index = data.edge_index
         

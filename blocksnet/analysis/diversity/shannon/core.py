@@ -8,6 +8,19 @@ SHANNON_DIVERSITY_COLUMN = "shannon_diversity"
 
 
 def _shannon_index(series: pd.Series) -> float:
+    """Shannon index.
+
+    Parameters
+    ----------
+    series : pd.Series
+        Description.
+
+    Returns
+    -------
+    float
+        Description.
+
+    """
     count = series[COUNT_COLUMN]
     index = [i for i in series.index if COUNT_PREFIX in i]
     series = series[index]
@@ -19,6 +32,14 @@ def _shannon_index(series: pd.Series) -> float:
 
 
 def shannon_diversity(blocks_df: pd.DataFrame):
+    """Shannon diversity.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     count_df = services_count(blocks_df)
     logger.info("Calculating Shannon diversity index")
     if log_config.disable_tqdm:

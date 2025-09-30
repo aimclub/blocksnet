@@ -21,6 +21,9 @@ log_config.disable_tqdm = True
 
 
 class NetworkMorpher:
+    """NetworkMorpher class.
+
+    """
     def __init__(
         self,
         graph: nx.MultiDiGraph,
@@ -28,6 +31,25 @@ class NetworkMorpher:
         classifier: NetworkClassifier,
         simplify: bool = False,
     ):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        graph : nx.MultiDiGraph
+            Description.
+        target_class : SettlementCategory
+            Description.
+        classifier : NetworkClassifier
+            Description.
+        simplify : bool, default: False
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         if simplify:
             self.orig_graph = simplify_graph(graph)
         self.orig_graph = graph
@@ -59,21 +81,50 @@ class NetworkMorpher:
         self.exclude_edges = []
 
     def _strongest_wrong_class(self, res):
+        """Strongest wrong class.
+
+        Parameters
+        ----------
+        res : Any
+            Description.
+
+        """
         probas = {cat: res[cat] for cat in self.classes_wo_tc}
         ans = max(probas, key=probas.get)
         return ans
 
     def _to_key(self, G):
+        """To key.
+
+        Parameters
+        ----------
+        G : Any
+            Description.
+
+        """
         edges = tuple(sorted(G.edges()))
         return hash(edges)
 
     def _shuffle(self, arr: np.ndarray, seed: int | None = None):
+        """Shuffle.
+
+        Parameters
+        ----------
+        arr : np.ndarray
+            Description.
+        seed : int | None, default: None
+            Description.
+
+        """
         if seed:
             np.random.seed(seed)
         np.random.shuffle(arr)
         return arr
 
     def _get_res(self):
+        """Get res.
+
+        """
         key = self._to_key(self.graph)
         if key in self.cash:
             res = self.cash[key]
@@ -85,6 +136,20 @@ class NetworkMorpher:
     def _get_candidates_to_add(
         self, target_proba, n_candidates: int | None = None, seed: int | None = None, len_constraint: bool = False
     ):
+        """Get candidates to add.
+
+        Parameters
+        ----------
+        target_proba : Any
+            Description.
+        n_candidates : int | None, default: None
+            Description.
+        seed : int | None, default: None
+            Description.
+        len_constraint : bool, default: False
+            Description.
+
+        """
         non_edges = np.argwhere(self.adj == 0)
 
         if len(self.exclude_edges) > 0:
@@ -116,6 +181,16 @@ class NetworkMorpher:
         return to_add_candidates
 
     def _get_candidates_to_delete(self, target_proba, seed: int | None = None):
+        """Get candidates to delete.
+
+        Parameters
+        ----------
+        target_proba : Any
+            Description.
+        seed : int | None, default: None
+            Description.
+
+        """
         current_adj = adj_matrix(self.graph)
         existing_edges = np.array(current_adj.nonzero()).T
 
@@ -145,6 +220,9 @@ class NetworkMorpher:
         return to_delete_candidates
 
     def _get_edge_to_exclude(self):
+        """Get edge to exclude.
+
+        """
         if len(self.history) < 4:
             return None
         if self.history[-1] == self.history[-3] and self.history[-2] == self.history[-4]:
@@ -152,6 +230,16 @@ class NetworkMorpher:
         return None
 
     def _count_score(self, curr_res, target_proba):
+        """Count score.
+
+        Parameters
+        ----------
+        curr_res : Any
+            Description.
+        target_proba : Any
+            Description.
+
+        """
         curr_target = curr_res[self.target_class.value]
         delta_target = curr_target - target_proba
         curr_clastering = curr_res["avg_clustering"]
@@ -172,6 +260,20 @@ class NetworkMorpher:
         seed: int | None = None,
         len_constraint: bool = False,
     ):
+        """Morph.
+
+        Parameters
+        ----------
+        n_steps : int, default: 20
+            Description.
+        n_candidates_to_add : int | None, default: 50
+            Description.
+        seed : int | None, default: None
+            Description.
+        len_constraint : bool, default: False
+            Description.
+
+        """
         for step in range(n_steps):
             res_before = self._get_res()
             target_proba = res_before[self.target_class.value]

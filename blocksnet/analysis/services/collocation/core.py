@@ -6,10 +6,38 @@ NORMALIZED_COLUMN = "normalized_value"
 
 
 def _intersection(df1, df2) -> int:
+    """Intersection.
+
+    Parameters
+    ----------
+    df1 : Any
+        Description.
+    df2 : Any
+        Description.
+
+    Returns
+    -------
+    int
+        Description.
+
+    """
     return len(df1[(df1 > 0) & (df2 > 0)])
 
 
 def _intersection_matrix(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Intersection matrix.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     mx = pd.DataFrame(0, index=blocks_df.columns, columns=blocks_df.columns)
     for st_a in mx.index:
         for st_b in mx.columns:
@@ -18,10 +46,38 @@ def _intersection_matrix(blocks_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _union(df1, df2) -> int:
+    """Union.
+
+    Parameters
+    ----------
+    df1 : Any
+        Description.
+    df2 : Any
+        Description.
+
+    Returns
+    -------
+    int
+        Description.
+
+    """
     return len(df1[(df1 > 0) | (df2 > 0)])
 
 
 def _union_matrix(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Union matrix.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     mx = pd.DataFrame(0, index=blocks_df.columns, columns=blocks_df.columns)
     for st_a in mx.index:
         for st_b in mx.columns:
@@ -31,6 +87,19 @@ def _union_matrix(blocks_df: pd.DataFrame) -> pd.DataFrame:
 
 def _preprocess_and_validate(blocks_df: pd.DataFrame) -> pd.DataFrame:
 
+    """Preprocess and validate.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     from ..count.core import services_count, COUNT_COLUMN, COUNT_PREFIX
 
     counts_df = services_count(blocks_df).drop(columns=[COUNT_COLUMN])
@@ -39,6 +108,19 @@ def _preprocess_and_validate(blocks_df: pd.DataFrame) -> pd.DataFrame:
 
 
 def services_collocation(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Services collocation.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = _preprocess_and_validate(blocks_df)
     intersection_mx = _intersection_matrix(blocks_df)
     union_mx = _union_matrix(blocks_df)

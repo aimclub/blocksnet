@@ -16,20 +16,67 @@ CATEGORIES_LIST = list(SettlementCategory)
 
 
 class NetworkClassifier(BaseContext):
+    """NetworkClassifier class.
+
+    """
     def __init__(self, strategy: BaseStrategy):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        strategy : BaseStrategy
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__(strategy=strategy)
         self._train_data: pd.DataFrame | None = None
 
     def prepare_train(self, graphs: list[nx.Graph]):
+        """Prepare train.
+
+        Parameters
+        ----------
+        graphs : list[nx.Graph]
+            Description.
+
+        """
         self._train_data = self._get_features_df(graphs, with_category=True)
 
     @property
     def train_data(self) -> pd.DataFrame:
+        """Train data.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         if self._train_data is None:
             raise ValueError(f"No train data found. One must prepare it first using prepare_train() method.")
         return self._train_data.copy()
 
     def _get_features_df(self, graphs: list[nx.Graph], with_category: bool) -> pd.DataFrame:
+        """Get features df.
+
+        Parameters
+        ----------
+        graphs : list[nx.Graph]
+            Description.
+        with_category : bool
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         logger.info("Preprocessing graphs.")
         graphs = [
             preprocess_graph(g, validate_category=with_category) for g in tqdm(graphs, disable=log_config.disable_tqdm)
@@ -46,14 +93,50 @@ class NetworkClassifier(BaseContext):
         return pd.DataFrame(features_dicts)
 
     def _preprocess_x(self, features_df: pd.DataFrame) -> np.ndarray:
+        """Preprocess x.
+
+        Parameters
+        ----------
+        features_df : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         if CATEGORY_KEY in features_df.columns:
             features_df = features_df.drop(columns=[CATEGORY_KEY])
         return features_df.values
 
     def _preprocess_y(self, features_df: pd.DataFrame) -> np.ndarray:
+        """Preprocess y.
+
+        Parameters
+        ----------
+        features_df : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         return features_df[[CATEGORY_KEY]].values
 
     def train(self, metric=accuracy_score, split_params: dict | None = None):
+        """Train.
+
+        Parameters
+        ----------
+        metric : Any, default: accuracy_score
+            Description.
+        split_params : dict | None, default: None
+            Description.
+
+        """
         features_df = self.train_data
 
         x = self._preprocess_x(features_df)
@@ -67,6 +150,19 @@ class NetworkClassifier(BaseContext):
         return metric(y_pred, y_test)
 
     def run(self, graphs: list[nx.Graph]) -> pd.DataFrame:
+        """Run.
+
+        Parameters
+        ----------
+        graphs : list[nx.Graph]
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         features_df = self._get_features_df(graphs, with_category=False)
 
         x = self._preprocess_x(features_df)
@@ -83,4 +179,12 @@ class NetworkClassifier(BaseContext):
 
     @classmethod
     def default(cls) -> "NetworkClassifier":
+        """Default.
+
+        Returns
+        -------
+        "NetworkClassifier"
+            Description.
+
+        """
         return cls(strategy)

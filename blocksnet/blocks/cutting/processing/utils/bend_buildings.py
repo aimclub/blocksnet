@@ -6,6 +6,16 @@ import shapely.ops as ops
 
 def _get_inters_buildings(line: LineString, build_gdf: gpd.GeoDataFrame):
 
+    """Get inters buildings.
+
+    Parameters
+    ----------
+    line : LineString
+        Description.
+    build_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     build_gdf_exploded = build_gdf.explode(index_parts=False)
     build_gdf_exploded["intersects"] = build_gdf_exploded.geometry.intersects(line)
     intersected = build_gdf_exploded[build_gdf_exploded["intersects"]].drop(columns=["intersects"])
@@ -16,6 +26,16 @@ def _get_inters_buildings(line: LineString, build_gdf: gpd.GeoDataFrame):
 
 def _line_around_polygon(line: LineString, polygon: Polygon):
 
+    """Line around polygon.
+
+    Parameters
+    ----------
+    line : LineString
+        Description.
+    polygon : Polygon
+        Description.
+
+    """
     inner_part = line.intersection(polygon)
     outer_parts = line.difference(polygon)
 
@@ -63,6 +83,18 @@ def _line_around_polygon(line: LineString, polygon: Polygon):
 
 
 def _min_distance_to_buildings(inters_gdf: gpd.GeoDataFrame, non_inters_gdf: gpd.GeoDataFrame, buffer_dist: float = 20):
+    """Min distance to buildings.
+
+    Parameters
+    ----------
+    inters_gdf : gpd.GeoDataFrame
+        Description.
+    non_inters_gdf : gpd.GeoDataFrame
+        Description.
+    buffer_dist : float, default: 20
+        Description.
+
+    """
     results = []
     non_inters_gdf = non_inters_gdf.explode(index_parts=False)
 
@@ -90,6 +122,16 @@ def _min_distance_to_buildings(inters_gdf: gpd.GeoDataFrame, non_inters_gdf: gpd
 
 def bend_buildings(line: LineString, build_gdf: gpd.GeoDataFrame):
 
+    """Bend buildings.
+
+    Parameters
+    ----------
+    line : LineString
+        Description.
+    build_gdf : gpd.GeoDataFrame
+        Description.
+
+    """
     inters_build_gdf, non_inters_builds = _get_inters_buildings(line, build_gdf[["geometry"]])
     buffer_distance = _min_distance_to_buildings(inters_build_gdf, non_inters_builds)
 

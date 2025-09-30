@@ -5,6 +5,21 @@ from .schemas import BlocksSchema
 
 
 def calculate_distance_matrix(blocks_gdf: gpd.GeoDataFrame, dtype="int32") -> np.ndarray:
+    """Calculate distance matrix.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    dtype : Any, default: 'int32'
+        Description.
+
+    Returns
+    -------
+    np.ndarray
+        Description.
+
+    """
     blocks_gdf = BlocksSchema(blocks_gdf)
     xs = blocks_gdf.geometry.x
     ys = blocks_gdf.geometry.y

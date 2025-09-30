@@ -16,6 +16,9 @@ TEST_LOSS_TEXT = "Test loss"
 
 
 class _TorchBaseStrategy(BaseStrategy, ABC):
+    """_TorchBaseStrategy class.
+
+    """
     def __init__(
         self,
         model_cls: type[torch.nn.Module],
@@ -23,6 +26,25 @@ class _TorchBaseStrategy(BaseStrategy, ABC):
         scalers: dict | None = None,
         device=None,
     ):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        model_cls : type[torch.nn.Module]
+            Description.
+        model_params : dict | None, default: None
+            Description.
+        scalers : dict | None, default: None
+            Description.
+        device : Any, default: None
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__(model_cls, model_params or {})
         self.scalers = scalers or {}
         self.device = device if device is not None else torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -30,11 +52,43 @@ class _TorchBaseStrategy(BaseStrategy, ABC):
     def _build_optimizer(
         self, optimizer_cls: type[torch.optim.Optimizer] | None, optimizer_params: dict | None
     ) -> torch.optim.Optimizer:
+        """Build optimizer.
+
+        Parameters
+        ----------
+        optimizer_cls : type[torch.optim.Optimizer] | None
+            Description.
+        optimizer_params : dict | None
+            Description.
+
+        Returns
+        -------
+        torch.optim.Optimizer
+            Description.
+
+        """
         optimizer_cls = optimizer_cls or torch.optim.Adam
         optimizer_params = optimizer_params or {"lr": 1e-3, "weight_decay": 1e-4}
         return optimizer_cls(self.model.parameters(), **optimizer_params)
 
     def _scale(self, key: str, fit: bool, *arrays: np.ndarray) -> tuple[np.ndarray, ...]:
+        """Scale.
+
+        Parameters
+        ----------
+        key : str
+            Description.
+        fit : bool
+            Description.
+        *arrays : tuple
+            Description.
+
+        Returns
+        -------
+        tuple[np.ndarray, ...]
+            Description.
+
+        """
         scaler = self.scalers.get(key)
         arrs = list(arrays)
         if scaler is not None:
@@ -45,6 +99,21 @@ class _TorchBaseStrategy(BaseStrategy, ABC):
         return tuple(arrs)
 
     def _inverse_scale(self, key: str, *arrays: np.ndarray) -> tuple[np.ndarray, ...]:
+        """Inverse scale.
+
+        Parameters
+        ----------
+        key : str
+            Description.
+        *arrays : tuple
+            Description.
+
+        Returns
+        -------
+        tuple[np.ndarray, ...]
+            Description.
+
+        """
         scaler = self.scalers.get(key)
         arrs = list(arrays)
         # arrs = [a.cpu().numpy() for a in arrs]
@@ -53,10 +122,26 @@ class _TorchBaseStrategy(BaseStrategy, ABC):
         return tuple(arrs)
 
     def _save_model(self, path: str):
+        """Save model.
+
+        Parameters
+        ----------
+        path : str
+            Description.
+
+        """
         state_dict = self.model.to("cpu").state_dict()
         torch.save(state_dict, os.path.join(path, MODEL_FILENAME))
 
     def _load_model(self, path: str):
+        """Load model.
+
+        Parameters
+        ----------
+        path : str
+            Description.
+
+        """
         model_path = os.path.join(path, MODEL_FILENAME)
         if not os.path.exists(model_path):
             raise FileNotFoundError(f"Model file not found at {model_path}")
@@ -65,12 +150,28 @@ class _TorchBaseStrategy(BaseStrategy, ABC):
         self.model.load_state_dict(state_dict)
 
     def _save_scalers(self, path: str):
+        """Save scalers.
+
+        Parameters
+        ----------
+        path : str
+            Description.
+
+        """
         for name, scaler in self.scalers.items():
             if scaler is not None:
                 filename = os.path.join(path, f"{name}_{SCALER_FILENAME_POSTFIX}")
                 joblib.dump(scaler, filename)
 
     def _load_scalers(self, path: str):
+        """Load scalers.
+
+        Parameters
+        ----------
+        path : str
+            Description.
+
+        """
         self.scalers = {}
         for fname in os.listdir(path):
             if fname.endswith(f"_{SCALER_FILENAME_POSTFIX}"):
@@ -79,19 +180,53 @@ class _TorchBaseStrategy(BaseStrategy, ABC):
                 self.scalers[key] = joblib.load(full_path)
 
     def save(self, path: str):
+        """Save.
+
+        Parameters
+        ----------
+        path : str
+            Description.
+
+        """
         super().save(path)
         self._save_scalers(path)
 
     def load(self, path: str):
+        """Load.
+
+        Parameters
+        ----------
+        path : str
+            Description.
+
+        """
         super().load(path)
         self._load_scalers(path)
 
 
 class TorchBaseStrategy(_TorchBaseStrategy, ABC):
     @abstractmethod
+    """TorchBaseStrategy class.
+
+    """
     def _build_criterion(
         self, criterion_cls: type[torch.nn.Module] | None, criterion_params: dict | None
     ) -> torch.nn.Module:
+        """Build criterion.
+
+        Parameters
+        ----------
+        criterion_cls : type[torch.nn.Module] | None
+            Description.
+        criterion_params : dict | None
+            Description.
+
+        Returns
+        -------
+        torch.nn.Module
+            Description.
+
+        """
         pass
 
     @abstractmethod
@@ -100,6 +235,21 @@ class TorchBaseStrategy(_TorchBaseStrategy, ABC):
         pass
 
     def _initialize_model(self, *args, **kwargs) -> torch.nn.Module:
+        """Initialize model.
+
+        Parameters
+        ----------
+        *args : tuple
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        torch.nn.Module
+            Description.
+
+        """
         input_size, output_size = self._parse_sizes(*args, **kwargs)
         model_params = {**self.model_params, "input_size": input_size, "output_size": output_size}
         model = self.model_cls(**model_params)

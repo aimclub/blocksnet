@@ -5,6 +5,9 @@ from ..meta import IndicatorMeta
 
 @unique
 class EconomicIndicator(IndicatorEnum):
+    """EconomicIndicator class.
+
+    """
     FIXED_CAPITAL_INVESTMENT_PER_CAPITA = IndicatorMeta("fixed_capital_investment_per_capita", "capita")
     GRP_PER_CAPITA = IndicatorMeta("grp_per_capita", "capita")
     BUDGET_REVENUE = IndicatorMeta("budget_revenue")

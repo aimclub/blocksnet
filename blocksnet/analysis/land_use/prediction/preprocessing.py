@@ -9,6 +9,9 @@ from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
 
 
 class DataProcessor:
+    """DataProcessor class.
+
+    """
     def __init__(self, buffer_distance: float = 1000, k_neighbors: int = 5):
         """Initialize the data processor with buffer distance and number of neighbors settings.
         

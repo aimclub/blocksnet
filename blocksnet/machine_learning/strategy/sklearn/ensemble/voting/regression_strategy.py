@@ -5,5 +5,23 @@ from sklearn.base import BaseEstimator
 
 class SKLearnVotingRegressionStrategy(SKLearnVotingBaseStrategy):
 
+    """SKLearnVotingRegressionStrategy class.
+
+    """
     def __init__(self, estimators : list[tuple[str, BaseEstimator]], model_params: dict | None = None):
+        """Initialize the instance.
+
+        Parameters
+        ----------
+        estimators : list[tuple[str, BaseEstimator]]
+            Description.
+        model_params : dict | None, default: None
+            Description.
+
+        Returns
+        -------
+        None
+            Description.
+
+        """
         super().__init__(VotingRegressor, estimators, model_params)

@@ -7,29 +7,71 @@ from blocksnet.utils.validation import GdfSchema, ensure_crs
 
 class BoundariesSchema(GdfSchema):
     @classmethod
+    """BoundariesSchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.Polygon, shapely.MultiPolygon}
 
 
 class LineObjectsSchema(GdfSchema):
     @classmethod
+    """LineObjectsSchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.LineString, shapely.MultiLineString}
 
 
 class PolygonObjectsSchema(GdfSchema):
     @classmethod
+    """PolygonObjectsSchema class.
+
+    """
     def _geometry_types(cls):
+        """Geometry types.
+
+        """
         return {shapely.Polygon, shapely.MultiPolygon}
 
 
 class BuildingsSchema(GdfSchema):
     @classmethod
+    """BuildingsSchema class.
+
+    """
     def _geometry_types(cls) -> set[type[BaseGeometry]]:
+        """Geometry types.
+
+        Returns
+        -------
+        set[type[BaseGeometry]]
+            Description.
+
+        """
         return {shapely.Point}
 
     @classmethod
     def _before_validate(cls, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        """Before validate.
+
+        Parameters
+        ----------
+        gdf : gpd.GeoDataFrame
+            Description.
+
+        Returns
+        -------
+        gpd.GeoDataFrame
+            Description.
+
+        """
         if "geometry" in gdf.columns:
             gdf.geometry = gdf.geometry.representative_point()
         return gdf
@@ -37,7 +79,18 @@ class BuildingsSchema(GdfSchema):
 
 class BlocksSchema(GdfSchema):
     @classmethod
+    """BlocksSchema class.
+
+    """
     def _geometry_types(cls) -> set[type[BaseGeometry]]:
+        """Geometry types.
+
+        Returns
+        -------
+        set[type[BaseGeometry]]
+            Description.
+
+        """
         return {shapely.Polygon}
 
 
@@ -48,6 +101,25 @@ def validate_and_preprocess_gdfs(
     buildings_gdf: gpd.GeoDataFrame | None,
 ) -> tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]:
 
+    """Validate and preprocess gdfs.
+
+    Parameters
+    ----------
+    boundaries_gdf : gpd.GeoDataFrame
+        Description.
+    lines_gdf : gpd.GeoDataFrame | None
+        Description.
+    polygons_gdf : gpd.GeoDataFrame | None
+        Description.
+    buildings_gdf : gpd.GeoDataFrame | None
+        Description.
+
+    Returns
+    -------
+    tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame, gpd.GeoDataFrame]
+        Description.
+
+    """
     logger.info("Checking boundaries schema")
     boundaries_gdf = BoundariesSchema(boundaries_gdf)
     crs = boundaries_gdf.crs

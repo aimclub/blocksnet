@@ -7,6 +7,9 @@ from ....utils.validation import DfSchema
 
 
 class TechnicalIndicatorsSchema(DfSchema):
+    """TechnicalIndicatorsSchema class.
+
+    """
     longitude: Series[float]
     latitude: Series[float]
     population: Series[float] = Field(ge=0)
@@ -29,6 +32,9 @@ class TechnicalIndicatorsSchema(DfSchema):
 
 
 class SocialIndicatorsSchema(DfSchema):
+    """SocialIndicatorsSchema class.
+
+    """
     nursing_home_count: Series[float] = Field(ge=0)
     hotel_count: Series[float] = Field(ge=0)
     theatre_count: Series[float] = Field(ge=0)

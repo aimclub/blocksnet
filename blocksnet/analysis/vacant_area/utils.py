@@ -5,6 +5,23 @@ from . import const
 
 
 def _fetch_osm(geometry, tags: dict, filter_func: Callable | None = None) -> gpd.GeoDataFrame | None:
+    """Fetch osm.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+    tags : dict
+        Description.
+    filter_func : Callable | None, default: None
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     try:
         gdf = ox.features_from_polygon(geometry, tags=tags)
         if filter_func is not None:
@@ -15,6 +32,21 @@ def _fetch_osm(geometry, tags: dict, filter_func: Callable | None = None) -> gpd
 
 
 def _buffer_geometries(gdf: gpd.GeoDataFrame | None, buffer_size: int) -> gpd.GeoDataFrame:
+    """Buffer geometries.
+
+    Parameters
+    ----------
+    gdf : gpd.GeoDataFrame | None
+        Description.
+    buffer_size : int
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     if gdf is None:
         return gdf
     current_crs = gdf.crs
@@ -25,47 +57,177 @@ def _buffer_geometries(gdf: gpd.GeoDataFrame | None, buffer_size: int) -> gpd.Ge
 
 
 def fetch_other(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch other.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     return _fetch_osm(geometry, {"man_made": True, "aeroway": True, "military": True})
 
 
 def fetch_leisure(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch leisure.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     return _fetch_osm(geometry, {"leisure": True})
 
 
 def fetch_landuse(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch landuse.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     filter_func = lambda gdf: gdf[gdf["landuse"] != "residential"]
     return _fetch_osm(geometry, {"landuse": True}, filter_func)
 
 
 def fetch_amenity(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch amenity.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     return _fetch_osm(geometry, {"amenity": True})
 
 
 def fetch_buildings(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch buildings.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     gdf = _fetch_osm(geometry, {"building": True})
     return _buffer_geometries(gdf, const.BUILDINGS_BUFFER)
 
 
 def fetch_natural(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch natural.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     filter_func = lambda gdf: gdf[gdf["natural"] != "bay"]
     return _fetch_osm(geometry, {"natural": True}, filter_func)
 
 
 def fetch_waterway(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch waterway.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     return _fetch_osm(geometry, {"waterway": True})
 
 
 def fetch_highway(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch highway.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     filter_func = lambda gdf: gdf[~gdf["highway"].isin(["path", "footway", "pedestrian"])]
     gdf = _fetch_osm(geometry, {"highway": True}, filter_func)
     return _buffer_geometries(gdf, const.ROADS_BUFFER)
 
 
 def fetch_path(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch path.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     gdf = _fetch_osm(geometry, {"highway": "path", "highway": "footway"})
     return _buffer_geometries(gdf, const.PATH_BUFFER)
 
 
 def fetch_railway(geometry) -> gpd.GeoDataFrame | None:
+    """Fetch railway.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame | None
+        Description.
+
+    """
     filter_func = lambda gdf: gdf[gdf["railway"] != "subway"]
     return _fetch_osm(geometry, {"railway": True}, filter_func)

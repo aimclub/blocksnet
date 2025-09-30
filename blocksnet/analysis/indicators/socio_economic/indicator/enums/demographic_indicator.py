@@ -5,6 +5,9 @@ from ..meta import IndicatorMeta
 
 @unique
 class DemographicIndicator(IndicatorEnum):
+    """DemographicIndicator class.
+
+    """
     POPULATION = IndicatorMeta("population")
     DENSITY = IndicatorMeta("density", "area")
     BIRTH_RATE = IndicatorMeta("birth_rate", "capita")

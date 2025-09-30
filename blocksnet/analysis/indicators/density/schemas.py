@@ -7,6 +7,9 @@ from ....utils.validation import DfSchema
 
 class BlocksSchema(DfSchema):
 
+    """BlocksSchema class.
+
+    """
     site_area: Series[float] = Field(ge=0)
     footprint_area: Series[float] = Field(ge=0)
     build_floor_area: Series[float] = Field(ge=0)
@@ -15,6 +18,19 @@ class BlocksSchema(DfSchema):
 
     @classmethod
     def _before_validate(cls, df: pd.DataFrame) -> pd.DataFrame:
+        """Before validate.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+
+        Returns
+        -------
+        pd.DataFrame
+            Description.
+
+        """
         if "non_living_area" not in df.columns:
             logger.warning("The non_living_area is not in columns, restoring")
             if "living_area" in df.columns and "build_floor_area" in df.columns:

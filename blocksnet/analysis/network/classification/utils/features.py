@@ -25,6 +25,19 @@ def _link_length_entropy(lengths):
 
 
 def calculate_graph_features(graph: nx.Graph) -> dict:
+    """Calculate graph features.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+
+    Returns
+    -------
+    dict
+        Description.
+
+    """
     gdf = graph_to_gdf(graph)
     # Edge length calculations
     edge_lengths = []

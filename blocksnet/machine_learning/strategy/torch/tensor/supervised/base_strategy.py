@@ -6,9 +6,31 @@ from ..base_strategy import TorchTensorBaseStrategy
 
 
 class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
+    """TorchTensorSupervisedStrategy class.
+
+    """
     def _epoch_train(
         self, x_train: torch.Tensor, y_train: torch.Tensor, optimizer: torch.optim.Optimizer, criterion: torch.nn.Module
     ) -> float:
+        """Epoch train.
+
+        Parameters
+        ----------
+        x_train : torch.Tensor
+            Description.
+        y_train : torch.Tensor
+            Description.
+        optimizer : torch.optim.Optimizer
+            Description.
+        criterion : torch.nn.Module
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         model = self.model
         model.train()
         optimizer.zero_grad()
@@ -19,6 +41,23 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
         return loss.item()
 
     def _epoch_test(self, x_test: torch.Tensor, y_test: torch.Tensor, criterion: torch.nn.Module) -> float:
+        """Epoch test.
+
+        Parameters
+        ----------
+        x_test : torch.Tensor
+            Description.
+        y_test : torch.Tensor
+            Description.
+        criterion : torch.nn.Module
+            Description.
+
+        Returns
+        -------
+        float
+            Description.
+
+        """
         model = self.model
         model.eval()
         with torch.no_grad():
@@ -35,6 +74,27 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
         **kwargs,
     ) -> tuple[float, float]:
 
+        """Epoch.
+
+        Parameters
+        ----------
+        data_loader : DataLoader
+            Description.
+        data : dict[str, torch.Tensor]
+            Description.
+        optimizer : torch.optim.Optimizer
+            Description.
+        criterion : torch.nn.Module
+            Description.
+        **kwargs : dict
+            Description.
+
+        Returns
+        -------
+        tuple[float, float]
+            Description.
+
+        """
         batch_losses = []
         for x_batch, y_batch in data_loader:
             batch_loss = self._epoch_train(x_batch, y_batch, optimizer, criterion)
@@ -46,9 +106,35 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
         return train_loss, test_loss
 
     def _predict(self, data: dict[str, torch.Tensor]) -> torch.Tensor:
+        """Predict.
+
+        Parameters
+        ----------
+        data : dict[str, torch.Tensor]
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         return self.model(data["x"])
 
     def predict(self, x: np.ndarray) -> np.ndarray:
+        """Predict.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         return super().predict(x=x)
 
     def train(
@@ -64,6 +150,37 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
         criterion_params: dict | None = None,
         data_loader_params: dict | None = None,
     ) -> tuple[list[float], list[float]]:
+        """Train.
+
+        Parameters
+        ----------
+        x_train : np.ndarray
+            Description.
+        x_test : np.ndarray
+            Description.
+        y_train : np.ndarray
+            Description.
+        y_test : np.ndarray
+            Description.
+        epochs : int, default: 100
+            Description.
+        optimizer_cls : type[torch.optim.Optimizer] | None, default: None
+            Description.
+        optimizer_params : dict | None, default: None
+            Description.
+        criterion_cls : type[torch.nn.Module] | None, default: None
+            Description.
+        criterion_params : dict | None, default: None
+            Description.
+        data_loader_params : dict | None, default: None
+            Description.
+
+        Returns
+        -------
+        tuple[list[float], list[float]]
+            Description.
+
+        """
         return super().train(
             x_train=x_train,
             x_test=x_test,
@@ -79,10 +196,36 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
 
     @abstractmethod
     def _x_to_tensor(self, x: np.ndarray) -> torch.Tensor:
+        """X to tensor.
+
+        Parameters
+        ----------
+        x : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         pass
 
     @abstractmethod
     def _y_to_tensor(self, y: np.ndarray) -> torch.Tensor:
+        """Y to tensor.
+
+        Parameters
+        ----------
+        y : np.ndarray
+            Description.
+
+        Returns
+        -------
+        torch.Tensor
+            Description.
+
+        """
         pass
 
     def _preprocess(
@@ -95,6 +238,29 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
         y_test: np.ndarray | None = None,
     ) -> dict[str, torch.Tensor]:
 
+        """Preprocess.
+
+        Parameters
+        ----------
+        x : np.ndarray | None, default: None
+            Description.
+        x_train : np.ndarray | None, default: None
+            Description.
+        x_test : np.ndarray | None, default: None
+            Description.
+        y : np.ndarray | None, default: None
+            Description.
+        y_train : np.ndarray | None, default: None
+            Description.
+        y_test : np.ndarray | None, default: None
+            Description.
+
+        Returns
+        -------
+        dict[str, torch.Tensor]
+            Description.
+
+        """
         result: dict[str, torch.Tensor] = {}
 
         if x_train is not None:
@@ -120,6 +286,19 @@ class TorchTensorSupervisedStrategy(TorchTensorBaseStrategy, ABC):
         return result
 
     def _postprocess(self, y: torch.Tensor) -> np.ndarray:
+        """Postprocess.
+
+        Parameters
+        ----------
+        y : torch.Tensor
+            Description.
+
+        Returns
+        -------
+        np.ndarray
+            Description.
+
+        """
         a = y.cpu().numpy()
         (a,) = self._inverse_scale("y", a)
         return a

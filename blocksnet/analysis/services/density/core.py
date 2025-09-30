@@ -6,6 +6,14 @@ DENSITY_COLUMN = "density"
 
 
 def services_density(blocks_df: pd.DataFrame):
+    """Services density.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     count_df = services_count(blocks_df)
     area_df = BlocksAreaSchema(blocks_df)
     blocks_df = pd.concat([area_df, count_df], axis=1)

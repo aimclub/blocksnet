@@ -286,6 +286,18 @@ class TPEOptimizer(Optimizer):
         """
 
         def trial_callback(var_num, low, high):
+            """Trial callback.
+
+            Parameters
+            ----------
+            var_num : Any
+                Description.
+            low : Any
+                Description.
+            high : Any
+                Description.
+
+            """
             if trial.user_attrs.get("initial", False):
                 val = trial.suggest_int(
                     name=f"x_{var_num}", low=0, high=1e9
@@ -304,6 +316,9 @@ class TPEOptimizer(Optimizer):
             return val
 
         def trials_data_callback():
+            """Trials data callback.
+
+            """
             n = self._objective.num_params
             second_last_trial = [self._objective(np.zeros(n))[1], np.zeros(n), self._objective(np.zeros(n))[0]]
             last_trial = []

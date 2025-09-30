@@ -8,6 +8,9 @@ SERVICE_TYPE_NAME_REGEX = r"^[a-z]+([_-][a-z]+)*$"
 
 
 class ServiceTypesSchema(DfSchema):
+    """ServiceTypesSchema class.
+
+    """
     idx: Index[str] = Field(str_matches=SERVICE_TYPE_NAME_REGEX)
     name_ru: Series[str] = Field(nullable=True)
     demand: Series[int] = Field(ge=0)
@@ -15,6 +18,9 @@ class ServiceTypesSchema(DfSchema):
 
 
 class UnitsSchema(DfSchema):
+    """UnitsSchema class.
+
+    """
     service_type: Series[str] = Field(str_matches=SERVICE_TYPE_NAME_REGEX)
     capacity: Series[int]
     site_area: Series[float] = Field(ge=0)
@@ -28,6 +34,9 @@ class UnitsSchema(DfSchema):
 
 
 class LandUseSchema(DfSchema):
+    """LandUseSchema class.
+
+    """
     idx: Index[str] = Field(str_matches=SERVICE_TYPE_NAME_REGEX)
 
     residential: Series[bool] = Field(default=False)
@@ -40,6 +49,14 @@ class LandUseSchema(DfSchema):
 
     @classmethod
     def _before_validate(cls, df: pd.DataFrame):
+        """Before validate.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+
+        """
         if "land_use" in df.columns:
             for lu_value in [lu.value for lu in list(LandUse)]:
                 df[lu_value] = df["land_use"].apply(lambda arr: lu_value in arr)
@@ -47,4 +64,12 @@ class LandUseSchema(DfSchema):
 
     @classmethod
     def _after_validate(cls, df: pd.DataFrame):
+        """After validate.
+
+        Parameters
+        ----------
+        df : pd.DataFrame
+            Description.
+
+        """
         return df[[lu.value for lu in list(LandUse)]].rename(columns=LandUse)

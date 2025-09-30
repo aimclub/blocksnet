@@ -8,6 +8,19 @@ NON_LIVING_AREA_COLUMN = "non_living_area"
 
 
 def calculate_development_indicators(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate development indicators.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
 
     build_floor_area = blocks_df.fsi * blocks_df.site_area

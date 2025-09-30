@@ -14,6 +14,21 @@ from .utils.merge_blocks import merge_empty_blocks, merge_invalid_blocks
 
 
 def _classify(blocks_gdf: gpd.GeoDataFrame, classifier: BlocksClassifier) -> gpd.GeoDataFrame:
+    """Classify.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    classifier : BlocksClassifier
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     blocks_df = classifier.run(blocks_gdf)
     return blocks_gdf.join(blocks_df)
 
@@ -26,6 +41,27 @@ def _split_urban_block(
     classifier: BlocksClassifier,
 ) -> gpd.GeoDataFrame:
 
+    """Split urban block.
+
+    Parameters
+    ----------
+    block_gdf : gpd.GeoDataFrame
+        Description.
+    lines_gdf : gpd.GeoDataFrame
+        Description.
+    polygons_gdf : gpd.GeoDataFrame
+        Description.
+    buildings_gdf : gpd.GeoDataFrame
+        Description.
+    classifier : BlocksClassifier
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     buildings_gdf = buildings_gdf.sjoin(block_gdf, predicate="within")
     lines_gdf = lines_gdf.sjoin(block_gdf, predicate="intersects")
 
@@ -75,6 +111,23 @@ def _split_urban_block(
 def _get_split_candidates(
     blocks_gdf: gpd.GeoDataFrame, buildings_gdf: gpd.GeoDataFrame, classifier: BlocksClassifier
 ) -> gpd.GeoDataFrame:
+    """Get split candidates.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    buildings_gdf : gpd.GeoDataFrame
+        Description.
+    classifier : BlocksClassifier
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     sjoin_gdf = blocks_gdf.sjoin(buildings_gdf)
 
     blocks_ids = sjoin_gdf.index.unique()
@@ -96,6 +149,27 @@ def split_blocks(
     classifier: BlocksClassifier,
 ) -> gpd.GeoDataFrame:
 
+    """Split blocks.
+
+    Parameters
+    ----------
+    blocks_gdf : gpd.GeoDataFrame
+        Description.
+    lines_gdf : gpd.GeoDataFrame
+        Description.
+    polygons_gdf : gpd.GeoDataFrame
+        Description.
+    buildings_gdf : gpd.GeoDataFrame
+        Description.
+    classifier : BlocksClassifier
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     if buildings_gdf.empty:
         logger.info("Empty buildings geodataframe. Splitting can't be done")
         return blocks_gdf

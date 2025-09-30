@@ -14,6 +14,14 @@ COORDINATES_KEYS_MAPPING = {X_KEY: LON_KEY, Y_KEY: LAT_KEY}
 
 
 def _preprocess_node_data(node_data: dict[str, Any]):
+    """Preprocess node data.
+
+    Parameters
+    ----------
+    node_data : dict[str, Any]
+        Description.
+
+    """
     data = node_data.copy()
     node_data.clear()
     for key, alt_key in COORDINATES_KEYS_MAPPING.items():
@@ -27,10 +35,28 @@ def _preprocess_node_data(node_data: dict[str, Any]):
 
 
 def _preprocess_edge_data(edge_data: dict[str, Any]):
+    """Preprocess edge data.
+
+    Parameters
+    ----------
+    edge_data : dict[str, Any]
+        Description.
+
+    """
     edge_data.clear()
 
 
 def _preprocess_graph_data(graph_data: dict[str, Any], validate_category: bool):
+    """Preprocess graph data.
+
+    Parameters
+    ----------
+    graph_data : dict[str, Any]
+        Description.
+    validate_category : bool
+        Description.
+
+    """
     data = graph_data.copy()
     graph_data.clear()
     if validate_category:
@@ -48,6 +74,19 @@ def _preprocess_graph_data(graph_data: dict[str, Any], validate_category: bool):
 
 
 def _simplify_graph(graph: nx.Graph) -> nx.Graph:
+    """Simplify graph.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+
+    Returns
+    -------
+    nx.Graph
+        Description.
+
+    """
     graph = graph.copy()
     if isinstance(graph, nx.MultiGraph):
         graph = nx.Graph(graph)
@@ -57,6 +96,21 @@ def _simplify_graph(graph: nx.Graph) -> nx.Graph:
 
 
 def preprocess_graph(graph: nx.Graph, validate_category: bool) -> nx.Graph:
+    """Preprocess graph.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+    validate_category : bool
+        Description.
+
+    Returns
+    -------
+    nx.Graph
+        Description.
+
+    """
     if not isinstance(graph, nx.Graph):
         raise TypeError("Graph should be an instance of nx.Graph.")
 
@@ -71,6 +125,19 @@ def preprocess_graph(graph: nx.Graph, validate_category: bool) -> nx.Graph:
 
 
 def graph_to_gdf(graph: nx.Graph) -> gpd.GeoDataFrame:
+    """Graph to gdf.
+
+    Parameters
+    ----------
+    graph : nx.Graph
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     nodes_dict = dict(graph.nodes(data=True))
     df = pd.DataFrame.from_dict(nodes_dict, orient="index")
     gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df[X_KEY], df[Y_KEY]), crs=4326)

@@ -11,6 +11,23 @@ def area_accessibility(
     out: bool = True,
 ) -> pd.DataFrame:
 
+    """Area accessibility.
+
+    Parameters
+    ----------
+    accessibility_matrix : pd.DataFrame
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    out : bool, default: True
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     validate_accessibility_matrix(
         accessibility_matrix,
         check_squared=False,

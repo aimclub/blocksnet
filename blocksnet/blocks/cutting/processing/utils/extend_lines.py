@@ -5,6 +5,23 @@ from shapely.strtree import STRtree
 
 
 def _extend_line(p1: Point, p2: Point, length: float) -> LineString:
+    """Extend line.
+
+    Parameters
+    ----------
+    p1 : Point
+        Description.
+    p2 : Point
+        Description.
+    length : float
+        Description.
+
+    Returns
+    -------
+    LineString
+        Description.
+
+    """
     dx, dy = p2.x - p1.x, p2.y - p1.y
     mag = (dx**2 + dy**2) ** 0.5
     if mag == 0:
@@ -15,6 +32,16 @@ def _extend_line(p1: Point, p2: Point, length: float) -> LineString:
 
 
 def _get_first_intersection(geometry, ref_line):
+    """Get first intersection.
+
+    Parameters
+    ----------
+    geometry : Any
+        Description.
+    ref_line : Any
+        Description.
+
+    """
     if geometry.is_empty:
         return None
     if geometry.geom_type in ["Point", "LineString"]:
@@ -31,12 +58,37 @@ def _get_first_intersection(geometry, ref_line):
 
 
 def _nearest_point(*points, ref_point: Point):
+    """Nearest point.
+
+    Parameters
+    ----------
+    *points : tuple
+        Description.
+    ref_point : Point
+        Description.
+
+    """
     points = [p for p in points if p]
     return min(points, key=lambda p: ref_point.distance(p)) if points else None
 
 
 def extend_lines(roads: gpd.GeoDataFrame, cluster_boundaries: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
 
+    """Extend lines.
+
+    Parameters
+    ----------
+    roads : gpd.GeoDataFrame
+        Description.
+    cluster_boundaries : gpd.GeoDataFrame
+        Description.
+
+    Returns
+    -------
+    gpd.GeoDataFrame
+        Description.
+
+    """
     cluster_boundaries_pols = cluster_boundaries[
         cluster_boundaries.geometry.geom_type.isin(["Polygon", "MultiPolygon"])
     ]

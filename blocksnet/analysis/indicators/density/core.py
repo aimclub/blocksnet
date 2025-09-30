@@ -15,6 +15,19 @@ SHARE_NON_LIVING_COLUMN = "share_non_living"
 
 
 def calculate_density_indicators(blocks_df: pd.DataFrame) -> pd.DataFrame:
+    """Calculate density indicators.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    Returns
+    -------
+    pd.DataFrame
+        Description.
+
+    """
     blocks_df = BlocksSchema(blocks_df)
 
     blocks_df = blocks_df.assign(

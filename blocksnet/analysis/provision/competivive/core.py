@@ -26,6 +26,16 @@ VALUE_COLUMN = "value"
 
 
 def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int | None):
+    """Initialize provision df.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    demand : int | None
+        Description.
+
+    """
     logger.info("Initializing provision DataFrame")
     blocks_df = blocks_df.copy()
 
@@ -53,6 +63,14 @@ def _initialize_provision_df(blocks_df: pd.DataFrame, demand: int | None):
 
 
 def _supply_self(blocks_df: pd.DataFrame):
+    """Supply self.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     logger.info("Supplying blocks with own capacities")
     supply = blocks_df.apply(lambda s: min(s.demand, s.capacity), axis=1)
     blocks_df[DEMAND_WITHIN_COLUMN] += supply
@@ -61,16 +79,50 @@ def _supply_self(blocks_df: pd.DataFrame):
 
 
 def _get_distance(id1: int, id2: int, accessibility_matrix: pd.DataFrame):
+    """Get distance.
+
+    Parameters
+    ----------
+    id1 : int
+        Description.
+    id2 : int
+        Description.
+    accessibility_matrix : pd.DataFrame
+        Description.
+
+    """
     distance = accessibility_matrix.loc[id1, id2]
     return distance
 
 
 def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, selection_range: int):
 
+    """Set lp problem.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    accessibility_matrix : pd.DataFrame
+        Description.
+    selection_range : int
+        Description.
+
+    """
     demand_blocks = blocks_df.loc[blocks_df[DEMAND_LEFT_COLUMN] > 0]
     capacity_blocks = blocks_df.loc[blocks_df[CAPACITY_LEFT_COLUMN] > 0]
 
     def _get_weight(id1: int, id2: int):
+        """Get weight.
+
+        Parameters
+        ----------
+        id1 : int
+            Description.
+        id2 : int
+            Description.
+
+        """
         distance = _get_distance(id1, id2, accessibility_matrix)
         demand = demand_blocks.loc[id1, DEMAND_LEFT_COLUMN]
         capacity = capacity_blocks.loc[id2, CAPACITY_LEFT_COLUMN]
@@ -109,6 +161,25 @@ def _set_lp_problem(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame,
 def _postprocess_lp_problem(
     prob: LpProblem, blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, accessibility: int
 ) -> tuple[pd.DataFrame, list[tuple]]:
+    """Postprocess lp problem.
+
+    Parameters
+    ----------
+    prob : LpProblem
+        Description.
+    blocks_df : pd.DataFrame
+        Description.
+    accessibility_matrix : pd.DataFrame
+        Description.
+    accessibility : int
+        Description.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, list[tuple]]
+        Description.
+
+    """
     blocks_df = blocks_df.copy()
     links = []
 
@@ -138,6 +209,25 @@ def _distribute_demand(
     blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame, accessibility: int, depth: int
 ) -> tuple[pd.DataFrame, list[tuple]]:
 
+    """Distribute demand.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    accessibility_matrix : pd.DataFrame
+        Description.
+    accessibility : int
+        Description.
+    depth : int
+        Description.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, list[tuple]]
+        Description.
+
+    """
     blocks_df = blocks_df.copy()
     selection_range = depth * accessibility
 
@@ -149,10 +239,26 @@ def _distribute_demand(
 
 
 def provision_strong_total(blocks_df: pd.DataFrame):
+    """Provision strong total.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     return blocks_df[DEMAND_WITHIN_COLUMN].sum() / blocks_df.demand.sum()
 
 
 def provision_weak_total(blocks_df: pd.DataFrame):
+    """Provision weak total.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+
+    """
     return (blocks_df[DEMAND_WITHIN_COLUMN].sum() + blocks_df[DEMAND_WITHOUT_COLUMN].sum()) / blocks_df.demand.sum()
 
 
@@ -165,6 +271,29 @@ def competitive_provision(
     max_depth: int = 1,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
 
+    """Competitive provision.
+
+    Parameters
+    ----------
+    blocks_df : pd.DataFrame
+        Description.
+    accessibility_matrix : pd.DataFrame
+        Description.
+    accessibility : int
+        Description.
+    demand : int | None, default: None
+        Description.
+    self_supply : bool, default: True
+        Description.
+    max_depth : int, default: 1
+        Description.
+
+    Returns
+    -------
+    tuple[pd.DataFrame, pd.DataFrame]
+        Description.
+
+    """
     validate_accessibility_matrix(accessibility_matrix, blocks_df)
     blocks_df = _initialize_provision_df(blocks_df, demand)
 
