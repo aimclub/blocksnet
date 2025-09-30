@@ -6,10 +6,7 @@ from blocksnet.enums.land_use import LandUse
 from blocksnet.relations import validate_accessibility_matrix
 from .schemas import BlocksAreaSchema, BlocksAccessibilitySchema, NetworkSchema
 from .indicator import TransportIndicator
-
-M_IN_KM = 1000
-SQM_IN_SQKM = M_IN_KM * M_IN_KM
-MIN_IN_H = 60
+from ..const import M_IN_KM, SQM_IN_SQKM, MIN_IN_H
 
 
 def _calculate_area(blocks_df: pd.DataFrame) -> float:

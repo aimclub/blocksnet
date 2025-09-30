@@ -2,8 +2,7 @@ import pandas as pd
 from .schemas import BlocksSchema
 from .indicator import GeneralIndicator
 from blocksnet.enums import LandUseCategory
-
-SQM_IN_SQKM = 1000 * 1000
+from ..const import SQM_IN_SQKM
 
 
 def calculate_general_indicators(blocks_df: pd.DataFrame) -> dict[GeneralIndicator, float]:

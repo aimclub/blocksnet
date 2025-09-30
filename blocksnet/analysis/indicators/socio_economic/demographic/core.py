@@ -1,8 +1,7 @@
 import pandas as pd
 from .schemas import BlocksSchema
 from .indicator import DemographicIndicator
-
-SQM_IN_SQKM = 1000 * 1000
+from ..const import SQM_IN_SQKM
 
 
 def calculate_demographic_indicators(blocks_df: pd.DataFrame) -> dict[DemographicIndicator, float]:
