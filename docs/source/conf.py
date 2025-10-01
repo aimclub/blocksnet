@@ -49,6 +49,11 @@ extensions = [
     "myst_parser",
 ]
 
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
+
 autosummary_generate = True
 nbsphinx_execute = "never"
 
