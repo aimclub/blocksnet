@@ -31,7 +31,9 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -e '.[full,docs]'
+          pip install -e '.[full,docs,ipynb]'
+          python -m pip install ipykernel
+          python -m ipykernel install --user --name python3 --display-name "Python 3"
       - name: Synchronize documentation examples
         run: |
           python docs/scripts/sync_examples.py
