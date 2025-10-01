@@ -5,6 +5,7 @@ __pycache__/
 
 # C extensions
 *.so
+catboost_info
 
 # Distribution / packaging
 .Python
@@ -70,6 +71,7 @@ instance/
 
 # Sphinx documentation
 build_docs/_build/
+docs/source/examples
 _autosummary
 
 # PyBuilder
@@ -138,7 +140,6 @@ dmypy.json
 # *.pickle
 # *.parquet
 # *.geojson
-*.pkl
 *.graphml
 *.csv
 /blocksnet/output_data
@@ -149,3 +150,7 @@ cache/
 
 # PyCharm env
 .idea
+
+
+# local folders
+data/

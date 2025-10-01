@@ -25,7 +25,9 @@ copyright = "2023-{}, IDU".format(datetime.datetime.now().year)
 author = "IDU"
 
 # The full version, including alpha/beta/rc tags
-release = "0.1.0"
+from blocksnet import __version__
+
+release = __version__
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
@@ -44,9 +46,16 @@ extensions = [
     "sphinx.ext.graphviz",
     "nbsphinx",
     "nbsphinx_link",
+    "myst_parser",
 ]
 
+source_suffix = {
+    ".rst": "restructuredtext",
+    ".md": "markdown",
+}
+
 autosummary_generate = True
+nbsphinx_execute = "never"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
@@ -78,10 +87,7 @@ html_theme = "sphinx_rtd_theme"
 
 # -- Extension configuration -------------------------------------------------
 
-# autodoc_inherit_docstrings = False
-# napoleon_google_docstring = True
-# napoleon_include_init_with_doc = True
-napoleon_google_docstring = True
+napoleon_google_docstring = False
 napoleon_numpy_docstring = True
 napoleon_include_init_with_doc = False
 napoleon_include_private_with_doc = True
@@ -93,7 +99,7 @@ napoleon_use_ivar = True
 napoleon_use_keyword = True
 napoleon_use_param = True
 napoleon_use_rtype = True
-napoleon_attr_annotations = False
+napoleon_attr_annotations = True
 
 autodoc_default_options = {
     "members": True,
@@ -101,9 +107,38 @@ autodoc_default_options = {
     "show-inheritance": True,
     "member-order": "bysource",
     "ignore-module-all": True,
+    "imported-members": True,
+    "private_methods": False,
     "exclude-members": "model_config, model_fields, model_post_init, maketrans",
 }
 autoclass_content = "class"
 autodoc_typehints = "signature"
 autodoc_typehints_format = "short"
-autodoc_mock_imports = ["objgraph", "memory_profiler", "gprof2dot", "snakeviz"]
+autodoc_mock_imports = ["objgraph", "pandera", "pydantic", "memory_profiler", "gprof2dot", "snakeviz"]
+
+
+def skip_foreign_objects(app, what, name, obj, skip, options):
+
+    if not hasattr(obj, "__module__"):
+        return skip
+
+    module_name = obj.__module__
+
+    # skip non blocksnet things
+    if not module_name.startswith("blocksnet."):
+        return True
+
+    try:
+        current_module = app.env.temp_data["autodoc:module"]
+        is_same_or_child = module_name.startswith(current_module)
+        if not is_same_or_child:
+            return True
+
+    except (KeyError, AttributeError):
+        pass
+
+    return skip
+
+
+def setup(app):
+    app.connect("autodoc-skip-member", skip_foreign_objects)
