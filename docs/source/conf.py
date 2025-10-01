@@ -25,7 +25,9 @@ copyright = "2023-{}, IDU".format(datetime.datetime.now().year)
 author = "IDU"
 
 # The full version, including alpha/beta/rc tags
-release = "1.0.dev0"
+from blocksnet import __version__
+
+release = __version__
 # -- General configuration ---------------------------------------------------
 
 # Add any Sphinx extension module names here, as strings. They can be
