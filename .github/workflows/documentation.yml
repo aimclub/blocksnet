@@ -32,6 +32,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e '.[full,docs]'
+      - name: Synchronize documentation examples
+        run: |
+          python docs/scripts/sync_examples.py
       - name: Sphinx build
         run: |
           sphinx-build docs/source docs/build
