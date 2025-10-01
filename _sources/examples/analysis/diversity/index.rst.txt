@@ -1,0 +1,7 @@
+Diversity
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   shannon

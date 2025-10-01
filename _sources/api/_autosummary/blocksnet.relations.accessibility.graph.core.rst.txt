@@ -1,0 +1,30 @@
+blocksnet.relations.accessibility.graph.core
+============================================
+
+.. automodule:: blocksnet.relations.accessibility.graph.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _get_geometry
+      get_accessibility_graph
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

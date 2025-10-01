@@ -1,0 +1,29 @@
+blocksnet.enums.settlement\_category
+====================================
+
+.. automodule:: blocksnet.enums.settlement_category
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      SettlementCategory
+   
+   
+
+   
+   
+   
+
+
+

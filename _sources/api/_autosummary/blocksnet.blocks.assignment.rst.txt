@@ -1,0 +1,33 @@
+blocksnet.blocks.assignment
+===========================
+
+.. automodule:: blocksnet.blocks.assignment
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.blocks.assignment.core
+   blocksnet.blocks.assignment.schemas
+   blocksnet.blocks.assignment.utils
+

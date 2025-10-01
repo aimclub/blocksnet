@@ -1,0 +1,16 @@
+Examples
+========
+
+Automatically generated overview of example notebooks.
+
+.. toctree::
+   :maxdepth: 2
+
+   analysis/index
+   blocks/index
+   machine_learning/index
+   optimization/index
+   preprocessing/index
+   relations/index
+   synthesis/index
+   pipeline

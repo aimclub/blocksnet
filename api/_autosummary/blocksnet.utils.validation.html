@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.utils.validation &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="blocksnet.utils.validation.df_schema" href="blocksnet.utils.validation.df_schema.html" />
+    <link rel="prev" title="blocksnet.utils" href="blocksnet.utils.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../examples/index.html">Examples</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">API documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="blocksnet.html">blocksnet</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.analysis.html">blocksnet.analysis</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.blocks.html">blocksnet.blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.enums.html">blocksnet.enums</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.machine_learning.html">blocksnet.machine_learning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.optimization.html">blocksnet.optimization</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.preprocessing.html">blocksnet.preprocessing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.relations.html">blocksnet.relations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="blocksnet.synthesis.html">blocksnet.synthesis</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="blocksnet.utils.html">blocksnet.utils</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">blocksnet.utils.validation</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">API documentation</a></li>
+          <li class="breadcrumb-item"><a href="blocksnet.html">blocksnet</a></li>
+          <li class="breadcrumb-item"><a href="blocksnet.utils.html">blocksnet.utils</a></li>
+      <li class="breadcrumb-item active">blocksnet.utils.validation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/api/_autosummary/blocksnet.utils.validation.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-blocksnet.utils.validation">
+<span id="blocksnet-utils-validation"></span><h1>blocksnet.utils.validation<a class="headerlink" href="#module-blocksnet.utils.validation" title="Permalink to this heading"></a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.utils.validation.</span></span><span class="sig-name descname"><span class="pre">DfSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/df_schema.html#DfSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.DfSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">DataFrameModel</span></code></p>
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.Config">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">Config</span></span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/df_schema.html#DfSchema.Config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.Config" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.Config.strict">
+<span class="sig-name descname"><span class="pre">strict</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'filter'</span></em><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.Config.strict" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.Config.add_missing_columns">
+<span class="sig-name descname"><span class="pre">add_missing_columns</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.Config.add_missing_columns" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.Config.coerce">
+<span class="sig-name descname"><span class="pre">coerce</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">True</span></em><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.Config.coerce" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.validate">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">validate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">df</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">allow_empty</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/df_schema.html#DfSchema.validate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.validate" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.columns_">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">columns_</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/df_schema.html#DfSchema.columns_"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.columns_" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.DfSchema.create_empty">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">DataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/df_schema.html#DfSchema.create_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.DfSchema.create_empty" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.GdfSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.utils.validation.</span></span><span class="sig-name descname"><span class="pre">GdfSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/gdf_schema.html#GdfSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.GdfSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="blocksnet.utils.validation.df_schema.html#blocksnet.utils.validation.df_schema.DfSchema" title="blocksnet.utils.validation.df_schema.DfSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">DfSchema</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.GdfSchema.geometry">
+<span class="sig-name descname"><span class="pre">geometry</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">pandera.typing.geopandas.GeoSeries</span></em><a class="headerlink" href="#blocksnet.utils.validation.GdfSchema.geometry" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.GdfSchema.create_empty">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">create_empty</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">crs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CRS</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4326</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">GeoDataFrame</span></span></span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/gdf_schema.html#GdfSchema.create_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.GdfSchema.create_empty" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.LandUseSchema">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">blocksnet.utils.validation.</span></span><span class="sig-name descname"><span class="pre">LandUseSchema</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/land_use_schema.html#LandUseSchema"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.LandUseSchema" title="Permalink to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="blocksnet.utils.validation.df_schema.html#blocksnet.utils.validation.df_schema.DfSchema" title="blocksnet.utils.validation.df_schema.DfSchema"><code class="xref py py-class docutils literal notranslate"><span class="pre">DfSchema</span></code></a></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.ensure_crs">
+<span class="sig-prename descclassname"><span class="pre">blocksnet.utils.validation.</span></span><span class="sig-name descname"><span class="pre">ensure_crs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">gdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">GeoDataFrame</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/utils.html#ensure_crs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.ensure_crs" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.validate_matrix">
+<span class="sig-prename descclassname"><span class="pre">blocksnet.utils.validation.</span></span><span class="sig-name descname"><span class="pre">validate_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/utils.html#validate_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.validate_matrix" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="blocksnet.utils.validation.validate_graph">
+<span class="sig-prename descclassname"><span class="pre">blocksnet.utils.validation.</span></span><span class="sig-name descname"><span class="pre">validate_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../../_modules/blocksnet/utils/validation/utils.html#validate_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#blocksnet.utils.validation.validate_graph" title="Permalink to this definition"></a></dt>
+<dd></dd></dl>
+
+<p class="rubric">Modules</p>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="blocksnet.utils.validation.df_schema.html#module-blocksnet.utils.validation.df_schema" title="blocksnet.utils.validation.df_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blocksnet.utils.validation.df_schema</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blocksnet.utils.validation.gdf_schema.html#module-blocksnet.utils.validation.gdf_schema" title="blocksnet.utils.validation.gdf_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blocksnet.utils.validation.gdf_schema</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="blocksnet.utils.validation.land_use_schema.html#module-blocksnet.utils.validation.land_use_schema" title="blocksnet.utils.validation.land_use_schema"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blocksnet.utils.validation.land_use_schema</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="blocksnet.utils.validation.utils.html#module-blocksnet.utils.validation.utils" title="blocksnet.utils.validation.utils"><code class="xref py py-obj docutils literal notranslate"><span class="pre">blocksnet.utils.validation.utils</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="blocksnet.utils.html" class="btn btn-neutral float-left" title="blocksnet.utils" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="blocksnet.utils.validation.df_schema.html" class="btn btn-neutral float-right" title="blocksnet.utils.validation.df_schema" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

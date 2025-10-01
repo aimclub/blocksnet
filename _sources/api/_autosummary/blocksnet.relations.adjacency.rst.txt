@@ -1,0 +1,32 @@
+blocksnet.relations.adjacency
+=============================
+
+.. automodule:: blocksnet.relations.adjacency
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.relations.adjacency.core
+   blocksnet.relations.adjacency.schemas
+

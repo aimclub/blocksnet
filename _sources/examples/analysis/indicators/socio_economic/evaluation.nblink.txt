@@ -1,0 +1,3 @@
+{
+  "path": "../../../../../../examples/analysis/indicators/socio_economic/evaluation.ipynb"
+}

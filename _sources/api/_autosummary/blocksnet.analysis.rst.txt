@@ -1,0 +1,40 @@
+blocksnet.analysis
+==================
+
+.. automodule:: blocksnet.analysis
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.analysis.centrality
+   blocksnet.analysis.diversity
+   blocksnet.analysis.geometry
+   blocksnet.analysis.indicators
+   blocksnet.analysis.land_use
+   blocksnet.analysis.morphotypes
+   blocksnet.analysis.network
+   blocksnet.analysis.provision
+   blocksnet.analysis.services
+   blocksnet.analysis.vacant_area
+

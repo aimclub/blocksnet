@@ -1,0 +1,40 @@
+﻿blocksnet
+=========
+
+.. automodule:: blocksnet
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.analysis
+   blocksnet.blocks
+   blocksnet.config
+   blocksnet.enums
+   blocksnet.machine_learning
+   blocksnet.optimization
+   blocksnet.preprocessing
+   blocksnet.relations
+   blocksnet.synthesis
+   blocksnet.utils
+

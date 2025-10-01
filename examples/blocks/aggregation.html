@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Buildings aggregation &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Land use assignment" href="assignment.html" />
+    <link rel="prev" title="Blocks" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Blocks</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Buildings aggregation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#Services-aggregation">Services aggregation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="assignment.html">Land use assignment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="classification.html">Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cutting.html">Processing geometries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cutting.html#Cut-urban-blocks">Cut urban blocks</a></li>
+<li class="toctree-l3"><a class="reference internal" href="cutting.html#Cut-with-splitting">Cut with splitting</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Blocks</a></li>
+      <li class="breadcrumb-item active">Buildings aggregation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/blocks/aggregation.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;./../data/blocks.parquet&#39;</span><span class="p">)[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span>
+<span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((354918.622 6625258.829, 354901.464 6...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((355412.142 6623378.149, 355411.700 6...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((353934.329 6625429.433, 353923.453 6...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((355099.099 6623847.765, 355074.808 6...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((352766.168 6621954.748, 352744.412 6...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<section id="Buildings-aggregation">
+<h1>Buildings aggregation<a class="headerlink" href="#Buildings-aggregation" title="Permalink to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;./../data/buildings.parquet&#39;</span><span class="p">)[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;build_floor_area&#39;</span><span class="p">,</span> <span class="s1">&#39;footprint_area&#39;</span><span class="p">]]</span>
+<span class="n">buildings_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>build_floor_area</th>
+      <th>footprint_area</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>158414</th>
+      <td>POLYGON ((354964.060 6625185.771, 354959.684 6...</td>
+      <td>15.035234</td>
+      <td>15.030958</td>
+    </tr>
+    <tr>
+      <th>150194</th>
+      <td>POLYGON ((355008.167 6625301.606, 355012.344 6...</td>
+      <td>22.191954</td>
+      <td>22.185639</td>
+    </tr>
+    <tr>
+      <th>58769</th>
+      <td>POLYGON ((354878.941 6625544.327, 354882.984 6...</td>
+      <td>31.272943</td>
+      <td>31.264070</td>
+    </tr>
+    <tr>
+      <th>158321</th>
+      <td>POLYGON ((355037.286 6624978.295, 355060.347 6...</td>
+      <td>158.369888</td>
+      <td>158.324760</td>
+    </tr>
+    <tr>
+      <th>36319</th>
+      <td>POLYGON ((354643.688 6625735.942, 354657.286 6...</td>
+      <td>192.764221</td>
+      <td>192.709820</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.blocks.aggregation</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_objects</span>
+
+<span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">objects_gdf</span> <span class="o">=</span> <span class="n">aggregate_objects</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">buildings_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-03-26 16:34:06.826</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">_preprocess_input</span>:<span class="ansi-cyan-fg">11</span> - <span class="ansi-bold">Preprocessing input</span>
+<span class="ansi-green-fg">2025-03-26 16:34:08.024</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">aggregate_objects</span>:<span class="ansi-cyan-fg">38</span> - <span class="ansi-bold">Aggregating objects</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>build_floor_area</th>
+      <th>footprint_area</th>
+      <th>objects_count</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((354918.622 6625258.829, 354901.464 6...</td>
+      <td>43840.686518</td>
+      <td>13953.390266</td>
+      <td>13.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((355412.142 6623378.149, 355411.700 6...</td>
+      <td>10294.395525</td>
+      <td>5051.410558</td>
+      <td>17.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((353934.329 6625429.433, 353923.453 6...</td>
+      <td>1173.871643</td>
+      <td>1163.480697</td>
+      <td>5.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((355099.099 6623847.765, 355074.808 6...</td>
+      <td>46303.954706</td>
+      <td>11085.135352</td>
+      <td>19.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((352766.168 6621954.748, 352744.412 6...</td>
+      <td>153749.574111</td>
+      <td>45222.959595</td>
+      <td>83.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">objects_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>build_floor_area</th>
+      <th>footprint_area</th>
+      <th>objects_count</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>799</th>
+      <td>POINT (359976.856 6653615.717)</td>
+      <td>48.900291</td>
+      <td>48.884676</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>149177</th>
+      <td>POINT EMPTY</td>
+      <td>36.114338</td>
+      <td>0.000000</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>117246</th>
+      <td>POINT (343574.869 6659119.948)</td>
+      <td>65.547600</td>
+      <td>65.534469</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>124423</th>
+      <td>POINT (342995.754 6653420.954)</td>
+      <td>20.652546</td>
+      <td>20.648502</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>113602</th>
+      <td>POINT (319549.989 6646766.805)</td>
+      <td>147.496292</td>
+      <td>147.496007</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;objects_count&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_blocks_aggregation_6_0.png" src="../../_images/examples_blocks_aggregation_6_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;build_floor_area&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlGn_r&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_blocks_aggregation_7_0.png" src="../../_images/examples_blocks_aggregation_7_0.png" />
+</div>
+</div>
+</section>
+<section id="Services-aggregation">
+<h1>Services aggregation<a class="headerlink" href="#Services-aggregation" title="Permalink to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">services_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;./../data/services.parquet&#39;</span><span class="p">)[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;capacity&#39;</span><span class="p">,</span> <span class="s1">&#39;service_type&#39;</span><span class="p">]]</span>
+<span class="n">services_gdf</span> <span class="o">=</span> <span class="n">services_gdf</span><span class="p">[</span><span class="n">services_gdf</span><span class="p">[</span><span class="s1">&#39;service_type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;school&#39;</span><span class="p">]</span>
+<span class="n">services_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>capacity</th>
+      <th>service_type</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>89</th>
+      <td>POINT (344901.025 6636842.991)</td>
+      <td>105</td>
+      <td>school</td>
+    </tr>
+    <tr>
+      <th>123</th>
+      <td>POINT (344572.765 6637377.808)</td>
+      <td>544</td>
+      <td>school</td>
+    </tr>
+    <tr>
+      <th>421</th>
+      <td>POINT (343490.888 6636544.706)</td>
+      <td>482</td>
+      <td>school</td>
+    </tr>
+    <tr>
+      <th>613</th>
+      <td>POINT (337815.236 6630648.737)</td>
+      <td>75</td>
+      <td>school</td>
+    </tr>
+    <tr>
+      <th>650</th>
+      <td>POINT (355309.295 6618733.164)</td>
+      <td>942</td>
+      <td>school</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">objects_gdf</span> <span class="o">=</span> <span class="n">aggregate_objects</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">services_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-03-26 16:34:53.109</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">_preprocess_input</span>:<span class="ansi-cyan-fg">11</span> - <span class="ansi-bold">Preprocessing input</span>
+<span class="ansi-green-fg">2025-03-26 16:34:53.116</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">aggregate_objects</span>:<span class="ansi-cyan-fg">38</span> - <span class="ansi-bold">Aggregating objects</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>capacity</th>
+      <th>objects_count</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((354918.622 6625258.829, 354901.464 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((355412.142 6623378.149, 355411.700 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((353934.329 6625429.433, 353923.453 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((355099.099 6623847.765, 355074.808 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((352766.168 6621954.748, 352744.412 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;objects_count&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_blocks_aggregation_12_0.png" src="../../_images/examples_blocks_aggregation_12_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;capacity&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlGn&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_blocks_aggregation_13_0.png" src="../../_images/examples_blocks_aggregation_13_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Blocks" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="assignment.html" class="btn btn-neutral float-right" title="Land use assignment" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

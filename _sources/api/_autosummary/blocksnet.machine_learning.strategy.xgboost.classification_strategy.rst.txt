@@ -1,0 +1,29 @@
+blocksnet.machine\_learning.strategy.xgboost.classification\_strategy
+=====================================================================
+
+.. automodule:: blocksnet.machine_learning.strategy.xgboost.classification_strategy
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      XGBoostClassificationStrategy
+   
+   
+
+   
+   
+   
+
+
+

@@ -1,0 +1,34 @@
+blocksnet.analysis.services.collocation.core
+============================================
+
+.. automodule:: blocksnet.analysis.services.collocation.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _intersection
+      _intersection_matrix
+      _preprocess_and_validate
+      _union
+      _union_matrix
+      services_collocation
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

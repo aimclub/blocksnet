@@ -1,0 +1,29 @@
+blocksnet.relations.distance.schemas
+====================================
+
+.. automodule:: blocksnet.relations.distance.schemas
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BlocksSchema
+   
+   
+
+   
+   
+   
+
+
+

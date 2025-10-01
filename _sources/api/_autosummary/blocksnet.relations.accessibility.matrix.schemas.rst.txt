@@ -1,0 +1,35 @@
+blocksnet.relations.accessibility.matrix.schemas
+================================================
+
+.. automodule:: blocksnet.relations.accessibility.matrix.schemas
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      validate_accessibility_matrix
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BlocksSchema
+   
+   
+
+   
+   
+   
+
+
+

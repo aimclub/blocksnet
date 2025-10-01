@@ -1,0 +1,29 @@
+blocksnet.blocks.aggregation.schemas
+====================================
+
+.. automodule:: blocksnet.blocks.aggregation.schemas
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BlocksSchema
+   
+   
+
+   
+   
+   
+
+
+

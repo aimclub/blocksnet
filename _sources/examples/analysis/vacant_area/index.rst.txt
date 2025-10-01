@@ -1,0 +1,7 @@
+Vacant area
+===========
+
+.. toctree::
+   :maxdepth: 1
+
+   vacant_area

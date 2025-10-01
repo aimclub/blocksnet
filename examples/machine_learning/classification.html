@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Classification &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Regression" href="regression.html" />
+    <link rel="prev" title="Machine learning" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Machine learning</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Classification</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Blocks">Blocks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="regression.html">Regression</a></li>
+<li class="toctree-l3"><a class="reference internal" href="social.html">Social Indicators Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Machine learning</a></li>
+      <li class="breadcrumb-item active">Classification</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/machine_learning/classification.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Classification">
+<h1>Classification<a class="headerlink" href="#Classification" title="Permalink to this heading"></a></h1>
+<section id="Blocks">
+<h2>Blocks<a class="headerlink" href="#Blocks" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+
+<span class="n">blocks</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;./../../tests/data/_blocks.parquet&#39;</span><span class="p">)[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span>
+<span class="n">blocks</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((550762.29 6565038.844, 550768.857 65...</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((550768.857 6565033.563, 550762.29 65...</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((544937.479 6564706.592, 544935.619 6...</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((544806.647 6565359.291, 544814.358 6...</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((544793.346 6565395.228, 544800.15 65...</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<section id="Evaluate">
+<h3>Evaluate<a class="headerlink" href="#Evaluate" title="Permalink to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.machine_learning.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlocksClassifier</span>
+
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">BlocksClassifier</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">blocks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-07 19:48:58.340</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_usual_features</span>:<span class="ansi-cyan-fg">35</span> - <span class="ansi-bold">Calculating usual features</span>
+<span class="ansi-green-fg">2025-05-07 19:48:58.367</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_aspect_ratios</span>:<span class="ansi-cyan-fg">58</span> - <span class="ansi-bold">Calculating aspect ratios</span>
+100%|██████████| 737/737 [00:00&lt;00:00, 1544.46it/s]
+<span class="ansi-green-fg">2025-05-07 19:48:58.852</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_centerlines</span>:<span class="ansi-cyan-fg">21</span> - <span class="ansi-bold">Calculating centerlines</span>
+100%|██████████| 737/737 [00:03&lt;00:00, 208.24it/s]
+<span class="ansi-green-fg">2025-05-07 19:49:02.397</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_generate_combinations</span>:<span class="ansi-cyan-fg">68</span> - <span class="ansi-bold">Generating combinations</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;i/n&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;invalid&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">]</span>
+<span class="n">res</span><span class="p">[</span><span class="s1">&#39;l/n&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;large&#39;</span><span class="p">]</span> <span class="o">/</span> <span class="n">res</span><span class="p">[</span><span class="s1">&#39;normal&#39;</span><span class="p">]</span>
+<span class="n">res</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>invalid</th>
+      <th>large</th>
+      <th>normal</th>
+      <th>category</th>
+      <th>probability</th>
+      <th>i/n</th>
+      <th>l/n</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.017405</td>
+      <td>0.001351</td>
+      <td>0.981244</td>
+      <td>BlockCategory.NORMAL</td>
+      <td>0.981244</td>
+      <td>0.017738</td>
+      <td>0.001377</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.637211</td>
+      <td>0.000143</td>
+      <td>0.362646</td>
+      <td>BlockCategory.INVALID</td>
+      <td>0.637211</td>
+      <td>1.757112</td>
+      <td>0.000394</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.008412</td>
+      <td>0.000726</td>
+      <td>0.990862</td>
+      <td>BlockCategory.NORMAL</td>
+      <td>0.990862</td>
+      <td>0.008490</td>
+      <td>0.000733</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.034929</td>
+      <td>0.000739</td>
+      <td>0.964332</td>
+      <td>BlockCategory.NORMAL</td>
+      <td>0.964332</td>
+      <td>0.036221</td>
+      <td>0.000766</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.006865</td>
+      <td>0.393867</td>
+      <td>0.599269</td>
+      <td>BlockCategory.NORMAL</td>
+      <td>0.599269</td>
+      <td>0.011455</td>
+      <td>0.657246</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>16315</th>
+      <td>0.883616</td>
+      <td>0.000178</td>
+      <td>0.116206</td>
+      <td>BlockCategory.INVALID</td>
+      <td>0.883616</td>
+      <td>7.603908</td>
+      <td>0.001532</td>
+    </tr>
+    <tr>
+      <th>16316</th>
+      <td>0.604627</td>
+      <td>0.000022</td>
+      <td>0.395351</td>
+      <td>BlockCategory.INVALID</td>
+      <td>0.604627</td>
+      <td>1.529344</td>
+      <td>0.000055</td>
+    </tr>
+    <tr>
+      <th>16317</th>
+      <td>0.967215</td>
+      <td>0.000053</td>
+      <td>0.032732</td>
+      <td>BlockCategory.INVALID</td>
+      <td>0.967215</td>
+      <td>29.549418</td>
+      <td>0.001614</td>
+    </tr>
+    <tr>
+      <th>16318</th>
+      <td>0.928698</td>
+      <td>0.000053</td>
+      <td>0.071249</td>
+      <td>BlockCategory.INVALID</td>
+      <td>0.928698</td>
+      <td>13.034574</td>
+      <td>0.000739</td>
+    </tr>
+    <tr>
+      <th>16319</th>
+      <td>0.003977</td>
+      <td>0.001853</td>
+      <td>0.994170</td>
+      <td>BlockCategory.NORMAL</td>
+      <td>0.994170</td>
+      <td>0.004000</td>
+      <td>0.001864</td>
+    </tr>
+  </tbody>
+</table>
+<p>16320 rows × 7 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.machine_learning.classification</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlockCategory</span>
+
+<span class="n">blocks</span><span class="p">[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">res</span><span class="p">[</span><span class="n">res</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="n">BlockCategory</span><span class="o">.</span><span class="n">NORMAL</span><span class="p">])</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;large&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_classification_7_0.png" src="../../_images/examples_machine_learning_classification_7_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Machine learning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="regression.html" class="btn btn-neutral float-right" title="Regression" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

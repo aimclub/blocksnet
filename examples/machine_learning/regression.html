@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Regression &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="&lt;no title&gt;" href="sklearn.html" />
+    <link rel="prev" title="Classification" href="classification.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Machine learning</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="classification.html">Classification</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Regression</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Density">Density</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="social.html">Social Indicators Prediction</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Machine learning</a></li>
+      <li class="breadcrumb-item active">Regression</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/machine_learning/regression.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Regression">
+<h1>Regression<a class="headerlink" href="#Regression" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;./blocks.parquet&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Fix columns almost equal 1</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LandUse</span>
+
+<span class="n">land_use_columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">lu</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">lu</span> <span class="ow">in</span> <span class="n">LandUse</span><span class="p">]</span>
+<span class="n">blocks_gdf</span><span class="p">[</span><span class="n">land_use_columns</span><span class="p">]</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="p">[</span><span class="n">land_use_columns</span><span class="p">]</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">upper</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Filter only viable rows</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="p">[(</span><span class="n">blocks_gdf</span><span class="p">[[</span><span class="s1">&#39;fsi&#39;</span><span class="p">,</span> <span class="s1">&#39;gsi&#39;</span><span class="p">]]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="p">[(</span><span class="n">blocks_gdf</span><span class="p">[[</span><span class="s1">&#39;gsi&#39;</span><span class="p">,</span> <span class="s1">&#39;mxi&#39;</span><span class="p">]]</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)]</span>
+</pre></div>
+</div>
+</div>
+<p>Initialize graph</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.relations</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_adjacency_graph</span>
+
+<span class="n">adjacency_graph</span> <span class="o">=</span> <span class="n">generate_adjacency_graph</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-04-15 16:22:17.177</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.relations.adjacency.core</span>:<span class="ansi-cyan-fg">_generate_adjacency_nodes</span>:<span class="ansi-cyan-fg">10</span> - <span class="ansi-bold">Generating nodes</span>
+<span class="ansi-green-fg">2025-04-15 16:22:17.182</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.relations.adjacency.core</span>:<span class="ansi-cyan-fg">_generate_adjacency_edges</span>:<span class="ansi-cyan-fg">15</span> - <span class="ansi-bold">Generating edges</span>
+<span class="ansi-green-fg">2025-04-15 16:22:19.058</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.relations.adjacency.core</span>:<span class="ansi-cyan-fg">generate_adjacency_graph</span>:<span class="ansi-cyan-fg">38</span> - <span class="ansi-green-intense-fg ansi-bold">Adjacency graph successfully generated: 5350 nodes, 15279 edges</span>
+</pre></div></div>
+</div>
+<section id="Density">
+<h2>Density<a class="headerlink" href="#Density" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.machine_learning.regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">DensityRegressor</span>
+
+<span class="n">dr</span> <span class="o">=</span> <span class="n">DensityRegressor</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<section id="Train">
+<h3>Train<a class="headerlink" href="#Train" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[33]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">data</span> <span class="o">=</span> <span class="n">dr</span><span class="o">.</span><span class="n">get_train_data</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">adjacency_graph</span><span class="p">,</span> <span class="n">fit_scaler</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">test</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-04-15 15:49:33.992</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_usual_features</span>:<span class="ansi-cyan-fg">34</span> - <span class="ansi-bold">Calculating usual features</span>
+<span class="ansi-green-fg">2025-04-15 15:49:34.107</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.regression.density.core</span>:<span class="ansi-cyan-fg">_features_from_geometries</span>:<span class="ansi-cyan-fg">46</span> - <span class="ansi-bold">Fitting the scaler</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[34]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">train_losses</span><span class="p">,</span> <span class="n">test_losses</span> <span class="o">=</span> <span class="n">dr</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">epochs</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span> <span class="n">learning_rate</span><span class="o">=</span><span class="mf">3e-4</span><span class="p">,</span> <span class="n">weight_decay</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+Train loss: 0.02410 | Test loss: 0.03729: 100%|██████████| 250/250 [00:22&lt;00:00, 11.00it/s]
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="o">.</span><span class="n">from_dict</span><span class="p">({</span>
+  <span class="s1">&#39;train&#39;</span><span class="p">:</span> <span class="n">train_losses</span><span class="p">,</span>
+  <span class="s1">&#39;test&#39;</span><span class="p">:</span> <span class="n">test_losses</span><span class="p">,</span>
+<span class="p">})</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+&lt;Axes: &gt;
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_regression_13_1.png" src="../../_images/examples_machine_learning_regression_13_1.png" />
+</div>
+</div>
+</section>
+<section id="Test">
+<h3>Test<a class="headerlink" href="#Test" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dr</span><span class="o">.</span><span class="n">test</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.03729007765650749
+</pre></div></div>
+</div>
+</section>
+<section id="Evaluate">
+<h3>Evaluate<a class="headerlink" href="#Evaluate" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">result_df</span> <span class="o">=</span> <span class="n">dr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">adjacency_graph</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-04-15 16:22:29.517</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_usual_features</span>:<span class="ansi-cyan-fg">34</span> - <span class="ansi-bold">Calculating usual features</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">column</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+  <span class="n">df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span> <span class="o">-=</span> <span class="n">blocks_gdf</span><span class="p">[</span><span class="n">column</span><span class="p">]</span>
+  <span class="n">ax</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="p">[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;PuOr&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=-</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+  <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="n">column</span><span class="p">)</span>
+  <span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_regression_18_0.png" src="../../_images/examples_machine_learning_regression_18_0.png" />
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_regression_18_1.png" src="../../_images/examples_machine_learning_regression_18_1.png" />
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_regression_18_2.png" src="../../_images/examples_machine_learning_regression_18_2.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[30]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">result_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="n">group_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;residential&#39;</span><span class="p">,</span> <span class="s1">&#39;business&#39;</span><span class="p">,</span> <span class="s1">&#39;recreation&#39;</span><span class="p">,</span> <span class="s1">&#39;industrial&#39;</span><span class="p">,</span> <span class="s1">&#39;transport&#39;</span><span class="p">,</span> <span class="s1">&#39;special&#39;</span><span class="p">,</span> <span class="s1">&#39;agriculture&#39;</span><span class="p">]</span>
+<span class="n">diff_columns</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">group_abs_diff_means</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">for</span> <span class="n">group_col</span> <span class="ow">in</span> <span class="n">group_columns</span><span class="p">:</span>
+    <span class="n">group_mask</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="p">[</span><span class="n">group_col</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="n">filtered_blocks</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">group_mask</span><span class="p">,</span> <span class="n">diff_columns</span><span class="p">]</span>
+    <span class="n">filtered_df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">group_mask</span><span class="p">,</span> <span class="n">diff_columns</span><span class="p">]</span>
+
+    <span class="c1"># Абсолютное отклонение</span>
+    <span class="n">abs_diff</span> <span class="o">=</span> <span class="p">(</span><span class="n">filtered_df</span> <span class="o">-</span> <span class="n">filtered_blocks</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span><span class="p">()</span>
+    <span class="n">group_abs_diff_means</span><span class="p">[</span><span class="n">group_col</span><span class="p">]</span> <span class="o">=</span> <span class="n">abs_diff</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span>
+
+<span class="c1"># В виде DataFrame</span>
+<span class="n">abs_mean_diffs_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">group_abs_diff_means</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
+<span class="n">abs_mean_diffs_df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;Group&#39;</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Копируем исходную таблицу, чтобы не потерять оригинал</span>
+<span class="n">normalized_df</span> <span class="o">=</span> <span class="n">abs_mean_diffs_df</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+<span class="c1"># Применяем min-max нормализацию по каждому столбцу (признаку)</span>
+<span class="n">normalized_df</span> <span class="o">=</span> <span class="p">(</span><span class="n">normalized_df</span> <span class="o">-</span> <span class="n">normalized_df</span><span class="o">.</span><span class="n">min</span><span class="p">())</span> <span class="o">/</span> <span class="p">(</span><span class="n">normalized_df</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">normalized_df</span><span class="o">.</span><span class="n">min</span><span class="p">())</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">abs_mean_diffs_df</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;RdYlGn_r&quot;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s2">&quot;.3f&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Нормализованное Средние отклонения признаков по группам (где значение &gt; 0)&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">14</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Признаки&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Группы&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_regression_21_0.png" src="../../_images/examples_machine_learning_regression_21_0.png" />
+</div>
+</div>
+</section>
+<section id="Save-model-and-scaler">
+<h3>Save model and scaler<a class="headerlink" href="#Save-model-and-scaler" title="Permalink to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dr</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="s1">&#39;model.pt&#39;</span><span class="p">)</span>
+<span class="n">dr</span><span class="o">.</span><span class="n">save_scaler</span><span class="p">(</span><span class="s1">&#39;scaler.pkl&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="classification.html" class="btn btn-neutral float-left" title="Classification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sklearn.html" class="btn btn-neutral float-right" title="&lt;no title&gt;" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

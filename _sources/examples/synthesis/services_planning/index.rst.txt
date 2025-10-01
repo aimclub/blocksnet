@@ -1,0 +1,7 @@
+Services planning
+=================
+
+.. toctree::
+   :maxdepth: 1
+
+   area_based_tpe

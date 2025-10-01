@@ -1,0 +1,30 @@
+blocksnet.blocks.assignment.schemas
+===================================
+
+.. automodule:: blocksnet.blocks.assignment.schemas
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BlocksSchema
+      FunctionalZonesSchema
+   
+   
+
+   
+   
+   
+
+
+

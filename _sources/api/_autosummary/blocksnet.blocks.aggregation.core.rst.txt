@@ -1,0 +1,31 @@
+blocksnet.blocks.aggregation.core
+=================================
+
+.. automodule:: blocksnet.blocks.aggregation.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _get_agg_rules
+      _preprocess_input
+      aggregate_objects
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

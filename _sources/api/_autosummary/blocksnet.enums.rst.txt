@@ -1,0 +1,34 @@
+blocksnet.enums
+===============
+
+.. automodule:: blocksnet.enums
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.enums.block_category
+   blocksnet.enums.land_use
+   blocksnet.enums.land_use_category
+   blocksnet.enums.settlement_category
+

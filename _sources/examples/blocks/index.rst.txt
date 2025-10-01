@@ -1,0 +1,11 @@
+Blocks
+======
+
+.. toctree::
+   :maxdepth: 1
+
+   aggregation
+   assignment
+   classification
+   cutting
+   postprocessing

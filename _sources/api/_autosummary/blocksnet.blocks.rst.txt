@@ -1,0 +1,35 @@
+blocksnet.blocks
+================
+
+.. automodule:: blocksnet.blocks
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.blocks.aggregation
+   blocksnet.blocks.assignment
+   blocksnet.blocks.classification
+   blocksnet.blocks.cutting
+   blocksnet.blocks.postprocessing
+

@@ -1,0 +1,31 @@
+blocksnet.blocks.assignment.core
+================================
+
+.. automodule:: blocksnet.blocks.assignment.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _choose_largest
+      _get_shares
+      assign_land_use
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

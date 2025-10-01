@@ -1,0 +1,29 @@
+blocksnet.analysis.indicators.development.schemas
+=================================================
+
+.. automodule:: blocksnet.analysis.indicators.development.schemas
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BlocksSchema
+   
+   
+
+   
+   
+   
+
+
+

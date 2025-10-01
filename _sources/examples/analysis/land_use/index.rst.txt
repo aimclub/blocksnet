@@ -1,0 +1,11 @@
+Land use
+========
+
+.. toctree::
+   :maxdepth: 1
+
+   collocation
+   indicators
+   prediction
+   share
+   similarity

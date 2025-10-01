@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Land use prediction &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Land use share" href="share.html" />
+    <link rel="prev" title="Land use indicators" href="indicators.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../centrality/index.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indicators/index.html">Indicators</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Land use</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="collocation.html">Land use collocation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="indicators.html">Land use indicators</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Land use prediction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="share.html">Land use share</a></li>
+<li class="toctree-l4"><a class="reference internal" href="similarity.html">Land use similarity</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../morphotypes/index.html">Morphotypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../network/index.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../provision/index.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../services/index.html">Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Land use</a></li>
+      <li class="breadcrumb-item active">Land use prediction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/analysis/land_use/prediction.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Land-use-prediction">
+<h1>Land use prediction<a class="headerlink" href="#Land-use-prediction" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">xgboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">XGBClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lightgbm</span><span class="w"> </span><span class="kn">import</span> <span class="n">LGBMClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestClassifier</span><span class="p">,</span> <span class="n">HistGradientBoostingClassifier</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.land_use.prediction</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpatialClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.machine_learning.strategy.sklearn.ensemble.voting.classification_strategy</span><span class="w"> </span><span class="kn">import</span> <span class="n">SKLearnVotingClassificationStrategy</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_gdfs</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">,</span> <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;*.pkl&quot;</span><span class="p">,</span> <span class="n">target_crs</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Загружает GeoDataFrame&#39;ы из .pkl файлов:</span>
+<span class="sd">      - если root указывает на один .pkl файл — читаем его и возвращаем список [GDF]</span>
+<span class="sd">      - если root — папка — рекурсивно ищем по маске pattern и возвращаем список GDF</span>
+
+<span class="sd">    Пытаемся заполнить столбцы &#39;city&#39; и &#39;country&#39; из структуры путей:</span>
+<span class="sd">    .../&lt;country&gt;/&lt;city&gt;/&lt;file&gt;.pkl</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        root: путь к файлу .pkl или папке</span>
+<span class="sd">        pattern: маска файлов (по умолчанию &quot;*.pkl&quot;) — используется только если root папка</span>
+<span class="sd">        target_crs: если указан, приводим все геоданные к этому CRS</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        list[GeoDataFrame]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_ensure_gdf</span><span class="p">(</span><span class="n">obj</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Преобразует объект в GeoDataFrame, если это DataFrame с колонкой &#39;geometry&#39;.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">obj</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;geometry&quot;</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">geometry</span><span class="o">=</span><span class="s2">&quot;geometry&quot;</span><span class="p">,</span> <span class="n">crs</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;crs&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_infer_city_country</span><span class="p">(</span><span class="n">fp</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="c1"># ожидаем .../&lt;country&gt;/&lt;city&gt;/&lt;file&gt;.pkl</span>
+        <span class="n">city</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">name</span><span class="p">[:</span><span class="o">-</span><span class="mi">4</span><span class="p">]</span> <span class="k">if</span> <span class="n">fp</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">country</span> <span class="o">=</span> <span class="n">fp</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">fp</span><span class="o">.</span><span class="n">parents</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="n">city</span><span class="p">,</span> <span class="n">country</span>
+
+    <span class="c1"># Соберём список файлов</span>
+    <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_file</span><span class="p">()</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.pkl&quot;</span><span class="p">:</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="n">pattern</span><span class="p">))</span>
+        <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">suffix</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;.pkl&quot;</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">gdfs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">obj</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Пропускаю </span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Если GeoDataFrame</span>
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">_ensure_gdf</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
+
+        <span class="c1"># Если dict с GeoDataFrame</span>
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">gi</span> <span class="o">=</span> <span class="n">_ensure_gdf</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">gi</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">gi</span> <span class="o">=</span> <span class="n">gi</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+                <span class="k">if</span> <span class="s2">&quot;city&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gi</span><span class="o">.</span><span class="n">columns</span> <span class="ow">or</span> <span class="n">gi</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">isna</span><span class="p">()</span><span class="o">.</span><span class="n">all</span><span class="p">():</span>
+                    <span class="n">gi</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+                <span class="n">_</span><span class="p">,</span> <span class="n">country</span> <span class="o">=</span> <span class="n">_infer_city_country</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+                <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;country&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gi</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="n">country</span><span class="p">:</span>
+                    <span class="n">gi</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">country</span>
+                <span class="k">if</span> <span class="n">target_crs</span><span class="p">:</span>
+                    <span class="n">gi</span> <span class="o">=</span> <span class="n">gi</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">target_crs</span><span class="p">)</span> <span class="k">if</span> <span class="n">gi</span><span class="o">.</span><span class="n">crs</span> <span class="k">else</span> <span class="n">gi</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">target_crs</span><span class="p">)</span>
+                <span class="n">gdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gi</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="n">gdf</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Пропускаю </span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2">: объект не GeoDataFrame и не dict с GeoDataFrame.&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="n">city</span><span class="p">,</span> <span class="n">country</span> <span class="o">=</span> <span class="n">_infer_city_country</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;city&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;city&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">city</span> <span class="ow">or</span> <span class="n">fp</span><span class="o">.</span><span class="n">stem</span>
+        <span class="k">if</span> <span class="p">(</span><span class="s2">&quot;country&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">gdf</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span> <span class="ow">and</span> <span class="n">country</span><span class="p">:</span>
+            <span class="n">gdf</span><span class="p">[</span><span class="s2">&quot;country&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">country</span>
+
+        <span class="k">if</span> <span class="n">target_crs</span><span class="p">:</span>
+            <span class="n">gdf</span> <span class="o">=</span> <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">target_crs</span><span class="p">)</span> <span class="k">if</span> <span class="n">gdf</span><span class="o">.</span><span class="n">crs</span> <span class="k">else</span> <span class="n">gdf</span><span class="o">.</span><span class="n">set_crs</span><span class="p">(</span><span class="n">target_crs</span><span class="p">)</span>
+
+        <span class="n">gdfs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">gdf</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">gdfs</span>
+
+<span class="n">MERGE_DICT</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;LandUse.RECREATION&#39;</span><span class="p">:</span> <span class="s1">&#39;non_urban&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LandUse.SPECIAL&#39;</span><span class="p">:</span> <span class="s1">&#39;non_urban&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LandUse.AGRICULTURE&#39;</span><span class="p">:</span> <span class="s1">&#39;non_urban&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LandUse.BUSINESS&#39;</span><span class="p">:</span> <span class="s1">&#39;urban&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LandUse.RESIDENTIAL&#39;</span><span class="p">:</span> <span class="s1">&#39;urban&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LandUse.INDUSTRIAL&#39;</span><span class="p">:</span> <span class="s1">&#39;industrial&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;LandUse.TRANSPORT&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">}</span>
+<br/></pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">russia</span> <span class="o">=</span> <span class="n">load_gdfs</span><span class="p">(</span><span class="s1">&#39;data/blocks/Russia/&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Инициализация и обучение</span>
+<span class="n">BASE_PARAMS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">,</span> <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">}</span>
+<span class="n">CPU</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">MODEL_PARAMS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;rf&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>          <span class="c1"># было 200</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;class_weight&quot;</span><span class="p">:</span> <span class="s2">&quot;balanced&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;max_samples&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>          <span class="c1"># 🔴 бэггинг на подвыборке</span>
+        <span class="s2">&quot;min_samples_leaf&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>       <span class="c1"># стабилизация и меньше узлов</span>
+        <span class="o">**</span><span class="n">BASE_PARAMS</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;xgb&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">150</span><span class="p">,</span>          <span class="c1"># меньше</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="s2">&quot;subsample&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>             <span class="c1"># стахастичность</span>
+        <span class="s2">&quot;colsample_bytree&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+        <span class="s2">&quot;tree_method&quot;</span><span class="p">:</span> <span class="s2">&quot;hist&quot;</span><span class="p">,</span>        <span class="c1"># память/скорость</span>
+        <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="n">CPU</span>                 <span class="c1"># XGB игнорирует BASE_PARAMS если его стерли</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;lgb&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;n_estimators&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="s2">&quot;class_weight&quot;</span><span class="p">:</span> <span class="s2">&quot;balanced&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;num_threads&quot;</span><span class="p">:</span> <span class="n">CPU</span>            <span class="c1"># у LGB параметр другое имя</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;hgb&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;max_iter&quot;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="mi">7</span><span class="p">,</span>
+        <span class="s2">&quot;learning_rate&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span>
+        <span class="s2">&quot;random_state&quot;</span><span class="p">:</span> <span class="mi">42</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="n">estimators</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;rf&quot;</span><span class="p">,</span>  <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">MODEL_PARAMS</span><span class="p">[</span><span class="s2">&quot;rf&quot;</span><span class="p">])),</span>
+    <span class="p">(</span><span class="s2">&quot;xgb&quot;</span><span class="p">,</span> <span class="n">XGBClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">MODEL_PARAMS</span><span class="p">[</span><span class="s2">&quot;xgb&quot;</span><span class="p">])),</span>
+    <span class="p">(</span><span class="s2">&quot;lgb&quot;</span><span class="p">,</span> <span class="n">LGBMClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">MODEL_PARAMS</span><span class="p">[</span><span class="s2">&quot;lgb&quot;</span><span class="p">])),</span>
+    <span class="p">(</span><span class="s2">&quot;hgb&quot;</span><span class="p">,</span> <span class="n">HistGradientBoostingClassifier</span><span class="p">(</span><span class="o">**</span><span class="n">MODEL_PARAMS</span><span class="p">[</span><span class="s2">&quot;hgb&quot;</span><span class="p">])),</span>
+<span class="p">]</span>
+
+<span class="n">strategy</span> <span class="o">=</span> <span class="n">SKLearnVotingClassificationStrategy</span><span class="p">(</span><span class="n">estimators</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;voting&quot;</span><span class="p">:</span> <span class="s2">&quot;soft&quot;</span><span class="p">,</span> <span class="s2">&quot;n_jobs&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">})</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">SpatialClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="p">,</span> <span class="mi">1000</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="n">score</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">russia</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">classifier</span> <span class="o">=</span> <span class="n">SpatialClassifier</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">classifier</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">russia</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="indicators.html" class="btn btn-neutral float-left" title="Land use indicators" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="share.html" class="btn btn-neutral float-right" title="Land use share" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

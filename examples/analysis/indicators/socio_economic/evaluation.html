@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Socio-economic indicators evaluation &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Density indicators" href="../density.html" />
+    <link rel="prev" title="Socio economic" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../../centrality/index.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="../index.html">Indicators</a><ul class="current">
+<li class="toctree-l4 current"><a class="reference internal" href="index.html">Socio economic</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../density.html">Density indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../development.html">Development indicators</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../socio_economic.html">Socio-economic indicators</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../../land_use/index.html">Land use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../morphotypes/index.html">Morphotypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../network/index.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../provision/index.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../services/index.html">Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Indicators</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Socio economic</a></li>
+      <li class="breadcrumb-item active">Socio-economic indicators evaluation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../../_sources/examples/analysis/indicators/socio_economic/evaluation.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Socio-economic-indicators-evaluation">
+<h1>Socio-economic indicators evaluation<a class="headerlink" href="#Socio-economic-indicators-evaluation" title="Permalink to this heading"></a></h1>
+<p>Read aggregated blocks spatial layer</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../../data/saint_petersburg/blocks.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Read drive graph</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;./../../../data/saint_petersburg/graph_drive.pickle&#39;</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Read drive accessibility matrix</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acc_mx</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../../data/saint_petersburg/accessibility_matrix_drive.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="General-indicators">
+<h2>General indicators<a class="headerlink" href="#General-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators.socio_economic</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_general_indicators</span>
+
+<span class="n">general_indicators</span> <span class="o">=</span> <span class="n">calculate_general_indicators</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+<span class="n">general_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{Area (km2): 1392.283137517296, Urbanization: 0.3640140273948924}
+</pre></div></div>
+</div>
+</section>
+<section id="Demographic-indicators">
+<h2>Demographic indicators<a class="headerlink" href="#Demographic-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators.socio_economic</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_demographic_indicators</span>
+
+<span class="n">demographic_indicators</span> <span class="o">=</span> <span class="n">calculate_demographic_indicators</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+<span class="n">demographic_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{Population: 5477076, Density (people/km2): 3933.880869782465}
+</pre></div></div>
+</div>
+</section>
+<section id="Settlement-indicators">
+<h2>Settlement indicators<a class="headerlink" href="#Settlement-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># not calculated within blocksnet</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Transport-indicators">
+<h2>Transport indicators<a class="headerlink" href="#Transport-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators.socio_economic</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_transport_indicators</span>
+
+<span class="n">transport_indicators</span> <span class="o">=</span> <span class="n">calculate_transport_indicators</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">acc_mx</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
+<span class="n">transport_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{Road network density (km/km2): 8.875121375198045,
+ Settlements connectivity: 0.49947916666666664,
+ Road network length (km): 12356.681834107552,
+ Fuel stations count: 505,
+ Average fuel station accessibility (h): 0.0911865234375,
+ Railway stops count: 44,
+ Average railway stop accessibility (h): 0.1654052734375}
+</pre></div></div>
+</div>
+</section>
+<section id="Economic-indicators">
+<h2>Economic indicators<a class="headerlink" href="#Economic-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># not calculated within blocksnet</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Ecological-indicators">
+<h2>Ecological indicators<a class="headerlink" href="#Ecological-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># not calculated within blocksnet</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Engineering-indicators">
+<h2>Engineering indicators<a class="headerlink" href="#Engineering-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators.socio_economic</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_engineering_indicators</span>
+
+<span class="n">tmp_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span>
+    <span class="s1">&#39;count_school&#39;</span><span class="p">:</span> <span class="s1">&#39;count_treatment_facility&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;count_kindergarten&#39;</span><span class="p">:</span> <span class="s1">&#39;count_water_intake&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;count_hairdresser&#39;</span><span class="p">:</span> <span class="s1">&#39;count_gas_distribution&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;count_fuel&#39;</span><span class="p">:</span> <span class="s1">&#39;count_power_plant&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;count_park&#39;</span><span class="p">:</span> <span class="s1">&#39;count_reservoir&#39;</span>
+<span class="p">})</span>
+
+<span class="n">engineering_indicators</span> <span class="o">=</span> <span class="n">calculate_engineering_indicators</span><span class="p">(</span><span class="n">tmp_gdf</span><span class="p">)</span>
+<span class="n">engineering_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{Power plant: 505,
+ Water intake: 1541,
+ Treatment facility: 880,
+ Reservoir: 14255,
+ Gas distribution: 3876,
+ Infrastructure object: 21057}
+</pre></div></div>
+</div>
+</section>
+<section id="Social-count-indicators">
+<h2>Social count indicators<a class="headerlink" href="#Social-count-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators.socio_economic</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_social_count_indicators</span>
+
+<span class="n">sc_indicators</span><span class="p">,</span> <span class="n">missing_sc_indicators</span> <span class="o">=</span> <span class="n">calculate_social_count_indicators</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-09-30 15:44:10.037</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_college is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.038</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_extracurricular is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.038</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_ambulance is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.039</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_special_medical is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.040</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_preventive_medical is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.041</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_gym is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.041</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_outdoor_sports is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.042</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_stadium is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.042</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_orphanage is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.044</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_nursing_home is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.044</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_social_service_center is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.045</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_library is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.046</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_cultural_center is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.047</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_concert_hall is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.047</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_ice_arena is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.048</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_eco_trail is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.048</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_fire_station is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.051</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_tourist_base is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.052</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_count.core</span>:<span class="ansi-cyan-fg">calculate_social_count_indicators</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-yellow-intense-fg ansi-bold">count_catering is missing. The indicator is skipped</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sc_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{Kindergarten: 1541,
+ School: 880,
+ University: 226,
+ Hospital: 127,
+ Polyclinic: 252,
+ Sanatorium: 77,
+ Pharmacy: 2176,
+ Swimming pool: 83,
+ Post: 324,
+ Bank: 995,
+ Multifunctional center: 57,
+ Museum: 264,
+ Theatre: 112,
+ Cinema: 71,
+ Mall: 273,
+ Park: 14255,
+ Beach: 91,
+ Police: 343,
+ Hotel: 729,
+ Hostel: 195}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">missing_sc_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[College,
+ Extracurricular,
+ Ambulance,
+ Special medical,
+ Preventive medical,
+ Gym,
+ Outdoor sports,
+ Stadium,
+ Orphanage,
+ Nursing home,
+ Social service center,
+ Library,
+ Cultural center,
+ Concert hall,
+ Ice arena,
+ Eco trail,
+ Fire station,
+ Tourist base,
+ Catering]
+</pre></div></div>
+</div>
+</section>
+<section id="Social-provision-indicators">
+<h2>Social provision indicators<a class="headerlink" href="#Social-provision-indicators" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators.socio_economic</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_social_provision_indicators</span>
+
+<span class="n">sp_indicators</span><span class="p">,</span> <span class="n">missing_sp_indicators</span> <span class="o">=</span> <span class="n">calculate_social_provision_indicators</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-09-30 15:44:10.121</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">college not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.138</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">extracurricular not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.169</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">ambulance not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.187</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">special_medical not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.188</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">preventive_medical not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.206</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">gym not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.223</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">outdoor_sports not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.224</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">24</span> - <span class="ansi-yellow-intense-fg ansi-bold">capacity_stadium is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.224</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">orphanage not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.225</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">24</span> - <span class="ansi-yellow-intense-fg ansi-bold">capacity_nursing_home is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.226</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">social_service_center not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.274</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">24</span> - <span class="ansi-yellow-intense-fg ansi-bold">capacity_library is missing. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.309</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">cultural_center not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.325</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">concert_hall not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.326</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">ice_arena not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.373</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">eco_trail not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.374</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">fire_station not found in config. The indicator is skipped</span>
+<span class="ansi-green-fg">2025-09-30 15:44:10.419</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.indicators.socio_economic.social_provision.core</span>:<span class="ansi-cyan-fg">calculate_social_provision_indicators</span>:<span class="ansi-cyan-fg">16</span> - <span class="ansi-yellow-intense-fg ansi-bold">tourist_base not found in config. The indicator is skipped</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sp_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+{Kindergarten: 0.9810360465116279,
+ School: 1.0,
+ University: 0.04035574866325315,
+ Hospital: 0.19087287708999667,
+ Polyclinic: 0.11763323905314495,
+ Sanatorium: 1.0,
+ Pharmacy: 1.0,
+ Swimming pool: 1.0,
+ Post: 1.0,
+ Bank: 0.6822466367713005,
+ Multifunctional center: 1.0,
+ Museum: 0.017770732503950257,
+ Theatre: 0.7996120492481386,
+ Cinema: 0.9742653088451105,
+ Mall: 0.016805370157151195,
+ Park: 0.049796142011741075,
+ Beach: 1.0,
+ Police: 0.6625228014999396,
+ Hotel: 0.09557373692721118,
+ Hostel: 1.0}
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">missing_sp_indicators</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[College,
+ Extracurricular,
+ Ambulance,
+ Special medical,
+ Preventive medical,
+ Gym,
+ Outdoor sports,
+ Stadium,
+ Orphanage,
+ Nursing home,
+ Social service center,
+ Library,
+ Cultural center,
+ Concert hall,
+ Ice arena,
+ Eco trail,
+ Fire station,
+ Tourist base]
+</pre></div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Socio economic" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../density.html" class="btn btn-neutral float-right" title="Density indicators" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

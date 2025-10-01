@@ -1,0 +1,9 @@
+Relations
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   accessibility
+   adjacency
+   distance

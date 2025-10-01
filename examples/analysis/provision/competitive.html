@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Competitive provision &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Shared provision" href="shared.html" />
+    <link rel="prev" title="Provision" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../centrality/index.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indicators/index.html">Indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../land_use/index.html">Land use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morphotypes/index.html">Morphotypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../network/index.html">Network</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Provision</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Competitive provision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="shared.html">Shared provision</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../services/index.html">Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Provision</a></li>
+      <li class="breadcrumb-item active">Competitive provision</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/analysis/provision/competitive.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Competitive-provision">
+<h1>Competitive provision<a class="headerlink" href="#Competitive-provision" title="Permalink to this heading"></a></h1>
+<p>This type of provision is used for service types such as <code class="docutils literal notranslate"><span class="pre">school</span></code>, <code class="docutils literal notranslate"><span class="pre">kindergarten</span></code> etc. Where each demand occupies some space and doesn’t let any other demand occupy it.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/saint_petersburg/blocks.pickle&#39;</span><span class="p">)</span>
+<span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/saint_petersburg/accessibility_matrix_intermodal.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Provision-assessment">
+<h2>Provision assessment<a class="headerlink" href="#Provision-assessment" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">service_types_config</span>
+
+<span class="n">service_type</span> <span class="o">=</span> <span class="s1">&#39;school&#39;</span>
+<span class="n">_</span><span class="p">,</span> <span class="n">demand</span><span class="p">,</span> <span class="n">accessibility</span> <span class="o">=</span> <span class="n">service_types_config</span><span class="p">[</span><span class="n">service_type</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+<span class="n">demand</span><span class="p">,</span> <span class="n">accessibility</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(120, 15)
+</pre></div></div>
+</div>
+<p>In most cases <code class="docutils literal notranslate"><span class="pre">max_depth=1</span></code> is optimal, but for this example <code class="docutils literal notranslate"><span class="pre">max_depth=3</span></code> will be used</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.provision</span><span class="w"> </span><span class="kn">import</span> <span class="n">competitive_provision</span>
+
+<span class="n">gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;capacity_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span><span class="s1">&#39;capacity&#39;</span><span class="p">})</span>
+<span class="n">blocks_df</span><span class="p">,</span> <span class="n">links_df</span> <span class="o">=</span> <span class="n">competitive_provision</span><span class="p">(</span><span class="n">gdf</span><span class="p">,</span> <span class="n">accessibility_matrix</span><span class="p">,</span> <span class="n">accessibility</span><span class="p">,</span> <span class="n">demand</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-09-19 18:36:22.555</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">_initialize_provision_df</span>:<span class="ansi-cyan-fg">29</span> - <span class="ansi-bold">Initializing provision DataFrame</span>
+<span class="ansi-green-fg">2025-09-19 18:36:22.559</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">_initialize_provision_df</span>:<span class="ansi-cyan-fg">33</span> - <span class="ansi-yellow-intense-fg ansi-bold">No demand in columns. Imputing using population column and demand parameter</span>
+<span class="ansi-green-fg">2025-09-19 18:36:22.586</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">_supply_self</span>:<span class="ansi-cyan-fg">56</span> - <span class="ansi-bold">Supplying blocks with own capacities</span>
+<span class="ansi-green-fg">2025-09-19 18:36:22.700</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">competitive_provision</span>:<span class="ansi-cyan-fg">175</span> - <span class="ansi-bold">Setting and solving LP problems until max depth or break condition reached</span>
+100%|██████████| 3/3 [00:17&lt;00:00,  5.80s/it]
+<span class="ansi-green-fg">2025-09-19 18:36:40.117</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">competitive_provision</span>:<span class="ansi-cyan-fg">188</span> - <span class="ansi-green-intense-fg ansi-bold">Provision assessment finished</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>demand</th>
+      <th>capacity</th>
+      <th>demand_left</th>
+      <th>demand_within</th>
+      <th>demand_without</th>
+      <th>capacity_left</th>
+      <th>capacity_within</th>
+      <th>capacity_without</th>
+      <th>provision_strong</th>
+      <th>provision_weak</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13</td>
+      <td>0</td>
+      <td>13</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>9</td>
+      <td>0</td>
+      <td>9</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>52</td>
+      <td>942</td>
+      <td>0</td>
+      <td>52</td>
+      <td>0</td>
+      <td>0</td>
+      <td>734</td>
+      <td>156</td>
+      <td>1.0</td>
+      <td>1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">links_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>value</th>
+    </tr>
+    <tr>
+      <th>source</th>
+      <th>target</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>10</th>
+      <th>710</th>
+      <td>12.0</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <th>8838</th>
+      <td>1.0</td>
+    </tr>
+    <tr>
+      <th>35</th>
+      <th>115</th>
+      <td>35.0</td>
+    </tr>
+    <tr>
+      <th>39</th>
+      <th>4544</th>
+      <td>43.0</td>
+    </tr>
+    <tr>
+      <th>41</th>
+      <th>262</th>
+      <td>86.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Additional-features">
+<h2>Additional features<a class="headerlink" href="#Additional-features" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.provision</span><span class="w"> </span><span class="kn">import</span> <span class="n">provision_strong_total</span><span class="p">,</span> <span class="n">provision_weak_total</span>
+
+<span class="n">p_strong</span> <span class="o">=</span> <span class="n">provision_strong_total</span><span class="p">(</span><span class="n">blocks_df</span><span class="p">)</span>
+<span class="n">p_weak</span> <span class="o">=</span> <span class="n">provision_weak_total</span><span class="p">(</span><span class="n">blocks_df</span><span class="p">)</span>
+
+<span class="nb">float</span><span class="p">(</span><span class="n">p_strong</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="n">p_weak</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(0.6890279622706392, 0.7433122288715732)
+</pre></div></div>
+</div>
+</section>
+<section id="Visualization">
+<h2>Visualization<a class="headerlink" href="#Visualization" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span><span class="o">=</span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span>
+<span class="n">blocks_gdf</span><span class="p">[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">blocks_df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">column</span><span class="o">=</span><span class="s1">&#39;provision_strong&#39;</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlGn&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Pstrong = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">p_strong</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s1">, Pweak = </span><span class="si">{</span><span class="nb">round</span><span class="p">(</span><span class="n">p_weak</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_analysis_provision_competitive_11_0.png" src="../../../_images/examples_analysis_provision_competitive_11_0.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Provision" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="shared.html" class="btn btn-neutral float-right" title="Shared provision" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -1,0 +1,32 @@
+blocksnet.optimization
+======================
+
+.. automodule:: blocksnet.optimization
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.optimization.land_use
+   blocksnet.optimization.services
+

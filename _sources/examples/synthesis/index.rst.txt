@@ -1,0 +1,7 @@
+Synthesis
+=========
+
+.. toctree::
+   :maxdepth: 1
+
+   services_planning/index

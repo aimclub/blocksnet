@@ -1,0 +1,29 @@
+blocksnet.machine\_learning.strategy.xgboost.regression\_strategy
+=================================================================
+
+.. automodule:: blocksnet.machine_learning.strategy.xgboost.regression_strategy
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      XGBoostRegressionStrategy
+   
+   
+
+   
+   
+   
+
+
+

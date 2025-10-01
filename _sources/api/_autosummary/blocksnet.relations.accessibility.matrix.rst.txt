@@ -1,0 +1,32 @@
+blocksnet.relations.accessibility.matrix
+========================================
+
+.. automodule:: blocksnet.relations.accessibility.matrix
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.relations.accessibility.matrix.core
+   blocksnet.relations.accessibility.matrix.schemas
+

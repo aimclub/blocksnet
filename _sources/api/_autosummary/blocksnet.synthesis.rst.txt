@@ -1,0 +1,33 @@
+blocksnet.synthesis
+===================
+
+.. automodule:: blocksnet.synthesis
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.synthesis.land_use_planning
+   blocksnet.synthesis.network_morphing
+   blocksnet.synthesis.services_planning
+

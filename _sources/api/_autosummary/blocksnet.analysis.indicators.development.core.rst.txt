@@ -1,0 +1,29 @@
+blocksnet.analysis.indicators.development.core
+==============================================
+
+.. automodule:: blocksnet.analysis.indicators.development.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      calculate_development_indicators
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

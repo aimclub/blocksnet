@@ -1,0 +1,16 @@
+Analysis
+========
+
+.. toctree::
+   :maxdepth: 1
+
+   centrality/index
+   diversity/index
+   geometry/index
+   indicators/index
+   land_use/index
+   morphotypes/index
+   network/index
+   provision/index
+   services/index
+   vacant_area/index

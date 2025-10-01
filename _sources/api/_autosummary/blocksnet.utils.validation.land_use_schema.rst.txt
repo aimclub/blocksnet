@@ -1,0 +1,29 @@
+blocksnet.utils.validation.land\_use\_schema
+============================================
+
+.. automodule:: blocksnet.utils.validation.land_use_schema
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      LandUseSchema
+   
+   
+
+   
+   
+   
+
+
+

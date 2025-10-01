@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Social Indicators Prediction &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Optimization" href="../optimization/index.html" />
+    <link rel="prev" title="&lt;no title&gt;" href="sklearn.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Machine learning</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="classification.html">Classification</a></li>
+<li class="toctree-l3"><a class="reference internal" href="regression.html">Regression</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Social Indicators Prediction</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#Predicting-using-quantile-regression">Predicting using quantile regression</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Model-Validation">Model Validation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#Error-for-different-targets">Error for different targets</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#LIME-Prediction">LIME Prediction</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Machine learning</a></li>
+      <li class="breadcrumb-item active">Social Indicators Prediction</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/machine_learning/social.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Social-Indicators-Prediction">
+<h1>Social Indicators Prediction<a class="headerlink" href="#Social-Indicators-Prediction" title="Permalink to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">data</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../data/social_regression_data.pickle&#39;</span><span class="p">)</span>
+<span class="n">data</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>population</th>
+      <th>site_area</th>
+      <th>is_living</th>
+      <th>footprint_area</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>non_living_area</th>
+      <th>buildings_count</th>
+      <th>agriculture</th>
+      <th>industrial</th>
+      <th>...</th>
+      <th>guest_house_count</th>
+      <th>school_count</th>
+      <th>pitch_count</th>
+      <th>hospital_count</th>
+      <th>polyclinic_count</th>
+      <th>emergency_medical_service_stations_count</th>
+      <th>restaurant_count</th>
+      <th>pharmacy_count</th>
+      <th>longitude</th>
+      <th>latitude</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3</th>
+      <td>2154</td>
+      <td>958000.0</td>
+      <td>107.0</td>
+      <td>134350.198599</td>
+      <td>1.486228e+05</td>
+      <td>18790.798548</td>
+      <td>129551.116050</td>
+      <td>973</td>
+      <td>9.895049e+06</td>
+      <td>4.271492e+06</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>-771885.613281</td>
+      <td>6.809647e+06</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1698</td>
+      <td>732000.0</td>
+      <td>15.0</td>
+      <td>167346.131884</td>
+      <td>1.839993e+05</td>
+      <td>19628.059600</td>
+      <td>164371.238284</td>
+      <td>1016</td>
+      <td>3.137606e+06</td>
+      <td>2.275153e+05</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>-780323.931010</td>
+      <td>6.841250e+06</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>20169</td>
+      <td>45000.0</td>
+      <td>1484.0</td>
+      <td>897718.375067</td>
+      <td>1.446731e+06</td>
+      <td>530190.233798</td>
+      <td>899757.274216</td>
+      <td>3448</td>
+      <td>6.347738e+04</td>
+      <td>1.899003e+06</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>4.0</td>
+      <td>9.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>5.0</td>
+      <td>7.0</td>
+      <td>-775855.937394</td>
+      <td>6.821746e+06</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>3393</td>
+      <td>699000.0</td>
+      <td>70.0</td>
+      <td>207072.938797</td>
+      <td>2.546795e+05</td>
+      <td>56015.386519</td>
+      <td>195416.138670</td>
+      <td>502</td>
+      <td>1.859899e+06</td>
+      <td>1.173573e+07</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>-798102.040434</td>
+      <td>6.809219e+06</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>15960</td>
+      <td>261000.0</td>
+      <td>225.0</td>
+      <td>479686.323942</td>
+      <td>8.471635e+05</td>
+      <td>353020.537179</td>
+      <td>484596.269902</td>
+      <td>2155</td>
+      <td>1.301242e+06</td>
+      <td>2.936352e+05</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>3.0</td>
+      <td>5.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>3.0</td>
+      <td>-787756.552231</td>
+      <td>6.821318e+06</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 45 columns</p>
+</div></div>
+</div>
+<section id="Predicting-using-quantile-regression">
+<h2>Predicting using quantile regression<a class="headerlink" href="#Predicting-using-quantile-regression" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.machine_learning.regression</span><span class="w"> </span><span class="kn">import</span> <span class="n">SocialRegressor</span>
+
+<span class="c1"># sr = SocialRegressor()</span>
+
+<span class="c1"># if you want to train one yourself</span>
+<span class="n">sr</span> <span class="o">=</span> <span class="n">SocialRegressor</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">max_depth</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">min_samples_split</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-27 16:04:58.876</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.regression.social.common.model_wrapper</span>:<span class="ansi-cyan-fg">__init__</span>:<span class="ansi-cyan-fg">32</span> - <span class="ansi-yellow-intense-fg ansi-bold">Keyword arguments provided. The model_path is ignored</span>
+</pre></div></div>
+</div>
+<p>Getting data divided into a training and a test sample</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">x_train</span><span class="p">,</span> <span class="n">x_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">get_train_data</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Train model</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sr</span><span class="o">.</span><span class="n">train</span><span class="p">(</span><span class="n">x_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">confidence_level</span><span class="o">=</span><span class="mf">95.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-27 16:05:16.289</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.regression.social.common.model_wrapper</span>:<span class="ansi-cyan-fg">_train_model</span>:<span class="ansi-cyan-fg">80</span> - <span class="ansi-bold">Fitting median model</span>
+<span class="ansi-green-fg">2025-05-27 16:05:47.337</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.regression.social.common.model_wrapper</span>:<span class="ansi-cyan-fg">_train_model</span>:<span class="ansi-cyan-fg">89</span> - <span class="ansi-bold">Fitting lower model</span>
+<span class="ansi-green-fg">2025-05-27 16:05:49.852</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.regression.social.common.model_wrapper</span>:<span class="ansi-cyan-fg">_train_model</span>:<span class="ansi-cyan-fg">100</span> - <span class="ansi-bold">Fitting upper model</span>
+</pre></div></div>
+</div>
+<p>Save fitted model</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">sr</span><span class="o">.</span><span class="n">save_model</span><span class="p">(</span><span class="s1">&#39;./model.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Model-Validation">
+<h2>Model Validation<a class="headerlink" href="#Model-Validation" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span><span class="p">,</span> <span class="n">pi_lower</span><span class="p">,</span> <span class="n">pi_upper</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">evaluate</span><span class="p">(</span><span class="n">x_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Showing predictions</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">y_pred</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nursing_home_count</th>
+      <th>hotel_count</th>
+      <th>theatre_count</th>
+      <th>cinema_count</th>
+      <th>secondary_vocational_education_institutions_count</th>
+      <th>university_count</th>
+      <th>stadium_count</th>
+      <th>emergency_medical_service_stations_count</th>
+      <th>kindergarten_count</th>
+      <th>hostel_count</th>
+      <th>...</th>
+      <th>post_count</th>
+      <th>swimming_pool_count</th>
+      <th>library_count</th>
+      <th>guest_house_count</th>
+      <th>fire_safety_facilities_count</th>
+      <th>restaurant_count</th>
+      <th>police_count</th>
+      <th>museum_count</th>
+      <th>bank_count</th>
+      <th>pitch_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>14296</th>
+      <td>0.014379</td>
+      <td>-0.000832</td>
+      <td>0.001763</td>
+      <td>0.016099</td>
+      <td>0.039391</td>
+      <td>0.479495</td>
+      <td>0.105324</td>
+      <td>0.005666</td>
+      <td>0.296905</td>
+      <td>0.010605</td>
+      <td>...</td>
+      <td>0.072575</td>
+      <td>0.020337</td>
+      <td>0.040035</td>
+      <td>0.033931</td>
+      <td>0.033148</td>
+      <td>0.092938</td>
+      <td>0.037970</td>
+      <td>0.028900</td>
+      <td>0.064677</td>
+      <td>0.987647</td>
+    </tr>
+    <tr>
+      <th>3310</th>
+      <td>0.012930</td>
+      <td>0.803748</td>
+      <td>0.081753</td>
+      <td>0.202503</td>
+      <td>1.084357</td>
+      <td>0.137536</td>
+      <td>1.110656</td>
+      <td>0.230271</td>
+      <td>5.922528</td>
+      <td>0.070684</td>
+      <td>...</td>
+      <td>0.302535</td>
+      <td>0.109361</td>
+      <td>0.363499</td>
+      <td>0.212221</td>
+      <td>0.722693</td>
+      <td>1.204709</td>
+      <td>0.836241</td>
+      <td>0.587259</td>
+      <td>0.489967</td>
+      <td>17.555252</td>
+    </tr>
+    <tr>
+      <th>16148</th>
+      <td>0.249490</td>
+      <td>13.239592</td>
+      <td>0.481125</td>
+      <td>1.550649</td>
+      <td>3.687493</td>
+      <td>1.599196</td>
+      <td>2.781085</td>
+      <td>0.267505</td>
+      <td>23.173780</td>
+      <td>0.916293</td>
+      <td>...</td>
+      <td>1.557643</td>
+      <td>13.684464</td>
+      <td>1.686338</td>
+      <td>0.224791</td>
+      <td>1.782080</td>
+      <td>15.103293</td>
+      <td>2.445613</td>
+      <td>1.884544</td>
+      <td>1.571543</td>
+      <td>84.765625</td>
+    </tr>
+    <tr>
+      <th>17455</th>
+      <td>-0.003019</td>
+      <td>0.009737</td>
+      <td>-0.004039</td>
+      <td>0.006393</td>
+      <td>0.019949</td>
+      <td>0.001556</td>
+      <td>0.085916</td>
+      <td>-0.000057</td>
+      <td>0.383974</td>
+      <td>-0.001581</td>
+      <td>...</td>
+      <td>0.144662</td>
+      <td>0.030829</td>
+      <td>0.018814</td>
+      <td>0.171654</td>
+      <td>0.001377</td>
+      <td>0.121550</td>
+      <td>0.095347</td>
+      <td>0.025819</td>
+      <td>0.004237</td>
+      <td>0.626067</td>
+    </tr>
+    <tr>
+      <th>16291</th>
+      <td>0.013056</td>
+      <td>0.088273</td>
+      <td>0.002856</td>
+      <td>0.019799</td>
+      <td>0.034916</td>
+      <td>0.024223</td>
+      <td>0.249959</td>
+      <td>0.007760</td>
+      <td>0.771067</td>
+      <td>0.012497</td>
+      <td>...</td>
+      <td>0.444398</td>
+      <td>0.005997</td>
+      <td>0.135191</td>
+      <td>0.156082</td>
+      <td>0.167819</td>
+      <td>0.178831</td>
+      <td>0.075085</td>
+      <td>0.083318</td>
+      <td>0.011640</td>
+      <td>1.925919</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 28 columns</p>
+</div></div>
+</div>
+<p>Calculating statistics</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stats_df</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">calculate_interval_stats</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">pi_lower</span><span class="p">,</span> <span class="n">pi_upper</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Showing prediction intervals</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_lower</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nursing_home_count</th>
+      <th>hotel_count</th>
+      <th>theatre_count</th>
+      <th>cinema_count</th>
+      <th>secondary_vocational_education_institutions_count</th>
+      <th>university_count</th>
+      <th>stadium_count</th>
+      <th>emergency_medical_service_stations_count</th>
+      <th>kindergarten_count</th>
+      <th>hostel_count</th>
+      <th>...</th>
+      <th>post_count</th>
+      <th>swimming_pool_count</th>
+      <th>library_count</th>
+      <th>guest_house_count</th>
+      <th>fire_safety_facilities_count</th>
+      <th>restaurant_count</th>
+      <th>police_count</th>
+      <th>museum_count</th>
+      <th>bank_count</th>
+      <th>pitch_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>14296</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>3310</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>16148</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>17455</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>16291</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 28 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_upper</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>nursing_home_count</th>
+      <th>hotel_count</th>
+      <th>theatre_count</th>
+      <th>cinema_count</th>
+      <th>secondary_vocational_education_institutions_count</th>
+      <th>university_count</th>
+      <th>stadium_count</th>
+      <th>emergency_medical_service_stations_count</th>
+      <th>kindergarten_count</th>
+      <th>hostel_count</th>
+      <th>...</th>
+      <th>post_count</th>
+      <th>swimming_pool_count</th>
+      <th>library_count</th>
+      <th>guest_house_count</th>
+      <th>fire_safety_facilities_count</th>
+      <th>restaurant_count</th>
+      <th>police_count</th>
+      <th>museum_count</th>
+      <th>bank_count</th>
+      <th>pitch_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>14296</th>
+      <td>0.800304</td>
+      <td>1.000252</td>
+      <td>0.000069</td>
+      <td>0.000049</td>
+      <td>0.158654</td>
+      <td>0.000215</td>
+      <td>1.000184</td>
+      <td>0.000031</td>
+      <td>1.995936</td>
+      <td>0.000027</td>
+      <td>...</td>
+      <td>1.833845</td>
+      <td>0.000129</td>
+      <td>0.949811</td>
+      <td>0.106655</td>
+      <td>1.000122</td>
+      <td>1.000830</td>
+      <td>0.134224</td>
+      <td>0.355738</td>
+      <td>1.000056</td>
+      <td>2.654914</td>
+    </tr>
+    <tr>
+      <th>3310</th>
+      <td>0.800304</td>
+      <td>6.321808</td>
+      <td>0.934067</td>
+      <td>1.099999</td>
+      <td>3.683720</td>
+      <td>2.214749</td>
+      <td>4.400317</td>
+      <td>1.064502</td>
+      <td>14.263688</td>
+      <td>1.000000</td>
+      <td>...</td>
+      <td>1.839819</td>
+      <td>0.999986</td>
+      <td>1.761400</td>
+      <td>1.722426</td>
+      <td>2.808025</td>
+      <td>8.334574</td>
+      <td>3.968300</td>
+      <td>4.091033</td>
+      <td>2.599319</td>
+      <td>38.652114</td>
+    </tr>
+    <tr>
+      <th>16148</th>
+      <td>1.200304</td>
+      <td>49.796808</td>
+      <td>2.152624</td>
+      <td>2.460287</td>
+      <td>6.560348</td>
+      <td>4.628682</td>
+      <td>6.023683</td>
+      <td>1.729038</td>
+      <td>36.571412</td>
+      <td>2.704440</td>
+      <td>...</td>
+      <td>2.497692</td>
+      <td>81.805113</td>
+      <td>3.051844</td>
+      <td>11.955599</td>
+      <td>4.280855</td>
+      <td>22.667316</td>
+      <td>5.653427</td>
+      <td>4.226640</td>
+      <td>2.697712</td>
+      <td>103.612669</td>
+    </tr>
+    <tr>
+      <th>17455</th>
+      <td>0.000027</td>
+      <td>1.000252</td>
+      <td>0.000069</td>
+      <td>0.000049</td>
+      <td>0.000340</td>
+      <td>0.000215</td>
+      <td>1.821733</td>
+      <td>0.000031</td>
+      <td>1.011686</td>
+      <td>0.000027</td>
+      <td>...</td>
+      <td>1.523892</td>
+      <td>0.000129</td>
+      <td>0.877675</td>
+      <td>1.335098</td>
+      <td>1.000122</td>
+      <td>1.000830</td>
+      <td>0.436661</td>
+      <td>0.297617</td>
+      <td>1.000056</td>
+      <td>2.118286</td>
+    </tr>
+    <tr>
+      <th>16291</th>
+      <td>0.800304</td>
+      <td>1.669386</td>
+      <td>0.459638</td>
+      <td>0.000049</td>
+      <td>1.100385</td>
+      <td>0.000215</td>
+      <td>1.902446</td>
+      <td>0.000031</td>
+      <td>3.415354</td>
+      <td>0.000027</td>
+      <td>...</td>
+      <td>1.780039</td>
+      <td>0.999986</td>
+      <td>1.114143</td>
+      <td>2.099003</td>
+      <td>1.669316</td>
+      <td>1.999971</td>
+      <td>1.647817</td>
+      <td>1.395385</td>
+      <td>1.000056</td>
+      <td>6.649416</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 28 columns</p>
+</div></div>
+</div>
+<p>Showing validation statistics</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">stats_df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th>y</th>
+      <th>coverage_percentage</th>
+      <th>mean_interval_width</th>
+      <th>mse</th>
+      <th>rmse</th>
+      <th>mae</th>
+      <th>r2</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>nursing_home_count</th>
+      <td>99.473684</td>
+      <td>0.421085</td>
+      <td>0.024088</td>
+      <td>0.155203</td>
+      <td>0.046052</td>
+      <td>-0.272759</td>
+    </tr>
+    <tr>
+      <th>hotel_count</th>
+      <td>97.368421</td>
+      <td>3.772173</td>
+      <td>26.111585</td>
+      <td>5.109950</td>
+      <td>1.009036</td>
+      <td>0.276750</td>
+    </tr>
+    <tr>
+      <th>theatre_count</th>
+      <td>96.842105</td>
+      <td>0.547877</td>
+      <td>0.358543</td>
+      <td>0.598784</td>
+      <td>0.169514</td>
+      <td>0.364897</td>
+    </tr>
+    <tr>
+      <th>cinema_count</th>
+      <td>97.192982</td>
+      <td>0.437983</td>
+      <td>0.102323</td>
+      <td>0.319880</td>
+      <td>0.108495</td>
+      <td>0.146454</td>
+    </tr>
+    <tr>
+      <th>secondary_vocational_education_institutions_count</th>
+      <td>96.491228</td>
+      <td>1.577391</td>
+      <td>1.027018</td>
+      <td>1.013419</td>
+      <td>0.379245</td>
+      <td>0.678409</td>
+    </tr>
+    <tr>
+      <th>university_count</th>
+      <td>96.491228</td>
+      <td>1.205866</td>
+      <td>4.898239</td>
+      <td>2.213197</td>
+      <td>0.493575</td>
+      <td>0.370108</td>
+    </tr>
+    <tr>
+      <th>stadium_count</th>
+      <td>97.192982</td>
+      <td>2.360784</td>
+      <td>1.096632</td>
+      <td>1.047202</td>
+      <td>0.503562</td>
+      <td>0.576055</td>
+    </tr>
+    <tr>
+      <th>emergency_medical_service_stations_count</th>
+      <td>97.894737</td>
+      <td>0.231561</td>
+      <td>0.102410</td>
+      <td>0.320016</td>
+      <td>0.096631</td>
+      <td>0.361666</td>
+    </tr>
+    <tr>
+      <th>kindergarten_count</th>
+      <td>96.315789</td>
+      <td>8.174934</td>
+      <td>26.301057</td>
+      <td>5.128456</td>
+      <td>1.679345</td>
+      <td>0.827755</td>
+    </tr>
+    <tr>
+      <th>hostel_count</th>
+      <td>97.192982</td>
+      <td>0.457503</td>
+      <td>2.267950</td>
+      <td>1.505971</td>
+      <td>0.253160</td>
+      <td>-1.489247</td>
+    </tr>
+    <tr>
+      <th>park_count</th>
+      <td>95.614035</td>
+      <td>6.418581</td>
+      <td>16.817835</td>
+      <td>4.100955</td>
+      <td>1.457848</td>
+      <td>0.624552</td>
+    </tr>
+    <tr>
+      <th>multifunctional_center_count</th>
+      <td>98.596491</td>
+      <td>2.534885</td>
+      <td>1.495145</td>
+      <td>1.222761</td>
+      <td>0.450774</td>
+      <td>0.535752</td>
+    </tr>
+    <tr>
+      <th>pharmacy_count</th>
+      <td>96.491228</td>
+      <td>1.901912</td>
+      <td>4.224587</td>
+      <td>2.055380</td>
+      <td>0.569804</td>
+      <td>0.435232</td>
+    </tr>
+    <tr>
+      <th>sports_halls_count</th>
+      <td>97.368421</td>
+      <td>0.367853</td>
+      <td>0.672834</td>
+      <td>0.820265</td>
+      <td>0.181746</td>
+      <td>-0.186414</td>
+    </tr>
+    <tr>
+      <th>hospital_count</th>
+      <td>98.771930</td>
+      <td>3.738856</td>
+      <td>3.686516</td>
+      <td>1.920030</td>
+      <td>0.798328</td>
+      <td>0.515673</td>
+    </tr>
+    <tr>
+      <th>school_count</th>
+      <td>96.315789</td>
+      <td>8.363565</td>
+      <td>17.436128</td>
+      <td>4.175659</td>
+      <td>1.668863</td>
+      <td>0.818749</td>
+    </tr>
+    <tr>
+      <th>mall_count</th>
+      <td>97.368421</td>
+      <td>4.266809</td>
+      <td>7.596958</td>
+      <td>2.756258</td>
+      <td>0.893124</td>
+      <td>0.747427</td>
+    </tr>
+    <tr>
+      <th>polyclinic_count</th>
+      <td>97.192982</td>
+      <td>1.962443</td>
+      <td>1.069309</td>
+      <td>1.034074</td>
+      <td>0.393067</td>
+      <td>0.545571</td>
+    </tr>
+    <tr>
+      <th>post_count</th>
+      <td>97.368421</td>
+      <td>1.930996</td>
+      <td>0.866621</td>
+      <td>0.930925</td>
+      <td>0.459623</td>
+      <td>0.535083</td>
+    </tr>
+    <tr>
+      <th>swimming_pool_count</th>
+      <td>97.894737</td>
+      <td>2.582380</td>
+      <td>30.738956</td>
+      <td>5.544272</td>
+      <td>0.565730</td>
+      <td>0.465928</td>
+    </tr>
+    <tr>
+      <th>library_count</th>
+      <td>96.842105</td>
+      <td>1.601277</td>
+      <td>0.328383</td>
+      <td>0.573047</td>
+      <td>0.284873</td>
+      <td>0.448237</td>
+    </tr>
+    <tr>
+      <th>guest_house_count</th>
+      <td>96.140351</td>
+      <td>2.934491</td>
+      <td>12.888878</td>
+      <td>3.590108</td>
+      <td>0.845219</td>
+      <td>0.317789</td>
+    </tr>
+    <tr>
+      <th>fire_safety_facilities_count</th>
+      <td>97.543860</td>
+      <td>1.807037</td>
+      <td>0.529556</td>
+      <td>0.727706</td>
+      <td>0.368584</td>
+      <td>0.679995</td>
+    </tr>
+    <tr>
+      <th>restaurant_count</th>
+      <td>95.964912</td>
+      <td>4.815160</td>
+      <td>9.405612</td>
+      <td>3.066857</td>
+      <td>1.086276</td>
+      <td>0.558713</td>
+    </tr>
+    <tr>
+      <th>police_count</th>
+      <td>97.192982</td>
+      <td>1.719624</td>
+      <td>0.833359</td>
+      <td>0.912885</td>
+      <td>0.404326</td>
+      <td>0.646310</td>
+    </tr>
+    <tr>
+      <th>museum_count</th>
+      <td>95.964912</td>
+      <td>1.765682</td>
+      <td>1.956423</td>
+      <td>1.398722</td>
+      <td>0.454936</td>
+      <td>-0.054753</td>
+    </tr>
+    <tr>
+      <th>bank_count</th>
+      <td>98.070175</td>
+      <td>1.761644</td>
+      <td>0.774361</td>
+      <td>0.879978</td>
+      <td>0.325235</td>
+      <td>0.448727</td>
+    </tr>
+    <tr>
+      <th>pitch_count</th>
+      <td>95.789474</td>
+      <td>21.877662</td>
+      <td>114.181879</td>
+      <td>10.685592</td>
+      <td>4.007621</td>
+      <td>0.905130</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">visualize_prediction</span><span class="p">(</span><span class="n">target_name</span> <span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">pi_lower</span><span class="p">,</span> <span class="n">pi_upper</span><span class="p">,</span> <span class="n">y_test</span><span class="p">):</span>
+
+  <span class="c1"># Filter data where y_test values are positive</span>
+  <span class="n">mask</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span> <span class="o">&gt;</span> <span class="mi">0</span>
+  <span class="n">filtered_pred_df</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+  <span class="n">filtered_pi_lower</span> <span class="o">=</span> <span class="n">pi_lower</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+  <span class="n">filtered_pi_upper</span> <span class="o">=</span> <span class="n">pi_upper</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+  <span class="n">filtered_y_test</span> <span class="o">=</span> <span class="n">y_test</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+  <span class="c1"># Parameters for slicing (default is full filtered range)</span>
+  <span class="n">start_idx</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Starting index (can be changed)</span>
+  <span class="n">end_idx</span> <span class="o">=</span> <span class="mi">50</span>   <span class="c1"># Ending index (can be changed)</span>
+
+  <span class="c1"># Extract data from filtered DataFrames with slicing</span>
+  <span class="n">x</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_pred_df</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">filtered_pred_df</span><span class="p">))[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+  <span class="n">y_pred</span> <span class="o">=</span> <span class="n">filtered_pred_df</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+  <span class="n">y_test</span> <span class="o">=</span> <span class="n">filtered_y_test</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+  <span class="c1"># Extract intervals from pi_df (now stored as tuples)</span>
+  <span class="n">lower_bound</span> <span class="o">=</span> <span class="n">filtered_pi_lower</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+  <span class="n">upper_bound</span> <span class="o">=</span> <span class="n">filtered_pi_upper</span><span class="p">[</span><span class="n">target_name</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">start_idx</span><span class="p">:</span><span class="n">end_idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+
+  <span class="c1"># Create the plot</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Predictions&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y_test</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;True Values&#39;</span><span class="p">,</span> <span class="n">marker</span><span class="o">=</span><span class="s1">&#39;s&#39;</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">lower_bound</span><span class="p">,</span> <span class="n">upper_bound</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Prediction Intervals&#39;</span><span class="p">)</span>
+
+  <span class="c1"># Configure the plot</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Indices&#39;</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Value&#39;</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Comparison of Predictions and True Values with Intervals&#39;</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+  <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">target_name</span> <span class="o">=</span> <span class="s1">&#39;pharmacy_count&#39;</span>
+
+<span class="n">visualize_prediction</span><span class="p">(</span><span class="n">target_name</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">pi_lower</span><span class="p">,</span> <span class="n">pi_upper</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_social_22_0.png" src="../../_images/examples_machine_learning_social_22_0.png" />
+</div>
+</div>
+</section>
+<section id="Error-for-different-targets">
+<h2>Error for different targets<a class="headerlink" href="#Error-for-different-targets" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Assuming stats_df is obtained from calculate_interval_stats and has been transposed</span>
+<span class="c1"># Example: pred_df, pi_df = ir.predict_with_intervals(X_test, inverse_transform=False)</span>
+<span class="c1"># stats_df = ir.calculate_interval_stats(pred_df, pi_df, y_test).T</span>
+
+<span class="c1"># Extract MSE values and target names from transposed stats_df</span>
+<span class="n">mse</span> <span class="o">=</span> <span class="n">stats_df</span><span class="p">[</span><span class="s1">&#39;mse&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+<span class="n">target_names</span> <span class="o">=</span> <span class="n">stats_df</span><span class="o">.</span><span class="n">index</span>
+
+<span class="c1"># Sort by descending MSE</span>
+<span class="n">sorted_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">argsort</span><span class="p">(</span><span class="n">mse</span><span class="p">)[::</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">sorted_mse</span> <span class="o">=</span> <span class="n">mse</span><span class="p">[</span><span class="n">sorted_indices</span><span class="p">]</span>
+<span class="n">sorted_targets</span> <span class="o">=</span> <span class="n">target_names</span><span class="p">[</span><span class="n">sorted_indices</span><span class="p">]</span>
+
+<span class="c1"># Create horizontal bar plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">sorted_targets</span><span class="p">,</span> <span class="n">sorted_mse</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add labels and title</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Target&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Error Value&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Mean Squared Errors for Different Targets&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add grid and save plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_social_24_1.png" src="../../_images/examples_machine_learning_social_24_1.png" />
+</div>
+</div>
+</section>
+<section id="LIME-Prediction">
+<h2>LIME Prediction<a class="headerlink" href="#LIME-Prediction" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">lime.lime_tabular</span><span class="w"> </span><span class="kn">import</span> <span class="n">LimeTabularExplainer</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="c1"># Target column</span>
+<span class="n">column</span> <span class="o">=</span> <span class="s1">&#39;university_count&#39;</span>
+
+<span class="c1"># Fill missing values in y_train</span>
+<span class="n">y_train</span> <span class="o">=</span> <span class="n">y_train</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Use ir model for predictions</span>
+<span class="n">pred_df</span><span class="p">,</span> <span class="n">pi_df</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">evaluate_with_intervals</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">inverse_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+<span class="c1"># Get MSE from stats_df (assuming stats_df is transposed)</span>
+<span class="n">stats_df</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">calculate_interval_stats</span><span class="p">(</span><span class="n">pred_df</span><span class="p">,</span> <span class="n">pi_df</span><span class="p">,</span> <span class="n">y_test</span><span class="p">)</span>
+<span class="n">mse</span> <span class="o">=</span> <span class="n">stats_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">column</span><span class="p">,</span> <span class="s1">&#39;mse&#39;</span><span class="p">]</span>
+
+<span class="c1"># Print MSE</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Mean Squared Error: </span><span class="si">{</span><span class="n">mse</span><span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+
+<span class="c1"># Helper function for LIME to predict with ir model for the specific column</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">predict_fn</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="c1"># Convert input to DataFrame with correct column names</span>
+    <span class="n">X_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="p">)</span>
+    <span class="c1"># Get predictions from ir model</span>
+    <span class="n">pred_df</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">sr</span><span class="o">.</span><span class="n">evaluate_with_intervals</span><span class="p">(</span><span class="n">X_df</span><span class="p">,</span> <span class="n">inverse_transform</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="c1"># Return predictions for the specific column</span>
+    <span class="k">return</span> <span class="n">pred_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
+
+<span class="c1"># Create LIME explainer for tabular data</span>
+<span class="n">explainer</span> <span class="o">=</span> <span class="n">LimeTabularExplainer</span><span class="p">(</span>
+    <span class="n">training_data</span><span class="o">=</span><span class="n">X_train</span><span class="o">.</span><span class="n">values</span><span class="p">,</span>  <span class="c1"># Convert DataFrame to numpy array</span>
+    <span class="n">feature_names</span><span class="o">=</span><span class="n">X_train</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span>  <span class="c1"># Feature names</span>
+    <span class="n">class_names</span><span class="o">=</span><span class="p">[</span><span class="n">column</span><span class="p">],</span>  <span class="c1"># Target name for regression</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;regression&#39;</span><span class="p">,</span>  <span class="c1"># Task type: regression</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>
+
+<span class="c1"># Select one instance for interpretation (e.g., first from test set)</span>
+<span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">instance</span> <span class="o">=</span> <span class="n">X_test</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="c1"># Get explanation for the selected instance</span>
+<span class="n">explanation</span> <span class="o">=</span> <span class="n">explainer</span><span class="o">.</span><span class="n">explain_instance</span><span class="p">(</span><span class="n">instance</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">predict_fn</span><span class="p">)</span>
+
+<span class="c1"># Print prediction and real value</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Predicted value:&quot;</span><span class="p">,</span> <span class="n">pred_df</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Real value:&quot;</span><span class="p">,</span> <span class="n">y_test</span><span class="p">[</span><span class="n">column</span><span class="p">]</span><span class="o">.</span><span class="n">iloc</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Explanation:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">explanation</span><span class="o">.</span><span class="n">as_list</span><span class="p">())</span>
+
+<span class="c1"># Get explanation as a list</span>
+<span class="n">explanation_list</span> <span class="o">=</span> <span class="n">explanation</span><span class="o">.</span><span class="n">as_list</span><span class="p">()</span>
+
+<span class="c1"># Split explanation into features and weights</span>
+<span class="n">features</span><span class="p">,</span> <span class="n">weights</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">explanation_list</span><span class="p">)</span>
+
+<span class="c1"># Create horizontal bar plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">barh</span><span class="p">(</span><span class="n">features</span><span class="p">,</span> <span class="n">weights</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;skyblue&#39;</span><span class="p">)</span>
+
+<span class="c1"># Add labels and title</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Feature Weight&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Feature&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;LIME Explanation for Prediction&quot;</span><span class="p">)</span>
+
+<span class="c1"># Add grid and save plot</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">&#39;x&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+Mean Squared Error: 4.898
+Predicted value: 0.479
+Real value: 0.0
+Explanation:
+[(&#39;business &gt; 15183.04&#39;, 2.9534802613554785), (&#39;population &lt;= 1136.00&#39;, -0.5860909439229887), (&#39;transport &lt;= 0.00&#39;, 0.3809469174382578), (&#39;74914.77 &lt; industrial &lt;= 528208.61&#39;, -0.2871944980298722), (&#39;buildings_count &lt;= 4.00&#39;, -0.23936306374227934), (&#39;area &lt;= 63000.00&#39;, -0.1874804409055796), (&#39;34922.80 &lt; special &lt;= 156359.65&#39;, -0.1421858470028649), (&#39;footprint_area &lt;= 0.00&#39;, -0.12259403792263908), (&#39;longitude &lt;= -883053.12&#39;, 0.12092895926078623), (&#39;444312.69 &lt; recreation &lt;= 4056059.51&#39;, 0.10099483719723343)]
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_machine_learning_social_26_2.png" src="../../_images/examples_machine_learning_social_26_2.png" />
+</div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sklearn.html" class="btn btn-neutral float-left" title="&lt;no title&gt;" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../optimization/index.html" class="btn btn-neutral float-right" title="Optimization" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

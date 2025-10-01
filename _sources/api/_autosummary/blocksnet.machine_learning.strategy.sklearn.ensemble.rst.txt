@@ -1,0 +1,32 @@
+blocksnet.machine\_learning.strategy.sklearn.ensemble
+=====================================================
+
+.. automodule:: blocksnet.machine_learning.strategy.sklearn.ensemble
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.machine_learning.strategy.sklearn.ensemble.base_strategy
+   blocksnet.machine_learning.strategy.sklearn.ensemble.voting
+

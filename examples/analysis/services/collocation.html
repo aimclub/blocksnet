@@ -1,0 +1,1693 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services collocation &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Services count" href="count.html" />
+    <link rel="prev" title="Services" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../centrality/index.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indicators/index.html">Indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../land_use/index.html">Land use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morphotypes/index.html">Morphotypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../network/index.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../provision/index.html">Provision</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Services</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Services collocation</a></li>
+<li class="toctree-l4"><a class="reference internal" href="count.html">Services count</a></li>
+<li class="toctree-l4"><a class="reference internal" href="density.html">Services density</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Services</a></li>
+      <li class="breadcrumb-item active">Services collocation</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/analysis/services/collocation.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Services-collocation">
+<h1>Services collocation<a class="headerlink" href="#Services-collocation" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/saint_petersburg/blocks.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.services</span><span class="w"> </span><span class="kn">import</span> <span class="n">services_collocation</span>
+
+<span class="n">collocation_mx</span> <span class="o">=</span> <span class="n">services_collocation</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">collocation_mx</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>school</th>
+      <th>kindergarten</th>
+      <th>hospital</th>
+      <th>polyclinic</th>
+      <th>pitch</th>
+      <th>swimming_pool</th>
+      <th>theatre</th>
+      <th>museum</th>
+      <th>cinema</th>
+      <th>mall</th>
+      <th>...</th>
+      <th>train_station</th>
+      <th>bus_station</th>
+      <th>bus_stop</th>
+      <th>pier</th>
+      <th>animal_shelter</th>
+      <th>prison</th>
+      <th>landfill</th>
+      <th>plant_nursery</th>
+      <th>greenhouse_complex</th>
+      <th>warehouse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>school</th>
+      <td>0.218841</td>
+      <td>0.411341</td>
+      <td>0.016645</td>
+      <td>0.119048</td>
+      <td>0.423715</td>
+      <td>0.033602</td>
+      <td>0.035248</td>
+      <td>0.036385</td>
+      <td>0.018767</td>
+      <td>0.093637</td>
+      <td>...</td>
+      <td>0.001366</td>
+      <td>0.000000</td>
+      <td>0.176186</td>
+      <td>0.018496</td>
+      <td>0.000000</td>
+      <td>0.001433</td>
+      <td>0.002778</td>
+      <td>0.001427</td>
+      <td>0.002786</td>
+      <td>0.021135</td>
+    </tr>
+    <tr>
+      <th>kindergarten</th>
+      <td>0.411341</td>
+      <td>0.424829</td>
+      <td>0.018672</td>
+      <td>0.119048</td>
+      <td>0.355828</td>
+      <td>0.029032</td>
+      <td>0.044728</td>
+      <td>0.033784</td>
+      <td>0.019355</td>
+      <td>0.087043</td>
+      <td>...</td>
+      <td>0.002176</td>
+      <td>0.000000</td>
+      <td>0.213359</td>
+      <td>0.019095</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001100</td>
+      <td>0.000000</td>
+      <td>0.003315</td>
+      <td>0.025974</td>
+    </tr>
+    <tr>
+      <th>hospital</th>
+      <td>0.016645</td>
+      <td>0.018672</td>
+      <td>0.163462</td>
+      <td>0.047782</td>
+      <td>0.024452</td>
+      <td>0.022346</td>
+      <td>0.004854</td>
+      <td>0.027682</td>
+      <td>0.000000</td>
+      <td>0.003086</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.022393</td>
+      <td>0.016949</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008696</td>
+      <td>0.015152</td>
+      <td>0.012195</td>
+    </tr>
+    <tr>
+      <th>polyclinic</th>
+      <td>0.119048</td>
+      <td>0.119048</td>
+      <td>0.047782</td>
+      <td>0.206897</td>
+      <td>0.102349</td>
+      <td>0.029197</td>
+      <td>0.044369</td>
+      <td>0.028571</td>
+      <td>0.014870</td>
+      <td>0.081633</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.057602</td>
+      <td>0.011940</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.031100</td>
+    </tr>
+    <tr>
+      <th>pitch</th>
+      <td>0.423715</td>
+      <td>0.355828</td>
+      <td>0.024452</td>
+      <td>0.102349</td>
+      <td>0.522052</td>
+      <td>0.038394</td>
+      <td>0.027942</td>
+      <td>0.033281</td>
+      <td>0.019862</td>
+      <td>0.081169</td>
+      <td>...</td>
+      <td>0.001736</td>
+      <td>0.002691</td>
+      <td>0.241527</td>
+      <td>0.021294</td>
+      <td>0.000896</td>
+      <td>0.003584</td>
+      <td>0.003512</td>
+      <td>0.002679</td>
+      <td>0.007061</td>
+      <td>0.029208</td>
+    </tr>
+    <tr>
+      <th>swimming_pool</th>
+      <td>0.033602</td>
+      <td>0.029032</td>
+      <td>0.022346</td>
+      <td>0.029197</td>
+      <td>0.038394</td>
+      <td>0.050633</td>
+      <td>0.022472</td>
+      <td>0.030303</td>
+      <td>0.020548</td>
+      <td>0.030928</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.016075</td>
+      <td>0.014151</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.009091</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.006557</td>
+    </tr>
+    <tr>
+      <th>theatre</th>
+      <td>0.035248</td>
+      <td>0.044728</td>
+      <td>0.004854</td>
+      <td>0.044369</td>
+      <td>0.027942</td>
+      <td>0.022472</td>
+      <td>0.067961</td>
+      <td>0.084249</td>
+      <td>0.035928</td>
+      <td>0.031847</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.020354</td>
+      <td>0.071749</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008772</td>
+      <td>0.007576</td>
+      <td>0.006079</td>
+    </tr>
+    <tr>
+      <th>museum</th>
+      <td>0.036385</td>
+      <td>0.033784</td>
+      <td>0.027682</td>
+      <td>0.028571</td>
+      <td>0.033281</td>
+      <td>0.030303</td>
+      <td>0.084249</td>
+      <td>0.207254</td>
+      <td>0.027344</td>
+      <td>0.024752</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.034845</td>
+      <td>0.082237</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008969</td>
+      <td>0.014851</td>
+      <td>0.032407</td>
+      <td>0.016908</td>
+    </tr>
+    <tr>
+      <th>cinema</th>
+      <td>0.018767</td>
+      <td>0.019355</td>
+      <td>0.000000</td>
+      <td>0.014870</td>
+      <td>0.019862</td>
+      <td>0.020548</td>
+      <td>0.035928</td>
+      <td>0.027344</td>
+      <td>0.014286</td>
+      <td>0.168675</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.018862</td>
+      <td>0.014778</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.010169</td>
+    </tr>
+    <tr>
+      <th>mall</th>
+      <td>0.093637</td>
+      <td>0.087043</td>
+      <td>0.003086</td>
+      <td>0.081633</td>
+      <td>0.081169</td>
+      <td>0.030928</td>
+      <td>0.031847</td>
+      <td>0.024752</td>
+      <td>0.168675</td>
+      <td>0.153846</td>
+      <td>...</td>
+      <td>0.003802</td>
+      <td>0.000000</td>
+      <td>0.060080</td>
+      <td>0.014205</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004000</td>
+      <td>0.018141</td>
+    </tr>
+    <tr>
+      <th>convenience</th>
+      <td>0.286079</td>
+      <td>0.334545</td>
+      <td>0.022190</td>
+      <td>0.099352</td>
+      <td>0.314085</td>
+      <td>0.027086</td>
+      <td>0.040846</td>
+      <td>0.040466</td>
+      <td>0.022744</td>
+      <td>0.084972</td>
+      <td>...</td>
+      <td>0.004409</td>
+      <td>0.002259</td>
+      <td>0.290021</td>
+      <td>0.025281</td>
+      <td>0.001506</td>
+      <td>0.003010</td>
+      <td>0.000738</td>
+      <td>0.000749</td>
+      <td>0.000739</td>
+      <td>0.038127</td>
+    </tr>
+    <tr>
+      <th>supermarket</th>
+      <td>0.302269</td>
+      <td>0.359848</td>
+      <td>0.017946</td>
+      <td>0.124498</td>
+      <td>0.316883</td>
+      <td>0.031056</td>
+      <td>0.050463</td>
+      <td>0.032558</td>
+      <td>0.057878</td>
+      <td>0.148335</td>
+      <td>...</td>
+      <td>0.001043</td>
+      <td>0.001083</td>
+      <td>0.231161</td>
+      <td>0.022330</td>
+      <td>0.001085</td>
+      <td>0.000000</td>
+      <td>0.001055</td>
+      <td>0.000000</td>
+      <td>0.002116</td>
+      <td>0.029676</td>
+    </tr>
+    <tr>
+      <th>cemetery</th>
+      <td>0.001304</td>
+      <td>0.002096</td>
+      <td>0.016760</td>
+      <td>0.003571</td>
+      <td>0.006774</td>
+      <td>0.000000</td>
+      <td>0.005556</td>
+      <td>0.022642</td>
+      <td>0.000000</td>
+      <td>0.003356</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012012</td>
+      <td>0.004695</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.009174</td>
+      <td>0.011236</td>
+      <td>0.018868</td>
+      <td>0.006579</td>
+    </tr>
+    <tr>
+      <th>religion</th>
+      <td>0.046296</td>
+      <td>0.040000</td>
+      <td>0.046053</td>
+      <td>0.029630</td>
+      <td>0.044953</td>
+      <td>0.017361</td>
+      <td>0.032573</td>
+      <td>0.054404</td>
+      <td>0.017921</td>
+      <td>0.028369</td>
+      <td>...</td>
+      <td>0.003906</td>
+      <td>0.000000</td>
+      <td>0.049685</td>
+      <td>0.032448</td>
+      <td>0.004566</td>
+      <td>0.009050</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008264</td>
+      <td>0.023148</td>
+    </tr>
+    <tr>
+      <th>market</th>
+      <td>0.022008</td>
+      <td>0.023077</td>
+      <td>0.019481</td>
+      <td>0.049180</td>
+      <td>0.020158</td>
+      <td>0.039370</td>
+      <td>0.006452</td>
+      <td>0.008197</td>
+      <td>0.016529</td>
+      <td>0.053846</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.014160</td>
+      <td>0.010695</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.018116</td>
+    </tr>
+    <tr>
+      <th>university</th>
+      <td>0.054762</td>
+      <td>0.045764</td>
+      <td>0.034483</td>
+      <td>0.047244</td>
+      <td>0.062602</td>
+      <td>0.037736</td>
+      <td>0.064057</td>
+      <td>0.077562</td>
+      <td>0.019157</td>
+      <td>0.014599</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.043723</td>
+      <td>0.053968</td>
+      <td>0.000000</td>
+      <td>0.004902</td>
+      <td>0.004405</td>
+      <td>0.000000</td>
+      <td>0.018018</td>
+      <td>0.021687</td>
+    </tr>
+    <tr>
+      <th>playground</th>
+      <td>0.308555</td>
+      <td>0.386744</td>
+      <td>0.022556</td>
+      <td>0.100445</td>
+      <td>0.419580</td>
+      <td>0.024219</td>
+      <td>0.034898</td>
+      <td>0.045565</td>
+      <td>0.022393</td>
+      <td>0.069071</td>
+      <td>...</td>
+      <td>0.002553</td>
+      <td>0.001305</td>
+      <td>0.302062</td>
+      <td>0.024631</td>
+      <td>0.000652</td>
+      <td>0.001303</td>
+      <td>0.001927</td>
+      <td>0.001300</td>
+      <td>0.003220</td>
+      <td>0.025701</td>
+    </tr>
+    <tr>
+      <th>pharmacy</th>
+      <td>0.322333</td>
+      <td>0.392857</td>
+      <td>0.030825</td>
+      <td>0.117541</td>
+      <td>0.326733</td>
+      <td>0.030584</td>
+      <td>0.043159</td>
+      <td>0.038983</td>
+      <td>0.044508</td>
+      <td>0.135870</td>
+      <td>...</td>
+      <td>0.002796</td>
+      <td>0.000962</td>
+      <td>0.263225</td>
+      <td>0.022747</td>
+      <td>0.000963</td>
+      <td>0.000961</td>
+      <td>0.000940</td>
+      <td>0.000000</td>
+      <td>0.001885</td>
+      <td>0.030229</td>
+    </tr>
+    <tr>
+      <th>fuel</th>
+      <td>0.029795</td>
+      <td>0.032721</td>
+      <td>0.007752</td>
+      <td>0.013093</td>
+      <td>0.043746</td>
+      <td>0.016427</td>
+      <td>0.009728</td>
+      <td>0.008278</td>
+      <td>0.008299</td>
+      <td>0.040850</td>
+      <td>...</td>
+      <td>0.006579</td>
+      <td>0.009547</td>
+      <td>0.088121</td>
+      <td>0.012844</td>
+      <td>0.004762</td>
+      <td>0.002358</td>
+      <td>0.002237</td>
+      <td>0.002342</td>
+      <td>0.000000</td>
+      <td>0.055738</td>
+    </tr>
+    <tr>
+      <th>beach</th>
+      <td>0.001312</td>
+      <td>0.002107</td>
+      <td>0.005682</td>
+      <td>0.000000</td>
+      <td>0.017182</td>
+      <td>0.020134</td>
+      <td>0.005714</td>
+      <td>0.023077</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008997</td>
+      <td>0.009662</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.009615</td>
+      <td>0.011905</td>
+      <td>0.019802</td>
+      <td>0.003333</td>
+    </tr>
+    <tr>
+      <th>train_building</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008065</td>
+      <td>0.004484</td>
+      <td>0.002657</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004695</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004387</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004032</td>
+    </tr>
+    <tr>
+      <th>bank</th>
+      <td>0.225869</td>
+      <td>0.217028</td>
+      <td>0.014837</td>
+      <td>0.123386</td>
+      <td>0.186667</td>
+      <td>0.029687</td>
+      <td>0.067187</td>
+      <td>0.067680</td>
+      <td>0.065574</td>
+      <td>0.129760</td>
+      <td>...</td>
+      <td>0.003221</td>
+      <td>0.000000</td>
+      <td>0.144383</td>
+      <td>0.036179</td>
+      <td>0.001709</td>
+      <td>0.003407</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.029299</td>
+    </tr>
+    <tr>
+      <th>lawyer</th>
+      <td>0.045514</td>
+      <td>0.040923</td>
+      <td>0.018692</td>
+      <td>0.046205</td>
+      <td>0.032013</td>
+      <td>0.026596</td>
+      <td>0.095960</td>
+      <td>0.051370</td>
+      <td>0.051429</td>
+      <td>0.046875</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.028141</td>
+      <td>0.046025</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.023952</td>
+    </tr>
+    <tr>
+      <th>cafe</th>
+      <td>0.215331</td>
+      <td>0.260434</td>
+      <td>0.024038</td>
+      <td>0.076506</td>
+      <td>0.229936</td>
+      <td>0.024458</td>
+      <td>0.057488</td>
+      <td>0.071913</td>
+      <td>0.040714</td>
+      <td>0.101370</td>
+      <td>...</td>
+      <td>0.003509</td>
+      <td>0.002157</td>
+      <td>0.269220</td>
+      <td>0.042437</td>
+      <td>0.001438</td>
+      <td>0.002874</td>
+      <td>0.003536</td>
+      <td>0.000715</td>
+      <td>0.002122</td>
+      <td>0.045984</td>
+    </tr>
+    <tr>
+      <th>subway_entrance</th>
+      <td>0.033113</td>
+      <td>0.029787</td>
+      <td>0.015707</td>
+      <td>0.042705</td>
+      <td>0.033563</td>
+      <td>0.030488</td>
+      <td>0.048913</td>
+      <td>0.032847</td>
+      <td>0.088435</td>
+      <td>0.095070</td>
+      <td>...</td>
+      <td>0.007576</td>
+      <td>0.000000</td>
+      <td>0.028022</td>
+      <td>0.018018</td>
+      <td>0.000000</td>
+      <td>0.010204</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.012739</td>
+    </tr>
+    <tr>
+      <th>multifunctional_center</th>
+      <td>0.038997</td>
+      <td>0.041249</td>
+      <td>0.000000</td>
+      <td>0.044355</td>
+      <td>0.035492</td>
+      <td>0.007463</td>
+      <td>0.012739</td>
+      <td>0.004032</td>
+      <td>0.024390</td>
+      <td>0.033582</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.017574</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003534</td>
+    </tr>
+    <tr>
+      <th>hairdresser</th>
+      <td>0.293249</td>
+      <td>0.373306</td>
+      <td>0.023693</td>
+      <td>0.098294</td>
+      <td>0.298851</td>
+      <td>0.025042</td>
+      <td>0.053872</td>
+      <td>0.048438</td>
+      <td>0.035684</td>
+      <td>0.104839</td>
+      <td>...</td>
+      <td>0.002523</td>
+      <td>0.000000</td>
+      <td>0.244391</td>
+      <td>0.032958</td>
+      <td>0.000867</td>
+      <td>0.001730</td>
+      <td>0.000847</td>
+      <td>0.000000</td>
+      <td>0.001699</td>
+      <td>0.025316</td>
+    </tr>
+    <tr>
+      <th>restaurant</th>
+      <td>0.173736</td>
+      <td>0.196324</td>
+      <td>0.015476</td>
+      <td>0.088000</td>
+      <td>0.175727</td>
+      <td>0.027295</td>
+      <td>0.074401</td>
+      <td>0.092807</td>
+      <td>0.055412</td>
+      <td>0.129220</td>
+      <td>...</td>
+      <td>0.001264</td>
+      <td>0.002653</td>
+      <td>0.158586</td>
+      <td>0.053571</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001282</td>
+      <td>0.003958</td>
+      <td>0.010376</td>
+      <td>0.024109</td>
+    </tr>
+    <tr>
+      <th>bar</th>
+      <td>0.168168</td>
+      <td>0.179286</td>
+      <td>0.022887</td>
+      <td>0.079365</td>
+      <td>0.141625</td>
+      <td>0.025830</td>
+      <td>0.076067</td>
+      <td>0.073718</td>
+      <td>0.047893</td>
+      <td>0.102686</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.106383</td>
+      <td>0.042517</td>
+      <td>0.002075</td>
+      <td>0.002062</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001976</td>
+      <td>0.017316</td>
+    </tr>
+    <tr>
+      <th>park</th>
+      <td>0.172131</td>
+      <td>0.196698</td>
+      <td>0.024000</td>
+      <td>0.055159</td>
+      <td>0.231699</td>
+      <td>0.021354</td>
+      <td>0.024420</td>
+      <td>0.049525</td>
+      <td>0.018138</td>
+      <td>0.053522</td>
+      <td>...</td>
+      <td>0.006039</td>
+      <td>0.001627</td>
+      <td>0.349377</td>
+      <td>0.032669</td>
+      <td>0.001220</td>
+      <td>0.001219</td>
+      <td>0.005253</td>
+      <td>0.001217</td>
+      <td>0.003228</td>
+      <td>0.044358</td>
+    </tr>
+    <tr>
+      <th>government</th>
+      <td>0.091319</td>
+      <td>0.087488</td>
+      <td>0.010582</td>
+      <td>0.066519</td>
+      <td>0.063553</td>
+      <td>0.017094</td>
+      <td>0.070225</td>
+      <td>0.095349</td>
+      <td>0.035714</td>
+      <td>0.061702</td>
+      <td>...</td>
+      <td>0.003125</td>
+      <td>0.000000</td>
+      <td>0.056191</td>
+      <td>0.067010</td>
+      <td>0.000000</td>
+      <td>0.003497</td>
+      <td>0.003236</td>
+      <td>0.000000</td>
+      <td>0.006536</td>
+      <td>0.016064</td>
+    </tr>
+    <tr>
+      <th>recruitment</th>
+      <td>0.017070</td>
+      <td>0.013468</td>
+      <td>0.007812</td>
+      <td>0.022422</td>
+      <td>0.011576</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008197</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.007097</td>
+      <td>0.006250</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>hotel</th>
+      <td>0.098990</td>
+      <td>0.103806</td>
+      <td>0.022403</td>
+      <td>0.056239</td>
+      <td>0.085612</td>
+      <td>0.025806</td>
+      <td>0.101099</td>
+      <td>0.082418</td>
+      <td>0.035398</td>
+      <td>0.038591</td>
+      <td>...</td>
+      <td>0.002273</td>
+      <td>0.002475</td>
+      <td>0.077442</td>
+      <td>0.072289</td>
+      <td>0.000000</td>
+      <td>0.002463</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004695</td>
+      <td>0.026230</td>
+    </tr>
+    <tr>
+      <th>zoo</th>
+      <td>0.008511</td>
+      <td>0.006719</td>
+      <td>0.000000</td>
+      <td>0.009009</td>
+      <td>0.009813</td>
+      <td>0.000000</td>
+      <td>0.008130</td>
+      <td>0.014218</td>
+      <td>0.058140</td>
+      <td>0.016807</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.037037</td>
+      <td>0.005405</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.020000</td>
+      <td>0.004032</td>
+    </tr>
+    <tr>
+      <th>circus</th>
+      <td>0.002894</td>
+      <td>0.001136</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000898</td>
+      <td>0.000000</td>
+      <td>0.029126</td>
+      <td>0.005128</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000677</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>post</th>
+      <td>0.186522</td>
+      <td>0.179899</td>
+      <td>0.028278</td>
+      <td>0.121348</td>
+      <td>0.145765</td>
+      <td>0.030220</td>
+      <td>0.058355</td>
+      <td>0.029474</td>
+      <td>0.022346</td>
+      <td>0.070393</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.077918</td>
+      <td>0.021277</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003257</td>
+      <td>0.003077</td>
+      <td>0.025440</td>
+    </tr>
+    <tr>
+      <th>police</th>
+      <td>0.136732</td>
+      <td>0.140488</td>
+      <td>0.010230</td>
+      <td>0.090508</td>
+      <td>0.112698</td>
+      <td>0.033520</td>
+      <td>0.036842</td>
+      <td>0.031983</td>
+      <td>0.016901</td>
+      <td>0.066667</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.073058</td>
+      <td>0.023981</td>
+      <td>0.003378</td>
+      <td>0.003344</td>
+      <td>0.003106</td>
+      <td>0.000000</td>
+      <td>0.003125</td>
+      <td>0.019646</td>
+    </tr>
+    <tr>
+      <th>dog_park</th>
+      <td>0.019526</td>
+      <td>0.012115</td>
+      <td>0.000000</td>
+      <td>0.004115</td>
+      <td>0.014978</td>
+      <td>0.008403</td>
+      <td>0.000000</td>
+      <td>0.004292</td>
+      <td>0.000000</td>
+      <td>0.007692</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.011479</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.013889</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.007491</td>
+    </tr>
+    <tr>
+      <th>hostel</th>
+      <td>0.039340</td>
+      <td>0.039216</td>
+      <td>0.013043</td>
+      <td>0.031056</td>
+      <td>0.029900</td>
+      <td>0.009709</td>
+      <td>0.089202</td>
+      <td>0.059211</td>
+      <td>0.031088</td>
+      <td>0.026393</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.026631</td>
+      <td>0.064257</td>
+      <td>0.000000</td>
+      <td>0.007299</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.006329</td>
+      <td>0.008475</td>
+    </tr>
+    <tr>
+      <th>bakery</th>
+      <td>0.195144</td>
+      <td>0.221417</td>
+      <td>0.013643</td>
+      <td>0.100654</td>
+      <td>0.180040</td>
+      <td>0.028653</td>
+      <td>0.073806</td>
+      <td>0.068036</td>
+      <td>0.067771</td>
+      <td>0.140584</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.151923</td>
+      <td>0.040268</td>
+      <td>0.001553</td>
+      <td>0.003096</td>
+      <td>0.001493</td>
+      <td>0.003082</td>
+      <td>0.004505</td>
+      <td>0.024823</td>
+    </tr>
+    <tr>
+      <th>parking</th>
+      <td>0.188796</td>
+      <td>0.215150</td>
+      <td>0.028801</td>
+      <td>0.067929</td>
+      <td>0.241093</td>
+      <td>0.032809</td>
+      <td>0.024700</td>
+      <td>0.039003</td>
+      <td>0.026658</td>
+      <td>0.084646</td>
+      <td>...</td>
+      <td>0.004084</td>
+      <td>0.003487</td>
+      <td>0.269019</td>
+      <td>0.020833</td>
+      <td>0.002091</td>
+      <td>0.002784</td>
+      <td>0.002740</td>
+      <td>0.002082</td>
+      <td>0.003432</td>
+      <td>0.053968</td>
+    </tr>
+    <tr>
+      <th>guest_house</th>
+      <td>0.035433</td>
+      <td>0.034958</td>
+      <td>0.004950</td>
+      <td>0.030717</td>
+      <td>0.020236</td>
+      <td>0.011364</td>
+      <td>0.086022</td>
+      <td>0.061818</td>
+      <td>0.030488</td>
+      <td>0.015873</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.018339</td>
+      <td>0.053812</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.007812</td>
+      <td>0.006154</td>
+    </tr>
+    <tr>
+      <th>reserve</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001776</td>
+      <td>0.000000</td>
+      <td>0.008403</td>
+      <td>0.009615</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001685</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.035714</td>
+      <td>0.021739</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>sanatorium</th>
+      <td>0.005312</td>
+      <td>0.009615</td>
+      <td>0.023952</td>
+      <td>0.011236</td>
+      <td>0.015517</td>
+      <td>0.028169</td>
+      <td>0.011905</td>
+      <td>0.007752</td>
+      <td>0.007353</td>
+      <td>0.006993</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.010364</td>
+      <td>0.009950</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003401</td>
+    </tr>
+    <tr>
+      <th>machine_building_plant</th>
+      <td>0.004011</td>
+      <td>0.004278</td>
+      <td>0.006098</td>
+      <td>0.011494</td>
+      <td>0.006009</td>
+      <td>0.014493</td>
+      <td>0.000000</td>
+      <td>0.003953</td>
+      <td>0.000000</td>
+      <td>0.007143</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.015146</td>
+      <td>0.010256</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.043321</td>
+    </tr>
+    <tr>
+      <th>brewery</th>
+      <td>0.009859</td>
+      <td>0.008919</td>
+      <td>0.007692</td>
+      <td>0.008772</td>
+      <td>0.010657</td>
+      <td>0.000000</td>
+      <td>0.007752</td>
+      <td>0.004566</td>
+      <td>0.010417</td>
+      <td>0.012245</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.007092</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.011905</td>
+    </tr>
+    <tr>
+      <th>woodworking_plant</th>
+      <td>0.005236</td>
+      <td>0.007376</td>
+      <td>0.000000</td>
+      <td>0.007168</td>
+      <td>0.009338</td>
+      <td>0.019481</td>
+      <td>0.011173</td>
+      <td>0.007435</td>
+      <td>0.013699</td>
+      <td>0.013559</td>
+      <td>...</td>
+      <td>0.008333</td>
+      <td>0.000000</td>
+      <td>0.017444</td>
+      <td>0.009434</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.009346</td>
+      <td>0.044369</td>
+    </tr>
+    <tr>
+      <th>wastewater_plant</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.008065</td>
+      <td>0.009009</td>
+      <td>0.002657</td>
+      <td>0.010101</td>
+      <td>0.000000</td>
+      <td>0.004695</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.002358</td>
+      <td>0.006410</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.020000</td>
+      <td>0.012195</td>
+    </tr>
+    <tr>
+      <th>water_works</th>
+      <td>0.002869</td>
+      <td>0.002260</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001789</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004975</td>
+      <td>0.000000</td>
+      <td>0.004367</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.002028</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004237</td>
+    </tr>
+    <tr>
+      <th>substation</th>
+      <td>0.074971</td>
+      <td>0.077960</td>
+      <td>0.008746</td>
+      <td>0.057007</td>
+      <td>0.083267</td>
+      <td>0.015823</td>
+      <td>0.039157</td>
+      <td>0.043165</td>
+      <td>0.033113</td>
+      <td>0.066820</td>
+      <td>...</td>
+      <td>0.007067</td>
+      <td>0.000000</td>
+      <td>0.056510</td>
+      <td>0.013405</td>
+      <td>0.000000</td>
+      <td>0.004000</td>
+      <td>0.007353</td>
+      <td>0.000000</td>
+      <td>0.003690</td>
+      <td>0.030702</td>
+    </tr>
+    <tr>
+      <th>train_station</th>
+      <td>0.001366</td>
+      <td>0.002176</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001736</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003802</td>
+      <td>...</td>
+      <td>0.023256</td>
+      <td>0.000000</td>
+      <td>0.006040</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003704</td>
+    </tr>
+    <tr>
+      <th>bus_station</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.002691</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.002369</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.027778</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>bus_stop</th>
+      <td>0.176186</td>
+      <td>0.213359</td>
+      <td>0.022393</td>
+      <td>0.057602</td>
+      <td>0.241527</td>
+      <td>0.016075</td>
+      <td>0.020354</td>
+      <td>0.034845</td>
+      <td>0.018862</td>
+      <td>0.060080</td>
+      <td>...</td>
+      <td>0.006040</td>
+      <td>0.002369</td>
+      <td>0.436548</td>
+      <td>0.020469</td>
+      <td>0.001014</td>
+      <td>0.002367</td>
+      <td>0.003022</td>
+      <td>0.001688</td>
+      <td>0.005051</td>
+      <td>0.043949</td>
+    </tr>
+    <tr>
+      <th>pier</th>
+      <td>0.018496</td>
+      <td>0.019095</td>
+      <td>0.016949</td>
+      <td>0.011940</td>
+      <td>0.021294</td>
+      <td>0.014151</td>
+      <td>0.071749</td>
+      <td>0.082237</td>
+      <td>0.014778</td>
+      <td>0.014205</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.020469</td>
+      <td>0.227941</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.005988</td>
+      <td>0.013699</td>
+      <td>0.012195</td>
+      <td>0.016760</td>
+    </tr>
+    <tr>
+      <th>animal_shelter</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000896</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001014</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>prison</th>
+      <td>0.001433</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003584</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.002367</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.004237</td>
+    </tr>
+    <tr>
+      <th>landfill</th>
+      <td>0.002778</td>
+      <td>0.001100</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003512</td>
+      <td>0.009091</td>
+      <td>0.000000</td>
+      <td>0.008969</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.003022</td>
+      <td>0.005988</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.218750</td>
+      <td>0.023256</td>
+      <td>0.016393</td>
+      <td>0.007752</td>
+    </tr>
+    <tr>
+      <th>plant_nursery</th>
+      <td>0.001427</td>
+      <td>0.000000</td>
+      <td>0.008696</td>
+      <td>0.000000</td>
+      <td>0.002679</td>
+      <td>0.000000</td>
+      <td>0.008772</td>
+      <td>0.014851</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.001688</td>
+      <td>0.013699</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.023256</td>
+      <td>0.083333</td>
+      <td>0.135135</td>
+      <td>0.004184</td>
+    </tr>
+    <tr>
+      <th>greenhouse_complex</th>
+      <td>0.002786</td>
+      <td>0.003315</td>
+      <td>0.015152</td>
+      <td>0.000000</td>
+      <td>0.007061</td>
+      <td>0.000000</td>
+      <td>0.007576</td>
+      <td>0.032407</td>
+      <td>0.000000</td>
+      <td>0.004000</td>
+      <td>...</td>
+      <td>0.000000</td>
+      <td>0.027778</td>
+      <td>0.005051</td>
+      <td>0.012195</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.016393</td>
+      <td>0.135135</td>
+      <td>0.066667</td>
+      <td>0.007812</td>
+    </tr>
+    <tr>
+      <th>warehouse</th>
+      <td>0.021135</td>
+      <td>0.025974</td>
+      <td>0.012195</td>
+      <td>0.031100</td>
+      <td>0.029208</td>
+      <td>0.006557</td>
+      <td>0.006079</td>
+      <td>0.016908</td>
+      <td>0.010169</td>
+      <td>0.018141</td>
+      <td>...</td>
+      <td>0.003704</td>
+      <td>0.000000</td>
+      <td>0.043949</td>
+      <td>0.016760</td>
+      <td>0.000000</td>
+      <td>0.004237</td>
+      <td>0.007752</td>
+      <td>0.004184</td>
+      <td>0.007812</td>
+      <td>0.153509</td>
+    </tr>
+  </tbody>
+</table>
+<p>60 rows × 60 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">imshow</span><span class="p">(</span><span class="n">collocation_mx</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlGn&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s1">&#39;Collocation value&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">collocation_mx</span><span class="o">.</span><span class="n">columns</span><span class="p">)),</span> <span class="n">collocation_mx</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">90</span><span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">yticks</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">collocation_mx</span><span class="o">.</span><span class="n">index</span><span class="p">)),</span> <span class="n">collocation_mx</span><span class="o">.</span><span class="n">index</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Services collocation matrix&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_analysis_services_collocation_4_0.png" src="../../../_images/examples_analysis_services_collocation_4_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Services" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="count.html" class="btn btn-neutral float-right" title="Services count" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

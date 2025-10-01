@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Network classification &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Network connectivity" href="connectivity.html" />
+    <link rel="prev" title="Network accessibility" href="accessibility.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../centrality/index.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indicators/index.html">Indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../land_use/index.html">Land use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morphotypes/index.html">Morphotypes</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Network</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="accessibility.html">Network accessibility</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Network classification</a></li>
+<li class="toctree-l4"><a class="reference internal" href="connectivity.html">Network connectivity</a></li>
+<li class="toctree-l4"><a class="reference internal" href="od_and_rc.html">Network</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../provision/index.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../services/index.html">Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Network</a></li>
+      <li class="breadcrumb-item active">Network classification</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/analysis/network/classification.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Network-classification">
+<h1>Network classification<a class="headerlink" href="#Network-classification" title="Permalink to this heading"></a></h1>
+<p>Classify road network into one of following labels: - <code class="docutils literal notranslate"><span class="pre">town</span></code> - <code class="docutils literal notranslate"><span class="pre">suburb</span></code> - <code class="docutils literal notranslate"><span class="pre">village</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">SettlementCategory</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">osmnx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ox</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="n">graphs</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">pp</span> <span class="ow">in</span> <span class="n">SettlementCategory</span><span class="p">:</span>
+    <span class="n">folder_path</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">value</span>
+    <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">folder_path</span><span class="p">),</span> <span class="n">desc</span><span class="o">=</span><span class="n">pp</span><span class="o">.</span><span class="n">value</span><span class="p">):</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">folder_path</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">g_nx</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">load_graphml</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+        <span class="n">g_nx</span><span class="o">.</span><span class="n">graph</span><span class="p">[</span><span class="s1">&#39;category&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pp</span><span class="o">.</span><span class="n">value</span>
+        <span class="n">graphs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">g_nx</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+town: 100%|██████████| 184/184 [00:15&lt;00:00, 12.21it/s]
+suburb: 100%|██████████| 122/122 [00:03&lt;00:00, 38.13it/s]
+village: 100%|██████████| 49/49 [00:00&lt;00:00, 54.34it/s]
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.machine_learning.strategy.catboost</span><span class="w"> </span><span class="kn">import</span> <span class="n">CatBoostClassificationStrategy</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.network.classification.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkClassifier</span>
+
+<span class="n">strategy</span> <span class="o">=</span> <span class="n">CatBoostClassificationStrategy</span><span class="p">({</span>
+    <span class="s1">&#39;iterations&#39;</span><span class="p">:</span><span class="mi">200</span><span class="p">,</span>
+    <span class="s1">&#39;learning_rate&#39;</span><span class="p">:</span><span class="mf">0.1</span><span class="p">,</span>
+    <span class="s1">&#39;depth&#39;</span><span class="p">:</span><span class="mi">4</span><span class="p">,</span>
+<span class="p">})</span>
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">NetworkClassifier</span><span class="p">(</span><span class="n">strategy</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">classifier</span><span class="o">.</span><span class="n">prepare_train</span><span class="p">(</span><span class="n">graphs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-08-03 22:56:47.286</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.network.classification.core</span>:<span class="ansi-cyan-fg">_get_features_df</span>:<span class="ansi-cyan-fg">33</span> - <span class="ansi-bold">Preprocessing graphs.</span>
+100%|██████████| 355/355 [00:02&lt;00:00, 137.55it/s]
+<span class="ansi-green-fg">2025-08-03 22:56:49.870</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.network.classification.core</span>:<span class="ansi-cyan-fg">_get_features_df</span>:<span class="ansi-cyan-fg">36</span> - <span class="ansi-bold">Calculating graphs features.</span>
+100%|██████████| 355/355 [01:08&lt;00:00,  5.18it/s]
+<span class="ansi-green-fg">2025-08-03 22:57:58.426</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.analysis.network.classification.core</span>:<span class="ansi-cyan-fg">_get_features_df</span>:<span class="ansi-cyan-fg">43</span> - <span class="ansi-green-intense-fg ansi-bold">Features are successfully built.</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">classifier</span><span class="o">.</span><span class="n">train</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+0.7887323943661971
+</pre></div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># strategy.save(&#39;artifacts&#39;)</span>
+</pre></div>
+</div>
+</div>
+<section id="Default-strategy">
+<h2>Default strategy<a class="headerlink" href="#Default-strategy" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.network.classification.core</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetworkClassifier</span>
+
+<span class="n">classifier</span> <span class="o">=</span> <span class="n">NetworkClassifier</span><span class="o">.</span><span class="n">default</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">classifier</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">graphs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-08-03 22:57:58.689</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.network.classification.core</span>:<span class="ansi-cyan-fg">_get_features_df</span>:<span class="ansi-cyan-fg">33</span> - <span class="ansi-bold">Preprocessing graphs.</span>
+100%|██████████| 355/355 [00:03&lt;00:00, 112.52it/s]
+<span class="ansi-green-fg">2025-08-03 22:58:01.847</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.network.classification.core</span>:<span class="ansi-cyan-fg">_get_features_df</span>:<span class="ansi-cyan-fg">36</span> - <span class="ansi-bold">Calculating graphs features.</span>
+100%|██████████| 355/355 [01:08&lt;00:00,  5.15it/s]
+<span class="ansi-green-fg">2025-08-03 22:59:10.842</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.analysis.network.classification.core</span>:<span class="ansi-cyan-fg">_get_features_df</span>:<span class="ansi-cyan-fg">43</span> - <span class="ansi-green-intense-fg ansi-bold">Features are successfully built.</span>
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>avg_degree</th>
+      <th>leaf_nodes_proportion</th>
+      <th>link_density</th>
+      <th>avg_clustering</th>
+      <th>density</th>
+      <th>diameter</th>
+      <th>assortativity</th>
+      <th>avg_near_neighbors_dist</th>
+      <th>avg_edge_length</th>
+      <th>ratio_nodes_to_link_length</th>
+      <th>link_length_entropy</th>
+      <th>category</th>
+      <th>town</th>
+      <th>suburb</th>
+      <th>village</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2.632479</td>
+      <td>0.230769</td>
+      <td>0.000019</td>
+      <td>0.044634</td>
+      <td>0.007521</td>
+      <td>37</td>
+      <td>-0.031225</td>
+      <td>97.796244</td>
+      <td>201.398576</td>
+      <td>0.003772</td>
+      <td>2.379788</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.966451</td>
+      <td>0.008857</td>
+      <td>0.024693</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2.667722</td>
+      <td>0.232595</td>
+      <td>0.000024</td>
+      <td>0.051160</td>
+      <td>0.004228</td>
+      <td>53</td>
+      <td>0.027810</td>
+      <td>81.161861</td>
+      <td>166.624082</td>
+      <td>0.004499</td>
+      <td>2.567573</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.978913</td>
+      <td>0.009246</td>
+      <td>0.011841</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>3.127436</td>
+      <td>0.103448</td>
+      <td>0.000031</td>
+      <td>0.034533</td>
+      <td>0.004696</td>
+      <td>46</td>
+      <td>0.165620</td>
+      <td>92.797600</td>
+      <td>164.138572</td>
+      <td>0.003896</td>
+      <td>2.831230</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.927734</td>
+      <td>0.038700</td>
+      <td>0.033567</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2.868026</td>
+      <td>0.162554</td>
+      <td>0.000045</td>
+      <td>0.036892</td>
+      <td>0.001539</td>
+      <td>80</td>
+      <td>0.119530</td>
+      <td>64.962786</td>
+      <td>139.840803</td>
+      <td>0.004987</td>
+      <td>3.061517</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.958196</td>
+      <td>0.021080</td>
+      <td>0.020724</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.950000</td>
+      <td>0.166667</td>
+      <td>0.000035</td>
+      <td>0.025000</td>
+      <td>0.024790</td>
+      <td>23</td>
+      <td>0.229978</td>
+      <td>107.783917</td>
+      <td>197.933830</td>
+      <td>0.003425</td>
+      <td>2.096735</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.624834</td>
+      <td>0.051260</td>
+      <td>0.323906</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>350</th>
+      <td>2.508475</td>
+      <td>0.293785</td>
+      <td>0.000051</td>
+      <td>0.022599</td>
+      <td>0.014253</td>
+      <td>26</td>
+      <td>-0.112127</td>
+      <td>67.816268</td>
+      <td>129.970944</td>
+      <td>0.006134</td>
+      <td>2.145329</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.549521</td>
+      <td>0.041179</td>
+      <td>0.409300</td>
+    </tr>
+    <tr>
+      <th>351</th>
+      <td>2.631579</td>
+      <td>0.175439</td>
+      <td>0.000061</td>
+      <td>0.093567</td>
+      <td>0.023288</td>
+      <td>26</td>
+      <td>-0.046066</td>
+      <td>70.331983</td>
+      <td>133.376494</td>
+      <td>0.005698</td>
+      <td>2.058882</td>
+      <td>SettlementCategory.VILLAGE</td>
+      <td>0.385718</td>
+      <td>0.204624</td>
+      <td>0.409657</td>
+    </tr>
+    <tr>
+      <th>352</th>
+      <td>2.862745</td>
+      <td>0.156863</td>
+      <td>0.000042</td>
+      <td>0.008170</td>
+      <td>0.028344</td>
+      <td>16</td>
+      <td>0.046019</td>
+      <td>100.848609</td>
+      <td>181.909175</td>
+      <td>0.003841</td>
+      <td>2.256689</td>
+      <td>SettlementCategory.VILLAGE</td>
+      <td>0.360941</td>
+      <td>0.066698</td>
+      <td>0.572360</td>
+    </tr>
+    <tr>
+      <th>353</th>
+      <td>2.666667</td>
+      <td>0.140351</td>
+      <td>0.000015</td>
+      <td>0.084795</td>
+      <td>0.047619</td>
+      <td>21</td>
+      <td>-0.002749</td>
+      <td>128.967290</td>
+      <td>272.012219</td>
+      <td>0.002757</td>
+      <td>1.704535</td>
+      <td>SettlementCategory.SUBURB</td>
+      <td>0.207030</td>
+      <td>0.652064</td>
+      <td>0.140906</td>
+    </tr>
+    <tr>
+      <th>354</th>
+      <td>2.774566</td>
+      <td>0.202312</td>
+      <td>0.000028</td>
+      <td>0.026975</td>
+      <td>0.016131</td>
+      <td>30</td>
+      <td>0.111970</td>
+      <td>101.533420</td>
+      <td>199.022313</td>
+      <td>0.003622</td>
+      <td>1.868175</td>
+      <td>SettlementCategory.TOWN</td>
+      <td>0.514445</td>
+      <td>0.107683</td>
+      <td>0.377872</td>
+    </tr>
+  </tbody>
+</table>
+<p>355 rows × 15 columns</p>
+</div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="accessibility.html" class="btn btn-neutral float-left" title="Network accessibility" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="connectivity.html" class="btn btn-neutral float-right" title="Network connectivity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

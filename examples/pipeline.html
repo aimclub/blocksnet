@@ -1,0 +1,2187 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../_static/jquery.js"></script>
+        <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+        <script src="../_static/doctools.js"></script>
+        <script src="../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API documentation" href="../api/index.html" />
+    <link rel="prev" title="Services planning" href="synthesis/services_planning/area_based_tpe.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Pipeline</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#1.-Blocks-cutting">1. Blocks cutting</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#1.1.-Fetching-data-from-OpenStreetMap.">1.1. Fetching data from OpenStreetMap.</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.2.-Preprocessing-input-geometry">1.2. Preprocessing input geometry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#1.3.-Cutting-urban-blocks">1.3. Cutting urban blocks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#2.-Land-use-assignment">2. Land use assignment</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#2.1.-Fetching-data-from-OpenStreetMap">2.1. Fetching data from OpenStreetMap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.2.-Specifying-rules">2.2. Specifying rules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#2.3.-Assignment">2.3. Assignment</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#3.-Accessibility-matrix-calculation">3. Accessibility matrix calculation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#3.1.-Intermodal-graph-construction">3.1. Intermodal graph construction</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#3.2.-Calculating-the-accessibility-matrix">3.2. Calculating the accessibility matrix</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#4.-Buildings-aggregation">4. Buildings aggregation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#4.1.-Fetching-data-from-OpenStreetMap">4.1. Fetching data from OpenStreetMap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#4.2.-Imputing-missing-data">4.2. Imputing missing data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#4.3.-Aggregating-buildings-within-blocks">4.3. Aggregating buildings within blocks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#5.-Services-aggregation">5. Services aggregation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#5.1.-Fetching-data-from-OpenStreetMap">5.1. Fetching data from OpenStreetMap</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.2.-Imputing-missing-data">5.2. Imputing missing data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#5.3.-Aggregating-services-within-blocks">5.3. Aggregating services within blocks</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#6.-Results">6. Results</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#7.-Use-examples">7. Use examples</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#7.1.-Competitive-provision">7.1. Competitive provision</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#7.2.-Morphotypes">7.2. Morphotypes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#7.3.-Accessibility-analysis">7.3. Accessibility analysis</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Examples</a></li>
+      <li class="breadcrumb-item active">Pipeline</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/examples/pipeline.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Pipeline">
+<h1>Pipeline<a class="headerlink" href="#Pipeline" title="Permalink to this heading"></a></h1>
+<section id="1.-Blocks-cutting">
+<h2>1. Blocks cutting<a class="headerlink" href="#1.-Blocks-cutting" title="Permalink to this heading"></a></h2>
+<section id="1.1.-Fetching-data-from-OpenStreetMap.">
+<h3>1.1. Fetching data from OpenStreetMap.<a class="headerlink" href="#1.1.-Fetching-data-from-OpenStreetMap." title="Permalink to this heading"></a></h3>
+<p>The step can be skipped, if the data already exists.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osmnx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ox</span>
+
+<span class="n">boundaries</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">geocode_to_gdf</span><span class="p">(</span><span class="s1">&#39;Санкт-Петербург, Василеостровский район&#39;</span><span class="p">)</span>
+<span class="n">boundaries</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_3_0.png" src="../_images/examples_pipeline_3_0.png" />
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bc_tags</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;roads&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;highway&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;construction&quot;</span><span class="p">,</span><span class="s2">&quot;crossing&quot;</span><span class="p">,</span><span class="s2">&quot;living_street&quot;</span><span class="p">,</span><span class="s2">&quot;motorway&quot;</span><span class="p">,</span><span class="s2">&quot;motorway_link&quot;</span><span class="p">,</span><span class="s2">&quot;motorway_junction&quot;</span><span class="p">,</span><span class="s2">&quot;pedestrian&quot;</span><span class="p">,</span><span class="s2">&quot;primary&quot;</span><span class="p">,</span><span class="s2">&quot;primary_link&quot;</span><span class="p">,</span><span class="s2">&quot;raceway&quot;</span><span class="p">,</span><span class="s2">&quot;residential&quot;</span><span class="p">,</span><span class="s2">&quot;road&quot;</span><span class="p">,</span><span class="s2">&quot;secondary&quot;</span><span class="p">,</span><span class="s2">&quot;secondary_link&quot;</span><span class="p">,</span><span class="s2">&quot;services&quot;</span><span class="p">,</span><span class="s2">&quot;tertiary&quot;</span><span class="p">,</span><span class="s2">&quot;tertiary_link&quot;</span><span class="p">,</span><span class="s2">&quot;track&quot;</span><span class="p">,</span><span class="s2">&quot;trunk&quot;</span><span class="p">,</span><span class="s2">&quot;trunk_link&quot;</span><span class="p">,</span><span class="s2">&quot;turning_circle&quot;</span><span class="p">,</span><span class="s2">&quot;turning_loop&quot;</span><span class="p">,</span><span class="s2">&quot;unclassified&quot;</span><span class="p">,],</span>
+      <span class="s2">&quot;service&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;living_street&quot;</span><span class="p">,</span> <span class="s2">&quot;emergency_access&quot;</span><span class="p">]</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;railways&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">&quot;railway&quot;</span><span class="p">:</span> <span class="s2">&quot;rail&quot;</span>
+    <span class="p">},</span>
+    <span class="s1">&#39;water&#39;</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s1">&#39;riverbank&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+      <span class="s1">&#39;reservoir&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+      <span class="s1">&#39;basin&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+      <span class="s1">&#39;dock&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+      <span class="s1">&#39;canal&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+      <span class="s1">&#39;pond&#39;</span><span class="p">:</span><span class="kc">True</span><span class="p">,</span>
+      <span class="s1">&#39;natural&#39;</span><span class="p">:[</span><span class="s1">&#39;water&#39;</span><span class="p">,</span><span class="s1">&#39;bay&#39;</span><span class="p">],</span>
+      <span class="s1">&#39;waterway&#39;</span><span class="p">:[</span><span class="s1">&#39;river&#39;</span><span class="p">,</span><span class="s1">&#39;canal&#39;</span><span class="p">,</span><span class="s1">&#39;ditch&#39;</span><span class="p">],</span>
+      <span class="s1">&#39;landuse&#39;</span><span class="p">:</span><span class="s1">&#39;basin&#39;</span><span class="p">,</span>
+      <span class="s1">&#39;water&#39;</span><span class="p">:</span> <span class="s1">&#39;lake&#39;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">water</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">boundaries</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="n">bc_tags</span><span class="p">[</span><span class="s1">&#39;water&#39;</span><span class="p">])</span>
+<span class="n">roads</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">boundaries</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="n">bc_tags</span><span class="p">[</span><span class="s1">&#39;roads&#39;</span><span class="p">])</span>
+<span class="n">railways</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">boundaries</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="n">bc_tags</span><span class="p">[</span><span class="s1">&#39;railways&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">water</span> <span class="o">=</span> <span class="n">water</span><span class="p">[</span><span class="n">water</span><span class="o">.</span><span class="n">geom_type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;Polygon&#39;</span><span class="p">,</span> <span class="s1">&#39;MultiPolygon&#39;</span><span class="p">,</span> <span class="s1">&#39;LineString&#39;</span><span class="p">,</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">roads</span> <span class="o">=</span> <span class="n">roads</span><span class="p">[</span><span class="n">roads</span><span class="o">.</span><span class="n">geom_type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;LineString&#39;</span><span class="p">,</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">railways</span> <span class="o">=</span> <span class="n">railways</span><span class="p">[</span><span class="n">railways</span><span class="o">.</span><span class="n">geom_type</span><span class="o">.</span><span class="n">isin</span><span class="p">([</span><span class="s1">&#39;LineString&#39;</span><span class="p">,</span> <span class="s1">&#39;MultiLineString&#39;</span><span class="p">])]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">crs</span> <span class="o">=</span> <span class="n">boundaries</span><span class="o">.</span><span class="n">estimate_utm_crs</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">gdf</span> <span class="ow">in</span> <span class="p">[</span><span class="n">water</span><span class="p">,</span> <span class="n">roads</span><span class="p">,</span> <span class="n">railways</span><span class="p">,</span> <span class="n">boundaries</span><span class="p">]:</span>
+  <span class="n">gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">,</span> <span class="n">inplace</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="1.2.-Preprocessing-input-geometry">
+<h3>1.2. Preprocessing input geometry<a class="headerlink" href="#1.2.-Preprocessing-input-geometry" title="Permalink to this heading"></a></h3>
+<p>The step can be skipped if input geometries are already sorted as lines, polygons and boundary.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.blocks.cutting</span><span class="w"> </span><span class="kn">import</span> <span class="n">preprocess_urban_objects</span><span class="p">,</span> <span class="n">cut_urban_blocks</span>
+
+<span class="n">lines</span><span class="p">,</span> <span class="n">polygons</span> <span class="o">=</span> <span class="n">preprocess_urban_objects</span><span class="p">(</span><span class="n">roads</span><span class="p">,</span> <span class="n">railways</span><span class="p">,</span> <span class="n">water</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:23:19.636</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.preprocessing.core</span>:<span class="ansi-cyan-fg">preprocess_urban_objects</span>:<span class="ansi-cyan-fg">36</span> - <span class="ansi-bold">Checking roads schema</span>
+<span class="ansi-green-fg">2025-05-16 17:23:19.674</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.preprocessing.core</span>:<span class="ansi-cyan-fg">preprocess_urban_objects</span>:<span class="ansi-cyan-fg">42</span> - <span class="ansi-bold">Checking railways schema</span>
+<span class="ansi-green-fg">2025-05-16 17:23:19.685</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.preprocessing.core</span>:<span class="ansi-cyan-fg">preprocess_urban_objects</span>:<span class="ansi-cyan-fg">48</span> - <span class="ansi-bold">Checking water schema</span>
+</pre></div></div>
+</div>
+</section>
+<section id="1.3.-Cutting-urban-blocks">
+<h3>1.3. Cutting urban blocks<a class="headerlink" href="#1.3.-Cutting-urban-blocks" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span> <span class="o">=</span> <span class="n">cut_urban_blocks</span><span class="p">(</span><span class="n">boundaries</span><span class="p">,</span> <span class="n">lines</span><span class="p">,</span> <span class="n">polygons</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:23:19.716</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">wrapper</span>:<span class="ansi-cyan-fg">20</span> - <span class="ansi-bold">Checking boundaries schema</span>
+<span class="ansi-green-fg">2025-05-16 17:23:19.726</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">wrapper</span>:<span class="ansi-cyan-fg">24</span> - <span class="ansi-bold">Checking line objects schema</span>
+<span class="ansi-green-fg">2025-05-16 17:23:19.741</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">wrapper</span>:<span class="ansi-cyan-fg">30</span> - <span class="ansi-bold">Checking polygon objects schema</span>
+<span class="ansi-green-fg">2025-05-16 17:23:19.756</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">_exclude_polygons</span>:<span class="ansi-cyan-fg">45</span> - <span class="ansi-bold">Excluding polygon objects from blocks</span>
+<span class="ansi-green-fg">2025-05-16 17:23:20.197</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">_get_enclosures</span>:<span class="ansi-cyan-fg">51</span> - <span class="ansi-bold">Setting up enclosures</span>
+<span class="ansi-green-fg">2025-05-16 17:23:20.235</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">_fill_holes</span>:<span class="ansi-cyan-fg">68</span> - <span class="ansi-bold">Filling holes inside the blocks</span>
+<span class="ansi-green-fg">2025-05-16 17:23:20.263</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">_filter_overlapping</span>:<span class="ansi-cyan-fg">78</span> - <span class="ansi-bold">Filtering overlapping geometries</span>
+<span class="ansi-green-fg">2025-05-16 17:23:20.313</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.blocks.cutting.processing.core</span>:<span class="ansi-cyan-fg">cut_urban_blocks</span>:<span class="ansi-cyan-fg">119</span> - <span class="ansi-green-intense-fg ansi-bold">Blocks are successfully cut!</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">()</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_12_0.png" src="../_images/examples_pipeline_12_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="2.-Land-use-assignment">
+<h2>2. Land use assignment<a class="headerlink" href="#2.-Land-use-assignment" title="Permalink to this heading"></a></h2>
+<section id="2.1.-Fetching-data-from-OpenStreetMap">
+<h3>2.1. Fetching data from OpenStreetMap<a class="headerlink" href="#2.1.-Fetching-data-from-OpenStreetMap" title="Permalink to this heading"></a></h3>
+<p>The step can be skipped if functional zones layer is already obtained via goverment sources.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">osmnx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">ox</span>
+
+<span class="n">functional_zones</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">boundaries</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;landuse&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">functional_zones</span> <span class="o">=</span> <span class="n">functional_zones</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span><span class="s1">&#39;landuse&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;landuse&#39;</span><span class="p">:</span> <span class="s1">&#39;functional_zone&#39;</span><span class="p">})</span>
+<span class="n">functional_zones</span> <span class="o">=</span> <span class="n">functional_zones</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+<span class="n">functional_zones</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>functional_zone</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((345659.049 6646239.362, 345672.29 66...</td>
+      <td>commercial</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((346755.014 6647579.789, 346728.91 66...</td>
+      <td>industrial</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((345964.693 6646155.952, 346283.885 6...</td>
+      <td>industrial</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((345753.722 6648393.897, 345900.252 6...</td>
+      <td>cemetery</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((345900.252 6648481.707, 345896.076 6...</td>
+      <td>garages</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="2.2.-Specifying-rules">
+<h3>2.2. Specifying rules<a class="headerlink" href="#2.2.-Specifying-rules" title="Permalink to this heading"></a></h3>
+<p>Rules define how <code class="docutils literal notranslate"><span class="pre">functional_zone</span></code> column will be mapped into <code class="docutils literal notranslate"><span class="pre">LandUse</span></code>.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LandUse</span>
+
+<span class="n">rules</span> <span class="o">=</span> <span class="p">{</span>
+  <span class="s1">&#39;commercial&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">BUSINESS</span><span class="p">,</span>
+  <span class="s1">&#39;industrial&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+  <span class="s1">&#39;cemetery&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+  <span class="s1">&#39;garages&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+  <span class="s1">&#39;residential&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span><span class="p">,</span>
+  <span class="s1">&#39;retail&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">BUSINESS</span><span class="p">,</span>
+  <span class="s1">&#39;grass&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+  <span class="s1">&#39;farmland&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">AGRICULTURE</span><span class="p">,</span>
+  <span class="s1">&#39;construction&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+  <span class="s1">&#39;brownfield&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">INDUSTRIAL</span><span class="p">,</span>
+  <span class="s1">&#39;forest&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+  <span class="s1">&#39;recreation_ground&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+  <span class="s1">&#39;religious&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+  <span class="s1">&#39;flowerbed&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span><span class="p">,</span>
+  <span class="s1">&#39;military&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">SPECIAL</span><span class="p">,</span>
+  <span class="s1">&#39;landfill&#39;</span><span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">TRANSPORT</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="2.3.-Assignment">
+<h3>2.3. Assignment<a class="headerlink" href="#2.3.-Assignment" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.blocks.assignment</span><span class="w"> </span><span class="kn">import</span> <span class="n">assign_land_use</span>
+
+<span class="n">blocks</span> <span class="o">=</span> <span class="n">assign_land_use</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">functional_zones</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;landuse&#39;</span><span class="p">:</span> <span class="s1">&#39;functional_zone&#39;</span><span class="p">}),</span> <span class="n">rules</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:23:20.914</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.assignment.core</span>:<span class="ansi-cyan-fg">assign_land_use</span>:<span class="ansi-cyan-fg">44</span> - <span class="ansi-bold">Overlaying geometries</span>
+<span class="ansi-green-fg">2025-05-16 17:23:21.022</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.blocks.assignment.core</span>:<span class="ansi-cyan-fg">assign_land_use</span>:<span class="ansi-cyan-fg">55</span> - <span class="ansi-green-intense-fg ansi-bold">Shares calculated</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>residential</th>
+      <th>business</th>
+      <th>recreation</th>
+      <th>industrial</th>
+      <th>transport</th>
+      <th>special</th>
+      <th>agriculture</th>
+      <th>land_use</th>
+      <th>share</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((345747.414 6646456.191, 345751.077 6...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((345751.077 6646449.404, 345747.414 6...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((345047.432 6648157.204, 345028.835 6...</td>
+      <td>0.496234</td>
+      <td>0.093738</td>
+      <td>0.115348</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>LandUse.RESIDENTIAL</td>
+      <td>0.496234</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((344951.065 6648110.08, 344977.865 66...</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>None</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((346686.09 6647227.682, 346691.412 66...</td>
+      <td>0.173093</td>
+      <td>0.116007</td>
+      <td>0.005135</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.167767</td>
+      <td>0.0</td>
+      <td>LandUse.RESIDENTIAL</td>
+      <td>0.173093</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;land_use&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_22_0.png" src="../_images/examples_pipeline_22_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="3.-Accessibility-matrix-calculation">
+<h2>3. Accessibility matrix calculation<a class="headerlink" href="#3.-Accessibility-matrix-calculation" title="Permalink to this heading"></a></h2>
+<p>There are few ways to define spatial relations between urban blocks: - <strong>Accessibility matrix</strong> – <code class="docutils literal notranslate"><span class="pre">n^2</span></code> matrix that defines travel time between urban blocks’ centroids in minutes. - <strong>Distance matrix</strong> – <code class="docutils literal notranslate"><span class="pre">n^2</span></code> matrix that defines euclidian distance between urban blocks’ centroids in meters. - <strong>Adjacency graph</strong> – graph with <code class="docutils literal notranslate"><span class="pre">n</span></code> nodes. Each edge of this graph indicates spatial adjacency of two urban blocks.</p>
+<p>In this example the <strong>accessibility matrix</strong> will be calculated using <code class="docutils literal notranslate"><span class="pre">IduEdu</span></code> library.</p>
+<section id="3.1.-Intermodal-graph-construction">
+<h3>3.1. Intermodal graph construction<a class="headerlink" href="#3.1.-Intermodal-graph-construction" title="Permalink to this heading"></a></h3>
+<p>There are few types of city graphs to model city network: - <strong>walk</strong> – pedestrian network. - <strong>drive</strong> – personal transport network. - <strong>intermodal</strong> – pedestrian and public transport network.</p>
+<p>In this example <strong>intermodal</strong> graph will be constructed, but overall it depends on one’s research.</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.relations</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_accessibility_graph</span>
+
+<span class="n">graph</span> <span class="o">=</span> <span class="n">get_accessibility_graph</span><span class="p">(</span><span class="n">boundaries</span><span class="p">,</span> <span class="s1">&#39;intermodal&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:23:24.976</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.relations.accessibility.graph</span>:<span class="ansi-cyan-fg">get_accessibility_graph</span>:<span class="ansi-cyan-fg">14</span> - <span class="ansi-yellow-intense-fg ansi-bold">CRS do not match IDUEDU required crs. Reprojecting</span>
+<span class="ansi-green-fg">2025-05-16 17:23:24.978</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">iduedu.modules.drive_walk_builder</span>:<span class="ansi-cyan-fg">get_walk_graph</span>:<span class="ansi-cyan-fg">217</span> - <span class="ansi-bold">Downloading walk graph from OSM, it may take a while for large territory ...</span>
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "a06adfb6eb274d98907d45bebdf80188", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3fd315ffc4124cc6b1af6d706579cfb0", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "4dce4859b97d4974a8a0753f23360653", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:23:52.489</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">iduedu.modules.pt_walk_joiner</span>:<span class="ansi-cyan-fg">join_pt_walk_graph</span>:<span class="ansi-cyan-fg">51</span> - <span class="ansi-bold">Composing intermodal graph...</span>
+<span class="ansi-green-fg">2025-05-16 17:23:55.362</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">iduedu.utils.utils</span>:<span class="ansi-cyan-fg">remove_weakly_connected_nodes</span>:<span class="ansi-cyan-fg">37</span> - <span class="ansi-yellow-intense-fg ansi-bold">Removing 555 nodes that form 269 trap components. These are groups where you can enter but can&#39;t exit (or vice versa). Keeping the largest strongly connected component (20350 nodes).</span>
+</pre></div></div>
+</div>
+</section>
+<section id="3.2.-Calculating-the-accessibility-matrix">
+<h3>3.2. Calculating the accessibility matrix<a class="headerlink" href="#3.2.-Calculating-the-accessibility-matrix" title="Permalink to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[16]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.relations</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_accessibility_matrix</span>
+
+<span class="n">acc_mx</span> <span class="o">=</span> <span class="n">calculate_accessibility_matrix</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">acc_mx</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/vasilstar/masterplanning/.venv/lib/python3.10/site-packages/pandas/io/formats/format.py:1458: RuntimeWarning: overflow encountered in cast
+  has_large_values = (abs_vals &gt; 1e6).any()
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[17]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>574</th>
+      <th>575</th>
+      <th>576</th>
+      <th>577</th>
+      <th>578</th>
+      <th>579</th>
+      <th>580</th>
+      <th>581</th>
+      <th>582</th>
+      <th>583</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.623535</td>
+      <td>13.679688</td>
+      <td>9.679688</td>
+      <td>7.523438</td>
+      <td>11.148438</td>
+      <td>18.71875</td>
+      <td>15.585938</td>
+      <td>17.484375</td>
+      <td>14.890625</td>
+      <td>...</td>
+      <td>25.015625</td>
+      <td>13.789062</td>
+      <td>12.218750</td>
+      <td>13.820312</td>
+      <td>15.375000</td>
+      <td>14.859375</td>
+      <td>16.125000</td>
+      <td>21.109375</td>
+      <td>12.625000</td>
+      <td>20.078125</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.623535</td>
+      <td>0.000000</td>
+      <td>13.531250</td>
+      <td>9.531250</td>
+      <td>7.371094</td>
+      <td>10.992188</td>
+      <td>18.56250</td>
+      <td>15.437500</td>
+      <td>17.328125</td>
+      <td>14.742188</td>
+      <td>...</td>
+      <td>24.859375</td>
+      <td>13.640625</td>
+      <td>12.070312</td>
+      <td>13.664062</td>
+      <td>15.218750</td>
+      <td>14.703125</td>
+      <td>15.976562</td>
+      <td>20.953125</td>
+      <td>12.468750</td>
+      <td>19.921875</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>13.398438</td>
+      <td>13.250000</td>
+      <td>0.000000</td>
+      <td>5.152344</td>
+      <td>17.250000</td>
+      <td>16.937500</td>
+      <td>19.37500</td>
+      <td>13.445312</td>
+      <td>15.343750</td>
+      <td>12.750000</td>
+      <td>...</td>
+      <td>19.453125</td>
+      <td>11.640625</td>
+      <td>9.250000</td>
+      <td>11.679688</td>
+      <td>9.804688</td>
+      <td>9.281250</td>
+      <td>10.554688</td>
+      <td>17.046875</td>
+      <td>21.250000</td>
+      <td>15.898438</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>11.750000</td>
+      <td>11.593750</td>
+      <td>5.152344</td>
+      <td>0.000000</td>
+      <td>14.585938</td>
+      <td>14.187500</td>
+      <td>16.68750</td>
+      <td>10.742188</td>
+      <td>12.648438</td>
+      <td>10.046875</td>
+      <td>...</td>
+      <td>18.562500</td>
+      <td>8.460938</td>
+      <td>7.371094</td>
+      <td>8.843750</td>
+      <td>8.921875</td>
+      <td>8.398438</td>
+      <td>9.671875</td>
+      <td>16.171875</td>
+      <td>19.250000</td>
+      <td>15.015625</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7.953125</td>
+      <td>8.296875</td>
+      <td>17.281250</td>
+      <td>13.273438</td>
+      <td>0.000000</td>
+      <td>6.140625</td>
+      <td>16.90625</td>
+      <td>16.062500</td>
+      <td>15.890625</td>
+      <td>17.515625</td>
+      <td>...</td>
+      <td>28.625000</td>
+      <td>17.390625</td>
+      <td>15.812500</td>
+      <td>17.421875</td>
+      <td>18.984375</td>
+      <td>18.453125</td>
+      <td>19.734375</td>
+      <td>24.718750</td>
+      <td>15.265625</td>
+      <td>23.687500</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 584 columns</p>
+</div></div>
+</div>
+</section>
+</section>
+<section id="4.-Buildings-aggregation">
+<h2>4. Buildings aggregation<a class="headerlink" href="#4.-Buildings-aggregation" title="Permalink to this heading"></a></h2>
+<p>Buildings define the urban environment parameters in different blocks. For some blocksnet methods only population can be used, but overall the building is defined via:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">population</span> <span class="pre">:</span> <span class="pre">float</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">footprint_area</span> <span class="pre">:</span> <span class="pre">float</span></code> – building’s base area</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">number_of_floors</span> <span class="pre">:</span> <span class="pre">float</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">build_floor_area</span> <span class="pre">:</span> <span class="pre">float</span></code> – sum area of each building floor</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">is_living</span> <span class="pre">:</span> <span class="pre">bool</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">living_area</span> <span class="pre">:</span> <span class="pre">float</span></code> – area defined for residents</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">non_living_area</span> <span class="pre">:</span> <span class="pre">float</span></code> – area not defined to live in</p></li>
+</ul>
+<p>Some of these parameters may be optional, depends on what one already has.</p>
+<section id="4.1.-Fetching-data-from-OpenStreetMap">
+<h3>4.1. Fetching data from OpenStreetMap<a class="headerlink" href="#4.1.-Fetching-data-from-OpenStreetMap" title="Permalink to this heading"></a></h3>
+<p>The step can be skipped if the data already obtained from any available source.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[18]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">boundaries</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;building&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">})</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="4.1.1.-is_living">
+<h4>4.1.1. <code class="docutils literal notranslate"><span class="pre">is_living</span></code><a class="headerlink" href="#4.1.1.-is_living" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[19]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">is_living_tags</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;residential&#39;</span><span class="p">,</span> <span class="s1">&#39;house&#39;</span><span class="p">,</span> <span class="s1">&#39;apartments&#39;</span><span class="p">,</span> <span class="s1">&#39;detached&#39;</span><span class="p">,</span> <span class="s1">&#39;terrace&#39;</span><span class="p">,</span> <span class="s1">&#39;dormitory&#39;</span><span class="p">]</span>
+<span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;is_living&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;building&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">b</span> <span class="p">:</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">is_living_tags</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="4.1.2.-number_of_floors">
+<h4>4.1.2. <code class="docutils literal notranslate"><span class="pre">number_of_floors</span></code><a class="headerlink" href="#4.1.2.-number_of_floors" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[20]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;number_of_floors&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">buildings</span><span class="p">[</span><span class="s1">&#39;building:levels&#39;</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;coerce&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+</section>
+<section id="4.2.-Imputing-missing-data">
+<h3>4.2. Imputing missing data<a class="headerlink" href="#4.2.-Imputing-missing-data" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[21]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.preprocessing.imputing</span><span class="w"> </span><span class="kn">import</span> <span class="n">impute_buildings</span>
+
+<span class="n">buildings</span> <span class="o">=</span> <span class="n">impute_buildings</span><span class="p">(</span><span class="n">buildings</span><span class="p">,</span> <span class="n">default_living_demand</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:24:06.880</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.imputing.buildings.schemas</span>:<span class="ansi-cyan-fg">_before_validate</span>:<span class="ansi-cyan-fg">21</span> - <span class="ansi-yellow-intense-fg ansi-bold">Column footprint_area not found and will be initialized as None</span>
+<span class="ansi-green-fg">2025-05-16 17:24:06.881</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.imputing.buildings.schemas</span>:<span class="ansi-cyan-fg">_before_validate</span>:<span class="ansi-cyan-fg">21</span> - <span class="ansi-yellow-intense-fg ansi-bold">Column build_floor_area not found and will be initialized as None</span>
+<span class="ansi-green-fg">2025-05-16 17:24:06.881</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.imputing.buildings.schemas</span>:<span class="ansi-cyan-fg">_before_validate</span>:<span class="ansi-cyan-fg">21</span> - <span class="ansi-yellow-intense-fg ansi-bold">Column living_area not found and will be initialized as None</span>
+<span class="ansi-green-fg">2025-05-16 17:24:06.882</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.imputing.buildings.schemas</span>:<span class="ansi-cyan-fg">_before_validate</span>:<span class="ansi-cyan-fg">21</span> - <span class="ansi-yellow-intense-fg ansi-bold">Column non_living_area not found and will be initialized as None</span>
+<span class="ansi-green-fg">2025-05-16 17:24:06.882</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.imputing.buildings.schemas</span>:<span class="ansi-cyan-fg">_before_validate</span>:<span class="ansi-cyan-fg">21</span> - <span class="ansi-yellow-intense-fg ansi-bold">Column population not found and will be initialized as None</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[22]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>is_living</th>
+      <th>number_of_floors</th>
+      <th>footprint_area</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>non_living_area</th>
+      <th>population</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>651</th>
+      <td>POLYGON ((345707.15 6647277.813, 345713.366 66...</td>
+      <td>True</td>
+      <td>5.0</td>
+      <td>1508.646392</td>
+      <td>7543.231961</td>
+      <td>6788.908765</td>
+      <td>754.323196</td>
+      <td>226.0</td>
+    </tr>
+    <tr>
+      <th>3767</th>
+      <td>POLYGON ((347982.577 6648704.74, 347978.314 66...</td>
+      <td>False</td>
+      <td>1.0</td>
+      <td>165.940125</td>
+      <td>165.940125</td>
+      <td>0.000000</td>
+      <td>165.940125</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>124</th>
+      <td>POLYGON ((347167.301 6648613.826, 347159.307 6...</td>
+      <td>False</td>
+      <td>1.0</td>
+      <td>2809.517622</td>
+      <td>2809.517622</td>
+      <td>0.000000</td>
+      <td>2809.517622</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1126</th>
+      <td>POLYGON ((346209.426 6646888, 346222.815 66468...</td>
+      <td>False</td>
+      <td>1.0</td>
+      <td>364.041807</td>
+      <td>364.041807</td>
+      <td>0.000000</td>
+      <td>364.041807</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1965</th>
+      <td>POLYGON ((347965.1 6648464.713, 347967.454 664...</td>
+      <td>False</td>
+      <td>1.0</td>
+      <td>56.805168</td>
+      <td>56.805168</td>
+      <td>0.000000</td>
+      <td>56.805168</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings</span><span class="o">.</span><span class="n">population</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[23]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+np.float64(271251.0)
+</pre></div></div>
+</div>
+</section>
+<section id="4.3.-Aggregating-buildings-within-blocks">
+<h3>4.3. Aggregating buildings within blocks<a class="headerlink" href="#4.3.-Aggregating-buildings-within-blocks" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[24]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.blocks.aggregation</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_objects</span>
+
+<span class="n">buildings_blocks</span> <span class="o">=</span> <span class="n">aggregate_objects</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">buildings</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:24:07.003</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">_preprocess_input</span>:<span class="ansi-cyan-fg">12</span> - <span class="ansi-bold">Preprocessing input</span>
+<span class="ansi-green-fg">2025-05-16 17:24:07.014</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">aggregate_objects</span>:<span class="ansi-cyan-fg">41</span> - <span class="ansi-bold">Aggregating objects</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings_blocks</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[25]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>is_living</th>
+      <th>number_of_floors</th>
+      <th>footprint_area</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>non_living_area</th>
+      <th>population</th>
+      <th>objects_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((345747.414 6646456.191, 345751.077 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((345751.077 6646449.404, 345747.414 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((345047.432 6648157.204, 345028.835 6...</td>
+      <td>18.0</td>
+      <td>287.0</td>
+      <td>67273.384879</td>
+      <td>386154.823127</td>
+      <td>295058.918381</td>
+      <td>91095.904746</td>
+      <td>9827.0</td>
+      <td>72.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((344951.065 6648110.08, 344977.865 66...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((346686.09 6647227.682, 346691.412 66...</td>
+      <td>1.0</td>
+      <td>32.0</td>
+      <td>3411.837763</td>
+      <td>54589.404201</td>
+      <td>24939.758056</td>
+      <td>29649.646145</td>
+      <td>831.0</td>
+      <td>2.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[26]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">buildings_blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;population&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_43_0.png" src="../_images/examples_pipeline_43_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="5.-Services-aggregation">
+<h2>5. Services aggregation<a class="headerlink" href="#5.-Services-aggregation" title="Permalink to this heading"></a></h2>
+<section id="5.1.-Fetching-data-from-OpenStreetMap">
+<h3>5.1. Fetching data from OpenStreetMap<a class="headerlink" href="#5.1.-Fetching-data-from-OpenStreetMap" title="Permalink to this heading"></a></h3>
+<p>And once again: if one already has the required data, the step can be skipped.</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[35]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schools</span> <span class="o">=</span> <span class="n">ox</span><span class="o">.</span><span class="n">features_from_polygon</span><span class="p">(</span><span class="n">boundaries</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="mi">4326</span><span class="p">)</span><span class="o">.</span><span class="n">union_all</span><span class="p">(),</span> <span class="n">tags</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;amenity&#39;</span><span class="p">:</span> <span class="s1">&#39;school&#39;</span><span class="p">})</span><span class="o">.</span><span class="n">reset_index</span><span class="p">(</span><span class="n">drop</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="5.2.-Imputing-missing-data">
+<h3>5.2. Imputing missing data<a class="headerlink" href="#5.2.-Imputing-missing-data" title="Permalink to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[36]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.preprocessing.imputing</span><span class="w"> </span><span class="kn">import</span> <span class="n">impute_services</span>
+
+<span class="n">schools</span> <span class="o">=</span> <span class="n">impute_services</span><span class="p">(</span><span class="n">schools</span><span class="p">,</span> <span class="s1">&#39;school&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schools</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[37]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>capacity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POINT (345500.447 6647564.184)</td>
+      <td>250.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POINT (348138.425 6647505.876)</td>
+      <td>250.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POINT (348050.437 6648161.823)</td>
+      <td>250.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POINT (346370.983 6648934.02)</td>
+      <td>250.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POINT (348061.507 6648770.774)</td>
+      <td>250.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="5.3.-Aggregating-services-within-blocks">
+<h3>5.3. Aggregating services within blocks<a class="headerlink" href="#5.3.-Aggregating-services-within-blocks" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[38]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schools_blocks</span> <span class="o">=</span> <span class="n">aggregate_objects</span><span class="p">(</span><span class="n">blocks</span><span class="p">,</span> <span class="n">schools</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 17:28:03.882</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">_preprocess_input</span>:<span class="ansi-cyan-fg">12</span> - <span class="ansi-bold">Preprocessing input</span>
+<span class="ansi-green-fg">2025-05-16 17:28:03.884</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.blocks.aggregation.core</span>:<span class="ansi-cyan-fg">aggregate_objects</span>:<span class="ansi-cyan-fg">41</span> - <span class="ansi-bold">Aggregating objects</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schools_blocks</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[39]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>capacity</th>
+      <th>objects_count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((345747.414 6646456.191, 345751.077 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((345751.077 6646449.404, 345747.414 6...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((345047.432 6648157.204, 345028.835 6...</td>
+      <td>750.0</td>
+      <td>3.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((344951.065 6648110.08, 344977.865 66...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((346686.09 6647227.682, 346691.412 66...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[40]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">schools_blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;capacity&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_53_0.png" src="../_images/examples_pipeline_53_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="6.-Results">
+<h2>6. Results<a class="headerlink" href="#6.-Results" title="Permalink to this heading"></a></h2>
+<p>Using the methods above the following data can be obtained:</p>
+<ul class="simple">
+<li><p><strong>Urban blocks layer</strong> – <code class="docutils literal notranslate"><span class="pre">GeoDataFrame</span></code> of urban blocks within the modeled territory (city).</p></li>
+<li><p><strong>Land use assignment layer</strong> – the assignment of current land use according to any source of functional zones data.</p></li>
+<li><p><strong>Accessibility matrix</strong> – <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> <code class="docutils literal notranslate"><span class="pre">n*n</span></code> matrix of accessibility values in minutes between each pair of urban blocks.</p></li>
+<li><p><strong>Buildings aggregation layer</strong> – the aggregation of buildings parameters within urban blocks.</p></li>
+<li><p><strong>Services aggregation layer</strong> – the aggregation of services parameters within urban blocks.</p></li>
+</ul>
+<p>It’s important to mention that any type of data can be aggregated within city blocks depending on the task.</p>
+</section>
+<section id="7.-Use-examples">
+<h2>7. Use examples<a class="headerlink" href="#7.-Use-examples" title="Permalink to this heading"></a></h2>
+<section id="7.1.-Competitive-provision">
+<h3>7.1. Competitive provision<a class="headerlink" href="#7.1.-Competitive-provision" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">buildings_blocks</span><span class="p">[[</span><span class="s1">&#39;population&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">schools_blocks</span><span class="p">[[</span><span class="s1">&#39;capacity&#39;</span><span class="p">]])</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[43]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>population</th>
+      <th>capacity</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>9827.0</td>
+      <td>750.0</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>831.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.config</span><span class="w"> </span><span class="kn">import</span> <span class="n">service_types_config</span>
+
+<span class="n">_</span><span class="p">,</span> <span class="n">demand</span><span class="p">,</span> <span class="n">accessibility</span> <span class="o">=</span> <span class="n">service_types_config</span><span class="p">[</span><span class="s1">&#39;school&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+<span class="n">demand</span><span class="p">,</span> <span class="n">accessibility</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[49]:
+</pre></div>
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+(120, 15)
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[51]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.provision</span><span class="w"> </span><span class="kn">import</span> <span class="n">competitive_provision</span>
+
+<span class="n">prov_df</span><span class="p">,</span> <span class="n">links_df</span> <span class="o">=</span> <span class="n">competitive_provision</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">acc_mx</span><span class="p">,</span> <span class="n">accessibility</span><span class="p">,</span> <span class="n">demand</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-05-16 18:07:05.900</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">_initialize_provision_df</span>:<span class="ansi-cyan-fg">29</span> - <span class="ansi-bold">Initializing provision DataFrame</span>
+<span class="ansi-green-fg">2025-05-16 18:07:05.901</span> | <span class="ansi-yellow-intense-fg ansi-bold">WARNING </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">_initialize_provision_df</span>:<span class="ansi-cyan-fg">33</span> - <span class="ansi-yellow-intense-fg ansi-bold">No demand in columns. Imputing using population column and demand parameter</span>
+<span class="ansi-green-fg">2025-05-16 18:07:05.910</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">_supply_self</span>:<span class="ansi-cyan-fg">56</span> - <span class="ansi-bold">Supplying blocks with own capacities</span>
+<span class="ansi-green-fg">2025-05-16 18:07:05.918</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">competitive_provision</span>:<span class="ansi-cyan-fg">173</span> - <span class="ansi-bold">Setting and solving LP problems until max depth or break condition reached</span>
+100%|██████████| 1/1 [00:00&lt;00:00, 11.40it/s]
+<span class="ansi-green-fg">2025-05-16 18:07:06.009</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.analysis.provision.competivive.core</span>:<span class="ansi-cyan-fg">competitive_provision</span>:<span class="ansi-cyan-fg">186</span> - <span class="ansi-green-intense-fg ansi-bold">Provision assessment finished</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">prov_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[57]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>demand</th>
+      <th>capacity</th>
+      <th>demand_left</th>
+      <th>demand_within</th>
+      <th>demand_without</th>
+      <th>capacity_left</th>
+      <th>capacity_within</th>
+      <th>capacity_without</th>
+      <th>provision_strong</th>
+      <th>provision_weak</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1179</td>
+      <td>750</td>
+      <td>429</td>
+      <td>750</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.636132</td>
+      <td>0.636132</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>100</td>
+      <td>0</td>
+      <td>100</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">links_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[58]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th></th>
+      <th>value</th>
+    </tr>
+    <tr>
+      <th>source</th>
+      <th>target</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>21</th>
+      <th>390</th>
+      <td>16.0</td>
+    </tr>
+    <tr>
+      <th>23</th>
+      <th>11</th>
+      <td>121.0</td>
+    </tr>
+    <tr>
+      <th rowspan="2" valign="top">31</th>
+      <th>114</th>
+      <td>154.0</td>
+    </tr>
+    <tr>
+      <th>201</th>
+      <td>55.0</td>
+    </tr>
+    <tr>
+      <th>59</th>
+      <th>213</th>
+      <td>76.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[56]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">prov_df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;provision_strong&#39;</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlGn&#39;</span><span class="p">,</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_62_0.png" src="../_images/examples_pipeline_62_0.png" />
+</div>
+</div>
+</section>
+<section id="7.2.-Morphotypes">
+<h3>7.2. Morphotypes<a class="headerlink" href="#7.2.-Morphotypes" title="Permalink to this heading"></a></h3>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_density_indicators</span>
+
+<span class="n">buildings_blocks</span><span class="p">[</span><span class="s1">&#39;site_area&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">buildings_blocks</span><span class="o">.</span><span class="n">area</span>
+<span class="n">density_df</span> <span class="o">=</span> <span class="n">calculate_density_indicators</span><span class="p">(</span><span class="n">buildings_blocks</span><span class="p">)</span>
+<span class="n">density_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[63]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>site_area</th>
+      <th>footprint_area</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>non_living_area</th>
+      <th>fsi</th>
+      <th>gsi</th>
+      <th>mxi</th>
+      <th>l</th>
+      <th>osr</th>
+      <th>share_living</th>
+      <th>share_non_living</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>356.518194</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>inf</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>410.939744</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>inf</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>364393.913217</td>
+      <td>67273.384879</td>
+      <td>386154.823127</td>
+      <td>295058.918381</td>
+      <td>91095.904746</td>
+      <td>1.059718</td>
+      <td>0.184617</td>
+      <td>0.764095</td>
+      <td>5.740083</td>
+      <td>0.769434</td>
+      <td>4.385968</td>
+      <td>1.354115</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4135.809669</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>inf</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>31474.102302</td>
+      <td>3411.837763</td>
+      <td>54589.404201</td>
+      <td>24939.758056</td>
+      <td>29649.646145</td>
+      <td>1.734423</td>
+      <td>0.108401</td>
+      <td>0.456861</td>
+      <td>16.000000</td>
+      <td>0.514061</td>
+      <td>7.309773</td>
+      <td>8.690227</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<section id="7.2.1.-Spacematrix-morphotypes">
+<h4>7.2.1. Spacematrix morphotypes<a class="headerlink" href="#7.2.1.-Spacematrix-morphotypes" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[65]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.morphotypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_spacematrix_morphotypes</span>
+
+<span class="n">spacematrix_df</span><span class="p">,</span> <span class="n">spacematrix_clusters</span> <span class="o">=</span> <span class="n">get_spacematrix_morphotypes</span><span class="p">(</span><span class="n">density_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[72]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spacematrix_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[72]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>l</th>
+      <th>fsi</th>
+      <th>mxi</th>
+      <th>cluster</th>
+      <th>morphotype</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5.740083</td>
+      <td>1.059718</td>
+      <td>0.764095</td>
+      <td>7.0</td>
+      <td>mid-rise residential</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.000000</td>
+      <td>1.734423</td>
+      <td>0.456861</td>
+      <td>2.0</td>
+      <td>high-rise residential</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spacematrix_clusters</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[73]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>l</th>
+      <th>fsi</th>
+      <th>mxi</th>
+      <th>l_interpretation</th>
+      <th>fsi_interpretation</th>
+      <th>mxi_interpretation</th>
+      <th>morphotype</th>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2.934850</td>
+      <td>1.154953</td>
+      <td>0.000000</td>
+      <td>low-rise</td>
+      <td>None</td>
+      <td>non-residential</td>
+      <td>low-rise non-residential</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>5.326747</td>
+      <td>1.748314</td>
+      <td>0.889017</td>
+      <td>mid-rise</td>
+      <td>None</td>
+      <td>residential</td>
+      <td>mid-rise residential</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>15.348045</td>
+      <td>1.679297</td>
+      <td>0.883299</td>
+      <td>high-rise</td>
+      <td>None</td>
+      <td>residential</td>
+      <td>high-rise residential</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.000000</td>
+      <td>0.035799</td>
+      <td>0.000000</td>
+      <td>low-rise</td>
+      <td>low-density</td>
+      <td>non-residential</td>
+      <td>low-rise low-density non-residential</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>3.450012</td>
+      <td>1.487791</td>
+      <td>0.568041</td>
+      <td>mid-rise</td>
+      <td>None</td>
+      <td>residential</td>
+      <td>mid-rise residential</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[71]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spacematrix_df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;morphotype&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_69_0.png" src="../_images/examples_pipeline_69_0.png" />
+</div>
+</div>
+</section>
+<section id="7.2.2.-Strelka-morphotypes">
+<h4>7.2.2. Strelka morphotypes<a class="headerlink" href="#7.2.2.-Strelka-morphotypes" title="Permalink to this heading"></a></h4>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[74]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.morphotypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_strelka_morphotypes</span>
+
+<span class="n">strelka_df</span> <span class="o">=</span> <span class="n">get_strelka_morphotypes</span><span class="p">(</span><span class="n">density_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[75]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">strelka_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[75]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>l</th>
+      <th>fsi</th>
+      <th>mxi</th>
+      <th>morphotype</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>5.740083</td>
+      <td>1.059718</td>
+      <td>0.764095</td>
+      <td>mid-rise</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>16.000000</td>
+      <td>1.734423</td>
+      <td>0.456861</td>
+      <td>high-rise modern microdistrict</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[76]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ax</span> <span class="o">=</span> <span class="n">blocks</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s1">&#39;#ddd&#39;</span><span class="p">)</span>
+<span class="n">blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">strelka_df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;morphotype&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">)</span>
+<span class="n">ax</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_73_0.png" src="../_images/examples_pipeline_73_0.png" />
+</div>
+</div>
+</section>
+</section>
+<section id="7.3.-Accessibility-analysis">
+<h3>7.3. Accessibility analysis<a class="headerlink" href="#7.3.-Accessibility-analysis" title="Permalink to this heading"></a></h3>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[85]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.accessibility</span><span class="w"> </span><span class="kn">import</span> <span class="n">area_accessibility</span>
+
+<span class="n">area_acc</span> <span class="o">=</span> <span class="n">area_accessibility</span><span class="p">(</span><span class="n">acc_mx</span><span class="p">,</span> <span class="n">buildings_blocks</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[86]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">area_acc</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;area_accessibility&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../_images/examples_pipeline_76_0.png" src="../_images/examples_pipeline_76_0.png" />
+</div>
+</div>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="synthesis/services_planning/area_based_tpe.html" class="btn btn-neutral float-left" title="Services planning" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/index.html" class="btn btn-neutral float-right" title="API documentation" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

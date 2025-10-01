@@ -1,0 +1,29 @@
+blocksnet.enums.land\_use\_category
+===================================
+
+.. automodule:: blocksnet.enums.land_use_category
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      LandUseCategory
+   
+   
+
+   
+   
+   
+
+
+

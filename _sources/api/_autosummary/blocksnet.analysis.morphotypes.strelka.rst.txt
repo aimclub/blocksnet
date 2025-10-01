@@ -1,0 +1,41 @@
+blocksnet.analysis.morphotypes.strelka
+======================================
+
+.. automodule:: blocksnet.analysis.morphotypes.strelka
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _interpret_block
+      _interpret_high_rise
+      _interpret_low_rise
+      _interpret_mid_rise
+      get_strelka_morphotypes
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      HighRiseMorphotype
+      LowRiseMorphotype
+      MidRiseMorphotype
+   
+   
+
+   
+   
+   
+
+
+

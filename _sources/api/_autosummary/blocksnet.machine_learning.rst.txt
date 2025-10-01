@@ -1,0 +1,34 @@
+blocksnet.machine\_learning
+===========================
+
+.. automodule:: blocksnet.machine_learning
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.machine_learning.classification
+   blocksnet.machine_learning.context
+   blocksnet.machine_learning.regression
+   blocksnet.machine_learning.strategy
+

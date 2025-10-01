@@ -1,0 +1,30 @@
+blocksnet.relations.accessibility.matrix.core
+=============================================
+
+.. automodule:: blocksnet.relations.accessibility.matrix.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      calculate_accessibility_matrix
+      get_accessibility_context
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

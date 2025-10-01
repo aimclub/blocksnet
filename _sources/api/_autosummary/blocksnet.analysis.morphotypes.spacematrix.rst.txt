@@ -1,0 +1,35 @@
+blocksnet.analysis.morphotypes.spacematrix
+==========================================
+
+.. automodule:: blocksnet.analysis.morphotypes.spacematrix
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _clusterize
+      _get_interpretation_column
+      _interpret_cluster
+      _interpret_clusters
+      _interpret_value
+      _scale
+      get_spacematrix_morphotypes
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+

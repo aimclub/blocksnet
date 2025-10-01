@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Optimization &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Services" href="../services/index.html" />
+    <link rel="prev" title="Land use" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Optimization</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Land use</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Optimization</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../services/index.html">Services</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Optimization</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Land use</a></li>
+      <li class="breadcrumb-item active">Optimization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/optimization/land_use/land_use.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+
+<span class="n">blocks_land_use_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_file</span><span class="p">(</span><span class="s1">&#39;./../data/blocks.geojson&#39;</span><span class="p">)[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span>
+<span class="n">crs</span> <span class="o">=</span> <span class="n">blocks_land_use_gdf</span><span class="o">.</span><span class="n">estimate_utm_crs</span><span class="p">()</span>
+<span class="n">blocks_land_use_gdf</span> <span class="o">=</span> <span class="n">blocks_land_use_gdf</span><span class="o">.</span><span class="n">to_crs</span><span class="p">(</span><span class="n">crs</span><span class="p">)</span>
+<span class="n">blocks_land_use_gdf</span><span class="p">[</span><span class="s1">&#39;land_use&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="n">blocks_land_use_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>land_use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((387861.999 6644712.938, 387898.372 6...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((387898.372 6644768.891, 387934.746 6...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((387934.746 6644824.845, 388202.551 6...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((388348.842 6645181.924, 388955.181 6...</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((388955.181 6644954.448, 389507.545 6...</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.preprocessing.feature_engineering</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_geometry_features</span>
+
+<span class="n">blocks_features_gdf</span> <span class="o">=</span> <span class="n">generate_geometry_features</span><span class="p">(</span><span class="n">blocks_land_use_gdf</span><span class="p">,</span> <span class="n">aspect_ratios</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">blocks_features_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-03-23 01:28:59.914</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_usual_features</span>:<span class="ansi-cyan-fg">34</span> - <span class="ansi-bold">Calculating usual features.</span>
+<span class="ansi-green-fg">2025-03-23 01:28:59.918</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.preprocessing.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_aspect_ratios</span>:<span class="ansi-cyan-fg">57</span> - <span class="ansi-bold">Calculating radiuses.</span>
+100%|██████████| 69/69 [00:00&lt;00:00, 29165.27it/s]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>x</th>
+      <th>y</th>
+      <th>area</th>
+      <th>length</th>
+      <th>corners_count</th>
+      <th>aspect_ratio</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((387861.999 6644712.938, 387898.372 6...</td>
+      <td>387811.257163</td>
+      <td>6.644418e+06</td>
+      <td>109189.559722</td>
+      <td>1790.182603</td>
+      <td>6</td>
+      <td>3.186357</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((387898.372 6644768.891, 387934.746 6...</td>
+      <td>387931.811285</td>
+      <td>6.644396e+06</td>
+      <td>72838.889774</td>
+      <td>1626.063797</td>
+      <td>5</td>
+      <td>3.918795</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((387934.746 6644824.845, 388202.551 6...</td>
+      <td>388230.122121</td>
+      <td>6.645052e+06</td>
+      <td>134496.100428</td>
+      <td>1480.126322</td>
+      <td>6</td>
+      <td>1.554021</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((388348.842 6645181.924, 388955.181 6...</td>
+      <td>388513.077158</td>
+      <td>6.645068e+06</td>
+      <td>108999.835249</td>
+      <td>1546.823257</td>
+      <td>5</td>
+      <td>2.908831</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((388955.181 6644954.448, 389507.545 6...</td>
+      <td>389371.433283</td>
+      <td>6.644714e+06</td>
+      <td>164356.406931</td>
+      <td>2197.983249</td>
+      <td>6</td>
+      <td>4.324339</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">blocks_features_gdf</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">blocks_land_use_gdf</span><span class="p">[[</span><span class="s1">&#39;land_use&#39;</span><span class="p">]])</span>
+<span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>x</th>
+      <th>y</th>
+      <th>area</th>
+      <th>length</th>
+      <th>corners_count</th>
+      <th>aspect_ratio</th>
+      <th>land_use</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((387861.999 6644712.938, 387898.372 6...</td>
+      <td>387811.257163</td>
+      <td>6.644418e+06</td>
+      <td>109189.559722</td>
+      <td>1790.182603</td>
+      <td>6</td>
+      <td>3.186357</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((387898.372 6644768.891, 387934.746 6...</td>
+      <td>387931.811285</td>
+      <td>6.644396e+06</td>
+      <td>72838.889774</td>
+      <td>1626.063797</td>
+      <td>5</td>
+      <td>3.918795</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((387934.746 6644824.845, 388202.551 6...</td>
+      <td>388230.122121</td>
+      <td>6.645052e+06</td>
+      <td>134496.100428</td>
+      <td>1480.126322</td>
+      <td>6</td>
+      <td>1.554021</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((388348.842 6645181.924, 388955.181 6...</td>
+      <td>388513.077158</td>
+      <td>6.645068e+06</td>
+      <td>108999.835249</td>
+      <td>1546.823257</td>
+      <td>5</td>
+      <td>2.908831</td>
+      <td>None</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((388955.181 6644954.448, 389507.545 6...</td>
+      <td>389371.433283</td>
+      <td>6.644714e+06</td>
+      <td>164356.406931</td>
+      <td>2197.983249</td>
+      <td>6</td>
+      <td>4.324339</td>
+      <td>None</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.relations</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_adjacency_graph</span><span class="p">,</span> <span class="n">get_adjacency_context</span>
+
+<span class="n">adjacency_graph</span> <span class="o">=</span> <span class="n">generate_adjacency_graph</span><span class="p">(</span><span class="n">blocks_land_use_gdf</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-03-23 01:28:59.967</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.relations.adjacency.core</span>:<span class="ansi-cyan-fg">_generate_adjacency_nodes</span>:<span class="ansi-cyan-fg">10</span> - <span class="ansi-bold">Generating nodes.</span>
+<span class="ansi-green-fg">2025-03-23 01:28:59.968</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.relations.adjacency.core</span>:<span class="ansi-cyan-fg">_generate_adjacency_edges</span>:<span class="ansi-cyan-fg">15</span> - <span class="ansi-bold">Generating edges.</span>
+<span class="ansi-green-fg">2025-03-23 01:29:00.122</span> | <span class="ansi-green-intense-fg ansi-bold">SUCCESS </span> | <span class="ansi-cyan-fg">blocksnet.relations.adjacency.core</span>:<span class="ansi-cyan-fg">generate_adjacency_graph</span>:<span class="ansi-cyan-fg">34</span> - <span class="ansi-green-intense-fg ansi-bold">Adjacency graph successfully generated: 69 nodes, 68 edges</span>
+</pre></div></div>
+</div>
+<section id="Optimization">
+<h1>Optimization<a class="headerlink" href="#Optimization" title="Permalink to this heading"></a></h1>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LandUse</span>
+
+<span class="n">target_shares</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span> <span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">LandUse</span><span class="o">.</span><span class="n">RECREATION</span> <span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="n">LandUse</span><span class="o">.</span><span class="n">BUSINESS</span> <span class="p">:</span> <span class="mf">0.2</span>
+<span class="p">}</span>
+
+<span class="n">blocks_ids</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.optimization.land_use</span><span class="w"> </span><span class="kn">import</span> <span class="n">LandUseOptimizer</span>
+
+<span class="n">luo</span> <span class="o">=</span> <span class="n">LandUseOptimizer</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">adjacency_graph</span><span class="p">)</span>
+<span class="n">res_df</span> <span class="o">=</span> <span class="n">luo</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">blocks_ids</span><span class="p">,</span> <span class="n">target_shares</span><span class="p">,</span> <span class="n">population_size</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">n_generations</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">mutation_probability</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+==========================================================
+n_gen  |  n_eval  | n_nds  |      eps      |   indicator
+==========================================================
+     1 |       10 |      4 |             - |             -
+     2 |       20 |      5 |  0.0914873395 |             f
+     3 |       30 |      7 |  0.1144523497 |         ideal
+     4 |       40 |     10 |  0.0781781516 |         ideal
+     5 |       50 |      9 |  0.0697504645 |         ideal
+     6 |       60 |      6 |  0.0922243946 |             f
+     7 |       70 |      7 |  0.1150895082 |         ideal
+     8 |       80 |      7 |  0.2086888225 |         ideal
+     9 |       90 |      8 |  0.0362955085 |             f
+    10 |      100 |      8 |  0.000000E+00 |             f
+    11 |      110 |      7 |  0.0362269873 |             f
+    12 |      120 |      7 |  0.000000E+00 |             f
+    13 |      130 |      8 |  0.0159126744 |             f
+    14 |      140 |      8 |  0.000000E+00 |             f
+    15 |      150 |      8 |  0.000000E+00 |             f
+    16 |      160 |      9 |  0.0477094116 |         ideal
+    17 |      170 |      9 |  0.000000E+00 |             f
+    18 |      180 |      9 |  0.000000E+00 |             f
+    19 |      190 |      9 |  0.0050881715 |             f
+    20 |      200 |     10 |  0.0034969770 |             f
+    21 |      210 |     10 |  0.000000E+00 |             f
+    22 |      220 |     10 |  0.0014155321 |             f
+    23 |      230 |     10 |  0.0064667153 |             f
+    24 |      240 |     10 |  0.000000E+00 |             f
+    25 |      250 |      8 |  0.0400332670 |             f
+    26 |      260 |      9 |  0.0084712670 |             f
+    27 |      270 |     10 |  0.0846586509 |         ideal
+    28 |      280 |     10 |  0.000000E+00 |             f
+    29 |      290 |     10 |  0.000000E+00 |             f
+    30 |      300 |      9 |  0.0121405555 |             f
+    31 |      310 |      9 |  0.000000E+00 |             f
+    32 |      320 |      9 |  0.0017296025 |             f
+    33 |      330 |      9 |  0.0017296025 |             f
+    34 |      340 |      9 |  0.0017296025 |             f
+    35 |      350 |      9 |  0.0017296025 |             f
+    36 |      360 |      9 |  0.0017296025 |             f
+    37 |      370 |      9 |  0.0017296025 |             f
+    38 |      380 |      8 |  0.0286007670 |             f
+    39 |      390 |      8 |  0.000000E+00 |             f
+    40 |      400 |      8 |  0.000000E+00 |             f
+    41 |      410 |      8 |  0.000000E+00 |             f
+    42 |      420 |      8 |  0.000000E+00 |             f
+    43 |      430 |      8 |  0.000000E+00 |             f
+    44 |      440 |      9 |  0.0289729798 |             f
+    45 |      450 |     10 |  0.0104330004 |             f
+    46 |      460 |     10 |  0.000000E+00 |             f
+    47 |      470 |     10 |  0.000000E+00 |             f
+    48 |      480 |     10 |  0.000000E+00 |             f
+    49 |      490 |     10 |  0.000000E+00 |             f
+    50 |      500 |     10 |  0.0113978961 |             f
+    51 |      510 |      8 |  0.0103157549 |             f
+    52 |      520 |      8 |  0.000000E+00 |             f
+    53 |      530 |      8 |  0.000000E+00 |             f
+    54 |      540 |      8 |  0.000000E+00 |             f
+    55 |      550 |      8 |  0.000000E+00 |             f
+    56 |      560 |      8 |  0.000000E+00 |             f
+    57 |      570 |      6 |  0.0060698124 |         ideal
+    58 |      580 |      6 |  0.000000E+00 |             f
+    59 |      590 |      6 |  0.000000E+00 |             f
+    60 |      600 |      6 |  0.000000E+00 |             f
+    61 |      610 |      6 |  0.000000E+00 |             f
+    62 |      620 |      7 |  0.0107661662 |             f
+    63 |      630 |      7 |  0.000000E+00 |             f
+    64 |      640 |      8 |  0.0147008371 |             f
+    65 |      650 |      8 |  0.000000E+00 |             f
+    66 |      660 |      8 |  0.000000E+00 |             f
+    67 |      670 |      8 |  0.000000E+00 |             f
+    68 |      680 |      9 |  0.0214649602 |             f
+    69 |      690 |      9 |  0.000000E+00 |             f
+    70 |      700 |      9 |  0.000000E+00 |             f
+    71 |      710 |      9 |  0.000000E+00 |             f
+    72 |      720 |      9 |  0.000000E+00 |             f
+    73 |      730 |      9 |  0.000000E+00 |             f
+    74 |      740 |      9 |  0.000000E+00 |             f
+    75 |      750 |      7 |  0.0263487296 |         ideal
+    76 |      760 |      8 |  0.0844521501 |         ideal
+    77 |      770 |      8 |  0.000000E+00 |             f
+    78 |      780 |      9 |  0.0077841329 |             f
+    79 |      790 |      9 |  0.000000E+00 |             f
+    80 |      800 |     10 |  0.0082204478 |             f
+    81 |      810 |     10 |  0.0073915551 |             f
+    82 |      820 |     10 |  0.000000E+00 |             f
+    83 |      830 |     10 |  0.000000E+00 |             f
+    84 |      840 |     10 |  0.000000E+00 |             f
+    85 |      850 |     10 |  0.000000E+00 |             f
+    86 |      860 |     10 |  0.000000E+00 |             f
+    87 |      870 |     10 |  0.000000E+00 |             f
+    88 |      880 |     10 |  0.000000E+00 |             f
+    89 |      890 |     10 |  0.000000E+00 |             f
+    90 |      900 |     10 |  0.000000E+00 |             f
+    91 |      910 |     10 |  0.000000E+00 |             f
+    92 |      920 |     10 |  0.000000E+00 |             f
+    93 |      930 |     10 |  0.0059969017 |             f
+    94 |      940 |     10 |  0.000000E+00 |             f
+    95 |      950 |     10 |  0.000000E+00 |             f
+    96 |      960 |     10 |  0.000000E+00 |             f
+    97 |      970 |     10 |  0.0546159771 |         ideal
+    98 |      980 |     10 |  0.000000E+00 |             f
+    99 |      990 |     10 |  0.0063171357 |             f
+   100 |     1000 |     10 |  0.000000E+00 |             f
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">res_df</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>solution</th>
+      <th>objectives</th>
+      <th>assigned_land_use</th>
+      <th>share_mse</th>
+      <th>adjacency_penalty</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>[3, 4, 2, 1, 2, 0, 0, 1, 0, 0, 3, 0, 0, 3, 3, ...</td>
+      <td>[0.035492561216084254, 0.2593212019104734]</td>
+      <td>{0: LandUse.INDUSTRIAL, 1: LandUse.TRANSPORT, ...</td>
+      <td>0.035493</td>
+      <td>0.259321</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>[2, 4, 4, 0, 2, 0, 0, 1, 3, 1, 0, 0, 4, 3, 1, ...</td>
+      <td>[0.044256914631729864, 0.1661670812536721]</td>
+      <td>{0: LandUse.RECREATION, 1: LandUse.TRANSPORT, ...</td>
+      <td>0.044257</td>
+      <td>0.166167</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>[2, 4, 2, 2, 2, 0, 2, 1, 0, 4, 2, 4, 1, 4, 3, ...</td>
+      <td>[0.05263684384744122, 0.15835383334955214]</td>
+      <td>{0: LandUse.RECREATION, 1: LandUse.TRANSPORT, ...</td>
+      <td>0.052637</td>
+      <td>0.158354</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>[6, 4, 4, 0, 2, 0, 0, 0, 2, 1, 0, 6, 2, 0, 2, ...</td>
+      <td>[0.05854662600284991, 0.1255095223473388]</td>
+      <td>{0: LandUse.AGRICULTURE, 1: LandUse.TRANSPORT,...</td>
+      <td>0.058547</td>
+      <td>0.125510</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>[0, 0, 4, 4, 2, 0, 2, 6, 3, 4, 0, 0, 0, 0, 3, ...</td>
+      <td>[0.06213043548928794, 0.1067124990352423]</td>
+      <td>{0: LandUse.RESIDENTIAL, 1: LandUse.RESIDENTIA...</td>
+      <td>0.062130</td>
+      <td>0.106712</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>[1, 5, 3, 4, 1, 2, 2, 0, 1, 4, 1, 5, 0, 0, 3, ...</td>
+      <td>[0.06700588458395144, 0.07113174003059475]</td>
+      <td>{0: LandUse.BUSINESS, 1: LandUse.SPECIAL, 2: L...</td>
+      <td>0.067006</td>
+      <td>0.071132</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>[2, 4, 4, 4, 2, 0, 2, 0, 2, 1, 0, 5, 2, 0, 4, ...</td>
+      <td>[0.079948146612734, 0.05258978176273955]</td>
+      <td>{0: LandUse.RECREATION, 1: LandUse.TRANSPORT, ...</td>
+      <td>0.079948</td>
+      <td>0.052590</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>[3, 2, 2, 3, 2, 0, 2, 2, 0, 3, 1, 5, 0, 6, 3, ...</td>
+      <td>[0.08925728380062802, 0.038751514097945805]</td>
+      <td>{0: LandUse.INDUSTRIAL, 1: LandUse.RECREATION,...</td>
+      <td>0.089257</td>
+      <td>0.038752</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>[5, 6, 4, 5, 2, 0, 2, 2, 3, 0, 2, 1, 6, 4, 3, ...</td>
+      <td>[0.13927148694530989, 0.02508436674300687]</td>
+      <td>{0: LandUse.SPECIAL, 1: LandUse.AGRICULTURE, 2...</td>
+      <td>0.139271</td>
+      <td>0.025084</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>[3, 2, 4, 1, 2, 3, 2, 0, 1, 0, 2, 1, 1, 4, 3, ...</td>
+      <td>[0.17998316331805234, 0.01155222181087819]</td>
+      <td>{0: LandUse.INDUSTRIAL, 1: LandUse.RECREATION,...</td>
+      <td>0.179983</td>
+      <td>0.011552</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Land use" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../services/index.html" class="btn btn-neutral float-right" title="Services" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

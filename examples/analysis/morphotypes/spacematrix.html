@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spacematrix morphotypes &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Strelka morphotypes" href="strelka.html" />
+    <link rel="prev" title="Morphotypes" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../centrality/index.html">Centrality</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indicators/index.html">Indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../land_use/index.html">Land use</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Morphotypes</a><ul class="current">
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Spacematrix morphotypes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="strelka.html">Strelka morphotypes</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../network/index.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../provision/index.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../services/index.html">Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Morphotypes</a></li>
+      <li class="breadcrumb-item active">Spacematrix morphotypes</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/analysis/morphotypes/spacematrix.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Spacematrix-morphotypes">
+<h1>Spacematrix morphotypes<a class="headerlink" href="#Spacematrix-morphotypes" title="Permalink to this heading"></a></h1>
+<p>Based on <code class="docutils literal notranslate"><span class="pre">mxi</span></code>, <code class="docutils literal notranslate"><span class="pre">fsi</span></code> and <code class="docutils literal notranslate"><span class="pre">l</span></code> values clustering</p>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/saint_petersburg/blocks.pickle&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.indicators</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_density_indicators</span>
+
+<span class="n">density_df</span> <span class="o">=</span> <span class="n">calculate_density_indicators</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+<span class="n">density_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>site_area</th>
+      <th>footprint_area</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>non_living_area</th>
+      <th>fsi</th>
+      <th>gsi</th>
+      <th>mxi</th>
+      <th>l</th>
+      <th>osr</th>
+      <th>share_living</th>
+      <th>share_non_living</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.032316</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>inf</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>137101.088247</td>
+      <td>69.018103</td>
+      <td>69.018103</td>
+      <td>0.000000</td>
+      <td>69.018103</td>
+      <td>0.000503</td>
+      <td>0.000503</td>
+      <td>0.000000</td>
+      <td>1.000000</td>
+      <td>1985.451134</td>
+      <td>0.000000</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>95239.084434</td>
+      <td>5853.863274</td>
+      <td>6106.759644</td>
+      <td>4197.188633</td>
+      <td>1909.571011</td>
+      <td>0.064120</td>
+      <td>0.061465</td>
+      <td>0.687302</td>
+      <td>1.043202</td>
+      <td>14.637095</td>
+      <td>0.716995</td>
+      <td>0.326207</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>125919.330984</td>
+      <td>4214.828165</td>
+      <td>4375.483259</td>
+      <td>3033.795607</td>
+      <td>1341.687653</td>
+      <td>0.034748</td>
+      <td>0.033472</td>
+      <td>0.693362</td>
+      <td>1.038117</td>
+      <td>27.815100</td>
+      <td>0.719791</td>
+      <td>0.318326</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>169860.164494</td>
+      <td>13392.846325</td>
+      <td>31242.324144</td>
+      <td>20860.965881</td>
+      <td>10381.358263</td>
+      <td>0.183930</td>
+      <td>0.078846</td>
+      <td>0.667715</td>
+      <td>2.332762</td>
+      <td>5.008184</td>
+      <td>1.557620</td>
+      <td>0.775142</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[12]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.morphotypes</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_spacematrix_morphotypes</span>
+
+<span class="n">spacematrix_df</span><span class="p">,</span> <span class="n">clusters_df</span> <span class="o">=</span> <span class="n">get_spacematrix_morphotypes</span><span class="p">(</span><span class="n">density_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<p>Every block is labeled with <code class="docutils literal notranslate"><span class="pre">cluster</span></code> number and a <code class="docutils literal notranslate"><span class="pre">morphotype</span></code></p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">spacematrix_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>l</th>
+      <th>fsi</th>
+      <th>mxi</th>
+      <th>cluster</th>
+      <th>morphotype</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.000000</td>
+      <td>0.000503</td>
+      <td>0.000000</td>
+      <td>2.0</td>
+      <td>low-rise low-density non-residential</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.043202</td>
+      <td>0.064120</td>
+      <td>0.687302</td>
+      <td>4.0</td>
+      <td>low-rise low-density residential</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>1.038117</td>
+      <td>0.034748</td>
+      <td>0.693362</td>
+      <td>4.0</td>
+      <td>low-rise low-density residential</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2.332762</td>
+      <td>0.183930</td>
+      <td>0.667715</td>
+      <td>4.0</td>
+      <td>low-rise low-density residential</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Clusters <code class="docutils literal notranslate"><span class="pre">DataFrame</span></code> describes median values of <code class="docutils literal notranslate"><span class="pre">l</span></code>, <code class="docutils literal notranslate"><span class="pre">fsi</span></code> and <code class="docutils literal notranslate"><span class="pre">mxi</span></code> for each cluster</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">clusters_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[14]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>l</th>
+      <th>fsi</th>
+      <th>mxi</th>
+      <th>l_interpretation</th>
+      <th>fsi_interpretation</th>
+      <th>mxi_interpretation</th>
+      <th>morphotype</th>
+    </tr>
+    <tr>
+      <th>cluster</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2.657367</td>
+      <td>0.758933</td>
+      <td>0.000592</td>
+      <td>low-rise</td>
+      <td>low-density</td>
+      <td>non-residential</td>
+      <td>low-rise low-density non-residential</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1.222716</td>
+      <td>0.096095</td>
+      <td>0.420762</td>
+      <td>low-rise</td>
+      <td>low-density</td>
+      <td>mixed-use</td>
+      <td>low-rise low-density mixed-use</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>1.034454</td>
+      <td>0.080210</td>
+      <td>0.000000</td>
+      <td>low-rise</td>
+      <td>low-density</td>
+      <td>non-residential</td>
+      <td>low-rise low-density non-residential</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>9.685619</td>
+      <td>1.521034</td>
+      <td>0.601516</td>
+      <td>high-mid-rise</td>
+      <td>None</td>
+      <td>residential</td>
+      <td>high-mid-rise residential</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>1.128436</td>
+      <td>0.079844</td>
+      <td>0.698272</td>
+      <td>low-rise</td>
+      <td>low-density</td>
+      <td>residential</td>
+      <td>low-rise low-density residential</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[15]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="p">[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">spacematrix_df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">column</span><span class="o">=</span><span class="s1">&#39;morphotype&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">8</span><span class="p">))</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_analysis_morphotypes_spacematrix_8_0.png" src="../../../_images/examples_analysis_morphotypes_spacematrix_8_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Morphotypes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="strelka.html" class="btn btn-neutral float-right" title="Strelka morphotypes" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

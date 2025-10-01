@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Service optimization &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Preprocessing" href="../../preprocessing/index.html" />
+    <link rel="prev" title="Simulated annealing" href="simulated_annealing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Optimization</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../land_use/index.html">Land use</a></li>
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Services</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="land_use_profiling.html">Initial parameters</a></li>
+<li class="toctree-l4"><a class="reference internal" href="land_use_profiling.html#Land-use-provision-with-selected-services">Land use provision with selected services</a></li>
+<li class="toctree-l4"><a class="reference internal" href="simulated_annealing.html">Simulated annealing</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Service optimization</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Optimization</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Services</a></li>
+      <li class="breadcrumb-item active">Service optimization</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/optimization/services/tpe_simple.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Service-optimization">
+<h1>Service optimization<a class="headerlink" href="#Service-optimization" title="Permalink to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">blocks</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/blocks.pickle&#39;</span><span class="p">)</span>
+<span class="n">columns</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="s1">&#39;capacity_&#39;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">]</span>
+<span class="n">blocks</span> <span class="o">=</span> <span class="n">blocks</span><span class="p">[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">,</span> <span class="s1">&#39;population&#39;</span><span class="p">,</span> <span class="s1">&#39;site_area&#39;</span><span class="p">,</span> <span class="o">*</span><span class="n">columns</span><span class="p">]]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">blocks</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>population</th>
+      <th>site_area</th>
+      <th>capacity_school</th>
+      <th>capacity_kindergarten</th>
+      <th>capacity_hospital</th>
+      <th>capacity_polyclinic</th>
+      <th>capacity_pitch</th>
+      <th>capacity_swimming_pool</th>
+      <th>capacity_theatre</th>
+      <th>...</th>
+      <th>capacity_train_station</th>
+      <th>capacity_bus_station</th>
+      <th>capacity_bus_stop</th>
+      <th>capacity_pier</th>
+      <th>capacity_animal_shelter</th>
+      <th>capacity_prison</th>
+      <th>capacity_landfill</th>
+      <th>capacity_plant_nursery</th>
+      <th>capacity_greenhouse_complex</th>
+      <th>capacity_warehouse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((349424.859 6631180.891, 349424.751 6...</td>
+      <td>0.0</td>
+      <td>0.032316</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((352083.617 6633950.146, 352240.448 6...</td>
+      <td>0.0</td>
+      <td>137101.088247</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>20.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((346700.642 6618453.176, 346681.107 6...</td>
+      <td>109.0</td>
+      <td>95239.084434</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>3 rows × 63 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/acc_mx.pickle&#39;</span><span class="p">)</span>
+<span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/ivan/work/ovanes-projects/urban-planning-optimizer/general/.venv/lib/python3.12/site-packages/pandas/io/formats/format.py:1458: RuntimeWarning: overflow encountered in cast
+  has_large_values = (abs_vals &gt; 1e6).any()
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[2]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>9358</th>
+      <th>9359</th>
+      <th>9360</th>
+      <th>9361</th>
+      <th>9362</th>
+      <th>9363</th>
+      <th>9364</th>
+      <th>9365</th>
+      <th>9366</th>
+      <th>9367</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0000</td>
+      <td>58.15625</td>
+      <td>74.187500</td>
+      <td>76.937500</td>
+      <td>66.8125</td>
+      <td>80.5000</td>
+      <td>92.18750</td>
+      <td>66.56250</td>
+      <td>65.68750</td>
+      <td>106.8750</td>
+      <td>...</td>
+      <td>70.0000</td>
+      <td>72.1875</td>
+      <td>72.0000</td>
+      <td>73.3125</td>
+      <td>73.2500</td>
+      <td>74.0000</td>
+      <td>75.5000</td>
+      <td>83.1875</td>
+      <td>75.0000</td>
+      <td>73.2500</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>56.2500</td>
+      <td>0.00000</td>
+      <td>99.687500</td>
+      <td>102.375000</td>
+      <td>88.1250</td>
+      <td>76.1250</td>
+      <td>113.43750</td>
+      <td>89.43750</td>
+      <td>88.56250</td>
+      <td>96.3125</td>
+      <td>...</td>
+      <td>65.6250</td>
+      <td>67.7500</td>
+      <td>67.6875</td>
+      <td>69.0000</td>
+      <td>68.8750</td>
+      <td>69.6875</td>
+      <td>71.1875</td>
+      <td>78.8125</td>
+      <td>70.6875</td>
+      <td>68.8750</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>74.5000</td>
+      <td>96.50000</td>
+      <td>0.000000</td>
+      <td>5.347656</td>
+      <td>74.0000</td>
+      <td>118.8125</td>
+      <td>92.06250</td>
+      <td>64.43750</td>
+      <td>63.56250</td>
+      <td>134.5000</td>
+      <td>...</td>
+      <td>108.3125</td>
+      <td>110.4375</td>
+      <td>110.3750</td>
+      <td>111.6875</td>
+      <td>111.5625</td>
+      <td>112.3750</td>
+      <td>113.8125</td>
+      <td>121.5000</td>
+      <td>113.3750</td>
+      <td>111.5625</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>77.2500</td>
+      <td>99.25000</td>
+      <td>5.347656</td>
+      <td>0.000000</td>
+      <td>76.7500</td>
+      <td>121.5625</td>
+      <td>90.12500</td>
+      <td>67.18750</td>
+      <td>66.31250</td>
+      <td>137.2500</td>
+      <td>...</td>
+      <td>111.0625</td>
+      <td>113.1875</td>
+      <td>113.0625</td>
+      <td>114.3750</td>
+      <td>114.3125</td>
+      <td>115.0625</td>
+      <td>116.5625</td>
+      <td>124.2500</td>
+      <td>116.1250</td>
+      <td>114.3125</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>70.1875</td>
+      <td>90.56250</td>
+      <td>82.375000</td>
+      <td>85.125000</td>
+      <td>0.0000</td>
+      <td>110.5000</td>
+      <td>35.53125</td>
+      <td>45.15625</td>
+      <td>44.28125</td>
+      <td>89.8750</td>
+      <td>...</td>
+      <td>100.0000</td>
+      <td>102.1250</td>
+      <td>102.0000</td>
+      <td>103.3125</td>
+      <td>103.2500</td>
+      <td>104.0000</td>
+      <td>105.5000</td>
+      <td>113.1875</td>
+      <td>105.0000</td>
+      <td>103.2500</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 9368 columns</p>
+</div></div>
+</div>
+<section id="Select-ID-of-optimized-blocks">
+<h2>Select ID of optimized blocks<a class="headerlink" href="#Select-ID-of-optimized-blocks" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">LandUse</span>
+<span class="n">blocks_lu</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="mi">2059</span> <span class="p">:</span> <span class="n">LandUse</span><span class="o">.</span><span class="n">RESIDENTIAL</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Service-distribution">
+<h2>Service distribution<a class="headerlink" href="#Service-distribution" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">basic_services</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;kindergarten&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;school&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;pharmacy&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;polyclinics&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s2">&quot;convenience&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;cafe&quot;</span><span class="p">:</span> <span class="mf">0.15</span><span class="p">,</span>
+    <span class="s2">&quot;playground&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;post&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;hairdresser&quot;</span><span class="p">:</span> <span class="mf">0.1</span>
+<span class="p">}</span>
+<span class="n">advanced_services</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;hospital&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;supermarket&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+    <span class="s2">&quot;restaurant&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s2">&quot;park&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">&quot;bank&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s2">&quot;fuel&quot;</span><span class="p">:</span> <span class="mf">0.25</span><span class="p">,</span>
+    <span class="s2">&quot;police&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;cinema&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;market&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;religion&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;multifunctional_center&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;train_building&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;cemetery&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;notary&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;pitch&quot;</span><span class="p">:</span> <span class="mf">0.2</span>
+<span class="p">}</span>
+<span class="n">comfort_services</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;mall&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s2">&quot;swimming_pool&quot;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>
+    <span class="s2">&quot;theatre&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;museum&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;university&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;sanatorium&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;zoo&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;reserve&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;animal_shelter&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;aeroway_terminal&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;crematorium&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;prison&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;landfill&quot;</span><span class="p">:</span> <span class="mf">0.1</span><span class="p">,</span>
+    <span class="s2">&quot;bar&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+    <span class="s2">&quot;hotel&quot;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">get_service_weight</span><span class="p">(</span><span class="n">service_name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">service_name</span> <span class="ow">in</span> <span class="n">basic_services</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.5714</span> <span class="o">*</span> <span class="n">basic_services</span><span class="p">[</span><span class="n">service_name</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">service_name</span> <span class="ow">in</span> <span class="n">advanced_services</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.2857</span> <span class="o">*</span> <span class="n">advanced_services</span><span class="p">[</span><span class="n">service_name</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">service_name</span> <span class="ow">in</span> <span class="n">comfort_services</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.1429</span> <span class="o">*</span> <span class="n">comfort_services</span><span class="p">[</span><span class="n">service_name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="mi">0</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Service-types-and-weights">
+<h2>Service types and weights<a class="headerlink" href="#Service-types-and-weights" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">chosen_service_types</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">basic_services</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">advanced_services</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">comfort_services</span><span class="p">)</span>
+<span class="n">service_weights</span> <span class="o">=</span> <span class="p">{</span><span class="n">service_type</span><span class="p">:</span> <span class="n">get_service_weight</span><span class="p">(</span><span class="n">service_type</span><span class="p">)</span> <span class="k">for</span> <span class="n">service_type</span> <span class="ow">in</span> <span class="n">chosen_service_types</span> <span class="k">if</span> <span class="sa">f</span><span class="s1">&#39;capacity_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s1">&#39;</span> <span class="ow">in</span> <span class="n">blocks</span><span class="o">.</span><span class="n">columns</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</section>
+<section id="Initialize-and-run-optimizer">
+<h2>Initialize and run optimizer<a class="headerlink" href="#Initialize-and-run-optimizer" title="Permalink to this heading"></a></h2>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.optimization.services</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">TPEOptimizer</span><span class="p">,</span>
+    <span class="n">WeightedObjective</span><span class="p">,</span>
+    <span class="n">WeightedConstraints</span><span class="p">,</span>
+    <span class="n">Facade</span><span class="p">,</span>
+    <span class="n">BlockSolution</span><span class="p">,</span>
+    <span class="n">GradientChooser</span><span class="p">,</span>
+    <span class="n">SimpleChooser</span><span class="p">,</span>
+    <span class="n">RandomOrder</span><span class="p">,</span>
+    <span class="n">AreaSolution</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="n">var_adapter</span> <span class="o">=</span> <span class="n">AreaSolution</span><span class="p">(</span><span class="n">blocks_lu</span><span class="p">)</span>
+
+<span class="n">facade</span> <span class="o">=</span> <span class="n">Facade</span><span class="p">(</span>
+    <span class="n">blocks_lu</span><span class="o">=</span><span class="n">blocks_lu</span><span class="p">,</span>
+    <span class="n">blocks_df</span><span class="o">=</span><span class="n">blocks</span><span class="p">,</span>
+    <span class="n">accessibility_matrix</span><span class="o">=</span><span class="n">accessibility_matrix</span><span class="p">,</span>
+    <span class="n">var_adapter</span><span class="o">=</span><span class="n">var_adapter</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">service_type</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">tqdm</span><span class="p">(</span><span class="n">service_weights</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+    <span class="n">facade</span><span class="o">.</span><span class="n">add_service_type</span><span class="p">(</span><span class="n">service_type</span><span class="p">,</span> <span class="n">weight</span><span class="p">,</span> <span class="n">blocks</span><span class="o">.</span><span class="n">rename</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">{</span><span class="sa">f</span><span class="s1">&#39;capacity_</span><span class="si">{</span><span class="n">service_type</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">:</span> <span class="s1">&#39;capacity&#39;</span><span class="p">})[[</span><span class="s1">&#39;capacity&#39;</span><span class="p">]])</span>
+
+<span class="n">objective</span> <span class="o">=</span> <span class="n">WeightedObjective</span><span class="p">(</span><span class="n">num_params</span><span class="o">=</span><span class="n">facade</span><span class="o">.</span><span class="n">num_params</span><span class="p">,</span> <span class="n">facade</span><span class="o">=</span><span class="n">facade</span><span class="p">,</span> <span class="n">weights</span><span class="o">=</span><span class="n">service_weights</span><span class="p">,</span> <span class="n">max_evals</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+<span class="n">constraints</span> <span class="o">=</span> <span class="n">WeightedConstraints</span><span class="p">(</span><span class="n">num_params</span><span class="o">=</span><span class="n">facade</span><span class="o">.</span><span class="n">num_params</span><span class="p">,</span> <span class="n">facade</span><span class="o">=</span><span class="n">facade</span><span class="p">,</span> <span class="n">priority</span><span class="o">=</span><span class="n">service_weights</span><span class="p">)</span>
+
+<span class="n">tpe_optimizer</span> <span class="o">=</span> <span class="n">TPEOptimizer</span><span class="p">(</span>
+    <span class="n">objective</span><span class="o">=</span><span class="n">objective</span><span class="p">,</span> <span class="n">constraints</span><span class="o">=</span><span class="n">constraints</span><span class="p">,</span> <span class="n">vars_order</span><span class="o">=</span><span class="n">RandomOrder</span><span class="p">(),</span> <span class="n">vars_chooser</span><span class="o">=</span><span class="n">GradientChooser</span><span class="p">(</span><span class="n">facade</span><span class="p">,</span> <span class="n">num_params</span><span class="o">=</span><span class="n">facade</span><span class="o">.</span><span class="n">num_params</span><span class="p">,</span> <span class="n">num_top</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="p">)</span>
+
+<span class="n">best_x</span><span class="p">,</span> <span class="n">best_val</span><span class="p">,</span> <span class="n">perc</span><span class="p">,</span> <span class="n">func_evals</span> <span class="o">=</span> <span class="n">tpe_optimizer</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">max_runs</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60000</span><span class="p">,</span> <span class="n">initial_runs_num</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+100%|██████████| 35/35 [13:15&lt;00:00, 22.74s/it]
+[I 2025-07-30 13:47:33,551] A new study created in memory with name: no-name-7236c4ec-218f-472c-9099-73a2aff3b9ff
+</pre></div></div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "891bb817b25946ecb89407cacd615641", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<div class="highlight"><pre>
+[I 2025-07-30 13:47:36,172] Trial 0 finished with value: 1.7590525543245839 and parameters: {&#39;x_12&#39;: 0, &#39;x_6&#39;: 700, &#39;x_5&#39;: 60, &#39;x_14&#39;: 10000, &#39;x_15&#39;: 0, &#39;x_24&#39;: 0, &#39;x_4&#39;: 400, &#39;x_19&#39;: 0, &#39;x_13&#39;: 50, &#39;x_23&#39;: 0, &#39;x_20&#39;: 0, &#39;x_11&#39;: 0, &#39;x_21&#39;: 100, &#39;x_17&#39;: 9100, &#39;x_1&#39;: 1000, &#39;x_9&#39;: 20000, &#39;x_2&#39;: 450, &#39;x_7&#39;: 270, &#39;x_25&#39;: 150, &#39;x_18&#39;: 2800, &#39;x_16&#39;: 0, &#39;x_0&#39;: 30, &#39;x_22&#39;: 3520, &#39;x_3&#39;: 18500, &#39;x_10&#39;: 0, &#39;x_8&#39;: 0}. Best is trial 0 with value: 1.7590525543245839.
+[I 2025-07-30 13:47:38,178] Trial 1 finished with value: 1.7591407549631215 and parameters: {&#39;x_17&#39;: 9100, &#39;x_18&#39;: 2802, &#39;x_9&#39;: 20001, &#39;x_8&#39;: 8, &#39;x_12&#39;: 0, &#39;x_4&#39;: 400, &#39;x_0&#39;: 30, &#39;x_19&#39;: 9, &#39;x_25&#39;: 151, &#39;x_6&#39;: 700, &#39;x_7&#39;: 276, &#39;x_13&#39;: 50, &#39;x_15&#39;: 3, &#39;x_1&#39;: 1000, &#39;x_11&#39;: 5, &#39;x_21&#39;: 100, &#39;x_14&#39;: 10006, &#39;x_20&#39;: 1, &#39;x_10&#39;: 0, &#39;x_3&#39;: 18512, &#39;x_24&#39;: 6, &#39;x_2&#39;: 450, &#39;x_16&#39;: 6, &#39;x_5&#39;: 61, &#39;x_23&#39;: 5, &#39;x_22&#39;: 3533}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:40,099] Trial 2 finished with value: 1.7538942265405484 and parameters: {&#39;x_9&#39;: 123, &#39;x_11&#39;: 15893, &#39;x_2&#39;: 117, &#39;x_18&#39;: 3990, &#39;x_0&#39;: 22, &#39;x_22&#39;: 3520, &#39;x_23&#39;: 0, &#39;x_10&#39;: 0, &#39;x_19&#39;: 0, &#39;x_1&#39;: 1000, &#39;x_14&#39;: 10000, &#39;x_16&#39;: 0, &#39;x_21&#39;: 100, &#39;x_7&#39;: 270, &#39;x_13&#39;: 50, &#39;x_6&#39;: 700, &#39;x_25&#39;: 150, &#39;x_17&#39;: 9100, &#39;x_24&#39;: 0, &#39;x_5&#39;: 60, &#39;x_4&#39;: 400, &#39;x_8&#39;: 0, &#39;x_15&#39;: 0, &#39;x_3&#39;: 0, &#39;x_20&#39;: 0, &#39;x_12&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:41,837] Trial 3 finished with value: 1.7538942265405484 and parameters: {&#39;x_2&#39;: 519, &#39;x_15&#39;: 25045, &#39;x_20&#39;: 16569, &#39;x_5&#39;: 77, &#39;x_24&#39;: 0, &#39;x_10&#39;: 0, &#39;x_25&#39;: 150, &#39;x_7&#39;: 270, &#39;x_18&#39;: 2800, &#39;x_23&#39;: 0, &#39;x_0&#39;: 0, &#39;x_16&#39;: 0, &#39;x_11&#39;: 0, &#39;x_6&#39;: 700, &#39;x_9&#39;: 0, &#39;x_4&#39;: 400, &#39;x_3&#39;: 0, &#39;x_21&#39;: 100, &#39;x_13&#39;: 50, &#39;x_14&#39;: 10000, &#39;x_1&#39;: 1000, &#39;x_19&#39;: 0, &#39;x_22&#39;: 3520, &#39;x_12&#39;: 0, &#39;x_8&#39;: 0, &#39;x_17&#39;: 9100}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:42,582] Trial 4 finished with value: 1.6321306966077258 and parameters: {&#39;x_16&#39;: 70111, &#39;x_2&#39;: 112, &#39;x_15&#39;: 55, &#39;x_7&#39;: 21, &#39;x_22&#39;: 0, &#39;x_12&#39;: 0, &#39;x_23&#39;: 0, &#39;x_19&#39;: 0, &#39;x_10&#39;: 0, &#39;x_21&#39;: 100, &#39;x_25&#39;: 150, &#39;x_9&#39;: 0, &#39;x_1&#39;: 1000, &#39;x_4&#39;: 400, &#39;x_5&#39;: 60, &#39;x_3&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_24&#39;: 0, &#39;x_13&#39;: 50, &#39;x_11&#39;: 0, &#39;x_8&#39;: 0, &#39;x_14&#39;: 0, &#39;x_6&#39;: 0, &#39;x_20&#39;: 0, &#39;x_0&#39;: 0, &#39;x_17&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:42,912] Trial 5 finished with value: 1.6321306966077258 and parameters: {&#39;x_20&#39;: 48633, &#39;x_6&#39;: 102, &#39;x_18&#39;: 2804, &#39;x_15&#39;: 0, &#39;x_13&#39;: 50, &#39;x_2&#39;: 0, &#39;x_1&#39;: 1001, &#39;x_14&#39;: 0, &#39;x_12&#39;: 0, &#39;x_19&#39;: 0, &#39;x_22&#39;: 0, &#39;x_21&#39;: 100, &#39;x_9&#39;: 0, &#39;x_4&#39;: 400, &#39;x_8&#39;: 0, &#39;x_5&#39;: 60, &#39;x_7&#39;: 0, &#39;x_11&#39;: 0, &#39;x_25&#39;: 150, &#39;x_3&#39;: 0, &#39;x_23&#39;: 0, &#39;x_0&#39;: 0, &#39;x_24&#39;: 0, &#39;x_17&#39;: 0, &#39;x_10&#39;: 0, &#39;x_16&#39;: 17000}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:43,386] Trial 6 finished with value: 1.7304942620673358 and parameters: {&#39;x_20&#39;: 70126, &#39;x_0&#39;: 32, &#39;x_2&#39;: 60, &#39;x_12&#39;: 82, &#39;x_23&#39;: 0, &#39;x_10&#39;: 0, &#39;x_3&#39;: 0, &#39;x_9&#39;: 0, &#39;x_24&#39;: 0, &#39;x_17&#39;: 0, &#39;x_7&#39;: 0, &#39;x_16&#39;: 17000, &#39;x_22&#39;: 0, &#39;x_5&#39;: 60, &#39;x_18&#39;: 2800, &#39;x_14&#39;: 0, &#39;x_25&#39;: 150, &#39;x_15&#39;: 0, &#39;x_13&#39;: 50, &#39;x_4&#39;: 400, &#39;x_11&#39;: 0, &#39;x_8&#39;: 0, &#39;x_6&#39;: 0, &#39;x_1&#39;: 0, &#39;x_21&#39;: 0, &#39;x_19&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:43,778] Trial 7 finished with value: 1.7304942620673358 and parameters: {&#39;x_8&#39;: 160, &#39;x_1&#39;: 551, &#39;x_10&#39;: 992, &#39;x_11&#39;: 47921, &#39;x_18&#39;: 2882, &#39;x_0&#39;: 31, &#39;x_17&#39;: 102, &#39;x_21&#39;: 0, &#39;x_12&#39;: 1, &#39;x_9&#39;: 0, &#39;x_7&#39;: 0, &#39;x_24&#39;: 0, &#39;x_5&#39;: 60, &#39;x_20&#39;: 0, &#39;x_22&#39;: 0, &#39;x_3&#39;: 0, &#39;x_14&#39;: 0, &#39;x_6&#39;: 0, &#39;x_19&#39;: 0, &#39;x_25&#39;: 150, &#39;x_13&#39;: 50, &#39;x_23&#39;: 0, &#39;x_4&#39;: 400, &#39;x_16&#39;: 17000, &#39;x_15&#39;: 0, &#39;x_2&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:44,293] Trial 8 finished with value: 1.731829308796308 and parameters: {&#39;x_25&#39;: 16, &#39;x_2&#39;: 308, &#39;x_7&#39;: 1189, &#39;x_21&#39;: 61, &#39;x_4&#39;: 7, &#39;x_12&#39;: 0, &#39;x_23&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_15&#39;: 0, &#39;x_19&#39;: 0, &#39;x_5&#39;: 60, &#39;x_6&#39;: 0, &#39;x_24&#39;: 0, &#39;x_16&#39;: 17000, &#39;x_0&#39;: 30, &#39;x_1&#39;: 0, &#39;x_3&#39;: 0, &#39;x_13&#39;: 50, &#39;x_17&#39;: 0, &#39;x_11&#39;: 0, &#39;x_22&#39;: 0, &#39;x_8&#39;: 0, &#39;x_10&#39;: 0, &#39;x_20&#39;: 0, &#39;x_9&#39;: 0, &#39;x_14&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:44,607] Trial 9 finished with value: 1.731829308796308 and parameters: {&#39;x_9&#39;: 19915, &#39;x_7&#39;: 1460, &#39;x_12&#39;: 28608, &#39;x_23&#39;: 176, &#39;x_11&#39;: 89, &#39;x_14&#39;: 111, &#39;x_5&#39;: 61, &#39;x_6&#39;: 0, &#39;x_2&#39;: 0, &#39;x_16&#39;: 17000, &#39;x_18&#39;: 2800, &#39;x_25&#39;: 0, &#39;x_22&#39;: 0, &#39;x_4&#39;: 0, &#39;x_15&#39;: 0, &#39;x_20&#39;: 0, &#39;x_10&#39;: 0, &#39;x_21&#39;: 0, &#39;x_3&#39;: 0, &#39;x_1&#39;: 0, &#39;x_8&#39;: 0, &#39;x_19&#39;: 0, &#39;x_17&#39;: 0, &#39;x_13&#39;: 50, &#39;x_0&#39;: 30, &#39;x_24&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:45,114] Trial 10 finished with value: 1.731829308796308 and parameters: {&#39;x_19&#39;: 1608, &#39;x_21&#39;: 67, &#39;x_0&#39;: 12, &#39;x_15&#39;: 8173, &#39;x_24&#39;: 21918, &#39;x_2&#39;: 0, &#39;x_23&#39;: 0, &#39;x_22&#39;: 0, &#39;x_17&#39;: 0, &#39;x_8&#39;: 0, &#39;x_7&#39;: 1350, &#39;x_14&#39;: 0, &#39;x_3&#39;: 0, &#39;x_4&#39;: 0, &#39;x_1&#39;: 0, &#39;x_16&#39;: 17000, &#39;x_11&#39;: 0, &#39;x_20&#39;: 0, &#39;x_13&#39;: 50, &#39;x_18&#39;: 2800, &#39;x_10&#39;: 0, &#39;x_25&#39;: 0, &#39;x_6&#39;: 0, &#39;x_12&#39;: 0, &#39;x_9&#39;: 0, &#39;x_5&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:45,656] Trial 11 finished with value: 1.731829308796308 and parameters: {&#39;x_12&#39;: 14916, &#39;x_22&#39;: 2692, &#39;x_3&#39;: 18538, &#39;x_17&#39;: 6892, &#39;x_18&#39;: 3169, &#39;x_21&#39;: 77, &#39;x_4&#39;: 282, &#39;x_24&#39;: 1653, &#39;x_15&#39;: 1103, &#39;x_5&#39;: 105, &#39;x_11&#39;: 765, &#39;x_13&#39;: 50, &#39;x_20&#39;: 540, &#39;x_8&#39;: 92, &#39;x_23&#39;: 512, &#39;x_1&#39;: 526, &#39;x_6&#39;: 38, &#39;x_10&#39;: 0, &#39;x_16&#39;: 17000, &#39;x_14&#39;: 0, &#39;x_25&#39;: 0, &#39;x_2&#39;: 0, &#39;x_9&#39;: 0, &#39;x_7&#39;: 1350, &#39;x_0&#39;: 0, &#39;x_19&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:46,145] Trial 12 finished with value: 1.731829308796308 and parameters: {&#39;x_23&#39;: 140, &#39;x_16&#39;: 49876, &#39;x_22&#39;: 2635, &#39;x_14&#39;: 7698, &#39;x_10&#39;: 293, &#39;x_6&#39;: 0, &#39;x_20&#39;: 0, &#39;x_1&#39;: 0, &#39;x_7&#39;: 1350, &#39;x_13&#39;: 50, &#39;x_4&#39;: 0, &#39;x_3&#39;: 18500, &#39;x_2&#39;: 0, &#39;x_9&#39;: 0, &#39;x_25&#39;: 0, &#39;x_0&#39;: 0, &#39;x_21&#39;: 0, &#39;x_8&#39;: 0, &#39;x_19&#39;: 0, &#39;x_11&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_15&#39;: 0, &#39;x_24&#39;: 0, &#39;x_5&#39;: 0, &#39;x_12&#39;: 0, &#39;x_17&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:46,683] Trial 13 finished with value: 1.731829308796308 and parameters: {&#39;x_23&#39;: 377, &#39;x_19&#39;: 958, &#39;x_5&#39;: 29, &#39;x_8&#39;: 81, &#39;x_11&#39;: 7762, &#39;x_6&#39;: 548, &#39;x_0&#39;: 23, &#39;x_2&#39;: 448, &#39;x_17&#39;: 6880, &#39;x_16&#39;: 20640, &#39;x_25&#39;: 200, &#39;x_13&#39;: 50, &#39;x_9&#39;: 9646, &#39;x_1&#39;: 7, &#39;x_21&#39;: 1, &#39;x_10&#39;: 0, &#39;x_20&#39;: 0, &#39;x_3&#39;: 18500, &#39;x_7&#39;: 1350, &#39;x_4&#39;: 0, &#39;x_14&#39;: 0, &#39;x_12&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_22&#39;: 0, &#39;x_24&#39;: 0, &#39;x_15&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:47,275] Trial 14 finished with value: 1.731829308796308 and parameters: {&#39;x_5&#39;: 35, &#39;x_17&#39;: 7322, &#39;x_3&#39;: 14419, &#39;x_24&#39;: 11194, &#39;x_7&#39;: 662, &#39;x_19&#39;: 0, &#39;x_12&#39;: 0, &#39;x_10&#39;: 0, &#39;x_15&#39;: 0, &#39;x_20&#39;: 0, &#39;x_1&#39;: 0, &#39;x_13&#39;: 50, &#39;x_16&#39;: 17000, &#39;x_0&#39;: 0, &#39;x_2&#39;: 0, &#39;x_8&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_22&#39;: 0, &#39;x_6&#39;: 0, &#39;x_11&#39;: 0, &#39;x_4&#39;: 0, &#39;x_21&#39;: 0, &#39;x_14&#39;: 0, &#39;x_23&#39;: 0, &#39;x_9&#39;: 0, &#39;x_25&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:47,719] Trial 15 finished with value: 1.731829308796308 and parameters: {&#39;x_16&#39;: 28408, &#39;x_10&#39;: 244, &#39;x_15&#39;: 5851, &#39;x_17&#39;: 3535, &#39;x_3&#39;: 13993, &#39;x_19&#39;: 3480, &#39;x_8&#39;: 297, &#39;x_0&#39;: 24, &#39;x_7&#39;: 873, &#39;x_20&#39;: 2591, &#39;x_9&#39;: 8146, &#39;x_13&#39;: 50, &#39;x_1&#39;: 7, &#39;x_12&#39;: 1, &#39;x_6&#39;: 0, &#39;x_4&#39;: 0, &#39;x_5&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_14&#39;: 0, &#39;x_23&#39;: 0, &#39;x_2&#39;: 0, &#39;x_11&#39;: 0, &#39;x_21&#39;: 0, &#39;x_25&#39;: 0, &#39;x_24&#39;: 0, &#39;x_22&#39;: 0}. Best is trial 1 with value: 1.7591407549631215.
+[I 2025-07-30 13:47:49,809] Trial 16 finished with value: 1.8061746636207854 and parameters: {&#39;x_2&#39;: 335, &#39;x_9&#39;: 19998, &#39;x_20&#39;: 11550, &#39;x_3&#39;: 5993, &#39;x_15&#39;: 16670, &#39;x_8&#39;: 0, &#39;x_19&#39;: 0, &#39;x_6&#39;: 0, &#39;x_23&#39;: 0, &#39;x_1&#39;: 0, &#39;x_17&#39;: 0, &#39;x_13&#39;: 50, &#39;x_14&#39;: 0, &#39;x_11&#39;: 0, &#39;x_0&#39;: 0, &#39;x_25&#39;: 0, &#39;x_5&#39;: 0, &#39;x_21&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_24&#39;: 0, &#39;x_7&#39;: 810, &#39;x_22&#39;: 0, &#39;x_16&#39;: 0, &#39;x_4&#39;: 0, &#39;x_12&#39;: 0, &#39;x_10&#39;: 0}. Best is trial 16 with value: 1.8061746636207854.
+[I 2025-07-30 13:47:51,973] Trial 17 finished with value: 1.8061746636207854 and parameters: {&#39;x_18&#39;: 3089, &#39;x_25&#39;: 561, &#39;x_15&#39;: 18264, &#39;x_14&#39;: 2808, &#39;x_10&#39;: 728, &#39;x_9&#39;: 16344, &#39;x_21&#39;: 240, &#39;x_17&#39;: 2403, &#39;x_2&#39;: 304, &#39;x_13&#39;: 53, &#39;x_1&#39;: 299, &#39;x_7&#39;: 1979, &#39;x_23&#39;: 1156, &#39;x_12&#39;: 4818, &#39;x_3&#39;: 4874, &#39;x_20&#39;: 6314, &#39;x_4&#39;: 1045, &#39;x_5&#39;: 238, &#39;x_22&#39;: 1093, &#39;x_16&#39;: 713, &#39;x_24&#39;: 662, &#39;x_8&#39;: 849, &#39;x_6&#39;: 232, &#39;x_19&#39;: 266, &#39;x_11&#39;: 243, &#39;x_0&#39;: 100}. Best is trial 16 with value: 1.8061746636207854.
+[I 2025-07-30 13:47:54,123] Trial 18 finished with value: 1.7158014038955691 and parameters: {&#39;x_22&#39;: 757, &#39;x_13&#39;: 39, &#39;x_24&#39;: 42661, &#39;x_10&#39;: 774, &#39;x_17&#39;: 1916, &#39;x_15&#39;: 0, &#39;x_23&#39;: 0, &#39;x_16&#39;: 0, &#39;x_20&#39;: 0, &#39;x_7&#39;: 1350, &#39;x_12&#39;: 0, &#39;x_4&#39;: 400, &#39;x_21&#39;: 100, &#39;x_6&#39;: 0, &#39;x_1&#39;: 0, &#39;x_18&#39;: 2800, &#39;x_25&#39;: 150, &#39;x_3&#39;: 0, &#39;x_0&#39;: 30, &#39;x_9&#39;: 0, &#39;x_8&#39;: 0, &#39;x_19&#39;: 0, &#39;x_14&#39;: 0, &#39;x_5&#39;: 0, &#39;x_11&#39;: 0, &#39;x_2&#39;: 0}. Best is trial 16 with value: 1.8061746636207854.
+[I 2025-07-30 13:47:56,131] Trial 19 finished with value: 1.7158014038955691 and parameters: {&#39;x_18&#39;: 3066, &#39;x_9&#39;: 16515, &#39;x_23&#39;: 1700, &#39;x_3&#39;: 4527, &#39;x_12&#39;: 2777, &#39;x_22&#39;: 1438, &#39;x_1&#39;: 238, &#39;x_7&#39;: 1799, &#39;x_19&#39;: 738, &#39;x_0&#39;: 135, &#39;x_14&#39;: 1550, &#39;x_21&#39;: 208, &#39;x_5&#39;: 199, &#39;x_8&#39;: 599, &#39;x_2&#39;: 273, &#39;x_20&#39;: 2555, &#39;x_10&#39;: 623, &#39;x_13&#39;: 13, &#39;x_15&#39;: 790, &#39;x_16&#39;: 2, &#39;x_24&#39;: 30003, &#39;x_6&#39;: 1, &#39;x_4&#39;: 401, &#39;x_11&#39;: 0, &#39;x_25&#39;: 150, &#39;x_17&#39;: 0}. Best is trial 16 with value: 1.8061746636207854.
+</pre></div></div>
+</div>
+<p>Convert to services dataframe</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solution_df</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">solution_to_services_df</span><span class="p">(</span><span class="n">best_x</span><span class="p">)</span>
+<span class="n">solution_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;services.csv&#39;</span><span class="p">)</span>
+<span class="n">solution_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>block_id</th>
+      <th>service_type</th>
+      <th>site_area</th>
+      <th>build_floor_area</th>
+      <th>capacity</th>
+      <th>count</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>3</th>
+      <td>2059</td>
+      <td>convenience</td>
+      <td>0.0</td>
+      <td>25.0</td>
+      <td>50</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2059</td>
+      <td>cinema</td>
+      <td>0.0</td>
+      <td>700.0</td>
+      <td>450</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>2059</td>
+      <td>bank</td>
+      <td>0.0</td>
+      <td>400.0</td>
+      <td>250</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2059</td>
+      <td>school</td>
+      <td>0.0</td>
+      <td>2200.0</td>
+      <td>250</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>27</th>
+      <td>2059</td>
+      <td>bar</td>
+      <td>0.0</td>
+      <td>40.0</td>
+      <td>30</td>
+      <td>1</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<p>Extract area dataframe from solution</p>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">solution_area_df</span> <span class="o">=</span> <span class="n">facade</span><span class="o">.</span><span class="n">get_solution_area_df</span><span class="p">(</span><span class="n">best_x</span><span class="p">)</span>
+<span class="n">solution_area_df</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;solution_area.csv&#39;</span><span class="p">)</span>
+<span class="n">solution_area_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">blocks_lu</span><span class="o">.</span><span class="n">keys</span><span class="p">()]</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[13]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>population</th>
+      <th>build_floor_area</th>
+      <th>living_area</th>
+      <th>footprint_area</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>2059</th>
+      <td>2631.0</td>
+      <td>79087.734512</td>
+      <td>28192.734512</td>
+      <td>14060.041691</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+<section id="Visualization">
+<h2>Visualization<a class="headerlink" href="#Visualization" title="Permalink to this heading"></a></h2>
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[9]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_df</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="n">df_called_obj</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">df</span><span class="p">[</span><span class="s2">&quot;called_obj&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">]</span>
+
+    <span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">df_called_obj</span><span class="p">[</span><span class="s2">&quot;func_evals&quot;</span><span class="p">],</span> <span class="n">df_called_obj</span><span class="p">[</span><span class="s2">&quot;best_val&quot;</span><span class="p">],</span> <span class="n">c</span><span class="o">=</span><span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="n">df_called_obj</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">concat</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">([[</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">0</span><span class="p">]],</span> <span class="n">columns</span><span class="o">=</span><span class="n">df_called_obj</span><span class="o">.</span><span class="n">columns</span><span class="p">),</span> <span class="n">df_called_obj</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
+        <span class="n">df_called_obj</span><span class="p">[</span><span class="s2">&quot;func_evals&quot;</span><span class="p">],</span> <span class="n">df_called_obj</span><span class="p">[</span><span class="s2">&quot;best_val&quot;</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Best Value (TPE)&quot;</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mi">1</span>
+    <span class="p">)</span>
+    <span class="c1"># Добавление точек с цветом в зависимости от &#39;called_obj&#39;</span>
+    <span class="c1"># Настройка осей и заголовка</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Number of objective evaluation&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Best Value&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Best Value Across Trials&quot;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Отображение графика</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[10]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">tpe_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;tpe_trials.csv&quot;</span><span class="p">)</span>
+<span class="n">plot_df</span><span class="p">(</span><span class="n">tpe_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_optimization_services_tpe_simple_17_0.png" src="../../../_images/examples_optimization_services_tpe_simple_17_0.png" />
+</div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">facade</span><span class="o">.</span><span class="n">save_delta_demand</span><span class="p">(</span><span class="n">best_x</span><span class="p">)</span>
+<span class="n">population_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">&quot;demand_services.csv&quot;</span><span class="p">)</span>
+<span class="n">population_df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[11]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Block id</th>
+      <th>Service type</th>
+      <th>Demand</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2059</td>
+      <td>convenience</td>
+      <td>473</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>2059</td>
+      <td>cinema</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>2059</td>
+      <td>bank</td>
+      <td>52</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>2059</td>
+      <td>school</td>
+      <td>315</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>2059</td>
+      <td>bar</td>
+      <td>65</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>2059</td>
+      <td>fuel</td>
+      <td>78</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>2059</td>
+      <td>police</td>
+      <td>13</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>2059</td>
+      <td>restaurant</td>
+      <td>186</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>2059</td>
+      <td>hairdresser</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>2059</td>
+      <td>university</td>
+      <td>34</td>
+    </tr>
+    <tr>
+      <th>10</th>
+      <td>2059</td>
+      <td>museum</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>11</th>
+      <td>2059</td>
+      <td>multifunctional_center</td>
+      <td>210</td>
+    </tr>
+    <tr>
+      <th>12</th>
+      <td>2059</td>
+      <td>pharmacy</td>
+      <td>39</td>
+    </tr>
+    <tr>
+      <th>13</th>
+      <td>2059</td>
+      <td>playground</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>14</th>
+      <td>2059</td>
+      <td>mall</td>
+      <td>21</td>
+    </tr>
+    <tr>
+      <th>15</th>
+      <td>2059</td>
+      <td>hotel</td>
+      <td>23</td>
+    </tr>
+    <tr>
+      <th>16</th>
+      <td>2059</td>
+      <td>market</td>
+      <td>394</td>
+    </tr>
+    <tr>
+      <th>17</th>
+      <td>2059</td>
+      <td>religion</td>
+      <td>26</td>
+    </tr>
+    <tr>
+      <th>18</th>
+      <td>2059</td>
+      <td>theatre</td>
+      <td>15</td>
+    </tr>
+    <tr>
+      <th>19</th>
+      <td>2059</td>
+      <td>hospital</td>
+      <td>23</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="simulated_annealing.html" class="btn btn-neutral float-left" title="Simulated annealing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../../preprocessing/index.html" class="btn btn-neutral float-right" title="Preprocessing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

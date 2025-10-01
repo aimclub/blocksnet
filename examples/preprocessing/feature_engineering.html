@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Features from geometries &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../_static/jquery.js"></script>
+        <script src="../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+        <script src="../../_static/doctools.js"></script>
+        <script src="../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Buildings" href="imputing.html" />
+    <link rel="prev" title="Development imputing" href="imputing/development.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../analysis/index.html">Analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">Preprocessing</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="imputing/index.html">Imputing</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Features from geometries</a></li>
+<li class="toctree-l3"><a class="reference internal" href="imputing.html">Buildings</a></li>
+<li class="toctree-l3"><a class="reference internal" href="imputing.html#Services">Services</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Preprocessing</a></li>
+      <li class="breadcrumb-item active">Features from geometries</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../_sources/examples/preprocessing/feature_engineering.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[1]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">gpd</span><span class="o">.</span><span class="n">read_parquet</span><span class="p">(</span><span class="s1">&#39;./../data/blocks.parquet&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<section id="Features-from-geometries">
+<h1>Features from geometries<a class="headerlink" href="#Features-from-geometries" title="Permalink to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.preprocessing.feature_engineering</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_geometry_features</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">generate_geometry_features</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-02-27 20:45:18.660</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_usual_features</span>:<span class="ansi-cyan-fg">31</span> - <span class="ansi-bold">Calculating usual features.</span>
+<span class="ansi-green-fg">2025-02-27 20:45:18.863</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_radiuses</span>:<span class="ansi-cyan-fg">39</span> - <span class="ansi-bold">Calculating radiuses.</span>
+100%|██████████| 16320/16320 [00:06&lt;00:00, 2543.49it/s]
+100%|██████████| 16320/16320 [00:17&lt;00:00, 927.20it/s]
+<span class="ansi-green-fg">2025-02-27 20:45:42.889</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_aspect_ratios</span>:<span class="ansi-cyan-fg">50</span> - <span class="ansi-bold">Calculating radiuses.</span>
+100%|██████████| 16320/16320 [00:00&lt;00:00, 33601.54it/s]
+<span class="ansi-green-fg">2025-02-27 20:45:43.379</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.feature_engineering.core</span>:<span class="ansi-cyan-fg">_calculate_centerlines</span>:<span class="ansi-cyan-fg">18</span> - <span class="ansi-bold">Calculating centerlines.</span>
+100%|██████████| 16320/16320 [01:24&lt;00:00, 192.77it/s]
+<span class="ansi-green-fg">2025-02-27 20:47:08.074</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.machine_learning.feature_engineering.core</span>:<span class="ansi-cyan-fg">_generate_combinations</span>:<span class="ansi-cyan-fg">59</span> - <span class="ansi-bold">Generating combinations.</span>
+</pre></div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[3]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>area</th>
+      <th>length</th>
+      <th>corners_count</th>
+      <th>outer_radius</th>
+      <th>inner_radius</th>
+      <th>aspect_ratio</th>
+      <th>centerline_length</th>
+      <th>area / aspect_ratio</th>
+      <th>area / centerline_length</th>
+      <th>...</th>
+      <th>centerline_length * corners_count</th>
+      <th>centerline_length * inner_radius</th>
+      <th>centerline_length * length</th>
+      <th>centerline_length * outer_radius</th>
+      <th>corners_count * inner_radius</th>
+      <th>corners_count * length</th>
+      <th>corners_count * outer_radius</th>
+      <th>inner_radius * length</th>
+      <th>inner_radius * outer_radius</th>
+      <th>length * outer_radius</th>
+    </tr>
+    <tr>
+      <th>id</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((354918.622 6625258.829, 354901.464 6...</td>
+      <td>8.044667e+05</td>
+      <td>6143.314507</td>
+      <td>180</td>
+      <td>1162.200035</td>
+      <td>275.601595</td>
+      <td>2.194869</td>
+      <td>2617.332757</td>
+      <td>366521.462764</td>
+      <td>307.361267</td>
+      <td>...</td>
+      <td>471119.896302</td>
+      <td>721341.082285</td>
+      <td>1.607910e+07</td>
+      <td>3.041864e+06</td>
+      <td>49608.287083</td>
+      <td>1.105797e+06</td>
+      <td>209196.006375</td>
+      <td>1.693107e+06</td>
+      <td>320304.183357</td>
+      <td>7.139760e+06</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((355412.142 6623378.149, 355411.700 6...</td>
+      <td>2.317313e+04</td>
+      <td>1305.400332</td>
+      <td>53</td>
+      <td>317.246543</td>
+      <td>18.863753</td>
+      <td>15.785382</td>
+      <td>597.665957</td>
+      <td>1468.011981</td>
+      <td>38.772712</td>
+      <td>...</td>
+      <td>31676.295727</td>
+      <td>11274.223157</td>
+      <td>7.801933e+05</td>
+      <td>1.896075e+05</td>
+      <td>999.778924</td>
+      <td>6.918622e+04</td>
+      <td>16814.066800</td>
+      <td>2.462475e+04</td>
+      <td>5984.460523</td>
+      <td>4.141337e+05</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((353934.329 6625429.433, 353923.453 6...</td>
+      <td>3.630058e+05</td>
+      <td>2744.750098</td>
+      <td>88</td>
+      <td>485.977014</td>
+      <td>177.288792</td>
+      <td>1.107639</td>
+      <td>834.379506</td>
+      <td>327729.351635</td>
+      <td>435.060801</td>
+      <td>...</td>
+      <td>73425.396513</td>
+      <td>147926.134761</td>
+      <td>2.290163e+06</td>
+      <td>4.054893e+05</td>
+      <td>15601.413707</td>
+      <td>2.415380e+05</td>
+      <td>42765.977253</td>
+      <td>4.866134e+05</td>
+      <td>86158.277855</td>
+      <td>1.333885e+06</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>POLYGON ((355099.099 6623847.765, 355074.808 6...</td>
+      <td>1.964145e+05</td>
+      <td>2588.389797</td>
+      <td>77</td>
+      <td>588.944022</td>
+      <td>67.061572</td>
+      <td>2.632711</td>
+      <td>1275.337210</td>
+      <td>74605.407472</td>
+      <td>154.009836</td>
+      <td>...</td>
+      <td>98200.965151</td>
+      <td>85526.117570</td>
+      <td>3.301070e+06</td>
+      <td>7.511022e+05</td>
+      <td>5163.741011</td>
+      <td>1.993060e+05</td>
+      <td>45348.689679</td>
+      <td>1.735815e+05</td>
+      <td>39495.511670</td>
+      <td>1.524417e+06</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>POLYGON ((352766.168 6621954.748, 352744.412 6...</td>
+      <td>1.781752e+06</td>
+      <td>5826.501550</td>
+      <td>156</td>
+      <td>1227.910036</td>
+      <td>473.974675</td>
+      <td>1.864688</td>
+      <td>1115.790852</td>
+      <td>955522.428530</td>
+      <td>1596.850837</td>
+      <td>...</td>
+      <td>174063.372893</td>
+      <td>528856.606604</td>
+      <td>6.501157e+06</td>
+      <td>1.370091e+06</td>
+      <td>73940.049330</td>
+      <td>9.089342e+05</td>
+      <td>191553.965597</td>
+      <td>2.761614e+06</td>
+      <td>581998.260421</td>
+      <td>7.154420e+06</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 71 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;centerline_length / length&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;RdYlGn&#39;</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span><span class="mi">10</span><span class="p">))</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../_images/examples_preprocessing_feature_engineering_4_0.png" src="../../_images/examples_preprocessing_feature_engineering_4_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="imputing/development.html" class="btn btn-neutral float-left" title="Development imputing" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="imputing.html" class="btn btn-neutral float-right" title="Buildings" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

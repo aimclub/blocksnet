@@ -1,0 +1,10 @@
+Machine learning
+================
+
+.. toctree::
+   :maxdepth: 1
+
+   classification
+   regression
+   sklearn
+   social

@@ -1,0 +1,29 @@
+blocksnet.utils.validation.gdf\_schema
+======================================
+
+.. automodule:: blocksnet.utils.validation.gdf_schema
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      GdfSchema
+   
+   
+
+   
+   
+   
+
+
+

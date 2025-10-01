@@ -1,0 +1,36 @@
+blocksnet.machine\_learning.strategy
+====================================
+
+.. automodule:: blocksnet.machine_learning.strategy
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
+.. rubric:: Modules
+
+.. autosummary::
+   :toctree:
+   :recursive:
+
+   blocksnet.machine_learning.strategy.base_strategy
+   blocksnet.machine_learning.strategy.catboost
+   blocksnet.machine_learning.strategy.classification_base
+   blocksnet.machine_learning.strategy.sklearn
+   blocksnet.machine_learning.strategy.torch
+   blocksnet.machine_learning.strategy.xgboost
+

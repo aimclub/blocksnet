@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Services centrality &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/graphviz.css" type="text/css" />
+      <link rel="stylesheet" href="../../../_static/nbsphinx-code-cells.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../_static/jquery.js"></script>
+        <script src="../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+        <script src="../../../_static/doctools.js"></script>
+        <script src="../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+        <script>window.MathJax = {"tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true}, "options": {"ignoreHtmlClass": "tex2jax_ignore|mathjax_ignore|document", "processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+        <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Diversity" href="../diversity/index.html" />
+    <link rel="prev" title="Population centrality" href="population.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Examples</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html">Analysis</a><ul class="current">
+<li class="toctree-l3 current"><a class="reference internal" href="index.html">Centrality</a><ul class="current">
+<li class="toctree-l4"><a class="reference internal" href="population.html">Population centrality</a></li>
+<li class="toctree-l4 current"><a class="current reference internal" href="#">Services centrality</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="../diversity/index.html">Diversity</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../geometry/index.html">Geometry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../indicators/index.html">Indicators</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../land_use/index.html">Land use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../morphotypes/index.html">Morphotypes</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../network/index.html">Network</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../provision/index.html">Provision</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../services/index.html">Services</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../vacant_area/index.html">Vacant area</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../../blocks/index.html">Blocks</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../machine_learning/index.html">Machine learning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../optimization/index.html">Optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../preprocessing/index.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../relations/index.html">Relations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../synthesis/index.html">Synthesis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pipeline.html">Pipeline</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Examples</a></li>
+          <li class="breadcrumb-item"><a href="../index.html">Analysis</a></li>
+          <li class="breadcrumb-item"><a href="index.html">Centrality</a></li>
+      <li class="breadcrumb-item active">Services centrality</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../../../_sources/examples/analysis/centrality/services.nblink.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="Services-centrality">
+<h1>Services centrality<a class="headerlink" href="#Services-centrality" title="Permalink to this heading"></a></h1>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/saint_petersburg/blocks.pickle&#39;</span><span class="p">)</span>
+<span class="n">blocks_gdf</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>geometry</th>
+      <th>site_area</th>
+      <th>residential</th>
+      <th>business</th>
+      <th>recreation</th>
+      <th>industrial</th>
+      <th>transport</th>
+      <th>special</th>
+      <th>agriculture</th>
+      <th>land_use</th>
+      <th>...</th>
+      <th>capacity_prison</th>
+      <th>count_prison</th>
+      <th>capacity_landfill</th>
+      <th>count_landfill</th>
+      <th>capacity_plant_nursery</th>
+      <th>count_plant_nursery</th>
+      <th>capacity_greenhouse_complex</th>
+      <th>count_greenhouse_complex</th>
+      <th>capacity_warehouse</th>
+      <th>count_warehouse</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>POLYGON ((349424.859 6631180.891, 349424.751 6...</td>
+      <td>0.032316</td>
+      <td>0.000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>1.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>LandUse.TRANSPORT</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>POLYGON ((352083.617 6633950.146, 352240.448 6...</td>
+      <td>137101.088247</td>
+      <td>0.099</td>
+      <td>0.0</td>
+      <td>0.079912</td>
+      <td>0.0</td>
+      <td>0.401072</td>
+      <td>0.0</td>
+      <td>0.417018</td>
+      <td>LandUse.AGRICULTURE</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>POLYGON ((346700.642 6618453.176, 346681.107 6...</td>
+      <td>95239.084434</td>
+      <td>1.000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>0.0</td>
+      <td>0.000000</td>
+      <td>LandUse.RESIDENTIAL</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>3 rows × 137 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">accessibility_matrix</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_pickle</span><span class="p">(</span><span class="s1">&#39;./../../data/saint_petersburg/accessibility_matrix_intermodal.pickle&#39;</span><span class="p">)</span>
+<span class="n">accessibility_matrix</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+/home/vasilstar/masterplanning/.venv/lib/python3.10/site-packages/pandas/io/formats/format.py:1458: RuntimeWarning: overflow encountered in cast
+  has_large_values = (abs_vals &gt; 1e6).any()
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>0</th>
+      <th>1</th>
+      <th>2</th>
+      <th>3</th>
+      <th>4</th>
+      <th>5</th>
+      <th>6</th>
+      <th>7</th>
+      <th>8</th>
+      <th>9</th>
+      <th>...</th>
+      <th>9523</th>
+      <th>9524</th>
+      <th>9525</th>
+      <th>9526</th>
+      <th>9527</th>
+      <th>9528</th>
+      <th>9529</th>
+      <th>9530</th>
+      <th>9531</th>
+      <th>9532</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.0000</td>
+      <td>58.15625</td>
+      <td>74.187500</td>
+      <td>76.937500</td>
+      <td>66.8125</td>
+      <td>80.5000</td>
+      <td>92.18750</td>
+      <td>66.56250</td>
+      <td>65.68750</td>
+      <td>106.875</td>
+      <td>...</td>
+      <td>70.0000</td>
+      <td>72.1875</td>
+      <td>72.0000</td>
+      <td>73.3125</td>
+      <td>73.2500</td>
+      <td>74.0000</td>
+      <td>75.5000</td>
+      <td>83.1875</td>
+      <td>75.000</td>
+      <td>73.2500</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>56.2500</td>
+      <td>0.00000</td>
+      <td>99.687500</td>
+      <td>102.375000</td>
+      <td>88.1250</td>
+      <td>76.1250</td>
+      <td>113.43750</td>
+      <td>89.43750</td>
+      <td>88.56250</td>
+      <td>96.250</td>
+      <td>...</td>
+      <td>65.6250</td>
+      <td>67.7500</td>
+      <td>67.6250</td>
+      <td>68.9375</td>
+      <td>68.8750</td>
+      <td>69.6250</td>
+      <td>71.1250</td>
+      <td>78.8125</td>
+      <td>70.625</td>
+      <td>68.8750</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>74.5000</td>
+      <td>96.50000</td>
+      <td>0.000000</td>
+      <td>5.347656</td>
+      <td>74.0000</td>
+      <td>118.8125</td>
+      <td>92.06250</td>
+      <td>64.43750</td>
+      <td>63.56250</td>
+      <td>134.500</td>
+      <td>...</td>
+      <td>108.3125</td>
+      <td>110.4375</td>
+      <td>110.3750</td>
+      <td>111.6875</td>
+      <td>111.5625</td>
+      <td>112.3750</td>
+      <td>113.8125</td>
+      <td>121.5000</td>
+      <td>113.375</td>
+      <td>111.5625</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>77.2500</td>
+      <td>99.25000</td>
+      <td>5.347656</td>
+      <td>0.000000</td>
+      <td>76.7500</td>
+      <td>121.5625</td>
+      <td>90.12500</td>
+      <td>67.18750</td>
+      <td>66.31250</td>
+      <td>137.250</td>
+      <td>...</td>
+      <td>111.0625</td>
+      <td>113.1875</td>
+      <td>113.0625</td>
+      <td>114.3750</td>
+      <td>114.3125</td>
+      <td>115.0625</td>
+      <td>116.5625</td>
+      <td>124.2500</td>
+      <td>116.125</td>
+      <td>114.3125</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>70.1875</td>
+      <td>90.56250</td>
+      <td>82.375000</td>
+      <td>85.125000</td>
+      <td>0.0000</td>
+      <td>110.5000</td>
+      <td>35.53125</td>
+      <td>45.15625</td>
+      <td>44.28125</td>
+      <td>89.875</td>
+      <td>...</td>
+      <td>100.0000</td>
+      <td>102.1250</td>
+      <td>102.0000</td>
+      <td>103.3125</td>
+      <td>103.2500</td>
+      <td>104.0000</td>
+      <td>105.5000</td>
+      <td>113.1875</td>
+      <td>105.000</td>
+      <td>103.2500</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 9533 columns</p>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">blocksnet.analysis.centrality</span><span class="w"> </span><span class="kn">import</span> <span class="n">services_centrality</span>
+
+<span class="n">centrality_df</span> <span class="o">=</span> <span class="n">services_centrality</span><span class="p">(</span><span class="n">accessibility_matrix</span><span class="p">,</span> <span class="n">blocks_gdf</span><span class="p">)</span>
+<span class="n">centrality_df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area stderr docutils container">
+<div class="highlight"><pre>
+<span class="ansi-green-fg">2025-09-19 17:15:33.127</span> | <span class="ansi-bold">INFO    </span> | <span class="ansi-cyan-fg">blocksnet.analysis.diversity.shannon.core</span>:<span class="ansi-cyan-fg">shannon_diversity</span>:<span class="ansi-cyan-fg">23</span> - <span class="ansi-bold">Calculating Shannon diversity index</span>
+100%|██████████| 9533/9533 [00:05&lt;00:00, 1903.23it/s]
+</pre></div></div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
+</pre></div>
+</div>
+<div class="output_area rendered_html docutils container">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>connectivity</th>
+      <th>diversity</th>
+      <th>density</th>
+      <th>services_centrality</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>0.009721</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.170247</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>0.009816</td>
+      <td>0.693147</td>
+      <td>0.000015</td>
+      <td>0.256964</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>0.007360</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.099913</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>0.007220</td>
+      <td>0.000000</td>
+      <td>0.000000</td>
+      <td>0.095758</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>0.008065</td>
+      <td>1.039721</td>
+      <td>0.000024</td>
+      <td>0.247039</td>
+    </tr>
+  </tbody>
+</table>
+</div></div>
+</div>
+<div class="nbinput docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
+</pre></div>
+</div>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">blocks_gdf</span><span class="p">[[</span><span class="s1">&#39;geometry&#39;</span><span class="p">]]</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">centrality_df</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="s1">&#39;services_centrality&#39;</span><span class="p">,</span> <span class="n">legend</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span> <span class="n">vmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">vmax</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">set_axis_off</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="nboutput nblast docutils container">
+<div class="prompt empty docutils container">
+</div>
+<div class="output_area docutils container">
+<img alt="../../../_images/examples_analysis_centrality_services_4_0.png" src="../../../_images/examples_analysis_centrality_services_4_0.png" />
+</div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="population.html" class="btn btn-neutral float-left" title="Population centrality" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../diversity/index.html" class="btn btn-neutral float-right" title="Diversity" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

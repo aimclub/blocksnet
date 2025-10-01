@@ -1,0 +1,3 @@
+{
+  "path": "../../../../../examples/analysis/vacant_area/vacant_area.ipynb"
+}

@@ -1,0 +1,10 @@
+Indicators
+==========
+
+.. toctree::
+   :maxdepth: 1
+
+   socio_economic/index
+   density
+   development
+   socio_economic

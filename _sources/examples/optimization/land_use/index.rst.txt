@@ -1,0 +1,7 @@
+Land use
+========
+
+.. toctree::
+   :maxdepth: 1
+
+   land_use

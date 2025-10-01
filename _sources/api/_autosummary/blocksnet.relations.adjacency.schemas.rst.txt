@@ -1,0 +1,35 @@
+blocksnet.relations.adjacency.schemas
+=====================================
+
+.. automodule:: blocksnet.relations.adjacency.schemas
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      validate_adjacency_graph
+   
+   
+
+   
+   
+   .. rubric:: Classes
+
+   .. autosummary::
+   
+      BlocksSchema
+   
+   
+
+   
+   
+   
+
+
+

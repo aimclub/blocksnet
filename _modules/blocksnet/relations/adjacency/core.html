@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>blocksnet.relations.adjacency.core &mdash; BlocksNet 0.0.post1 documentation</title>
+      <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/css/theme.css" type="text/css" />
+      <link rel="stylesheet" href="../../../../_static/graphviz.css" type="text/css" />
+  <!--[if lt IE 9]>
+    <script src="../../../../_static/js/html5shiv.min.js"></script>
+  <![endif]-->
+  
+        <script src="../../../../_static/jquery.js"></script>
+        <script src="../../../../_static/_sphinx_javascript_frameworks_compat.js"></script>
+        <script data-url_root="../../../../" id="documentation_options" src="../../../../_static/documentation_options.js"></script>
+        <script src="../../../../_static/doctools.js"></script>
+        <script src="../../../../_static/sphinx_highlight.js"></script>
+        <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../../index.html" class="icon icon-home">
+            BlocksNet
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../blocksnet/index.html">BlocksNet</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../get_started/index.html">Get started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../examples/index.html">Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../api/index.html">API documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../about_us.html">About us</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../../index.html">BlocksNet</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">blocksnet.relations.adjacency.core</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for blocksnet.relations.adjacency.core</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">geopandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">gpd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">networkx</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nx</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">loguru</span><span class="w"> </span><span class="kn">import</span> <span class="n">logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.schemas</span><span class="w"> </span><span class="kn">import</span> <span class="n">BlocksSchema</span><span class="p">,</span> <span class="n">validate_adjacency_graph</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_adjacency_nodes</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating nodes&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">to_list</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_adjacency_edges</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating edges&quot;</span><span class="p">)</span>
+    <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">geometry</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">buffer</span><span class="p">(</span><span class="n">buffer_size</span><span class="p">)</span>
+    <span class="n">sjoin_gdf</span> <span class="o">=</span> <span class="n">blocks_gdf</span><span class="o">.</span><span class="n">sjoin</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">predicate</span><span class="o">=</span><span class="s2">&quot;intersects&quot;</span><span class="p">)</span>
+    <span class="n">sjoin_gdf</span> <span class="o">=</span> <span class="n">sjoin_gdf</span><span class="p">[</span><span class="n">sjoin_gdf</span><span class="o">.</span><span class="n">index</span> <span class="o">!=</span> <span class="n">sjoin_gdf</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">]]</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
+    <span class="n">pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">sjoin_gdf</span><span class="o">.</span><span class="n">iterrows</span><span class="p">():</span>
+        <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;index&quot;</span><span class="p">],</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;index_right&quot;</span><span class="p">]</span>
+        <span class="n">pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">((</span><span class="nb">int</span><span class="p">(</span><span class="n">a</span><span class="p">),</span> <span class="n">b</span><span class="p">))))</span>
+    <span class="k">return</span> <span class="n">pairs</span>
+
+
+<div class="viewcode-block" id="generate_adjacency_graph"><a class="viewcode-back" href="../../../../api/_autosummary/blocksnet.relations.adjacency.core.html#blocksnet.relations.generate_adjacency_graph">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">generate_adjacency_graph</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">:</span> <span class="n">gpd</span><span class="o">.</span><span class="n">GeoDataFrame</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">:</span>
+
+    <span class="n">blocks_gdf</span> <span class="o">=</span> <span class="n">BlocksSchema</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+
+    <span class="n">adj_graph</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">nodes</span> <span class="o">=</span> <span class="n">_generate_adjacency_nodes</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">)</span>
+    <span class="n">adj_graph</span><span class="o">.</span><span class="n">add_nodes_from</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span>
+
+    <span class="n">edges</span> <span class="o">=</span> <span class="n">_generate_adjacency_edges</span><span class="p">(</span><span class="n">blocks_gdf</span><span class="p">,</span> <span class="n">buffer_size</span><span class="p">)</span>
+    <span class="n">adj_graph</span><span class="o">.</span><span class="n">add_edges_from</span><span class="p">(</span><span class="n">edges</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">success</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Adjacency graph successfully generated: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">adj_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">)</span><span class="si">}</span><span class="s2"> nodes, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">adj_graph</span><span class="o">.</span><span class="n">edges</span><span class="p">)</span><span class="si">}</span><span class="s2"> edges&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">adj_graph</span></div>
+
+
+<div class="viewcode-block" id="get_adjacency_context"><a class="viewcode-back" href="../../../../api/_autosummary/blocksnet.relations.adjacency.core.html#blocksnet.relations.get_adjacency_context">[docs]</a><span class="k">def</span><span class="w"> </span><span class="nf">get_adjacency_context</span><span class="p">(</span><span class="n">adjacency_graph</span><span class="p">:</span> <span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">,</span> <span class="n">blocks_df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">keep</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">):</span>
+    <span class="n">validate_adjacency_graph</span><span class="p">(</span><span class="n">adjacency_graph</span><span class="p">,</span> <span class="n">blocks_df</span><span class="p">)</span>
+    <span class="n">blocks_ids</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">blocks_df</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
+    <span class="n">neighbors</span> <span class="o">=</span> <span class="p">{</span><span class="n">node</span> <span class="k">for</span> <span class="n">block_id</span> <span class="ow">in</span> <span class="n">blocks_ids</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">adjacency_graph</span><span class="o">.</span><span class="n">neighbors</span><span class="p">(</span><span class="n">block_id</span><span class="p">)}</span>
+    <span class="k">if</span> <span class="n">keep</span><span class="p">:</span>
+        <span class="n">neighbors</span> <span class="o">=</span> <span class="n">neighbors</span> <span class="o">|</span> <span class="n">blocks_ids</span>
+    <span class="k">return</span> <span class="n">adjacency_graph</span><span class="o">.</span><span class="n">subgraph</span><span class="p">(</span><span class="n">neighbors</span><span class="p">)</span></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023-2025, IDU.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

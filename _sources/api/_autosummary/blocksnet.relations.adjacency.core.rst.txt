@@ -1,0 +1,32 @@
+blocksnet.relations.adjacency.core
+==================================
+
+.. automodule:: blocksnet.relations.adjacency.core
+
+   
+   
+   
+
+   
+   
+   .. rubric:: Functions
+
+   .. autosummary::
+   
+      _generate_adjacency_edges
+      _generate_adjacency_nodes
+      generate_adjacency_graph
+      get_adjacency_context
+   
+   
+
+   
+   
+   
+
+   
+   
+   
+
+
+
