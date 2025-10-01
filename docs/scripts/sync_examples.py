@@ -69,6 +69,7 @@ def main() -> None:
     DOCS_EXAMPLES_DIR.mkdir(parents=True, exist_ok=True)
 
     for current_dir, dirnames, filenames in os.walk(EXAMPLES_DIR):
+        dirnames[:] = [d for d in dirnames if d != "data"]
         dir_path = Path(current_dir)
         rel_path = dir_path.relative_to(EXAMPLES_DIR)
         dest_dir = DOCS_EXAMPLES_DIR / rel_path

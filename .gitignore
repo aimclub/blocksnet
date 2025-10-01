@@ -71,6 +71,7 @@ instance/
 
 # Sphinx documentation
 build_docs/_build/
+docs/source/examples
 _autosummary
 
 # PyBuilder
