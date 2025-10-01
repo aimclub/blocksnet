@@ -302,4 +302,4 @@ Acknowledgments
 .. |Black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
    :target: https://github.com/psf/black
 .. |Readme_en| image:: https://img.shields.io/badge/lang-en-red.svg
-   :target: README.rst
+   :target: README.md

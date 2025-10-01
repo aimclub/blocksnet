@@ -14,9 +14,9 @@ any major contributions.
 How to contribute
 -----------------
 
-.. include:: ../../../README.rst
-   :start-after: .. developing-start
-   :end-before: .. developing-end
+.. mdinclude:: ../../../README.md
+   :start-after: <!-- developing-start -->
+   :end-before: <!-- developing-end -->
 
 (If it looks confusing to you, then look up the `Git
 documentation <http://git-scm.com/documentation>`__ on the web.)
