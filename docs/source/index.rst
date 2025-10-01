@@ -1,13 +1,13 @@
 BlocksNet
 =========
 
-.. include:: ../../README.rst
-   :start-after: .. logo-start
-   :end-before: .. logo-end
+.. mdinclude:: ../../README.md
+   :start-after: <!-- logo-start -->
+   :end-before: <!-- logo-end -->
 
-.. include:: ../../README.rst
-   :start-after: .. description-start
-   :end-before: .. description-end
+.. mdinclude:: ../../README.md
+   :start-after: <!-- description-start -->
+   :end-before: <!-- description-end -->
 
 Documentation:
 --------------
@@ -23,13 +23,13 @@ Documentation:
 Features:
 ---------
 
-.. include:: ../../README.rst
-   :start-after: .. features-start
-   :end-before: .. features-end
+.. mdinclude:: ../../README.md
+   :start-after: <!-- features-start -->
+   :end-before: <!-- features-end -->
 
 Acknowledgements
 ----------------
 
-.. include:: ../../README.rst
-   :start-after: .. acknowledgments-start
-   :end-before: .. acknowledgments-end
+.. mdinclude:: ../../README.md
+   :start-after: <!-- acknowledgments-start -->
+   :end-before: <!-- acknowledgments-end -->

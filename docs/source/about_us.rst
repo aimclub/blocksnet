@@ -14,13 +14,13 @@ principles of sustainability and social orientation.
 Contacts
 --------
 
-.. include:: ../../README.rst
-   :start-after: .. contacts-start
-   :end-before: .. contacts-end
+.. mdinclude:: ../../README.md
+   :start-after: <!-- contacts-start -->
+   :end-before: <!-- contacts-end -->
 
 Publications
 ------------
 
-.. include:: ../../README.rst
-   :start-after: .. publications-start
-   :end-before: .. publications-end
+.. mdinclude:: ../../README.md
+   :start-after: <!-- publications-start -->
+   :end-before: <!-- publications-end -->

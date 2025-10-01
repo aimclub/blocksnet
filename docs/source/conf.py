@@ -46,6 +46,7 @@ extensions = [
     "sphinx.ext.graphviz",
     "nbsphinx",
     "nbsphinx_link",
+    "myst_parser",
 ]
 
 autosummary_generate = True
