@@ -31,11 +31,9 @@ def _calculate_length(network: nx.Graph | gpd.GeoDataFrame) -> float:
 
 def _calculate_connectivity(blocks_df: pd.DataFrame, accessibility_matrix: pd.DataFrame) -> float:
 
-    from blocksnet.enums import LandUse
-    from blocksnet.analysis.network import land_use_accessibility_matrix
-
-    lu_acc_mx = land_use_accessibility_matrix(accessibility_matrix, blocks_df, np.mean)
-    return lu_acc_mx.loc[LandUse.RESIDENTIAL, LandUse.RESIDENTIAL] / MIN_IN_H
+    residential_idx = blocks_df[blocks_df["land_use"] == LandUse.RESIDENTIAL].index
+    acc_mx = accessibility_matrix.loc[residential_idx, residential_idx]
+    return np.mean(acc_mx.to_numpy()) / MIN_IN_H
 
 
 def _calculate_count(blocks_df: pd.DataFrame, name: str) -> tuple[int, pd.DataFrame]:

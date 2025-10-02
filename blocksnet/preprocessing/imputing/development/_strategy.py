@@ -31,7 +31,7 @@ class MultiScaleGNN(nn.Module):
             nn.Linear(hidden_dim // 4, output_size),
         )
 
-    def forward(self, x: torch.Tensor, edge_index: torch.Tensor):
+    def forward(self, x: torch.Tensor, edge_index: torch.Tensor, *args, **kwargs):
         features = self.graphsage(x, edge_index)
         output = self.output_layer(features)
         return output
