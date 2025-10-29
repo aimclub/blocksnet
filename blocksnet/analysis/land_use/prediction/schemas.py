@@ -1,4 +1,5 @@
 import pandas as pd
+from pandera import Field
 from pandera.typing import Series
 from shapely import MultiPolygon, Polygon
 from blocksnet.enums import LandUseCategory
@@ -6,7 +7,7 @@ from blocksnet.utils.validation import GdfSchema, LandUseSchema
 
 
 class BlocksInputSchema(GdfSchema):
-    category: Series
+    category: Series = Field(nullable=True)
 
     @classmethod
     def _geometry_types(cls):
@@ -20,7 +21,22 @@ class BlocksInputSchema(GdfSchema):
             def parse_category(c):
                 if isinstance(c, LandUseCategory):
                     return c
-                return LandUseCategory(c.lower())
+                if isinstance(c, str):
+                    s = c.strip()
+                    # try value (exact), then case-insensitive by value, then by name
+                    try:
+                        return LandUseCategory(s)
+                    except Exception:
+                        pass
+                    try:
+                        return next(v for v in LandUseCategory if v.value.lower() == s.lower())
+                    except Exception:
+                        pass
+                    try:
+                        return LandUseCategory[s.upper()]
+                    except Exception:
+                        pass
+                return None
 
             df["category"] = df["category"].map(parse_category)
 

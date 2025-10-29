@@ -4,8 +4,10 @@ import geopandas as gpd
 from typing import Optional
 
 from scipy import sparse
+from scipy.spatial.distance import cdist
 from shapely import make_valid
 from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
+from blocksnet.enums import LandUse, LandUseCategory
 
 
 class DataProcessor:
@@ -24,9 +26,9 @@ class DataProcessor:
         self.feature_names_for_spatial_context = [
             'mbr_area', 'solidity', 'compactness', 'shape_index', 
             'mbr_aspect_ratio', 'squareness_index', 'fractal_dimension',
-            'rectangularity_index', 'nearby_bus_res_count', 
-            'nearby_transport_count', 'nearby_industrial_count',
-            'nearby_rec_spec_agri_count'
+            'rectangularity_index',
+            'nearby_residential_count', 'nearby_business_count',
+            'nearby_recreation_count', 'nearby_industrial_count',
         ]
         
         self.columns_to_log = [
@@ -327,7 +329,95 @@ class DataProcessor:
         except Exception as e:
             raise e
 
-    def transform_features(self, gdf, known_gdf_for_rec_zones=None):
+    def _map_land_use_to_category(self, ser: pd.Series) -> pd.Series:
+        """Map raw land_use values to LandUseCategory using enum mapping.
+
+        Accepts strings or LandUse; returns LandUseCategory or NaN if unmapped.
+        """
+        def to_category(v):
+            try:
+                if isinstance(v, LandUse):
+                    lu = v
+                elif isinstance(v, str):
+                    lu = LandUse(v.lower())
+                else:
+                    return np.nan
+                cat = LandUseCategory.from_land_use(lu)
+                return cat if cat is not None else np.nan
+            except Exception:
+                return np.nan
+        return ser.map(to_category)
+
+    def count_nearby_by_category(
+        self,
+        gdf: gpd.GeoDataFrame,
+        known_gdf: Optional[gpd.GeoDataFrame],
+        buffer_distance: float,
+        exclude_self: bool = True,
+        require_strict: bool = False,
+    ) -> pd.DataFrame:
+        """Count nearby zones per LandUseCategory within a buffer.
+
+        Returns columns: nearby_<category>_count for each category in LandUseCategory
+        where <category> is lowercased (e.g., nearby_industrial_count).
+        If known_gdf is None or lacks land_use, returns zeros.
+        """
+        # Helper to build safe suffix from category
+        def _cat_suffix(c):
+            val = getattr(c, 'value', c)
+            return str(val).lower() if val is not None else 'unknown'
+
+        # Prepare zero frame in fallback cases
+        zero_cols = [f"nearby_{_cat_suffix(c)}_count" for c in LandUseCategory]
+        if known_gdf is None or len(known_gdf) == 0 or 'land_use' not in known_gdf.columns:
+            return pd.DataFrame(0, index=gdf.index, columns=zero_cols)
+
+        # Ensure same CRS
+        if gdf.crs != known_gdf.crs:
+            rec = known_gdf.to_crs(gdf.crs)
+        else:
+            rec = known_gdf
+
+        # Map to categories
+        rec = rec.copy()
+        rec['__lu_cat__'] = self._map_land_use_to_category(rec['land_use'])
+        if require_strict and rec['__lu_cat__'].isna().any():
+            bad_vals = (
+                rec.loc[rec['__lu_cat__'].isna(), 'land_use']
+                .astype(str)
+                .value_counts()
+                .head(5)
+                .to_dict()
+            )
+            raise ValueError(f"Unmapped land_use to LandUseCategory in training data: {bad_vals}")
+        # If all NaN, return zeros
+        if rec['__lu_cat__'].isna().all():
+            return pd.DataFrame(0, index=gdf.index, columns=zero_cols)
+
+        # Build buffers once
+        buffers = gdf.geometry.buffer(buffer_distance)
+        buff_gdf = gpd.GeoDataFrame(geometry=buffers, crs=gdf.crs)
+
+        out = {}
+        for cat in LandUseCategory:
+            cat_mask = rec['__lu_cat__'] == cat
+            rec_cat = rec.loc[cat_mask, ['geometry']]
+            if rec_cat.empty:
+                out[f"nearby_{_cat_suffix(cat)}_count"] = pd.Series(0, index=gdf.index)
+                continue
+
+            joined = gpd.sjoin(buff_gdf, rec_cat, how='left', predicate='intersects')
+            if exclude_self and 'index_right' in joined.columns:
+                # Drop self-joins for overlapping indices
+                overlap = rec_cat.index.intersection(gdf.index)
+                if len(overlap) > 0:
+                    joined = joined[joined.index != joined['index_right']]
+            counts = joined.groupby(joined.index).size()
+            out[f"nearby_{_cat_suffix(cat)}_count"] = counts.reindex(gdf.index, fill_value=0).astype(int)
+
+        return pd.DataFrame(out)
+
+    def transform_features(self, gdf, known_gdf_for_rec_zones=None, require_strict_categories: bool = False):
         """
         Transform features of a GeoDataFrame with invalid geometry handling.
         
@@ -390,21 +480,34 @@ class DataProcessor:
         calc = self.calc_polygon_features(gdf)
         gdf = pd.concat([gdf, calc], axis=1)
         
-        for z in ['rec_spec_agri','bus_res','industrial','transport']:
-            if known_gdf_for_rec_zones is not None and 'land_use' in known_gdf_for_rec_zones:
-                rec_z = known_gdf_for_rec_zones[known_gdf_for_rec_zones['land_use']==z]
-            else:
-                rec_z = None
-                
-            gdf[f'nearby_{z}_count'] = self.count_nearby_zones(gdf, rec_z, self.buffer_distance)
-        
+        # Nearby counts by LandUseCategory
+        try:
+            nearby_df = self.count_nearby_by_category(
+                gdf,
+                known_gdf_for_rec_zones,
+                buffer_distance=self.buffer_distance,
+                exclude_self=True,
+                require_strict=require_strict_categories,
+            )
+        except Exception:
+            # If something goes wrong, fall back to zeros to avoid breaking pipeline
+            nearby_df = pd.DataFrame(
+                0,
+                index=gdf.index,
+                columns=[f"nearby_{c.value.lower()}_count" for c in LandUseCategory],
+            )
+
+        gdf = pd.concat([gdf, nearby_df], axis=1)
+
         return gdf
 
     def prepare_data(self, gdf: gpd.GeoDataFrame,
                     target_col: str = 'land_use_code',
                     radius: float = 1000.0,
                     k_neighbors: int = None,
-                    classes_: np.ndarray = None) -> pd.DataFrame:
+                    classes_: np.ndarray = None,
+                    known_gdf_for_rec_zones: Optional[gpd.GeoDataFrame] = None,
+                    require_strict_categories: bool = False) -> pd.DataFrame:
         """
         Prepare feature DataFrame from input GeoDataFrame by computing node features and neighbor aggregates.
         
@@ -439,7 +542,11 @@ class DataProcessor:
         """
         gdf = gdf.copy()
         gdf.reset_index(drop=True, inplace=True)
-        base = self.transform_features(gdf, known_gdf_for_rec_zones=None)  
+        base = self.transform_features(
+            gdf,
+            known_gdf_for_rec_zones=known_gdf_for_rec_zones,
+            require_strict_categories=require_strict_categories,
+        )  
 
         for col in self.columns_to_log:
             if col in base.columns:
@@ -452,9 +559,13 @@ class DataProcessor:
 
             A = self.build_city_graph(city_base, mode="radius" if k_neighbors is None else "knn",
                                     radius=radius, k=k_neighbors or 8)
+            # Base feature columns used for modeling and neighbor aggregation.
+            # We exclude service columns and already-derived neighbor/probability columns,
+            # but we KEEP nearby_* counts so they are included in the model and can also
+            # be aggregated to nbr_mean_nearby_* if numeric.
             geom_cols = [c for c in city_base.columns
                         if c not in ('geometry', target_col, 'land_use', 'city', 'city_center')]
-            geom_cols = [c for c in geom_cols if not c.startswith('nbr_') and not c.startswith('prob_') and not c.startswith('nearby_')]
+            geom_cols = [c for c in geom_cols if not c.startswith('nbr_') and not c.startswith('prob_')]
             geom_df = city_base[geom_cols]
 
             nbr_geom = self.neighbor_geom_aggregates(A, geom_df, agg="mean")

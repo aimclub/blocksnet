@@ -1,16 +1,25 @@
 from enum import Enum
 from blocksnet.enums import LandUse
-    
 class LandUseCategory(Enum):
-    """Enumeration class representing different categories of land use.
-    
-    This enum defines three main categories of land use: urban, non-urban, and industrial.
-    It provides methods to convert between LandUse objects and LandUseCategory instances.
+    """High-level land use categories used for prediction.
+    Supported categories:
+    - INDUSTRIAL
+    - RECREATION
+    - BUSINESS
+    - RESIDENTIAL
     """
-    URBAN = "urban"
-    NON_URBAN = "non_urban"
-    INDUSTRIAL = "industrial"
+    # INDUSTRIAL = "INDUSTRIAL"
+    # RECREATION = "RECREATION"
+    # BUSINESS = "BUSINESS"
+    # RESIDENTIAL = "RESIDENTIAL"
     _REVERSE_MAP = None
+    # MIXED_USE = "MIXED_USE"
+    # LARGE_AREA = "LARGE_AREA"
+    # ENGINEERING = "ENGINEERING"
+    # RECREATION = "RECREATION"
+    # INDUSTRIAL = "INDUSTRIAL"
+    LIVING = "LIVING"
+    NOT_LIVING = "NOT_LIVING"
 
     @classmethod
     def from_land_use(cls, lu: LandUse) -> "LandUseCategory | None":
@@ -39,12 +48,46 @@ class LandUseCategory(Enum):
                 LandUseCategory._REVERSE_MAP.setdefault(v, set()).add(k)
         return LandUseCategory._REVERSE_MAP.get(self, set())
 
-LU_MAPPING = {
-    LandUse.RESIDENTIAL: LandUseCategory.URBAN,
-    LandUse.BUSINESS: LandUseCategory.URBAN,
-    LandUse.RECREATION: LandUseCategory.NON_URBAN,
-    LandUse.TRANSPORT: LandUseCategory.NON_URBAN,
-    LandUse.SPECIAL: LandUseCategory.NON_URBAN,
-    LandUse.AGRICULTURE: LandUseCategory.NON_URBAN,
-    LandUse.INDUSTRIAL: LandUseCategory.INDUSTRIAL,
+# LU_MAPPING = { # 1 СЦЕНАРИЙ - ПРОСТОР 
+#     LandUse.RESIDENTIAL: LandUseCategory.RESIDENTIAL,
+#     LandUse.BUSINESS: LandUseCategory.BUSINESS,
+#     LandUse.RECREATION: LandUseCategory.RECREATION,
+#     LandUse.AGRICULTURE: LandUseCategory.RECREATION,
+#     LandUse.SPECIAL: LandUseCategory.RECREATION,
+#     LandUse.INDUSTRIAL: LandUseCategory.INDUSTRIAL,
+#     LandUse.TRANSPORT: LandUseCategory.INDUSTRIAL,
+#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
+# }
+
+# LU_MAPPING = { # 2 сценарий - по размеру
+#     LandUse.RESIDENTIAL: LandUseCategory.MIXED_USE,
+#     LandUse.BUSINESS: LandUseCategory.MIXED_USE,
+#     LandUse.RECREATION: LandUseCategory.LARGE_AREA,
+#     LandUse.AGRICULTURE: LandUseCategory.LARGE_AREA,
+#     LandUse.SPECIAL: LandUseCategory.ENGINEERING,
+#     LandUse.INDUSTRIAL: LandUseCategory.LARGE_AREA,
+#     LandUse.TRANSPORT: LandUseCategory.ENGINEERING,
+#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
+# }
+
+# LU_MAPPING = { # 3 сценарий - по функции
+#     LandUse.RESIDENTIAL: LandUseCategory.MIXED_USE,
+#     LandUse.BUSINESS: LandUseCategory.MIXED_USE,
+#     LandUse.RECREATION: LandUseCategory.RECREATION,
+#     LandUse.AGRICULTURE: LandUseCategory.RECREATION,
+#     LandUse.SPECIAL: LandUseCategory.ENGINEERING,
+#     LandUse.INDUSTRIAL: LandUseCategory.ENGINEERING,
+#     LandUse.TRANSPORT: LandUseCategory.INDUSTRIAL,
+#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
+# }
+
+LU_MAPPING = { # 4 сценарий - по жилой/нежилой
+    LandUse.RESIDENTIAL: LandUseCategory.LIVING,
+    LandUse.BUSINESS: LandUseCategory.NOT_LIVING,
+    LandUse.RECREATION: LandUseCategory.NOT_LIVING,
+    LandUse.AGRICULTURE: LandUseCategory.NOT_LIVING,
+    LandUse.SPECIAL: LandUseCategory.NOT_LIVING,
+    LandUse.INDUSTRIAL: LandUseCategory.NOT_LIVING,
+    LandUse.TRANSPORT: LandUseCategory.NOT_LIVING,
+    # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
 }
