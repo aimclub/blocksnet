@@ -8,18 +8,22 @@ class LandUseCategory(Enum):
     - BUSINESS
     - RESIDENTIAL
     """
-    # INDUSTRIAL = "INDUSTRIAL"
-    # RECREATION = "RECREATION"
-    # BUSINESS = "BUSINESS"
-    # RESIDENTIAL = "RESIDENTIAL"
+    INDUSTRIAL = "INDUSTRIAL"
+    RECREATION = "RECREATION"
+    BUSINESS = "BUSINESS"
+    RESIDENTIAL = "RESIDENTIAL"
+    AGRICULTURE = "AGRICULTURE"
+    SPECIAL = "SPECIAL"
+    TRANSPORT = "TRANSPORT"
+
     _REVERSE_MAP = None
     # MIXED_USE = "MIXED_USE"
     # LARGE_AREA = "LARGE_AREA"
     # ENGINEERING = "ENGINEERING"
     # RECREATION = "RECREATION"
     # INDUSTRIAL = "INDUSTRIAL"
-    LIVING = "LIVING"
-    NOT_LIVING = "NOT_LIVING"
+    # LIVING = "LIVING"
+    # NOT_LIVING = "NOT_LIVING"
 
     @classmethod
     def from_land_use(cls, lu: LandUse) -> "LandUseCategory | None":
@@ -81,13 +85,24 @@ class LandUseCategory(Enum):
 #     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
 # }
 
-LU_MAPPING = { # 4 сценарий - по жилой/нежилой
-    LandUse.RESIDENTIAL: LandUseCategory.LIVING,
-    LandUse.BUSINESS: LandUseCategory.NOT_LIVING,
-    LandUse.RECREATION: LandUseCategory.NOT_LIVING,
-    LandUse.AGRICULTURE: LandUseCategory.NOT_LIVING,
-    LandUse.SPECIAL: LandUseCategory.NOT_LIVING,
-    LandUse.INDUSTRIAL: LandUseCategory.NOT_LIVING,
-    LandUse.TRANSPORT: LandUseCategory.NOT_LIVING,
+# LU_MAPPING = { # 4 сценарий - по жилой/нежилой
+#     LandUse.RESIDENTIAL: LandUseCategory.LIVING,
+#     LandUse.BUSINESS: LandUseCategory.NOT_LIVING,
+#     LandUse.RECREATION: LandUseCategory.NOT_LIVING,
+#     LandUse.AGRICULTURE: LandUseCategory.NOT_LIVING,
+#     LandUse.SPECIAL: LandUseCategory.NOT_LIVING,
+#     LandUse.INDUSTRIAL: LandUseCategory.NOT_LIVING,
+#     LandUse.TRANSPORT: LandUseCategory.NOT_LIVING,
+#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
+# }
+
+LU_MAPPING = { # 0 сценарий - все типы
+    LandUse.RESIDENTIAL: LandUseCategory.RESIDENTIAL,
+    LandUse.BUSINESS: LandUseCategory.BUSINESS,
+    LandUse.RECREATION: LandUseCategory.RECREATION,
+    LandUse.AGRICULTURE: LandUseCategory.AGRICULTURE,
+    LandUse.SPECIAL: LandUseCategory.SPECIAL,
+    LandUse.INDUSTRIAL: LandUseCategory.INDUSTRIAL,
+    LandUse.TRANSPORT: LandUseCategory.TRANSPORT,
     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
 }
