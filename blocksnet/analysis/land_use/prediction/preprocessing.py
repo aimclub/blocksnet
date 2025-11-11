@@ -1,5 +1,7 @@
+import h3
 import numpy as np
 import pandas as pd
+import networkx as nx
 import geopandas as gpd
 from typing import Optional
 
@@ -8,6 +10,7 @@ from scipy.spatial.distance import cdist
 from shapely import make_valid
 from sklearn.neighbors import radius_neighbors_graph, kneighbors_graph
 from blocksnet.enums import LandUse, LandUseCategory
+
 
 
 class DataProcessor:
@@ -35,6 +38,12 @@ class DataProcessor:
             'shape_index', 'mbr_area', 'mbr_aspect_ratio', 
             'solidity', 'asymmetry_x', 'asymmetry_y'
         ]
+
+        # Advanced feature settings inspired by prediction_v2.ipynb
+        self.rings: tuple[tuple[int, int], ...] = ((0, 150), (150, 500), (500, 1000))
+        self.graph_neighbor_buffer: float = 10.0
+        self.distance_batch_size: int = 512
+        self.h3_resolution: int = 9
 
     def build_city_graph(self, city_gdf: gpd.GeoDataFrame,
                         mode: str = "radius",
@@ -207,77 +216,371 @@ class DataProcessor:
         return pd.concat([df_counts, df_props], axis=1)
 
     def calc_polygon_features(self, gdf: gpd.GeoDataFrame) -> pd.DataFrame:
-        """Вычисляет геометрические характеристики полигонов.
-        
-        Calculates geometric features of polygons including:
-        - Basic metrics: area, perimeter, centroid coordinates
-        - Shape metrics: compactness, fractal dimension, rectangularity
-        - Bounding box metrics: aspect ratio, squareness
-        - Advanced metrics: solidity, asymmetry measures
-        
-        Args:
-            gdf: GeoDataFrame containing polygon geometries to analyze
-                
-        Returns:
-            pd.DataFrame: DataFrame containing computed features with columns:
-                - compactness: Measure of circularity (4π*area/perimeter²)
-                - fractal_dimension: Complexity measure (log(area)/log(perimeter))
-                - shape_index: Area to perimeter ratio
-                - mbr_area: Area of minimum bounding rectangle
-                - rectangularity_index: Ratio of polygon area to MBR area
-                - mbr_aspect_ratio: Ratio of MBR dimensions
-                - squareness_index: Inverse of aspect ratio
-                - solidity: Ratio of polygon area to convex hull area
-                - asymmetry_x: Horizontal asymmetry measure
-                - asymmetry_y: Vertical asymmetry measure
-                
-        Raises:
-            Exception: If any geometric computation fails
+        """
+        Compute geometric descriptors for polygons (area, perimeter, shape indices, etc.).
+        """
+        if gdf.empty:
+            return pd.DataFrame(index=gdf.index)
+
+        eps = 1e-12
+        geo = gdf.geometry
+        area = np.nan_to_num(geo.area.to_numpy(), nan=0.0)
+        perimeter = np.nan_to_num(geo.length.to_numpy(), nan=0.0)
+        convex_area = np.nan_to_num(geo.convex_hull.area.to_numpy(), nan=0.0)
+        centroids = geo.centroid
+        cx = np.nan_to_num(centroids.x.to_numpy(), nan=0.0)
+        cy = np.nan_to_num(centroids.y.to_numpy(), nan=0.0)
+
+        bounds = geo.bounds
+        minx = bounds["minx"].to_numpy()
+        maxx = bounds["maxx"].to_numpy()
+        miny = bounds["miny"].to_numpy()
+        maxy = bounds["maxy"].to_numpy()
+        bbox_width = np.nan_to_num(maxx - minx, nan=0.0)
+        bbox_height = np.nan_to_num(maxy - miny, nan=0.0)
+
+        compactness = np.where(
+            perimeter > 0,
+            (4.0 * np.pi * area) / (np.square(perimeter) + eps),
+            0.0,
+        )
+        solidity = np.where(convex_area > 0, area / (convex_area + eps), 0.0)
+        shape_index = np.where(
+            area > 0,
+            0.25 * perimeter / np.sqrt(area + eps),
+            0.0,
+        )
+        fractal_dimension = np.where(
+            (area > 0) & (perimeter > 0),
+            2.0 * np.log((perimeter + eps) / 4.0) / np.log(area + eps),
+            0.0,
+        )
+        fractal_dimension = np.nan_to_num(fractal_dimension, nan=0.0, posinf=0.0, neginf=0.0)
+        fractal_dimension = np.clip(fractal_dimension, 0.0, 2.5)
+
+        asym_x = np.abs(((minx + maxx) / 2.0) - cx)
+        asym_y = np.abs(((miny + maxy) / 2.0) - cy)
+        elongation = np.where(bbox_height > 0, bbox_width / (bbox_height + eps), 1.0)
+
+        mrr_metrics = geo.apply(self._mrr_metrics_single)
+        mrr_width = np.array([vals[0] for vals in mrr_metrics], dtype=float)
+        mrr_height = np.array([vals[1] for vals in mrr_metrics], dtype=float)
+        mrr_area = np.array([vals[2] for vals in mrr_metrics], dtype=float)
+        mrr_aspect_ratio = np.array([vals[3] for vals in mrr_metrics], dtype=float)
+        rectangularity_index = np.where(mrr_area > 0, area / (mrr_area + eps), 0.0)
+
+        result = pd.DataFrame({
+            'area': area,
+            'perimeter': perimeter,
+            'compactness': compactness,
+            'solidity': solidity,
+            'bbox_width': bbox_width,
+            'bbox_height': bbox_height,
+            'elongation': elongation,
+            'mrr_height': mrr_height,
+            'mrr_area': mrr_area,
+            'mrr_aspect_ratio': mrr_aspect_ratio,
+            'rectangularity_index': rectangularity_index,
+            'shape_index': shape_index,
+            'fractal_dimension': fractal_dimension,
+            'asymmetry_x': asym_x,
+            'asymmetry_y': asym_y,
+        }, index=gdf.index)
+
+        # Maintain legacy feature names for downstream compatibility
+        result['mbr_area'] = result['mrr_area']
+        result['mbr_aspect_ratio'] = result['mrr_aspect_ratio']
+        result['squareness_index'] = np.where(
+            result['mrr_aspect_ratio'] > 0,
+            1.0 / (result['mrr_aspect_ratio'] + eps),
+            0.0,
+        )
+
+        return result
+
+    @staticmethod
+    def _mrr_metrics_single(geom):
+        """
+        Return width, height, area and aspect ratio of the minimum rotated rectangle.
         """
         try:
-            geo = gdf.geometry
-            area = geo.area.to_numpy()
-            length = geo.length.to_numpy()
-            centroids = geo.centroid
-            cx, cy = centroids.x.to_numpy(), centroids.y.to_numpy()
-            
-            min_env = geo.minimum_rotated_rectangle()
-            mbr_area = min_env.area.to_numpy()
-            convex = geo.convex_hull
-            convex_area = convex.area.to_numpy()
-            
-            compactness = np.where(length>0, 4*np.pi*area/length**2, 0)
-            fractal_dim = np.where((area>0)&(length>0)&(np.log(length)!=0), np.log(area)/np.log(length), 0)
-            rectangularity = np.where(mbr_area>0, area/mbr_area, 0)
-            
-            bounds = min_env.bounds
-            dx = bounds.maxx - bounds.minx
-            dy = bounds.maxy - bounds.miny
-            
-            aspect_ratio = np.where((dx>0)&(dy>0), np.maximum(dx,dy)/np.minimum(dx,dy), 0)
-            squareness = np.where(np.maximum(dx,dy)>0, np.minimum(dx,dy)/np.maximum(dx,dy), 0)
-            shape_index = np.where(length>0, area / length, 0)
-            solidity = np.where(convex_area>0, area/convex_area, 0)
-            
-            asym_x = np.abs((bounds.minx+bounds.maxx)/2 - cx)
-            asym_y = np.abs((bounds.miny+bounds.maxy)/2 - cy)
-            
-            result = pd.DataFrame({
-                'compactness': compactness,
-                'fractal_dimension': fractal_dim,
-                'shape_index': shape_index,
-                'mbr_area': mbr_area,
-                'rectangularity_index': rectangularity,
-                'mbr_aspect_ratio': aspect_ratio,
-                'squareness_index': squareness,
-                'solidity': solidity,
-                'asymmetry_x': asym_x,
-                'asymmetry_y': asym_y,
-            }, index=gdf.index)
-            return result
-            
-        except Exception as e:
-            raise e
+            if geom is None or geom.is_empty:
+                return (0.0, 0.0, 0.0, 1.0)
+            mrr = geom.minimum_rotated_rectangle
+            coords = np.array(mrr.exterior.coords)
+            edges = np.sqrt(((coords[1:] - coords[:-1]) ** 2).sum(axis=1))
+            lengths = np.sort(np.unique(np.round(edges, 12)))
+            if len(lengths) >= 2:
+                width, height = float(lengths[-1]), float(lengths[-2])
+            elif len(lengths) == 1:
+                width = height = float(lengths[0])
+            else:
+                width = height = 0.0
+            area = float(mrr.area)
+            w, h = (width, height) if width >= height else (height, width)
+            aspect = (w / (h + 1e-12)) if (w > 0 and h > 0) else 1.0
+            return w, h, area, aspect
+        except Exception:
+            return (0.0, 0.0, 0.0, 1.0)
+
+    @staticmethod
+    def _label_slug(value) -> str:
+        if value is None:
+            return "__none__"
+        if isinstance(value, LandUseCategory):
+            return value.value.lower()
+        if isinstance(value, LandUse):
+            cat = LandUseCategory.from_land_use(value)
+            return cat.value.lower() if cat else value.value.lower()
+        if isinstance(value, str):
+            return value.strip().lower()
+        return str(value).lower()
+
+    @staticmethod
+    def _to_metric(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        if gdf.empty:
+            return gdf.copy()
+        try:
+            utm_crs = gdf.estimate_utm_crs()
+        except Exception:
+            utm_crs = None
+        if utm_crs:
+            return gdf.to_crs(utm_crs)
+        return gdf.copy()
+
+    def _compute_ring_statistics(self, city_gdf: gpd.GeoDataFrame, target_col: str) -> pd.DataFrame:
+        out = pd.DataFrame(index=city_gdf.index)
+        if city_gdf.empty or city_gdf.geometry.is_empty.all():
+            return out
+
+        working = city_gdf.copy()
+        if target_col not in working.columns:
+            working[target_col] = None
+
+        for r_min, r_max in self.rings:
+            buf_max = working.geometry.buffer(r_max)
+            if r_min > 0:
+                buf_min = working.geometry.buffer(r_min)
+                ring_geom = buf_max.difference(buf_min)
+            else:
+                ring_geom = buf_max
+
+            right = gpd.GeoDataFrame(
+                working[[target_col, "area"]].copy(),
+                geometry=ring_geom,
+                crs=working.crs,
+            )
+            joined = gpd.sjoin(
+                working[[target_col, "geometry", "area"]],
+                right,
+                how="left",
+                predicate="intersects",
+                lsuffix="A",
+                rsuffix="B",
+            ).reset_index()
+
+            left_index = "index"
+            right_index = "index_B"
+            if left_index not in joined.columns and joined.index.name:
+                joined = joined.reset_index(names="index_left")
+                left_index = "index_left"
+            if right_index not in joined.columns:
+                right_index = "index_right"
+
+            joined = joined[joined[right_index].notna()]
+            joined = joined[joined[left_index] != joined[right_index]]
+            if joined.empty:
+                band = f"{int(r_min)}_{int(r_max)}m"
+                for col in (
+                    f"n_neighbors_{band}m",
+                    f"avg_area_neighbors_{band}m",
+                    f"n_neighbors_none_{band}m",
+                    f"avg_area_neighbors_none_{band}m",
+                ):
+                    out[col] = 0 if "avg" not in col else 0.0
+                continue
+
+            joined[f"{target_col}_B"] = joined[f"{target_col}_B"].fillna("__none__")
+            joined["_neighbor_class"] = joined[f"{target_col}_B"].map(self._label_slug)
+            band = f"{int(r_min)}_{int(r_max)}m"
+
+            n_neighbors = joined.groupby(left_index).size()
+            avg_area_neighbors = joined.groupby(left_index)["area_B"].mean()
+
+            none_mask = joined["_neighbor_class"] == "__none__"
+            n_neighbors_none = none_mask.groupby(joined[left_index]).sum()
+            avg_area_none = (
+                joined.loc[none_mask].groupby(left_index)["area_B"].mean()
+                if none_mask.any()
+                else pd.Series(dtype=float)
+            )
+
+            out[f"n_neighbors_{band}m"] = out.index.map(n_neighbors).fillna(0).astype(int)
+            out[f"avg_area_neighbors_{band}m"] = out.index.map(avg_area_neighbors).fillna(0.0)
+            out[f"n_neighbors_none_{band}m"] = out.index.map(n_neighbors_none).fillna(0).astype(int)
+            out[f"avg_area_neighbors_none_{band}m"] = out.index.map(avg_area_none).fillna(0.0)
+
+            pct_by_class = (
+                joined[joined["_neighbor_class"] != "__none__"]
+                .groupby([left_index, "_neighbor_class"])
+                .size()
+                .unstack(fill_value=0)
+            )
+            if pct_by_class.empty:
+                continue
+            pct_by_class = pct_by_class.div(pct_by_class.sum(axis=1), axis=0)
+            for cls in pct_by_class.columns:
+                slug = self._label_slug(cls)
+                if slug == "__none__":
+                    continue
+                col_name = f"pct_neighbor_{slug}_{band}m"
+                out[col_name] = out.index.map(pct_by_class[cls]).fillna(0.0)
+
+        return out
+
+    def _compute_distance_metrics(self, city_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+        out = pd.DataFrame(index=city_gdf.index)
+        n = len(city_gdf)
+        if n == 0:
+            out["median_dist"] = pd.Series(dtype=float)
+            out["mean_k3_dist"] = pd.Series(dtype=float)
+            return out
+
+        reps = city_gdf.geometry.representative_point()
+        coords = np.column_stack((reps.x.values, reps.y.values)).astype(float)
+        median_dist = np.zeros(n, dtype=float)
+        mean_k3_dist = np.zeros(n, dtype=float)
+
+        if n > 1:
+            for start in range(0, n, self.distance_batch_size):
+                end = min(start + self.distance_batch_size, n)
+                batch = coords[start:end]
+                dist_block = cdist(batch, coords)
+                for local_row, global_idx in enumerate(range(start, end)):
+                    dist_block[local_row, global_idx] = np.nan
+                median_dist[start:end] = np.nanmedian(dist_block, axis=1)
+                sorted_block = np.sort(dist_block, axis=1)
+                k_lim = min(3, sorted_block.shape[1] - 1)
+                if k_lim > 0:
+                    mean_k3_dist[start:end] = np.nanmean(sorted_block[:, :k_lim], axis=1)
+        median_dist = np.nan_to_num(median_dist, nan=0.0)
+        mean_k3_dist = np.nan_to_num(mean_k3_dist, nan=0.0)
+        out["median_dist"] = median_dist
+        out["mean_k3_dist"] = mean_k3_dist
+        return out
+
+    def _compute_local_graph_features(self, city_gdf: gpd.GeoDataFrame) -> pd.DataFrame:
+        out = pd.DataFrame(index=city_gdf.index)
+        if city_gdf.empty:
+            return out
+
+        buffers = city_gdf.geometry.buffer(self.graph_neighbor_buffer)
+        right = gpd.GeoDataFrame(index=city_gdf.index, geometry=buffers, crs=city_gdf.crs)
+        pairs = gpd.sjoin(
+            city_gdf[["geometry"]],
+            right,
+            how="left",
+            predicate="intersects",
+            lsuffix="L",
+            rsuffix="R",
+        ).reset_index()
+
+        left_index = "index"
+        right_index = "index_R"
+        if left_index not in pairs.columns and pairs.index.name:
+            pairs = pairs.reset_index(names="index_left")
+            left_index = "index_left"
+        if right_index not in pairs.columns:
+            right_index = "index_right"
+
+        pairs = pairs[pairs[right_index].notna()]
+        pairs = pairs[pairs[left_index] != pairs[right_index]]
+        edges = list(zip(pairs[left_index], pairs[right_index]))
+
+        G = nx.Graph()
+        G.add_nodes_from(city_gdf.index.tolist())
+        if edges:
+            G.add_edges_from(edges)
+
+        deg_dict = dict(G.degree())
+        clust_dict = nx.clustering(G)
+        avg_neighbor = nx.average_neighbor_degree(G) if G.number_of_edges() > 0 else {node: 0.0 for node in G.nodes()}
+
+        comp_id = {}
+        comp_size = {}
+        for cid, comp_nodes in enumerate(nx.connected_components(G), start=1):
+            size = len(comp_nodes)
+            for node in comp_nodes:
+                comp_id[node] = cid
+                comp_size[node] = size
+
+        try:
+            pagerank = nx.pagerank(G, alpha=0.85, max_iter=200)
+        except Exception:
+            pagerank = {node: 0.0 for node in G.nodes()}
+
+        out["deg_10m"] = out.index.map(deg_dict).fillna(0).astype(int)
+        out["clust_10m"] = out.index.map(clust_dict).fillna(0.0)
+        out["avg_n_deg_10m"] = out.index.map(avg_neighbor).fillna(0.0)
+        out["component_id_10m"] = out.index.map(comp_id).fillna(0).astype(int)
+        out["component_size_10m"] = out.index.map(comp_size).fillna(1).astype(int)
+        out["pagerank_10m"] = out.index.map(pagerank).fillna(0.0)
+        return out
+
+    def _compute_h3_features(self, city_gdf: gpd.GeoDataFrame, target_col: str) -> pd.DataFrame:
+        if h3 is None:
+            raise ImportError("h3 package is required to compute hexagonal features. Install via `pip install h3`.")  # pragma: no cover
+
+        out = pd.DataFrame(index=city_gdf.index)
+        if city_gdf.empty:
+            return out
+
+        latlon = city_gdf.to_crs(4326)
+        centroids = latlon.geometry.centroid
+
+        def _cell(point):
+            if point is None or point.is_empty:
+                return None
+            return h3.latlng_to_cell(point.y, point.x, self.h3_resolution)
+
+        h3_index = centroids.apply(_cell)
+        h3_series = pd.Series(h3_index.to_numpy(), index=city_gdf.index)
+        valid = h3_series.dropna()
+
+        density = h3_series.map(valid.value_counts())
+        area_mean = h3_series.map(city_gdf.groupby(h3_series)["area"].mean())
+
+        if target_col in city_gdf.columns:
+            targets = city_gdf[target_col].apply(self._label_slug)
+        else:
+            targets = pd.Series("__none__", index=city_gdf.index)
+
+        def _entropy(series: pd.Series) -> float:
+            freq = series.value_counts(normalize=True)
+            return float(-(freq * np.log(freq + 1e-12)).sum())
+
+        entropy = targets.groupby(h3_series).apply(_entropy)
+        out["h3_density"] = density.reindex(city_gdf.index).fillna(0).astype(int)
+        out["h3_mean_area"] = area_mean.reindex(city_gdf.index).fillna(0.0)
+        out["h3_entropy"] = h3_series.map(entropy).fillna(0.0)
+        return out
+
+    def _compute_city_features(self, city_gdf: gpd.GeoDataFrame, target_col: str) -> pd.DataFrame:
+        metric = self._to_metric(city_gdf)
+        if metric.empty:
+            return pd.DataFrame(index=city_gdf.index)
+
+        poly_feats = self.calc_polygon_features(metric)
+        metric = metric.join(poly_feats)
+
+        ring_feats = self._compute_ring_statistics(metric, target_col=target_col)
+        dist_feats = self._compute_distance_metrics(metric)
+        graph_feats = self._compute_local_graph_features(metric)
+        h3_feats = self._compute_h3_features(metric, target_col=target_col)
+
+        components = [poly_feats, ring_feats, dist_feats, graph_feats, h3_feats]
+        combined = pd.concat(components, axis=1)
+        return combined
 
     def count_nearby_zones(self, gdf: gpd.GeoDataFrame, rec_gdf: Optional[gpd.GeoDataFrame], 
                           buffer_distance: float) -> pd.Series:
@@ -417,18 +720,21 @@ class DataProcessor:
 
         return pd.DataFrame(out)
 
-    def transform_features(self, gdf, known_gdf_for_rec_zones=None, require_strict_categories: bool = False):
+    def transform_features(self, gdf, target_col: str = 'category',
+                           known_gdf_for_rec_zones=None,
+                           require_strict_categories: bool = False):
         """
         Transform features of a GeoDataFrame with invalid geometry handling.
         
         This method performs several transformations on the input GeoDataFrame:
         1. Validates and fixes invalid geometries
         2. Calculates local coordinates relative to city centers
-        3. Computes geometric features
-        4. Counts nearby zones of different types
+        3. Computes advanced geometric, network, and contextual features
+        4. Counts nearby zones of different types (using known_gdf_for_rec_zones)
         
         Args:
             gdf (GeoDataFrame): Input geographic data to be transformed
+            target_col (str): Column describing current class labels (default: 'category')
             known_gdf_for_rec_zones (GeoDataFrame, optional): Reference data for 
                 counting nearby zones. Defaults to None.
         
@@ -442,67 +748,81 @@ class DataProcessor:
         
         gdf = gdf.copy()
         
-        gdf.geometry = gdf.geometry.apply(lambda geom: make_valid(geom) if not geom.is_valid else geom)
+        gdf.geometry = gdf.geometry.apply(
+            lambda geom: make_valid(geom) if geom is not None and not geom.is_valid else geom
+        )
         
-        centroids = gdf.geometry.centroid
-        gdf['x_local'] = 0.0
-        gdf['y_local'] = 0.0
+        # centroids = gdf.geometry.centroid
+        # gdf['x_local'] = 0.0
+        # gdf['y_local'] = 0.0
         
-        if 'city' in gdf:
+        # if 'city' in gdf:
             
-            def get_city_center(group):
-                """
-                Calculate the center point of a city from its geometries.
+        #     def get_city_center(group):
+        #         """
+        #         Calculate the center point of a city from its geometries.
                 
-                Args:
-                    group (Series): Group of geometries belonging to a city
+        #         Args:
+        #             group (Series): Group of geometries belonging to a city
                 
-                Returns:
-                    Point: Center point of the city
-                """
-                try:
-                    valid_geoms = group.apply(lambda geom: make_valid(geom) if not geom.is_valid else geom)
-                    union = valid_geoms.unary_union
-                    if not union.is_valid:
-                        union = make_valid(union)
-                    return union.centroid
-                except Exception as e:
-                    return group.iloc[0].centroid
+        #         Returns:
+        #             Point: Center point of the city
+        #         """
+        #         try:
+        #             valid_geoms = group.apply(lambda geom: make_valid(geom) if not geom.is_valid else geom)
+        #             union = valid_geoms.unary_union
+        #             if not union.is_valid:
+        #                 union = make_valid(union)
+        #             return union.centroid
+        #         except Exception as e:
+        #             return group.iloc[0].centroid
             
-            cc_geom = gdf.groupby('city')['geometry'].apply(get_city_center)
-            ccdf = cc_geom.apply(lambda p: pd.Series({'x': p.x, 'y': p.y}))
+        #     cc_geom = gdf.groupby('city')['geometry'].apply(get_city_center)
+        #     ccdf = cc_geom.apply(lambda p: pd.Series({'x': p.x, 'y': p.y}))
             
-            gdf = gdf.join(ccdf, on='city')
-            gdf['x_local'] = centroids.x - gdf['x']
-            gdf['y_local'] = centroids.y - gdf['y']
-            gdf = gdf.drop(columns=['x', 'y'])
+        #     gdf = gdf.join(ccdf, on='city')
+        #     gdf['x_local'] = centroids.x - gdf['x']
+        #     gdf['y_local'] = centroids.y - gdf['y']
+        #     gdf = gdf.drop(columns=['x', 'y'])
         
-        calc = self.calc_polygon_features(gdf)
-        gdf = pd.concat([gdf, calc], axis=1)
+        feature_blocks = []
+        if 'city' in gdf.columns:
+            city_iter = gdf.groupby('city').indices.items()
+        else:
+            city_iter = [(None, gdf.index)]
+        for _, idx in city_iter:
+            idx = pd.Index(idx)
+            city_slice = gdf.loc[idx].copy()
+            city_features = self._compute_city_features(city_slice, target_col=target_col)
+            feature_blocks.append(city_features)
+        if feature_blocks:
+            features_df = pd.concat(feature_blocks, axis=0)
+            features_df = features_df.reindex(gdf.index)
+            gdf = pd.concat([gdf, features_df], axis=1)
         
         # Nearby counts by LandUseCategory
-        try:
-            nearby_df = self.count_nearby_by_category(
-                gdf,
-                known_gdf_for_rec_zones,
-                buffer_distance=self.buffer_distance,
-                exclude_self=True,
-                require_strict=require_strict_categories,
-            )
-        except Exception:
-            # If something goes wrong, fall back to zeros to avoid breaking pipeline
-            nearby_df = pd.DataFrame(
-                0,
-                index=gdf.index,
-                columns=[f"nearby_{c.value.lower()}_count" for c in LandUseCategory],
-            )
+        # try:
+        #     nearby_df = self.count_nearby_by_category(
+        #         gdf,
+        #         known_gdf_for_rec_zones,
+        #         buffer_distance=self.buffer_distance,
+        #         exclude_self=True,
+        #         require_strict=require_strict_categories,
+        #     )
+        # except Exception:
+        #     # If something goes wrong, fall back to zeros to avoid breaking pipeline
+        #     nearby_df = pd.DataFrame(
+        #         0,
+        #         index=gdf.index,
+        #         columns=[f"nearby_{c.value.lower()}_count" for c in LandUseCategory],
+        #     )
 
-        gdf = pd.concat([gdf, nearby_df], axis=1)
+        # gdf = pd.concat([gdf, nearby_df], axis=1)
 
         return gdf
 
     def prepare_data(self, gdf: gpd.GeoDataFrame,
-                    target_col: str = 'land_use_code',
+                    target_col: str = 'category',
                     radius: float = 1000.0,
                     k_neighbors: int = None,
                     classes_: np.ndarray = None,
@@ -516,7 +836,7 @@ class DataProcessor:
         gdf : gpd.GeoDataFrame
             Input GeoDataFrame containing geometries and target values
         target_col : str, optional
-            Name of the target column (default: 'land_use_code')
+            Name of the target column (default: 'category')
         radius : float, optional
             Search radius for neighbor detection in meters (default: 1000.0)
         k_neighbors : int, optional
@@ -544,13 +864,10 @@ class DataProcessor:
         gdf.reset_index(drop=True, inplace=True)
         base = self.transform_features(
             gdf,
+            target_col=target_col,
             known_gdf_for_rec_zones=known_gdf_for_rec_zones,
             require_strict_categories=require_strict_categories,
         )  
-
-        for col in self.columns_to_log:
-            if col in base.columns:
-                base[f'{col}_log'] = np.log1p(base[col])
 
         pieces = []
         for city, idx in gdf.groupby('city').indices.items() if 'city' in gdf.columns else {None: gdf.index}.items():
@@ -566,11 +883,10 @@ class DataProcessor:
             geom_cols = [c for c in city_base.columns
                         if c not in ('geometry', target_col, 'land_use', 'city', 'city_center')]
             geom_cols = [c for c in geom_cols if not c.startswith('nbr_') and not c.startswith('prob_')]
-            geom_df = city_base[geom_cols]
+            block = city_base[geom_cols]
 
-            nbr_geom = self.neighbor_geom_aggregates(A, geom_df, agg="mean")
-
-            block = pd.concat([city_base[geom_cols], nbr_geom], axis=1)
+            # nbr_geom = self.neighbor_geom_aggregates(A, geom_df, agg="mean")
+            # block = pd.concat([city_base[geom_cols], nbr_geom], axis=1)
 
             if classes_ is not None:
                 labels = gdf.loc[city_idx, target_col]

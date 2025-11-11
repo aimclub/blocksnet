@@ -8,22 +8,12 @@ class LandUseCategory(Enum):
     - BUSINESS
     - RESIDENTIAL
     """
-    INDUSTRIAL = "INDUSTRIAL"
-    RECREATION = "RECREATION"
-    BUSINESS = "BUSINESS"
     RESIDENTIAL = "RESIDENTIAL"
-    AGRICULTURE = "AGRICULTURE"
-    SPECIAL = "SPECIAL"
-    TRANSPORT = "TRANSPORT"
+    BUSINESS = "BUSINESS"
+    RECREATION = "RECREATION"
+    INDUSTRIAL = "INDUSTRIAL"
 
     _REVERSE_MAP = None
-    # MIXED_USE = "MIXED_USE"
-    # LARGE_AREA = "LARGE_AREA"
-    # ENGINEERING = "ENGINEERING"
-    # RECREATION = "RECREATION"
-    # INDUSTRIAL = "INDUSTRIAL"
-    # LIVING = "LIVING"
-    # NOT_LIVING = "NOT_LIVING"
 
     @classmethod
     def from_land_use(cls, lu: LandUse) -> "LandUseCategory | None":
@@ -52,57 +42,13 @@ class LandUseCategory(Enum):
                 LandUseCategory._REVERSE_MAP.setdefault(v, set()).add(k)
         return LandUseCategory._REVERSE_MAP.get(self, set())
 
-# LU_MAPPING = { # 1 СЦЕНАРИЙ - ПРОСТОР 
-#     LandUse.RESIDENTIAL: LandUseCategory.RESIDENTIAL,
-#     LandUse.BUSINESS: LandUseCategory.BUSINESS,
-#     LandUse.RECREATION: LandUseCategory.RECREATION,
-#     LandUse.AGRICULTURE: LandUseCategory.RECREATION,
-#     LandUse.SPECIAL: LandUseCategory.RECREATION,
-#     LandUse.INDUSTRIAL: LandUseCategory.INDUSTRIAL,
-#     LandUse.TRANSPORT: LandUseCategory.INDUSTRIAL,
-#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
-# }
-
-# LU_MAPPING = { # 2 сценарий - по размеру
-#     LandUse.RESIDENTIAL: LandUseCategory.MIXED_USE,
-#     LandUse.BUSINESS: LandUseCategory.MIXED_USE,
-#     LandUse.RECREATION: LandUseCategory.LARGE_AREA,
-#     LandUse.AGRICULTURE: LandUseCategory.LARGE_AREA,
-#     LandUse.SPECIAL: LandUseCategory.ENGINEERING,
-#     LandUse.INDUSTRIAL: LandUseCategory.LARGE_AREA,
-#     LandUse.TRANSPORT: LandUseCategory.ENGINEERING,
-#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
-# }
-
-# LU_MAPPING = { # 3 сценарий - по функции
-#     LandUse.RESIDENTIAL: LandUseCategory.MIXED_USE,
-#     LandUse.BUSINESS: LandUseCategory.MIXED_USE,
-#     LandUse.RECREATION: LandUseCategory.RECREATION,
-#     LandUse.AGRICULTURE: LandUseCategory.RECREATION,
-#     LandUse.SPECIAL: LandUseCategory.ENGINEERING,
-#     LandUse.INDUSTRIAL: LandUseCategory.ENGINEERING,
-#     LandUse.TRANSPORT: LandUseCategory.INDUSTRIAL,
-#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
-# }
-
-# LU_MAPPING = { # 4 сценарий - по жилой/нежилой
-#     LandUse.RESIDENTIAL: LandUseCategory.LIVING,
-#     LandUse.BUSINESS: LandUseCategory.NOT_LIVING,
-#     LandUse.RECREATION: LandUseCategory.NOT_LIVING,
-#     LandUse.AGRICULTURE: LandUseCategory.NOT_LIVING,
-#     LandUse.SPECIAL: LandUseCategory.NOT_LIVING,
-#     LandUse.INDUSTRIAL: LandUseCategory.NOT_LIVING,
-#     LandUse.TRANSPORT: LandUseCategory.NOT_LIVING,
-#     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
-# }
-
-LU_MAPPING = { # 0 сценарий - все типы
+LU_MAPPING = {
     LandUse.RESIDENTIAL: LandUseCategory.RESIDENTIAL,
     LandUse.BUSINESS: LandUseCategory.BUSINESS,
     LandUse.RECREATION: LandUseCategory.RECREATION,
-    LandUse.AGRICULTURE: LandUseCategory.AGRICULTURE,
-    LandUse.SPECIAL: LandUseCategory.SPECIAL,
+    LandUse.AGRICULTURE: LandUseCategory.RECREATION,
+    LandUse.SPECIAL: LandUseCategory.RECREATION,
     LandUse.INDUSTRIAL: LandUseCategory.INDUSTRIAL,
-    LandUse.TRANSPORT: LandUseCategory.TRANSPORT,
+    LandUse.TRANSPORT: LandUseCategory.INDUSTRIAL,
     # Other LandUse values (e.g., TRANSPORT, SPECIAL, AGRICULTURE) map to None
 }

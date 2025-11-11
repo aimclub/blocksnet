@@ -4,12 +4,15 @@ from typing import Iterable, Union, List
 import numpy as np
 import pandas as pd
 import geopandas as gpd
+import joblib
 
 from shapely import Point, unary_union
+from sklearn.preprocessing import RobustScaler
 from blocksnet.enums import LandUseCategory, LandUse
 from blocksnet.machine_learning.context import BaseContext
 from blocksnet.machine_learning.strategy import BaseStrategy
 from ._strategy import get_default_strategy
+from ._strategy import ARTIFACTS_DIRECTORY as DEFAULT_ARTIFACTS_DIR
 from .schemas import BlocksInputSchema
 from .preprocessing import DataProcessor
 
@@ -58,7 +61,31 @@ def category_to_index(val) -> int | None:
 CATEGORY_TO_INDEX = {cat: i for i, cat in enumerate(LandUseCategory)}
 INDEX_TO_CATEGORY = {i: cat for cat, i in CATEGORY_TO_INDEX.items()}
 
-TRAIN_ASSIGN_COLUMN = "__train_split__"
+PREFERRED_FEATURE_ORDER = [
+    "area",
+    "perimeter",
+    "compactness",
+    "solidity",
+    "bbox_width",
+    "elongation",
+    "mrr_height",
+    "mrr_area",
+    "mrr_aspect_ratio",
+    "rectangularity_index",
+    "shape_index",
+    "fractal_dimension",
+    "median_dist",
+    "mean_k3_dist",
+    "deg_10m",
+    "clust_10m",
+    "avg_n_deg_10m",
+    "component_id_10m",
+    "component_size_10m",
+    "pagerank_10m",
+    "h3_density",
+    "h3_mean_area",
+    "h3_entropy",
+]
 
 
 class SpatialClassifier(BaseContext):
@@ -79,41 +106,7 @@ class SpatialClassifier(BaseContext):
         super().__init__(strategy=strategy)
 
         self.data_processor = DataProcessor(buffer_distance=buffer_distance, k_neighbors=k_neighbors)
-        self.feature_cols: list[str] | None = ['x_local',
-                                                'y_local',
-                                                'compactness',
-                                                'fractal_dimension',
-                                                'rectangularity_index',
-                                                'squareness_index',
-                                                'shape_index_log',
-                                                'mbr_area_log',
-                                                'mbr_aspect_ratio_log',
-                                                'solidity_log',
-                                                'asymmetry_x_log',
-                                                'asymmetry_y_log',
-                                                'nbr_mean_x_local',
-                                                'nbr_mean_y_local',
-                                                'nbr_mean_compactness',
-                                                'nbr_mean_fractal_dimension',
-                                                'nbr_mean_shape_index',
-                                                'nbr_mean_mbr_area',
-                                                'nbr_mean_rectangularity_index',
-                                                'nbr_mean_mbr_aspect_ratio',
-                                                'nbr_mean_squareness_index',
-                                                'nbr_mean_solidity',
-                                                'nbr_mean_asymmetry_x',
-                                                'nbr_mean_asymmetry_y',
-                                                'nbr_mean_shape_index_log',
-                                                'nbr_mean_mbr_area_log',
-                                                'nbr_mean_mbr_aspect_ratio_log',
-                                                'nbr_mean_solidity_log',
-                                                'nbr_mean_asymmetry_x_log',
-                                                'nbr_mean_asymmetry_y_log',
-                                                'nearby_rec_spec_agri_count',
-                                                'nearby_bus_res_count',
-                                                'nearby_industrial_count',
-                                                'nearby_transport_count'
-                                                ]
+        self.feature_cols: list[str] | None = None
         self.target_col = 'target_label'
         self.is_fitted = False
         self.class_names_: list[LandUseCategory] | None = None
@@ -123,8 +116,7 @@ class SpatialClassifier(BaseContext):
         # keep normalized training gdf to compute nearby_* against known zones
         self.known_gdf_for_rec_zones: gpd.GeoDataFrame | None = None
         self._last_normalized_train: gpd.GeoDataFrame | None = None
-        self._last_train_assignments: pd.Series | None = None
-        self._train_assign_column: str = TRAIN_ASSIGN_COLUMN
+        self.scaler: RobustScaler | None = None
 
     # ---------- auxiliary input normalization methods ----------
 
@@ -156,19 +148,27 @@ class SpatialClassifier(BaseContext):
         for g in city_gdfs:
             if not isinstance(g, gpd.GeoDataFrame):
                 raise TypeError("All elements in the list must be GeoDataFrame")
-            all_cols |= set(g.columns)
-        all_cols |= {"city"}  # ensure presence
+            cols = set(g.columns)
+            cols.add("city")
+            all_cols |= cols
 
         ref_crs = city_gdfs[0].crs
         parts: list[gpd.GeoDataFrame] = []
-        for i, g in enumerate(city_gdfs, start):
+        name_counter = start
+        for g in city_gdfs:
             gi = g.copy()
-            if ref_crs is not None and gi.crs != ref_crs:
+            if ref_crs is not None and gi.crs not in (None, ref_crs):
                 gi = gi.to_crs(ref_crs)
-            # overwrite/create 'city'
-            if "city" in gi.columns:
-                gi = gi.drop(columns=["city"])
-            gi["city"] = name_fmt.format(i)
+
+            if "city" not in gi.columns:
+                gi["city"] = name_fmt.format(name_counter)
+                name_counter += 1
+            else:
+                missing_mask = gi["city"].isna()
+                if missing_mask.any():
+                    gi.loc[missing_mask, "city"] = name_fmt.format(name_counter)
+                    name_counter += 1
+
             gi = gi.reindex(columns=sorted(all_cols))
             parts.append(gi)
         return gpd.GeoDataFrame(pd.concat(parts, ignore_index=True), crs=ref_crs)
@@ -223,6 +223,104 @@ class SpatialClassifier(BaseContext):
                 raise ValueError(f"Failed to compute 'city_center' for cities: {bad}. Check geometry.")
         return out
 
+    def _select_feature_columns(self, df: gpd.GeoDataFrame) -> list[str]:
+        """
+        Determine feature columns (numeric only)
+        """
+        numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        exclude = {'category', 'category_true', 'city', 'city_center', self.target_col}
+        numeric_cols = [c for c in numeric_cols if c not in exclude]
+
+        if not numeric_cols:
+            raise ValueError("No numeric feature columns available after preprocessing.")
+
+        preferred = [col for col in PREFERRED_FEATURE_ORDER if col in numeric_cols]
+        return preferred
+
+        remaining = [col for col in numeric_cols if col not in preferred]
+        return preferred + sorted(remaining)
+
+    def _ensure_scaler(self, fit_scaler: bool, feature_frame: pd.DataFrame) -> None:
+        """
+        Fit scaler when required and make sure feature columns are scaled.
+        """
+        if self.feature_cols is None:
+            raise ValueError("Feature columns are not initialized.")
+
+        if fit_scaler or self.scaler is None:
+            self.scaler = RobustScaler()
+            self.scaler.fit(feature_frame[self.feature_cols])
+        if self.scaler is None:
+            raise ValueError("Scaler is not initialized. Train the classifier or load a scaler state.")
+
+        transformed = self.scaler.transform(feature_frame[self.feature_cols])
+        feature_frame.loc[:, self.feature_cols] = transformed
+
+    def preprocess_data(
+        self,
+        data: gpd.GeoDataFrame | list | tuple,
+        *,
+        fit_scaler: bool = False,
+        require_strict_categories: bool = False,
+    ) -> gpd.GeoDataFrame:
+        """
+        Unified preprocessing pipeline for both training and inference data.
+
+        Args:
+            data: GeoDataFrame or list/tuple of GeoDataFrames.
+            fit_scaler: When True, fit RobustScaler on the resulting features (training mode).
+            require_strict_categories: Whether to enforce category presence.
+
+        Returns:
+            GeoDataFrame with engineered (and scaled) features.
+        """
+        normalized = self._normalize_input(data)
+        if fit_scaler:
+            self._last_normalized_train = normalized.copy()
+            self.known_gdf_for_rec_zones = normalized.copy()
+            reference = normalized
+        else:
+            reference = self.known_gdf_for_rec_zones
+            if reference is None:
+                reference = self._last_normalized_train
+            if reference is None:
+                reference = normalized
+
+        processed = self.data_processor.prepare_data(
+            normalized,
+            known_gdf_for_rec_zones=reference,
+            require_strict_categories=require_strict_categories,
+        )
+
+        processed_df = processed.copy()
+        if 'category' not in processed_df and 'category' in normalized.columns:
+            processed_df['category'] = normalized['category'].values
+        if 'city' in normalized.columns:
+            processed_df['city'] = normalized['city'].values
+        if 'city_center' in normalized.columns:
+            processed_df['city_center'] = normalized['city_center'].values
+        processed_df['geometry'] = normalized.geometry.values
+
+        processed_gdf = gpd.GeoDataFrame(processed_df, geometry='geometry', crs=normalized.crs)
+
+        if fit_scaler or self.feature_cols is None:
+            self.feature_cols = self._select_feature_columns(processed_gdf)
+        if self.feature_cols is None:
+            raise ValueError("Feature columns are not initialized. Train the classifier first.")
+
+        for feature in self.feature_cols:
+            if feature not in processed_gdf.columns:
+                processed_gdf[feature] = 0.0
+
+        self._ensure_scaler(fit_scaler, processed_gdf)
+
+        meta_cols = [c for c in ['geometry', 'category', 'category_true', 'city', 'city_center'] if c in processed_gdf.columns]
+        other_cols = [c for c in processed_gdf.columns if c not in self.feature_cols + meta_cols]
+        ordered_cols = self.feature_cols + other_cols + meta_cols
+        processed_gdf = processed_gdf[ordered_cols]
+
+        return processed_gdf
+
     def _normalize_input(self, data: gpd.GeoDataFrame | list | tuple) -> gpd.GeoDataFrame:
         """
         1) Validates input(s) using BlocksInputSchema (without additional checks).
@@ -238,7 +336,6 @@ class SpatialClassifier(BaseContext):
             TypeError: If input is not GeoDataFrame, list[GeoDataFrame] or tuple[GeoDataFrame]
         """
         if isinstance(data, (list, tuple)):
-            # validate EACH GDF
             validated = [BlocksInputSchema(g) for g in data]
             merged = self._stack_city_list(validated, start=0, name_fmt="{:03d}")
             return self._ensure_city_and_center(merged)
@@ -248,60 +345,7 @@ class SpatialClassifier(BaseContext):
         else:
             raise TypeError("Expecting GeoDataFrame, list[GeoDataFrame] or tuple[GeoDataFrame].")
 
-    # ---------------------- L/U split ----------------------
 
-    def split_l_u_per_city(
-        self,
-        gdf: gpd.GeoDataFrame,
-        target_col: str = 'category',
-        test_size: float = 0.2,
-        random_state = None
-    ) -> pd.Series:
-        """
-        Returns pd.Series (index=gdf.index) with values:
-        'L' — labeled part for training,
-        'U' — hidden part for validation within city,
-        'X' — initially unlabeled (if any).
-        Splitting is done independently for each city.
-
-        Args:
-            gdf (gpd.GeoDataFrame): Input GeoDataFrame
-            target_col (str, optional): Name of target column. Defaults to 'category'.
-            test_size (float, optional): Proportion of data for validation. Defaults to 0.2.
-            random_state (int, optional): Random seed. Defaults to 42.
-
-        Returns:
-            pd.Series: Series with split assignments
-        """
-        if 'city' not in gdf.columns:
-            gdf = gdf.assign(city="__one__")
-
-        assign = pd.Series('X', index=gdf.index, dtype=object)
-        rng = np.random.default_rng(random_state)
-        labeled_all = gdf.index[gdf[target_col].notna()]
-
-        for _, idx in gdf.groupby('city').indices.items():
-            idx = pd.Index(idx)
-
-            labeled_idx = idx.intersection(labeled_all)
-            n_lab = len(labeled_idx)
-            if n_lab == 0:
-                continue
-
-            n_val = int(round(test_size * n_lab))
-            n_val = max(1, min(n_val, n_lab))
-
-            if n_lab == 1:
-                val_idx = labeled_idx
-                train_idx = idx.difference(val_idx)
-            else:
-                val_idx = pd.Index(rng.choice(labeled_idx.to_numpy(), size=n_val, replace=False))
-                train_idx = labeled_idx.difference(val_idx)
-
-            assign.loc[train_idx] = 'L'
-            assign.loc[val_idx]   = 'U'
-
-        return assign
 
     # ---------------------- train / predict ----------------------
 
@@ -309,194 +353,68 @@ class SpatialClassifier(BaseContext):
         self,
         train_gdf: gpd.GeoDataFrame | list | tuple,
         *,
-        target_col: str = 'category',
-        test_size: float = 0.2,
-        random_state: int | None = None,
-        assign_column: str = TRAIN_ASSIGN_COLUMN,
+        require_strict_categories: bool = True,
+        **_,
     ) -> gpd.GeoDataFrame:
         """
-        Run full preprocessing pipeline for training data and return a GeoDataFrame ready for training.
-
-        The returned GeoDataFrame contains engineered features together with original geometry/category
-        columns and an additional column specified by ``assign_column`` holding the L/U split labels.
-
-        Args:
-            train_gdf (gpd.GeoDataFrame | list | tuple): Raw training data.
-            target_col (str, optional): Target column used for split. Defaults to 'category'.
-            test_size (float, optional): Fraction for validation split. Defaults to 0.2.
-            random_state (int | None, optional): RNG seed for split. Defaults to None.
-            assign_column (str, optional): Column name to store L/U assignments. Defaults to TRAIN_ASSIGN_COLUMN.
-
-        Returns:
-            gpd.GeoDataFrame: Preprocessed training data with split labels stored in ``assign_column``.
+        Backward-compatible wrapper around ``preprocess_data`` for training datasets.
         """
-        normalized_train = self._normalize_input(train_gdf)
-        assignments = self.split_l_u_per_city(
-            normalized_train,
-            target_col=target_col,
-            test_size=test_size,
-            random_state=random_state,
+        return self.preprocess_data(
+            train_gdf,
+            fit_scaler=True,
+            require_strict_categories=require_strict_categories,
         )
-
-        processed_train = self.data_processor.prepare_data(
-            normalized_train,
-            known_gdf_for_rec_zones=normalized_train,
-            require_strict_categories=True,
-        )
-
-        processed = processed_train.copy()
-        if 'category' not in processed.columns and 'category' in normalized_train.columns:
-            processed['category'] = normalized_train['category'].values
-        if 'city' in normalized_train.columns:
-            processed['city'] = normalized_train['city'].values
-        if 'city_center' in normalized_train.columns:
-            processed['city_center'] = normalized_train['city_center'].values
-        processed[assign_column] = assignments.values
-        processed['geometry'] = normalized_train.geometry.values
-
-        processed_gdf = gpd.GeoDataFrame(processed, geometry='geometry', crs=normalized_train.crs)
-
-        self._last_normalized_train = normalized_train.copy()
-        self._last_train_assignments = assignments.copy()
-        self._train_assign_column = assign_column
-
-        return processed_gdf
 
     def preprocess_run_data(
         self,
         gdf: gpd.GeoDataFrame | list | tuple,
         *,
         require_strict_categories: bool = False,
+        **_,
     ) -> gpd.GeoDataFrame:
         """
-        Run full preprocessing pipeline for inference data and return a GeoDataFrame ready for prediction.
-
-        The returned GeoDataFrame contains engineered features alongside original geometry/category columns.
-        Missing feature columns (w.r.t. ``self.feature_cols``) are appended with zeros to keep compatibility
-        with the trained model.
-
-        Args:
-            gdf (gpd.GeoDataFrame | list | tuple): Raw inference data.
-            require_strict_categories (bool, optional): Whether to enforce category presence.
-                Defaults to False.
-
-        Returns:
-            gpd.GeoDataFrame: Preprocessed inference data suitable for ``predict``/``run``.
+        Backward-compatible wrapper around ``preprocess_data`` for inference datasets.
         """
-        normalized = self._normalize_input(gdf)
-        processed = self.data_processor.prepare_data(
-            normalized,
-            known_gdf_for_rec_zones=self.known_gdf_for_rec_zones,
+        return self.preprocess_data(
+            gdf,
+            fit_scaler=False,
             require_strict_categories=require_strict_categories,
         )
-
-        processed_df = processed.copy()
-        if 'category' not in processed_df.columns and 'category' in normalized.columns:
-            processed_df['category'] = normalized['category'].values
-        if 'city' in normalized.columns:
-            processed_df['city'] = normalized['city'].values
-        if 'city_center' in normalized.columns:
-            processed_df['city_center'] = normalized['city_center'].values
-        processed_df['geometry'] = normalized.geometry.values
-
-        processed_gdf = gpd.GeoDataFrame(processed_df, geometry='geometry', crs=normalized.crs)
-
-        if self.feature_cols:
-            for feature in self.feature_cols:
-                if feature not in processed_gdf.columns:
-                    processed_gdf[feature] = 0.0
-            feature_set = [c for c in self.feature_cols if c in processed_gdf.columns]
-            meta_cols = [c for c in ['geometry', 'category', 'city', 'city_center'] if c in processed_gdf.columns]
-            other_cols = [c for c in processed_gdf.columns if c not in feature_set + meta_cols]
-            processed_gdf = processed_gdf[feature_set + other_cols + meta_cols]
-
-        return processed_gdf
 
     def train(
         self,
         train_gdf: gpd.GeoDataFrame | list | tuple,
-        *,
-        assign_column: str | None = None,
-        normalized_gdf: gpd.GeoDataFrame | None = None,
-    ) -> None:
+    ) -> float:
         """
-        Training with city-wise L/U split:
-        - Uses provided preprocessed data if available (identified by presence of the assignment column)
-        - Otherwise runs preprocessing automatically.
+        Train the spatial classifier using all available labeled data.
 
         Args:
-            train_gdf (gpd.GeoDataFrame | list | tuple): Training data
-            assign_column (str | None, optional): Column name with L/U assignments when data is preprocessed.
-                Defaults to ``TRAIN_ASSIGN_COLUMN``.
-            normalized_gdf (gpd.GeoDataFrame | None, optional): Normalized training GeoDataFrame providing
-                spatial context for inference. Required if ``train_gdf`` is already preprocessed and no prior
-                call to ``preprocess_training_data`` has been made.
+            train_gdf: Raw training data (GeoDataFrame or list of GeoDataFrames).
 
         Returns:
-            float: Training score
+            float: Training score computed on the same dataset (for reference).
         """
-        assign_col = assign_column or self._train_assign_column or TRAIN_ASSIGN_COLUMN
+        # processed_train = self.preprocess_data(
+        #     train_gdf,
+        #     fit_scaler=True,
+        #     require_strict_categories=True,
+        # )
 
-        if isinstance(train_gdf, gpd.GeoDataFrame) and assign_col in train_gdf.columns:
-            processed_train = train_gdf.copy()
-            assignments = processed_train[assign_col]
-            normalized_train = normalized_gdf
-            if normalized_train is None:
-                normalized_train = self._last_normalized_train
-            if normalized_train is None:
-                normalized_train = self.known_gdf_for_rec_zones
-            if normalized_train is None:
-                raise ValueError(
-                    "Normalized training data is required. "
-                    "Call preprocess_training_data first or pass normalized_gdf."
-                )
-        else:
-            processed_train = self.preprocess_training_data(
-                train_gdf,
-                assign_column=assign_col,
-            )
-            assignments = self._last_train_assignments
-            normalized_train = self._last_normalized_train
-            if assignments is None or normalized_train is None:
-                raise RuntimeError("Failed to obtain preprocessing context for training.")
+        self.processed_train_for_context = train_gdf.copy()
 
-        # keep context for inference/downstream needs
-        normalized_copy = normalized_train.copy()
-        self.known_gdf_for_rec_zones = normalized_copy
-        self.processed_train_for_context = processed_train.copy()
-        self._train_assign_column = assign_col
-        self._last_normalized_train = normalized_copy
+        if 'category' not in train_gdf.columns:
+            raise ValueError("Training data must contain the 'category' column.")
 
-        excluded_columns = {'geometry', 'category', 'city', 'city_center', assign_col}
-        excluded_columns |= set(getattr(self.data_processor, 'columns_to_log', []))
-        self.feature_cols = [c for c in processed_train.columns if c not in excluded_columns]
+        y_series = train_gdf['category'].map(category_to_index)
+        if y_series.isnull().any():
+            missing = train_gdf.loc[y_series.isnull(), 'category'].unique()
+            raise ValueError(f"Unknown categories encountered during training: {missing}")
 
-        train_frame = processed_train.copy()
-        train_frame[self.target_col] = train_frame["category"].map(category_to_index)
+        X = train_gdf[self.feature_cols].values
+        y = y_series.to_numpy(dtype=int)
 
-        # align assign and processed_train
-        assignments = assignments.reindex(train_frame.index)
-        self._last_train_assignments = assignments.copy()
-        is_L = (assignments == 'L')
-        is_U = (assignments == 'U')
-        used_mask = is_L | is_U
-
-        # Only require mapped indices for rows actually used for training/validation (L or U)
-        if train_frame.loc[used_mask, self.target_col].isnull().any():
-            raise ValueError("Some category values used for training/validation could not be mapped to index.")
-
-        X_L = train_frame.loc[is_L, self.feature_cols].values
-        y_L = train_frame.loc[is_L, self.target_col].values
-
-        if is_U.any():
-            X_U = train_frame.loc[is_U, self.feature_cols].values
-            y_U = train_frame.loc[is_U, self.target_col].values
-        else:
-            X_U = np.empty((0, len(self.feature_cols)), dtype=float)
-            y_U = np.empty((0,), dtype=int)
-
-        score = self.strategy.train(X_L, y_L, X_U, y_U)
-        # Ensure class_names_ strictly follows the model.classes_ order
+        score = self.strategy.train(X, y, X, y)
+        self.is_fitted = True
         self.classes_ = list(self.strategy.model.classes_)
         self.class_names_ = [INDEX_TO_CATEGORY[i] for i in self.classes_]
         return score
@@ -598,7 +516,7 @@ class SpatialClassifier(BaseContext):
         if self.class_names_ is None:
             self.classes_ = list(self.strategy.model.classes_)
             # optional guard: ensure current model is trained with our category set size
-            if len(self.classes_) != len(LandUseCategory):
+            if len(self.classes_) != len(LandUseCategory) - 1:
                 raise ValueError(
                     "Loaded model classes do not match current LandUseCategory set. "
                     "Please retrain the model with updated categories."
@@ -633,6 +551,28 @@ class SpatialClassifier(BaseContext):
 
         return results if was_list else results[0]
 
+    def save_scaler(self, path: str | Path) -> None:
+        """
+        Persist the fitted scaler and feature list to disk.
+        """
+        if self.scaler is None or not self.feature_cols:
+            raise ValueError("Scaler is not initialized. Train the classifier before saving.")
+        state = {
+            "scaler": self.scaler,
+            "feature_cols": self.feature_cols,
+        }
+        joblib.dump(state, str(path))
+
+    def load_scaler(self, path: str | Path) -> None:
+        """
+        Load a previously saved scaler + feature column order.
+        """
+        state = joblib.load(str(path))
+        self.scaler = state.get("scaler")
+        self.feature_cols = state.get("feature_cols")
+        if self.scaler is None or not self.feature_cols:
+            raise ValueError("Loaded scaler state is incomplete.")
+
     @classmethod
     def default(cls) -> "SpatialClassifier":
         """
@@ -641,7 +581,14 @@ class SpatialClassifier(BaseContext):
         Returns:
             SpatialClassifier: Default classifier instance
         """
-        return cls(get_default_strategy())
+        inst = cls(get_default_strategy())
+        try:
+            p = Path(DEFAULT_ARTIFACTS_DIR) / "scaler.joblib"
+            if p.exists():
+                inst.load_scaler(p)
+        except Exception:
+            pass
+        return inst
 
     def save_mistakes(self, test_gdf: gpd.GeoDataFrame, 
                       predictions: np.ndarray,
@@ -669,7 +616,34 @@ class SpatialClassifier(BaseContext):
         )
 
         self._save_geojson(mistakes, filename)
+    # ---------------------- persistence ----------------------
 
+    def save(self, path: str | Path) -> None:
+        """
+        Save strategy (model) and scaler state in the same directory.
+
+        - strategy artifacts are managed by the strategy itself
+        - scaler state (scaler + feature_cols) is saved via joblib in scaler.joblib
+        """
+        path = Path(path)
+        path.mkdir(parents=True, exist_ok=True)
+        # Save strategy artifacts
+        self.strategy.save(str(path))
+        # Save scaler state
+        scaler_path = path / "scaler.joblib"
+        self.save_scaler(scaler_path)
+
+    def load(self, path: str | Path) -> None:
+        """
+        Load strategy (model) and scaler state from the same directory.
+        """
+        path = Path(path)
+        # Load strategy artifacts
+        self.strategy.load(str(path))
+        # Load scaler state if present
+        scaler_path = path / "scaler.joblib"
+        if scaler_path.exists():
+            self.load_scaler(scaler_path)
     def save_predictions_to_geojson(self, gdf: gpd.GeoDataFrame, 
                                     predictions: np.ndarray,
                                     probabilities: np.ndarray,
@@ -723,3 +697,5 @@ class SpatialClassifier(BaseContext):
             save_gdf.to_file(filename, driver='GeoJSON', encoding='utf-8')
         except Exception as e:
             raise RuntimeError(f"Error saving {filename}: {str(e)}") from e
+
+
