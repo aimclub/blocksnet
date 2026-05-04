@@ -22,6 +22,18 @@ LU_CONSTS = {
     LandUse.RECREATION: 0.05,
 }
 DEFAULT_LU_CONST = 0.06
+
+LU_TRIP_RATES = {
+    LandUse.RESIDENTIAL: 1.0,
+    LandUse.BUSINESS: 2.7,
+    LandUse.INDUSTRIAL: 2.0,
+    LandUse.SPECIAL: 1.2,
+    LandUse.TRANSPORT: 1.0,
+    LandUse.RECREATION: 1.4,
+    LandUse.AGRICULTURE: 0.2,
+}
+DEFAULT_TRIP_RATE = 1.0
+
 DEFAULT_ACCESSIBILITY = 10
 
 
@@ -68,7 +80,12 @@ def _integerize_origin_constrained_od(od_prob_mx: pd.DataFrame, demand: pd.Serie
     return od_int
 
 
-def _calculate_nodes_weights(blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, accessibility: float) -> pd.DataFrame:
+def _calculate_nodes_weights(
+    blocks_df: gpd.GeoDataFrame,
+    acc_mx: pd.DataFrame,
+    accessibility: float,
+    trip_rates: dict[LandUse, float],
+) -> pd.DataFrame:
 
     logger.info("Identifying nearest nodes to blocks")
     acc_mx = acc_mx.replace(0, 0.1)
@@ -81,10 +98,14 @@ def _calculate_nodes_weights(blocks_df: gpd.GeoDataFrame, acc_mx: pd.DataFrame, 
     weights_sum = weights_mx.sum(axis=1)
     weights_mx = weights_mx.div(weights_sum, axis=0)
 
+    effective_population = blocks_df[POPULATION_COLUMN] * blocks_df.land_use.map(
+        lambda lu: trip_rates.get(lu, DEFAULT_TRIP_RATE)
+    )
+
     logger.info("Distributing")
     nodes_df = pd.DataFrame(index=acc_mx.columns)
     nodes_df[ATTRACTIVENESS_COLUMN] = weights_mx.mul(blocks_df[ATTRACTIVENESS_COLUMN], axis=0).sum(axis=0)
-    nodes_df[POPULATION_COLUMN] = weights_mx.mul(blocks_df[POPULATION_COLUMN], axis=0).sum(axis=0)
+    nodes_df[POPULATION_COLUMN] = weights_mx.mul(effective_population, axis=0).sum(axis=0)
     return nodes_df
 
 
@@ -99,10 +120,10 @@ def _calculate_diversity(blocks_df: pd.DataFrame, services_count_dfs: list[pd.Da
 def _calculate_attractiveness(blocks_df: pd.DataFrame, lu_consts: dict[LandUse, float]) -> pd.DataFrame:
     logger.info("Calculating attractiveness")
     blocks_df = blocks_df.copy()
-    scaler = MinMaxScaler()
-    columns = [DENSITY_COLUMN, SHANNON_DIVERSITY_COLUMN]
-    blocks_df[columns] = scaler.fit_transform(blocks_df[columns])
     blocks_df[LU_CONST_COLUMN] = blocks_df.land_use.apply(lambda lu: lu_consts.get(lu, DEFAULT_LU_CONST))
+    scaler = MinMaxScaler()
+    columns = [DENSITY_COLUMN, SHANNON_DIVERSITY_COLUMN, LU_CONST_COLUMN]
+    blocks_df[columns] = scaler.fit_transform(blocks_df[columns])
     blocks_df[ATTRACTIVENESS_COLUMN] = (
         blocks_df[DENSITY_COLUMN] + blocks_df[SHANNON_DIVERSITY_COLUMN] + blocks_df[LU_CONST_COLUMN]
     )
@@ -145,6 +166,7 @@ def origin_destination_matrix(
     services_count_dfs: list[pd.DataFrame],
     accessibility: float = DEFAULT_ACCESSIBILITY,
     lu_consts: dict[LandUse, float] = LU_CONSTS,
+    lu_trip_rates: dict[LandUse, float] = LU_TRIP_RATES,
 ) -> pd.DataFrame:
     
     """
@@ -229,6 +251,6 @@ def origin_destination_matrix(
     blocks_df = _calculate_diversity(blocks_df, services_count_dfs)
     blocks_df = _calculate_attractiveness(blocks_df, lu_consts)
 
-    nodes_gdf = _calculate_nodes_weights(blocks_df, blocks_to_nodes_mx, accessibility)
+    nodes_gdf = _calculate_nodes_weights(blocks_df, blocks_to_nodes_mx, accessibility, lu_trip_rates)
 
     return _calculate_od_mx(nodes_gdf, nodes_to_nodes_mx)
