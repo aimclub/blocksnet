@@ -176,6 +176,7 @@ class TPEOptimizer(Optimizer):
         constraints: Constraints,
         vars_order: VariablesOrder = None,
         vars_chooser: VariableChooser = None,
+        n_ei_candidates: int = 200,
     ):
         """
         Initialize the TPE optimizer with objective, constraints, and variable ordering.
@@ -190,6 +191,10 @@ class TPEOptimizer(Optimizer):
             The order in which variables are optimized (default is NeutralOrder).
         vars_chooser : VariableChooser, optional
             Strategy for choosing variables to optimize (default is WeightChooser).
+        n_ei_candidates : int, optional
+            Number of EI candidates considered by TPE per trial. The default
+            is ``200`` (production sampler); verification runs may lower this
+            to keep wall time tractable.
         """
         super().__init__(objective, constraints)
 
@@ -198,7 +203,7 @@ class TPEOptimizer(Optimizer):
             prior_weight=2,
             consider_endpoints=True,
             n_startup_trials=0,
-            n_ei_candidates=200,
+            n_ei_candidates=n_ei_candidates,
         )
         self._study = optuna.create_study(direction=optuna.study.StudyDirection.MAXIMIZE, sampler=sampler)
 

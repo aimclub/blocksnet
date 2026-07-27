@@ -189,19 +189,30 @@ class ProvisionAdapter:
             old_provision_df["demand"] = self.get_start_provision_df(service_type)[DEMAND_LEFT_COLUMN]
 
             if build_floor_areas is not None:
-                # 3' BFA Refill
-                for block_id in delta_df.index.unique():
+                # 3' BFA Refill — demand must include every residential block that
+                # got new residents, not only those hosting this service type.
+                # Otherwise blocks with no local unit contribute population but
+                # no demand, and the catchment LP under-weights their needs.
+                extra_population = {}
+                for block_id, land_use in self._blocks_lus.items():
+                    if land_use.name != "RESIDENTIAL":
+                        continue
                     block_id = int(block_id)
-                    if self._blocks_lus[block_id].name == "RESIDENTIAL":
-                        bfa_unit = (
-                            build_floor_areas[block_id] - agg_total_build_area.loc[block_id, "total_build_floor_area"]
-                        )
-                        delta_df.loc[block_id, "max_population"] = round_floor(
-                            (bfa_unit * (1 / BFA_COEF - 1) * demand) / (LIVING_DEMAND * 1000)
-                        )
+                    used_bfa = (
+                        agg_total_build_area.loc[block_id, "total_build_floor_area"]
+                        if block_id in agg_total_build_area.index
+                        else 0
+                    )
+                    bfa_unit = build_floor_areas[block_id] - used_bfa
+                    extra_population[block_id] = round_floor(
+                        (bfa_unit * (1 / BFA_COEF - 1) * demand) / (LIVING_DEMAND * 1000)
+                    )
 
-                # Update demand
-                old_provision_df.loc[delta_df.index, "demand"] += delta_df["max_population"]
+                # Update demand for every residential block with new residents
+                for block_id, pop in extra_population.items():
+                    old_provision_df.loc[block_id, "demand"] += pop
+                    if block_id in delta_df.index:
+                        delta_df.loc[block_id, "max_population"] = pop
 
             if old_provision_df["demand"].sum() == 0:
                 if old_provision_df["capacity"].sum() > 0:
