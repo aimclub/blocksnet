@@ -20,11 +20,34 @@ class UnitsSchema(DfSchema):
     site_area: Series[float] = Field(ge=0)
     build_floor_area: Series[float] = Field(ge=0)
 
-    # @classmethod
-    # def _before_validate(cls, df: pd.DataFrame):
-    #     if "parking_area" in df:
-    #         df["site_area"] += df["parking_area"]
-    #     return df
+    @classmethod
+    def _before_validate(cls, df: pd.DataFrame):
+        # Reject units that occupy neither site area nor build floor area:
+        # the optimizer treats them as a degenerate case (sort key divides by
+        # ``build_floor_area`` for ``site_area == 0`` units). Validating at
+        # load time keeps the run-time invariant intact.
+        bad = df[(df.get("site_area", 0) == 0) & (df.get("build_floor_area", 0) == 0)]
+        if not bad.empty:
+            offenders = bad.assign(_label=bad.index.astype(str))._label.tolist()
+            raise ValueError(
+                "Service units with both site_area=0 and build_floor_area=0 are not allowed: "
+                f"{offenders}"
+            )
+        # Embedded units (site_area == 0) cannot absorb a parking footprint in
+        # the standard ``site_area`` channel; fold ``parking_area`` into the
+        # build floor area as a deterministic, capacity-neutral surcharge so
+        # the parking demand participates in BFA constraints instead of being
+        # silently dropped. For units with a real site footprint, parking
+        # extends the on-site footprint.
+        if "parking_area" in df.columns:
+            embedded_mask = df["site_area"] == 0
+            df.loc[embedded_mask, "build_floor_area"] = (
+                df.loc[embedded_mask, "build_floor_area"] + df.loc[embedded_mask, "parking_area"]
+            )
+            df.loc[~embedded_mask, "site_area"] = (
+                df.loc[~embedded_mask, "site_area"] + df.loc[~embedded_mask, "parking_area"]
+            )
+        return df
 
 
 class LandUseSchema(DfSchema):
