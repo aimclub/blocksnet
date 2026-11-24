@@ -52,6 +52,8 @@ class VariableAdapter(ABC):
         """
         self._X: List[Variable] = []
         self._blocks_bfa = {}
+        self._blocks_gfa = {}
+        self._cap_dependents = {}
         self._blocks_cap = {}
         self._blocks_sa = {}
         self._X_prev = None
@@ -161,6 +163,49 @@ class VariableAdapter(ABC):
             Dictionary mapping block IDs to their build floor area values.
         """
         self._blocks_bfa = blocks_bfa
+
+    def update_gfa(self, blocks_gfa: Dict[int, float]) -> None:
+        """
+        Update the ground floor area available to built-in services.
+
+        Parameters
+        ----------
+        blocks_gfa : Dict[int, float]
+            Dictionary mapping block IDs to the ground floor area built-in
+            services may occupy.
+        """
+        self._blocks_gfa = blocks_gfa
+
+    def update_cap_dependents(self, dependents: Dict[str, Dict[int, List[int]]]) -> None:
+        """
+        Update which blocks share the demand consumed by building in a block.
+
+        Parameters
+        ----------
+        dependents : Dict[str, Dict[int, List[int]]]
+            For a service type and a block, the blocks whose catchment demand
+            is consumed when that block is built on.
+        """
+        self._cap_dependents = dependents
+
+    def cap_dependents(self, block_id: int, service_type: str) -> List[int]:
+        """
+        Get the blocks sharing the demand consumed by building in a block.
+
+        Parameters
+        ----------
+        block_id : int
+            ID of the block services would be placed in.
+        service_type : str
+            Service type identifier.
+
+        Returns
+        -------
+        List[int]
+            Blocks whose budget this placement draws on, the block itself if
+            no mapping was provided.
+        """
+        return self._cap_dependents.get(service_type, {}).get(block_id, [block_id])
 
     def update_cap(self, blocks_cap: Dict[int, Dict[str, float]]) -> None:
         """

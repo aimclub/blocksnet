@@ -212,6 +212,7 @@ class WeightedObjective(Objective):
         max_evals: int,
         weights: Dict[str, float],
         penalty_func: Penalty = None,
+        population_weight: float = 0.0,
     ):
         """
         Initialize the weighted objective function.
@@ -228,9 +229,21 @@ class WeightedObjective(Objective):
             A dictionary containing weights for the different parameters in the problem.
         penalty_func : Penalty
             The penalty function.
+        population_weight : float
+            Weight of the share of housing capacity a solution keeps. Services
+            and residents compete for the same floor area, and a service both
+            adds capacity and removes the residents whose demand it would have
+            had to meet, so a provision-only objective never prefers housing
+            anyone. Defaults to ``0``, which keeps scoring on provision alone:
+            provisions move within a few percent while this term spans the
+            whole ``[0, 1]``, so a weight anywhere near the service weights
+            drowns the provision signal and the optimizer stops placing
+            services at all. Raise it only to deliberately bias a run towards
+            housing, and check the service counts that come out.
         """
         super().__init__(num_params, facade, max_evals, penalty_func)
         self._weights = weights
+        self._population_weight = 0.0 if population_weight is None else float(population_weight)
 
     def evaluate(self, x: ArrayLike, suggested: bool = True) -> tuple[Dict[str, float], float]:
         """
@@ -252,6 +265,7 @@ class WeightedObjective(Objective):
 
         if np.count_nonzero(x) == 0:
             provisions = self._facade.start_provisions
+            population_ratio = 1.0  # no services, so the blocks keep all their housing
         else:
             provisions, changed_services = self._facade.get_provisions(self._x_last, x)
 
@@ -260,7 +274,9 @@ class WeightedObjective(Objective):
             self._current_func_evals += len(changed_services)
 
             self._x_last = np.array([var.count for var in self._facade.get_X(x)])
+            population_ratio = self._facade.last_population_ratio
 
         services = self._weights.keys() & provisions.keys()
         obj_value = sum(provisions[st] * self._weights[st] for st in services)
+        obj_value += self._population_weight * population_ratio
         return provisions, obj_value

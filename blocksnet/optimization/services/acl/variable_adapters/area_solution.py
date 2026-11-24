@@ -39,6 +39,29 @@ class Unit:
     capacity: int
 
 
+def unit_area(unit) -> float:
+    """
+    Area a single service unit consumes from the area granted by the solution.
+
+    A service either takes a plot of its own (``site_area > 0``) or is built
+    into a building and only takes build floor area. Both are metered against
+    the same granted area: otherwise built-in services cost the solution
+    nothing and are placed up to the block's whole floor area budget no matter
+    what the solution vector says.
+
+    Parameters
+    ----------
+    unit : Unit | Variable
+        Object exposing ``site_area`` and ``build_floor_area``.
+
+    Returns
+    -------
+    float
+        Area consumed by one unit, ``0`` if the unit consumes no area at all.
+    """
+    return unit.site_area if unit.site_area > 0 else unit.build_floor_area
+
+
 class AreaSolution(VariableAdapter):
     """
     A class for managing and adapting area-based service solutions in urban optimization problems.
@@ -102,7 +125,10 @@ class AreaSolution(VariableAdapter):
         if service_type not in service_types_config[land_use]:
             return
 
-        x_area = AreaVariable(block_id=block_id, service_type=service_type, site_area=1, build_floor_area=0, capacity=0)
+        # One unit of this variable is one square metre granted to the service
+        # type in the block. It is charged to both area budgets of the block,
+        # since the units it expands into may consume either of them.
+        x_area = AreaVariable(block_id=block_id, service_type=service_type, site_area=1, build_floor_area=1, capacity=0)
 
         units = service_types_config.units
 
@@ -115,17 +141,26 @@ class AreaSolution(VariableAdapter):
             self._units_lists[service_type].append(u)
             self._X.append(x)
 
-        def capacity_area_sortkey(u: Unit):
-            if u.site_area == 0:
-                return 1 / u.build_floor_area
-            return -u.capacity / u.site_area
+        def capacity_sortkey(u: Unit):
+            # Largest facility first, so a service is delivered by as few of
+            # them as possible; ties go to the one taking the least area.
+            # Ranking by capacity per square metre instead made a built-in
+            # school (2400 m2 of floor for 250 places) beat a real one with
+            # grounds (33000 m2 of plot for 1100), because it treated plot area
+            # and floor area as the same resource. They are not.
+            return (-u.capacity, unit_area(u))
 
-        self._units_lists[service_type].sort(key=capacity_area_sortkey)
+        self._units_lists[service_type].sort(key=capacity_sortkey)
 
-        if np.count_nonzero(np.array([u.site_area for u in self._units_lists[service_type]])) > 0:
-            x_area.capacity = min(
-                [u.capacity / u.site_area for u in self._units_lists[service_type] if u.site_area > 0]
-            )
+        # Capacity produced per square metre of granted area, taken from the
+        # unit the injection reaches for first. It has to match the ordering
+        # above: with the densest unit instead, the granted area was bounded by
+        # `demand / density_of_the_smallest_built_in_unit`, which for a school
+        # never reached the 33000 m2 a real one needs, so a facility with
+        # grounds could not be granted enough area to ever be placed.
+        leading = next((u for u in self._units_lists[service_type] if unit_area(u) > 0), None)
+        if leading is not None:
+            x_area.capacity = leading.capacity / unit_area(leading)
         self._areas_X.append(x_area)
 
     def _inject_area_to_X(self, x_area: AreaVariable):
@@ -146,19 +181,46 @@ class AreaSolution(VariableAdapter):
                     and (x.build_floor_area - u.build_floor_area) < 1e-6
                     and x.capacity == u.capacity
                 ):
+                    x_unit_area = unit_area(x)
                     addition = 1e9
                     if x.capacity != 0:
-                        addition = int(np.floor(self._blocks_cap_cp[x.block_id][x.service_type] / x.capacity))
+                        # Demand belongs to a catchment, not to a block. Taking
+                        # only this block's budget let every block of a shared
+                        # catchment serve that catchment in full: three blocks
+                        # placed 690 library places against a demand of 249.
+                        dependents = [
+                            d
+                            for d in self.cap_dependents(x.block_id, x.service_type)
+                            if x.service_type in self._blocks_cap_cp.get(d, {})
+                        ]
+                        available = min(
+                            (self._blocks_cap_cp[d][x.service_type] for d in dependents),
+                            default=self._blocks_cap_cp[x.block_id][x.service_type],
+                        )
+                        addition = int(np.floor(available / x.capacity))
                     if x.build_floor_area != 0:
                         addition = min(addition, int(np.floor(self._blocks_bfa_cp[x.block_id] / x.build_floor_area)))
-                    if x.site_area != 0:
+                        if x_unit_area == x.build_floor_area:  # built-in, so it sits on the ground floor
+                            ground_floor = self._blocks_gfa_cp.get(x.block_id, float("inf"))
+                            addition = min(addition, int(np.floor(ground_floor / x.build_floor_area)))
+                    # Every unit is charged to the granted area, whether it
+                    # takes a plot or is built in. A unit consuming no area at
+                    # all cannot be metered and is never placed.
+                    if x_unit_area == 0:
+                        addition = 0
+                    else:
                         addition = min(
-                            addition, int(np.floor(self._blocks_sa[x.block_id][x.service_type] / x.site_area))
+                            addition, int(np.floor(self._blocks_sa[x.block_id][x.service_type] / x_unit_area))
                         )
+                    addition = max(addition, 0)
                     x.count += addition
-                    self._blocks_sa[x.block_id][x.service_type] -= x.site_area * addition
+                    self._blocks_sa[x.block_id][x.service_type] -= x_unit_area * addition
                     self._blocks_bfa_cp[x.block_id] -= x.build_floor_area * addition
-                    self._blocks_cap_cp[x.block_id][x.service_type] -= x.capacity * addition
+                    if x.site_area == 0 and x.block_id in self._blocks_gfa_cp:
+                        self._blocks_gfa_cp[x.block_id] -= x.build_floor_area * addition
+                    for dependent in self.cap_dependents(x.block_id, x.service_type):
+                        if x.service_type in self._blocks_cap_cp.get(dependent, {}):
+                            self._blocks_cap_cp[dependent][x.service_type] -= x.capacity * addition
                     break
 
     def _inject_solution_to_X(self, solution: ArrayLike):
@@ -185,6 +247,7 @@ class AreaSolution(VariableAdapter):
             for block_id in self._blocks_lu.keys()
         }
         self._blocks_bfa_cp = copy.deepcopy(self._blocks_bfa)
+        self._blocks_gfa_cp = copy.deepcopy(self._blocks_gfa)
         self._blocks_cap_cp = copy.deepcopy(self._blocks_cap)
         for var, val in zip(self._areas_X, solution):
             var.count = int(val)
@@ -199,7 +262,11 @@ class AreaSolution(VariableAdapter):
                     self._blocks_bfa_cp[var.block_id] = 0
                 else:
                     self._blocks_bfa_cp[var.block_id] -= var.total_build_floor_area
-                self._blocks_cap_cp[var.block_id][var.service_type] -= var.total_capacity
+                if var.site_area == 0 and var.block_id in self._blocks_gfa_cp:
+                    self._blocks_gfa_cp[var.block_id] -= var.total_build_floor_area
+                for dependent in self.cap_dependents(var.block_id, var.service_type):
+                    if var.service_type in self._blocks_cap_cp.get(dependent, {}):
+                        self._blocks_cap_cp[dependent][var.service_type] -= var.total_capacity
         else:
             # Clear all area and capacity of solution
             for var in self._X:
