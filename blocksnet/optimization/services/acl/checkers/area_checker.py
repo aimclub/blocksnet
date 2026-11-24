@@ -2,6 +2,7 @@ from typing import Dict, List
 
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from blocksnet.config.land_use.common.fsi_ranges import fsi_ranges
 from blocksnet.config.land_use.common.gsi_ranges import gsi_ranges
@@ -11,6 +12,9 @@ from blocksnet.optimization.services.common.variable import Variable
 
 BFA_COEF = 0.3
 SA_COEF = 0.8
+# Share of a block's ground floor that built-in services may occupy. The rest
+# is entrances, stairwells and utility rooms.
+GROUND_FLOOR_COEF = 0.7
 
 
 class AreaChecker:
@@ -28,12 +32,40 @@ class AreaChecker:
         Parameters
         ----------
         blocks_df : pd.DataFrame
-            DataFrame containing block information, must include 'site_area' column.
+            DataFrame containing block information, must include 'site_area'.
+            A 'footprint_area' column, the area the buildings cover, is used for
+            the ground floor budget; without it the largest ground floor the
+            land use allows is assumed.
         """
         self._bfa_coef = BFA_COEF
         self._sa_coef = SA_COEF
         self.site_areas = {block_id: cols["site_area"] for block_id, cols in blocks_df.iterrows()}
         self.build_floor_areas = {block_id: cols["site_area"] for block_id, cols in blocks_df.iterrows()}
+        # Built-in services sit on the ground floor of the buildings, so their
+        # total area cannot exceed the part of that floor they may occupy.
+        # Unlike the other two budgets this one is not derived from the plot:
+        # it is the footprint the buildings actually cover.
+        has_footprint = "footprint_area" in blocks_df.columns
+        if has_footprint:
+            # A block cannot be covered by more building than it has land. When
+            # it looks that way, `site_area` is usually not the block polygon's
+            # area but a stand-in for it, and every area budget is then wrong.
+            overbuilt = [
+                block_id
+                for block_id in blocks_lu
+                if blocks_df.loc[block_id, "footprint_area"] > blocks_df.loc[block_id, "site_area"] + 1e-6
+            ]
+            if overbuilt:
+                logger.warning(
+                    f"footprint_area exceeds site_area in {len(overbuilt)} blocks (e.g. {overbuilt[:5]}). "
+                    "site_area must be the area of the block polygon."
+                )
+        self.ground_floor_areas = {
+            block_id: GROUND_FLOOR_COEF
+            * (cols["footprint_area"] if has_footprint else cols["site_area"] * gsi_ranges[blocks_lu[block_id]][1])
+            for block_id, cols in blocks_df.iterrows()
+            if block_id in blocks_lu
+        }
         for block_id, land_use in blocks_lu.items():
             alpha = fsi_ranges[land_use][1] * (
                 self._bfa_coef if land_use == LandUse.RESIDENTIAL else 1.0
@@ -99,7 +131,15 @@ class AreaChecker:
         if var.site_area + var.build_floor_area == 0:
             return -1
         if var.site_area == 0:
-            return int(np.floor(self.build_floor_areas[var.block_id] / var.build_floor_area))
+            return int(
+                np.floor(
+                    min(
+                        self.build_floor_areas[var.block_id],
+                        self.ground_floor_areas.get(var.block_id, float("inf")),
+                    )
+                    / var.build_floor_area
+                )
+            )
         if var.build_floor_area == 0:
             return int(np.floor(self.site_areas[var.block_id] / var.site_area))
         return min(
@@ -145,16 +185,19 @@ class AreaChecker:
             True if all blocks in the solution satisfy area constraints, False otherwise.
         """
         block_ids = set(var.block_id for var in X)
-        block_sums = {block_id: [0, 0] for block_id in block_ids}
+        block_sums = {block_id: [0, 0, 0] for block_id in block_ids}
 
         # Calculate total used area for each block
         for var in X:
             block_sums[var.block_id][0] += var.total_site_area
             block_sums[var.block_id][1] += var.total_build_floor_area
+            if var.site_area == 0:  # built-in, so it takes up ground floor
+                block_sums[var.block_id][2] += var.total_build_floor_area
 
         # Check if used area <= available area for all blocks
         return all(
             block_sums[block_id][0] <= self.site_areas[block_id]
             and block_sums[block_id][1] <= self.build_floor_areas[block_id]
+            and block_sums[block_id][2] <= self.ground_floor_areas.get(block_id, float("inf"))
             for block_id in block_ids
         )

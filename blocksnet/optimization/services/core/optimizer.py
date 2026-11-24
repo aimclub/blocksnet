@@ -9,7 +9,7 @@ import pandas as pd
 
 from .constraints import Constraints
 from .objective import Objective
-from .variable_choosing import VariableChooser, WeightChooser
+from .variable_choosing import SimpleChooser, VariableChooser
 from .variable_ordering import NeutralOrder, VariablesOrder
 
 
@@ -176,6 +176,8 @@ class TPEOptimizer(Optimizer):
         constraints: Constraints,
         vars_order: VariablesOrder = None,
         vars_chooser: VariableChooser = None,
+        n_ei_candidates: int = 200,
+        sampler_seed: int | None = None,
     ):
         """
         Initialize the TPE optimizer with objective, constraints, and variable ordering.
@@ -190,6 +192,13 @@ class TPEOptimizer(Optimizer):
             The order in which variables are optimized (default is NeutralOrder).
         vars_chooser : VariableChooser, optional
             Strategy for choosing variables to optimize (default is WeightChooser).
+        n_ei_candidates : int, optional
+            Number of EI candidates considered by TPE per trial. The default
+            is ``200`` (production sampler); verification runs may lower this
+            to keep wall time tractable.
+        sampler_seed : int, optional
+            Seed for the TPE sampler. Without it the sampler draws on global
+            RNG state and runs cannot be reproduced.
         """
         super().__init__(objective, constraints)
 
@@ -198,14 +207,18 @@ class TPEOptimizer(Optimizer):
             prior_weight=2,
             consider_endpoints=True,
             n_startup_trials=0,
-            n_ei_candidates=200,
+            n_ei_candidates=n_ei_candidates,
+            seed=sampler_seed,
         )
         self._study = optuna.create_study(direction=optuna.study.StudyDirection.MAXIMIZE, sampler=sampler)
 
         # Set variable ordering method
         self._vars_order = NeutralOrder() if vars_order is None else vars_order
 
-        self._vars_chooser = WeightChooser() if vars_chooser is None else vars_chooser
+        # SimpleChooser optimizes everything and fixes nothing, which is the
+        # neutral default. WeightChooser used to stand here but cannot be built
+        # without arguments, so the default path raised TypeError.
+        self._vars_chooser = SimpleChooser() if vars_chooser is None else vars_chooser
 
         # Set up logging for the optimization process
         logging.basicConfig(filename="OptunaOptimizer.log", level=logging.INFO, filemode="w")
@@ -297,7 +310,11 @@ class TPEOptimizer(Optimizer):
                     val = trial.suggest_int(name=f"x_{var_num}", low=low, high=high)  # workaround
                 else:  # truly fixed for gradient
                     last_trial = self.get_last_trial()
-                    last_trial_val = last_trial.user_attrs.get("params")[var_num]
+                    # No trial has produced a solution yet, which happens when
+                    # the initial one violated the constraints and was pruned.
+                    # There is nothing to hold the variable at but the lower
+                    # bound, which is the previous solution's value.
+                    last_trial_val = low if last_trial is None else last_trial.user_attrs.get("params")[var_num]
                     val = trial.suggest_int(name=f"x_{var_num}", low=last_trial_val, high=last_trial_val)
             else:
                 val = trial.suggest_int(name=f"x_{var_num}", low=0, high=0)
@@ -361,6 +378,11 @@ class TPEOptimizer(Optimizer):
             trial.set_user_attr("suggested", not last_trial_suggested)
             correct_x = np.array([var.count for var in self._constraints.correct_X(x)])
             trial.set_user_attr("params", correct_x)
+            # `params` holds the solution vector, which only means something
+            # relative to the previous trial. The plan itself — how many of each
+            # unit stand where — is recorded separately so a run can report the
+            # arrangement it actually scored.
+            trial.set_user_attr("plan", self._constraints.get_plan())
             self._constraints.update_solution(correct_x)
             logging.info(
                 f"Trial {trial.number}: COMPLETE -> Params: x={correct_x}, Value: {value}, Func evals: {self._objective.current_func_evals}"
