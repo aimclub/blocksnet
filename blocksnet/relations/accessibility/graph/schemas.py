@@ -3,6 +3,7 @@ from blocksnet.utils.validation import GdfSchema
 import networkx as nx
 import pandas as pd
 import pyproj
+import iduedu as ie
 
 
 class TerritorySchema(GdfSchema):
@@ -41,9 +42,11 @@ def _validate_edges(graph: nx.Graph, weight_key: str):
         raise ValueError(f"Edges should contain {weight_key}")
 
 
-def validate_accessibility_graph(graph: nx.Graph, weight_key: str = WEIGHT_KEY):
+def validate_accessibility_graph(graph, weight_key: str = WEIGHT_KEY):
+    if isinstance(graph,ie.UrbanGraph):
+        return
     if not isinstance(graph, nx.Graph):
-        raise ValueError("Graph must be provided as an instance of nx.Graph")
+        raise ValueError("Graph must be provided as an instance of nx.Graph or ie.UrbanGraph")
     _validate_crs(graph)
     _validate_nodes(graph)
     _validate_edges(graph, weight_key)

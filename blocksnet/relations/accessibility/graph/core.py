@@ -1,8 +1,9 @@
-import networkx as nx
+#import networkx as nx
 from typing import Literal
 import shapely
 import geopandas as gpd
 from .schemas import TerritorySchema
+import iduedu as ie
 
 IDUEDU_CRS = 4326
 
@@ -19,16 +20,16 @@ def _get_geometry(territory_gdf: gpd.GeoDataFrame) -> shapely.Polygon:
 
 def get_accessibility_graph(
     territory_gdf: gpd.GeoDataFrame, graph_type: Literal["drive", "walk", "intermodal"], *args, **kwargs
-) -> nx.Graph:
+) -> ie.UrbanGraph:
 
     geometry = _get_geometry(territory_gdf)
 
     import iduedu as ie
 
     if graph_type == "drive":
-        return ie.get_drive_graph(polygon=geometry, *args, **kwargs)
+        return ie.get_drive_graph(territory =geometry, *args, **kwargs)
     if graph_type == "walk":
-        return ie.get_walk_graph(polygon=geometry, *args, **kwargs)
+        return ie.get_walk_graph(territory =geometry, *args, **kwargs)
     if graph_type == "intermodal":
-        return ie.get_intermodal_graph(polygon=geometry, *args, **kwargs)
+        return ie.get_intermodal_graph(territory =geometry, *args, **kwargs)
     raise ValueError("Graph type must be drive, walk or intermodal")

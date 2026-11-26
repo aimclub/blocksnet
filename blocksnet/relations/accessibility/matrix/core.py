@@ -13,7 +13,7 @@ def calculate_accessibility_matrix(
     blocks_gdf.geometry = blocks_gdf.representative_point()
     import iduedu as ie
 
-    accessibility_matrix = ie.get_adj_matrix_gdf_to_gdf(blocks_gdf, blocks_gdf, graph, weight_key, *args, **kwargs)
+    accessibility_matrix = ie.od_matrix(graph,gdf_origins=blocks_gdf, gdf_destinations=blocks_gdf, weight=weight_key, *args, **kwargs)
     return accessibility_matrix
 
 
