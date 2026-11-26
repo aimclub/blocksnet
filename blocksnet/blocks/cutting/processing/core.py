@@ -1,9 +1,14 @@
+from __future__ import annotations   
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from blocksnet.blocks.classification import BlocksClassifier
+
 import geopandas as gpd
 from loguru import logger
 from blocksnet.utils.validation import ensure_crs
 from .schemas import validate_and_preprocess_gdfs
 from .cut import cut_blocks
-from blocksnet.blocks.classification import BlocksClassifier
 
 
 def cut_urban_blocks(
